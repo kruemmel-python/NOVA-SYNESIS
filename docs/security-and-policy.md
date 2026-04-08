@@ -14,6 +14,7 @@ NOVA-SYNESIS sichert nicht nur Code, sondern die Absicht eines Graphen. Diese Au
 
 - Graph-Struktur: keine Zyklen, keine Selbstkanten, keine unbekannten Nodes
 - Retry-Budget und maximale Graphgroesse
+- Handler-Trust: unbekannte, untrusted oder abgelaufene Handler-Zustaende
 - Expressions und Templates: nur erlaubte Symbole und AST-Knoten
 - HTTP-Egress: nur erlaubte Hosts oder Loopback
 - Messaging: nur erlaubte Protokolle und kein Endpoint-Override im Payload
@@ -22,15 +23,39 @@ NOVA-SYNESIS sichert nicht nur Code, sondern die Absicht eines Graphen. Diese Au
 - Planner-visible Memories: kein untrusted Ingest ohne explizites Opt-in
 - Agent-Registrierung: keine unerlaubten REST/WebSocket-Endpunkte und keine blockierten Capability-Profile
 
+## Digitale Handler-Zertifikate
+
+- `HandlerTrustAuthority` signiert interne Handler-Zertifikate mit HMAC ueber einen kanonischen Payload.
+- Der Fingerprint wird aus Handlername, Modul, Qualname und Quellcode abgeleitet.
+- Built-in-Handler koennen automatisch signiert werden.
+- Custom Handler bleiben ohne Zertifikat sichtbar, aber sie gelten als untrusted.
+- `GET /handlers` ist die Betriebsansicht fuer `trusted`, `trust_reason`, `fingerprint` und `certificate`.
+
+## Manuelle Freigabe
+
+- Ein Node kann `requires_manual_approval = true` tragen.
+- Die Freigabe liegt in `manual_approval`.
+- Im Create- und Validate-Pfad wird das als Warnung behandelt.
+- Im Run-Pfad blockiert die Policy den Start, solange keine gueltige Freigabe mit `approved_by` vorliegt.
+- Wenn `NS_SECURITY_ALLOW_MANUAL_APPROVAL_FOR_UNTRUSTED_HANDLERS=true` aktiv ist, kann eine explizite Node-Freigabe einen untrusted Handler fuer genau diesen Flow-Node erlauben.
+
 ## Bedeutende Felder
 
 - `sensitive = true`
 - `planner_visible = false`
 - `allow_untrusted_ingest = true`
+- `requires_manual_approval = true`
+- `manual_approval.approved = true`
 
 ## Wichtige Settings
 
+- `NS_HANDLER_CERTIFICATE_SECRET`
+- `NS_HANDLER_CERTIFICATE_ISSUER`
+- `NS_HANDLER_CERTIFICATE_TTL_HOURS`
 - `NS_SECURITY_ENABLED`
+- `NS_SECURITY_AUTO_ISSUE_BUILTIN_HANDLER_CERTIFICATES`
+- `NS_SECURITY_REQUIRE_TRUSTED_HANDLERS`
+- `NS_SECURITY_ALLOW_MANUAL_APPROVAL_FOR_UNTRUSTED_HANDLERS`
 - `NS_SECURITY_MAX_NODES`
 - `NS_SECURITY_MAX_EDGES`
 - `NS_SECURITY_MAX_TOTAL_ATTEMPTS`

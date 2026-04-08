@@ -54,7 +54,30 @@ Diese Seite beschreibt die realen Stoerungsbilder des Systems. Ziel ist nicht nu
 3. pruefen, ob das Problem fachlich oder rein policy-seitig ist
 4. bei legitimen Produktionsfaellen erst Settings oder Memory-/Resource-Metadaten anpassen, nicht die Regel blind entfernen
 
-## 3. WebSocket bricht waehrend der Execution ab
+## 3. Handler ist untrusted, Zertifikat abgelaufen oder Freigabe fehlt
+
+### Woran du es erkennst
+
+- `POST /flows/{flow_id}/run` liefert einen Policy-Fehler
+- `POST /flows/validate` meldet Warnungen zu `requires_manual_approval` oder einem untrusted Handler
+- `GET /handlers` zeigt `trusted = false` oder ein abgelaufenes Zertifikat
+
+### Typische Ursachen
+
+- Custom Handler wurde ohne Zertifikat registriert
+- Handler-Code hat sich geaendert und der Fingerprint passt nicht mehr
+- Zertifikat ist abgelaufen
+- `requires_manual_approval = true`, aber der Node wurde nicht freigegeben
+- `manual_approval.approved = true`, aber `approved_by` fehlt
+
+### Sofortmassnahmen
+
+1. `GET /handlers` lesen und `trust_reason`, Fingerprint und Ablaufdatum pruefen
+2. bei gespeichertem Flow den Node ueber `POST /flows/{flow_id}/nodes/{node_id}/approval` freigeben oder im Inspector freigeben
+3. bei echten Custom Handlern ein neues Zertifikat ausstellen statt die Policy zu lockern
+4. nur wenn fachlich gewollt `NS_SECURITY_ALLOW_MANUAL_APPROVAL_FOR_UNTRUSTED_HANDLERS` verwenden
+
+## 4. WebSocket bricht waehrend der Execution ab
 
 ### Woran du es erkennst
 
@@ -73,7 +96,7 @@ Diese Seite beschreibt die realen Stoerungsbilder des Systems. Ziel ist nicht nu
 3. unterscheiden: ist nur `/ws/flows/{flow_id}` defekt oder auch REST?
 4. wenn REST geht, die Ausfuehrung nicht abbrechen, sondern Snapshot weiter per Polling beobachten
 
-## 4. Resource haengt oder laeuft in Timeout / Sattlauf
+## 5. Resource haengt oder laeuft in Timeout / Sattlauf
 
 ### Woran du es erkennst
 
@@ -93,7 +116,7 @@ Diese Seite beschreibt die realen Stoerungsbilder des Systems. Ziel ist nicht nu
 4. bei HTTP-Aufrufen explizit `timeout_s` setzen
 5. wenn moeglich auf `required_resource_types` plus `FALLBACK_RESOURCE` umstellen
 
-## 5. Flow bleibt auf `RUNNING` stehen
+## 6. Flow bleibt auf `RUNNING` stehen
 
 ### Woran du es erkennst
 
@@ -116,7 +139,7 @@ Diese Seite beschreibt die realen Stoerungsbilder des Systems. Ziel ist nicht nu
 4. bei `http_request` ein sinnvolles `timeout_s` setzen
 5. pruefen, ob Ressource oder Kommunikationsziel erreichbar sind
 
-## 6. Graph-Deadlock oder logisch blockierter Flow
+## 7. Graph-Deadlock oder logisch blockierter Flow
 
 Wichtig: Wenn keine Node mehr startbar ist und trotzdem noch `pending` existiert, setzt `FlowExecutor.run_flow()` den Flow auf `FAILED` und schreibt `deadlock_nodes` in die Metadaten.
 
@@ -133,7 +156,7 @@ Wichtig: Wenn keine Node mehr startbar ist und trotzdem noch `pending` existiert
    - `failed`
 4. pruefen, ob mindestens ein Node ohne eingehende Kante existiert
 
-## 7. Handler wirft Exception
+## 8. Handler wirft Exception
 
 ### Woran du es erkennst
 

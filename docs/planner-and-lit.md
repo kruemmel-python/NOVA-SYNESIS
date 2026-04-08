@@ -13,5 +13,7 @@ Der Planner erzeugt keine Mock-Graphen. Er nutzt die lokale `lit`-Binary und das
 ## Wichtige Sicherheitsgrenzen
 
 - Ressourcen und Memories mit `sensitive = true` oder `planner_visible = false` werden aus dem Planner-Katalog herausgefiltert.
+- untrusted Handler werden komplett aus dem Planner-Katalog entfernt.
 - Die Antwort enthaelt `security_report`, damit UI und Betreiber sehen, ob der generierte Graph policy-konform war.
 - Planner-Warnungen bedeuten: der Graph wurde normalisiert, aber nicht stillschweigend erweitert.
+- `requires_manual_approval` wird standardmaessig auf `false` normalisiert und nur uebernommen, wenn es explizit im Graphen gesetzt ist.

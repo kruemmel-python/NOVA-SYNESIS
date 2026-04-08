@@ -1,7 +1,7 @@
 # Abdeckung
 
-- Dokumentierte Projektdateien: `80`
-- Referenzdateien: `81`
+- Dokumentierte Projektdateien: `81`
+- Referenzdateien: `82`
 
 ## Ausgeschlossene Bereiche
 
@@ -85,6 +85,7 @@
 - `src/nova_synesis/runtime/handlers.py`
 - `src/nova_synesis/security/__init__.py`
 - `src/nova_synesis/security/policy.py`
+- `src/nova_synesis/security/trust.py`
 - `src/nova_synesis/services/__init__.py`
 - `src/nova_synesis/services/orchestrator.py`
 - `tests/test_orchestrator.py`

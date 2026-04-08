@@ -138,6 +138,7 @@ def test_fallback_resource_strategy_switches_to_secondary_resource(tmp_path: Pat
                 return {"resource_endpoint": endpoint}
 
             orchestrator.register_handler("unstable_model", unstable_model_handler)
+            orchestrator.issue_handler_certificate("unstable_model")
 
             flow = orchestrator.create_flow(
                 nodes=[
@@ -213,6 +214,68 @@ def test_fastapi_flow_execution_endpoint(tmp_path: Path) -> None:
         executions_response = client.get("/executions")
         assert executions_response.status_code == 200
         assert len(executions_response.json()) == 1
+
+
+def test_handlers_endpoint_exposes_trust_metadata(tmp_path: Path) -> None:
+    orchestrator = create_orchestrator(build_settings(tmp_path))
+    app = create_app(orchestrator=orchestrator)
+
+    with TestClient(app) as client:
+        response = client.get("/handlers")
+        assert response.status_code == 200
+        body = response.json()
+        assert "details" in body
+        template_handler = next(
+            item for item in body["details"] if item["name"] == "template_render"
+        )
+        assert template_handler["trusted"] is True
+        assert template_handler["certificate"]["issuer"]
+
+
+def test_manual_approval_endpoint_enables_execution(tmp_path: Path) -> None:
+    orchestrator = create_orchestrator(build_settings(tmp_path))
+
+    async def reviewed_handler(_: dict) -> dict:
+        return {"ok": True}
+
+    orchestrator.register_handler("reviewed_handler", reviewed_handler)
+    orchestrator.issue_handler_certificate("reviewed_handler")
+
+    app = create_app(orchestrator=orchestrator)
+
+    with TestClient(app) as client:
+        flow_response = client.post(
+            "/flows",
+            json={
+                "nodes": [
+                    {
+                        "node_id": "review",
+                        "handler_name": "reviewed_handler",
+                        "input": {},
+                        "requires_manual_approval": True,
+                    }
+                ]
+            },
+        )
+        assert flow_response.status_code == 200
+        flow_id = flow_response.json()["flow_id"]
+
+        blocked_run = client.post(f"/flows/{flow_id}/run")
+        assert blocked_run.status_code == 400
+        assert "manual approval" in blocked_run.json()["detail"].lower()
+
+        approve_response = client.post(
+            f"/flows/{flow_id}/nodes/review/approval",
+            json={"approved_by": "qa-operator", "reason": "Release checklist completed"},
+        )
+        assert approve_response.status_code == 200
+        approval = approve_response.json()["nodes"]["review"]["manual_approval"]
+        assert approval["approved"] is True
+        assert approval["approved_by"] == "qa-operator"
+
+        approved_run = client.post(f"/flows/{flow_id}/run")
+        assert approved_run.status_code == 200
+        assert approved_run.json()["state"] == "COMPLETED"
 
 
 def test_websocket_flow_updates_stream_runtime_events(tmp_path: Path) -> None:
@@ -467,6 +530,39 @@ def test_semantic_firewall_blocks_template_context_escape(tmp_path: Path) -> Non
                     }
                 ]
             )
+    finally:
+        asyncio.run(orchestrator.shutdown())
+
+
+def test_untrusted_handler_requires_manual_approval_override(tmp_path: Path) -> None:
+    orchestrator = create_orchestrator(build_settings(tmp_path))
+
+    async def custom_handler(_: dict) -> dict:
+        return {"ok": True}
+
+    try:
+        orchestrator.register_handler("custom_handler", custom_handler)
+        flow = orchestrator.create_flow(
+            nodes=[
+                {
+                    "node_id": "custom-step",
+                    "handler_name": "custom_handler",
+                    "input": {},
+                }
+            ]
+        )
+
+        with pytest.raises(ValueError, match="untrusted handler"):
+            asyncio.run(orchestrator.run_flow(int(flow["flow_id"])))
+
+        orchestrator.approve_flow_node(
+            flow_id=int(flow["flow_id"]),
+            node_id="custom-step",
+            approved_by="security-review",
+            reason="Temporary override for audited custom handler",
+        )
+        snapshot = asyncio.run(orchestrator.run_flow(int(flow["flow_id"])))
+        assert snapshot["state"] == "COMPLETED"
     finally:
         asyncio.run(orchestrator.shutdown())
 

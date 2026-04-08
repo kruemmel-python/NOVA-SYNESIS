@@ -40,7 +40,9 @@ Methoden:
 
 - `__init__(self, settings)`: Konstruktor, der Abhaengigkeiten und Ausgangszustand vorbereitet.
 - `validate_agent_registration(self, name, capabilities, communication, existing_agents)`: Prueft Agent-Registrierung auf riskante Capabilities und unerlaubte Endpunkte.
-- `validate_flow_request(self, nodes, edges, metadata, agents, resources, memory_systems, planner_generated, phase)`: Prueft Graph-Struktur, Expressions, Egress und Memory-Fluesse vor der Ausfuehrung.
+- `validate_flow_request(self, nodes, edges, metadata, handlers, agents, resources, memory_systems, planner_generated, phase)`: Prueft Graph-Struktur, Expressions, Egress und Memory-Fluesse vor der Ausfuehrung.
+- `_validate_handler_definition(self, node_id, handler_name, handler_index, node, phase, report)`: Funktion oder Definition `_validate_handler_definition` dieses Moduls.
+- `_report_pending_manual_approval(node_id, phase, report)`: Funktion oder Definition `_report_pending_manual_approval` dieses Moduls.
 - `_collect_edges(self, node_index, edges, report)`: Funktion oder Definition `_collect_edges` dieses Moduls.
 - `_validate_acyclic(self, node_index, edges, report)`: Funktion oder Definition `_validate_acyclic` dieses Moduls.
 - `_validate_http_request(self, node_id, node, input_payload, resource_index, report)`: Funktion oder Definition `_validate_http_request` dieses Moduls.

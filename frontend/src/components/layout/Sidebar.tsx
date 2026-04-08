@@ -12,7 +12,7 @@ export function Sidebar() {
   const filteredHandlers = useMemo(
     () =>
       handlers.filter((handler) =>
-        handler.toLowerCase().includes(query.trim().toLowerCase()),
+        handler.name.toLowerCase().includes(query.trim().toLowerCase()),
       ),
     [handlers, query],
   );
@@ -44,17 +44,19 @@ export function Sidebar() {
         <div className="sidebar__stack">
           {filteredHandlers.map((handler) => (
             <button
-              key={handler}
+              key={handler.name}
               type="button"
               draggable
               className="palette-item"
               onDragStart={(event) => {
-                event.dataTransfer.setData("application/ao-handler", handler);
+                event.dataTransfer.setData("application/ao-handler", handler.name);
                 event.dataTransfer.effectAllowed = "move";
               }}
             >
-              <span className="palette-item__title">{handler}</span>
-              <span className="palette-item__hint">Drag onto canvas</span>
+              <span className="palette-item__title">{handler.name}</span>
+              <span className="palette-item__hint">
+                {handler.trusted ? "Trusted certificate" : "Manual approval required"}
+              </span>
             </button>
           ))}
         </div>

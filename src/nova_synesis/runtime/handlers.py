@@ -8,16 +8,59 @@ from typing import Any, Awaitable, Callable
 
 import httpx
 
+from nova_synesis.config import Settings
 from nova_synesis.domain.models import ResourceType
+from nova_synesis.security import HandlerCertificate, HandlerTrustAuthority, HandlerTrustRecord
 
 HandlerCallable = Callable[[dict[str, Any]], Any | Awaitable[Any]]
 
 
 class TaskHandlerRegistry:
-    def __init__(self) -> None:
+    def __init__(self, settings: Settings | None = None) -> None:
+        self._settings = settings or Settings()
+        self._trust_authority = HandlerTrustAuthority(self._settings)
         self._handlers: dict[str, HandlerCallable] = {}
+        self._handler_records: dict[str, HandlerTrustRecord] = {}
 
-    def register(self, name: str, handler: HandlerCallable) -> HandlerCallable:
+    def register(
+        self,
+        name: str,
+        handler: HandlerCallable,
+        *,
+        certificate: HandlerCertificate | dict[str, Any] | None = None,
+        built_in: bool = False,
+    ) -> HandlerCallable:
+        trusted = False
+        trust_reason = "Handler has no digital trust certificate"
+        validated_certificate: HandlerCertificate | None = None
+
+        if certificate is not None:
+            trusted, trust_reason, validated_certificate = self._trust_authority.validate_certificate(
+                name=name,
+                handler=handler,
+                raw_certificate=certificate,
+            )
+        elif built_in and self._settings.security_auto_issue_builtin_handler_certificates:
+            validated_certificate = self._trust_authority.issue_certificate(
+                name=name,
+                handler=handler,
+                built_in=True,
+            )
+            trusted = True
+            trust_reason = f"Built-in handler certificate issued by {validated_certificate.issuer}"
+
+        module_name = getattr(handler, "__module__", "__unknown__")
+        qualname = getattr(handler, "__qualname__", getattr(handler, "__name__", name))
+        self._handler_records[name] = HandlerTrustRecord(
+            name=name,
+            module_name=module_name,
+            qualname=qualname,
+            fingerprint=self._trust_authority.fingerprint_handler(name, handler),
+            trusted=trusted,
+            built_in=built_in,
+            trust_reason=trust_reason,
+            certificate=validated_certificate,
+        )
         self._handlers[name] = handler
         return handler
 
@@ -26,8 +69,40 @@ class TaskHandlerRegistry:
             raise KeyError(f"Unknown task handler '{name}'")
         return self._handlers[name]
 
-    def names(self) -> list[str]:
-        return sorted(self._handlers.keys())
+    def get_record(self, name: str) -> HandlerTrustRecord:
+        if name not in self._handler_records:
+            raise KeyError(f"Unknown task handler '{name}'")
+        return self._handler_records[name]
+
+    def names(self, trusted_only: bool = False) -> list[str]:
+        if not trusted_only:
+            return sorted(self._handlers.keys())
+        return sorted(
+            record.name for record in self._handler_records.values() if record.trusted
+        )
+
+    def describe(self) -> list[dict[str, Any]]:
+        return [record.as_dict() for record in sorted(self._handler_records.values(), key=lambda item: item.name)]
+
+    def issue_certificate(self, name: str, *, expires_in_hours: int | None = None) -> dict[str, Any]:
+        handler = self.get(name)
+        certificate = self._trust_authority.issue_certificate(
+            name=name,
+            handler=handler,
+            built_in=self.get_record(name).built_in,
+            expires_in_hours=expires_in_hours,
+        )
+        self._handler_records[name] = HandlerTrustRecord(
+            name=name,
+            module_name=getattr(handler, "__module__", "__unknown__"),
+            qualname=getattr(handler, "__qualname__", getattr(handler, "__name__", name)),
+            fingerprint=self._trust_authority.fingerprint_handler(name, handler),
+            trusted=True,
+            built_in=self.get_record(name).built_in,
+            trust_reason=f"Valid handler certificate issued by {certificate.issuer}",
+            certificate=certificate,
+        )
+        return certificate.as_dict()
 
     async def execute(self, name: str, context: dict[str, Any]) -> Any:
         handler = self.get(name)
@@ -220,14 +295,14 @@ def json_serialize_handler(context: dict[str, Any]) -> dict[str, Any]:
 
 
 def register_default_handlers(registry: TaskHandlerRegistry) -> None:
-    registry.register("http_request", http_request_handler)
-    registry.register("memory_store", memory_store_handler)
-    registry.register("memory_retrieve", memory_retrieve_handler)
-    registry.register("memory_search", memory_search_handler)
-    registry.register("send_message", send_message_handler)
-    registry.register("resource_health_check", resource_health_check_handler)
-    registry.register("template_render", template_render_handler)
-    registry.register("merge_payloads", merge_payloads_handler)
-    registry.register("read_file", read_file_handler)
-    registry.register("write_file", write_file_handler)
-    registry.register("json_serialize", json_serialize_handler)
+    registry.register("http_request", http_request_handler, built_in=True)
+    registry.register("memory_store", memory_store_handler, built_in=True)
+    registry.register("memory_retrieve", memory_retrieve_handler, built_in=True)
+    registry.register("memory_search", memory_search_handler, built_in=True)
+    registry.register("send_message", send_message_handler, built_in=True)
+    registry.register("resource_health_check", resource_health_check_handler, built_in=True)
+    registry.register("template_render", template_render_handler, built_in=True)
+    registry.register("merge_payloads", merge_payloads_handler, built_in=True)
+    registry.register("read_file", read_file_handler, built_in=True)
+    registry.register("write_file", write_file_handler, built_in=True)
+    registry.register("json_serialize", json_serialize_handler, built_in=True)

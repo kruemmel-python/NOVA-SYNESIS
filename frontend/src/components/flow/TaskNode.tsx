@@ -12,7 +12,11 @@ const statusClassMap: Record<string, string> = {
 
 export function TaskNode({ id, data, selected }: NodeProps<TaskFlowNode>) {
   const setSelectedNode = useFlowStore((state) => state.setSelectedNode);
+  const handler = useFlowStore((state) =>
+    state.handlers.find((entry) => entry.name === data.handler_name) ?? null,
+  );
   const statusClass = statusClassMap[data.task_status] ?? "pending";
+  const approvalPending = data.requires_manual_approval && !data.manual_approval.approved;
 
   return (
     <div className={`task-node task-node--${statusClass} ${selected ? "task-node--selected" : ""}`}>
@@ -37,6 +41,8 @@ export function TaskNode({ id, data, selected }: NodeProps<TaskFlowNode>) {
         <span className={`task-node__status task-node__status--${statusClass}`}>
           {data.task_status}
         </span>
+        <span>{handler?.trusted ? "Trusted" : "Untrusted"}</span>
+        <span>{approvalPending ? "Approval pending" : data.manual_approval.approved ? "Approved" : "No approval"}</span>
         <span>{data.required_capabilities.length} caps</span>
         <span>{data.required_resource_types.length} resource types</span>
       </div>

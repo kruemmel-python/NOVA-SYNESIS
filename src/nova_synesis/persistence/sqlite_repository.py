@@ -280,7 +280,14 @@ class SQLiteRepository:
                     task.handler_name,
                     json.dumps(task.validator_rules),
                     json.dumps(task.context, default=str),
-                    json.dumps(task.metadata, default=str),
+                    json.dumps(
+                        {
+                            **task.metadata,
+                            "requires_manual_approval": task.requires_manual_approval,
+                            "manual_approval": task.manual_approval.as_dict(),
+                        },
+                        default=str,
+                    ),
                     task.rollback_strategy.value,
                     task.compensation_handler,
                 ),
@@ -328,8 +335,9 @@ class SQLiteRepository:
                                 },
                                 "rollback_strategy": node.task.rollback_strategy.value,
                                 "validator_rules": node.task.validator_rules,
-                                "task_metadata": node.task.metadata,
-                                "flow_node_metadata": node.metadata,
+                                "metadata": node.task.metadata,
+                                "requires_manual_approval": node.task.requires_manual_approval,
+                                "manual_approval": node.task.manual_approval.as_dict(),
                                 "compensation_handler": node.task.compensation_handler,
                             }
                             for node_id, node in flow.nodes.items()

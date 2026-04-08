@@ -19,10 +19,13 @@ Registry der registrierten Runtime-Handler.
 
 Methoden:
 
-- `__init__(self)`: Konstruktor, der Abhaengigkeiten und Ausgangszustand vorbereitet.
-- `register(self, name, handler)`: Registriert Verhalten oder Objekte fuer `register`.
+- `__init__(self, settings)`: Konstruktor, der Abhaengigkeiten und Ausgangszustand vorbereitet.
+- `register(self, name, handler, *, certificate, built_in)`: Registriert Verhalten oder Objekte fuer `register`.
 - `get(self, name)`: Funktion oder Definition `get` dieses Moduls.
-- `names(self)`: Funktion oder Definition `names` dieses Moduls.
+- `get_record(self, name)`: Liest Daten fuer `get_record` aus einem Speicher oder einer Laufzeitquelle.
+- `names(self, trusted_only)`: Funktion oder Definition `names` dieses Moduls.
+- `describe(self)`: Funktion oder Definition `describe` dieses Moduls.
+- `issue_certificate(self, name, *, expires_in_hours)`: Erzeugt ein digitales Zertifikat fuer einen bereits registrierten Handler.
 - `execute(self, name, context)`: Fuehrt die Kernarbeit von `execute` aus.
 
 ## Funktionen
@@ -51,7 +54,9 @@ Methoden:
 - `from pathlib import Path`
 - `from typing import Any, Awaitable, Callable`
 - `import httpx`
+- `from nova_synesis.config import Settings`
 - `from nova_synesis.domain.models import ResourceType`
+- `from nova_synesis.security import HandlerCertificate, HandlerTrustAuthority, HandlerTrustRecord`
 
 ## Aenderungshinweise
 

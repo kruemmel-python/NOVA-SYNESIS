@@ -1,5 +1,6 @@
 import { JsonEditor } from "../common/JsonEditor";
 import { StatusBadge } from "../common/StatusBadge";
+import { approveFlowNode, revokeFlowNodeApproval } from "../../lib/apiClient";
 import { useFlowStore } from "../../store/useFlowStore";
 import type { ResourceType, RollbackStrategy, TaskFlowNode } from "../../types/api";
 
@@ -16,15 +17,83 @@ export function InspectorPanel() {
   const handlers = useFlowStore((state) => state.handlers);
   const agents = useFlowStore((state) => state.agents);
   const resources = useFlowStore((state) => state.resources);
+  const flowId = useFlowStore((state) => state.flowId);
+  const dirty = useFlowStore((state) => state.dirty);
   const nodes = useFlowStore((state) => state.nodes);
   const edges = useFlowStore((state) => state.edges);
   const selectedNodeId = useFlowStore((state) => state.selectedNodeId);
   const selectedEdgeId = useFlowStore((state) => state.selectedEdgeId);
   const updateNodeData = useFlowStore((state) => state.updateNodeData);
   const updateEdgeCondition = useFlowStore((state) => state.updateEdgeCondition);
+  const applyFlowSnapshot = useFlowStore((state) => state.applyFlowSnapshot);
+  const setExecutionError = useFlowStore((state) => state.setExecutionError);
 
   const selectedNode = nodes.find((node) => node.id === selectedNodeId) ?? null;
   const selectedEdge = edges.find((edge) => edge.id === selectedEdgeId) ?? null;
+  const selectedHandler =
+    selectedNode ? handlers.find((handler) => handler.name === selectedNode.data.handler_name) ?? null : null;
+
+  const handleApproveNode = async () => {
+    if (!selectedNode) {
+      return;
+    }
+    const approvedBy = selectedNode.data.manual_approval.approved_by?.trim() || "Inspector Approval";
+    const reason = selectedNode.data.manual_approval.reason?.trim() || null;
+    if (flowId && !dirty) {
+      try {
+        const snapshot = await approveFlowNode(flowId, selectedNode.id, {
+          approved_by: approvedBy,
+          reason,
+        });
+        applyFlowSnapshot(snapshot, "node.approval.updated");
+        setExecutionError(null);
+      } catch (error) {
+        setExecutionError(error instanceof Error ? error.message : "Approval failed");
+      }
+      return;
+    }
+    patchNode(selectedNode, updateNodeData, {
+      manual_approval: {
+        ...selectedNode.data.manual_approval,
+        approved: true,
+        approved_by: approvedBy,
+        approved_at: new Date().toISOString(),
+        revoked_by: null,
+        revoked_at: null,
+        reason,
+      },
+    });
+  };
+
+  const handleRevokeNodeApproval = async () => {
+    if (!selectedNode) {
+      return;
+    }
+    const revokedBy = selectedNode.data.manual_approval.approved_by?.trim() || "Inspector Approval";
+    const reason = selectedNode.data.manual_approval.reason?.trim() || null;
+    if (flowId && !dirty) {
+      try {
+        const snapshot = await revokeFlowNodeApproval(flowId, selectedNode.id, {
+          revoked_by: revokedBy,
+          reason,
+        });
+        applyFlowSnapshot(snapshot, "node.approval.revoked");
+        setExecutionError(null);
+      } catch (error) {
+        setExecutionError(error instanceof Error ? error.message : "Approval revoke failed");
+      }
+      return;
+    }
+    patchNode(selectedNode, updateNodeData, {
+      manual_approval: {
+        ...selectedNode.data.manual_approval,
+        approved: false,
+        revoked_by: revokedBy,
+        revoked_at: new Date().toISOString(),
+        reason,
+      },
+    });
+  };
 
   if (selectedNode) {
     return (
@@ -58,12 +127,30 @@ export function InspectorPanel() {
             }
           >
             {handlers.map((handler) => (
-              <option key={handler} value={handler}>
-                {handler}
+              <option key={handler.name} value={handler.name}>
+                {handler.name}
               </option>
             ))}
           </select>
         </label>
+
+        <section className="inspector__trust-card">
+          <div className="sidebar__section-header">
+            <h3>Handler trust</h3>
+            <StatusBadge
+              label={selectedHandler?.trusted ? "Trusted" : "Untrusted"}
+              tone={selectedHandler?.trusted ? "success" : "failed"}
+            />
+          </div>
+          <p>{selectedHandler?.trust_reason ?? "No trust information available for this handler."}</p>
+          {selectedHandler?.certificate ? (
+            <div className="inspector__trust-meta">
+              <span>Issuer: {selectedHandler.certificate.issuer}</span>
+              <span>Fingerprint: {selectedHandler.fingerprint.slice(0, 18)}...</span>
+              <span>Expires: {selectedHandler.certificate.expires_at}</span>
+            </div>
+          ) : null}
+        </section>
 
         <JsonEditor
           label="Input"
@@ -267,6 +354,69 @@ export function InspectorPanel() {
           }
           minHeight={140}
         />
+
+        <fieldset className="fieldset">
+          <legend>Manual approval</legend>
+          <label className="checkbox-inline">
+            <input
+              type="checkbox"
+              checked={selectedNode.data.requires_manual_approval}
+              onChange={(event) =>
+                patchNode(selectedNode, updateNodeData, {
+                  requires_manual_approval: event.target.checked,
+                })
+              }
+            />
+            <span>Require manual approval before execution</span>
+          </label>
+
+          <NodeField
+            label="Approved by"
+            value={selectedNode.data.manual_approval.approved_by ?? ""}
+            placeholder="Operator name"
+            onChange={(value) =>
+              patchNode(selectedNode, updateNodeData, {
+                manual_approval: {
+                  ...selectedNode.data.manual_approval,
+                  approved_by: value || null,
+                },
+              })
+            }
+          />
+
+          <NodeField
+            label="Approval reason"
+            value={selectedNode.data.manual_approval.reason ?? ""}
+            placeholder="Why this node is allowed to execute"
+            onChange={(value) =>
+              patchNode(selectedNode, updateNodeData, {
+                manual_approval: {
+                  ...selectedNode.data.manual_approval,
+                  reason: value || null,
+                },
+              })
+            }
+          />
+
+          <div className="inspector__approval-status">
+            <StatusBadge
+              label={selectedNode.data.manual_approval.approved ? "Approved" : "Pending"}
+              tone={selectedNode.data.manual_approval.approved ? "success" : "paused"}
+            />
+            {selectedNode.data.manual_approval.approved_at ? (
+              <span>Approved at: {selectedNode.data.manual_approval.approved_at}</span>
+            ) : null}
+          </div>
+
+          <div className="inspector__approval-actions">
+            <button type="button" className="primary-button" onClick={() => void handleApproveNode()}>
+              Approve Node
+            </button>
+            <button type="button" className="ghost-button" onClick={() => void handleRevokeNodeApproval()}>
+              Revoke Approval
+            </button>
+          </div>
+        </fieldset>
 
         <section className="inspector__output">
           <div className="sidebar__section-header">

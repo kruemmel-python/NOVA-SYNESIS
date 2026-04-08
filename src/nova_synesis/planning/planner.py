@@ -10,6 +10,7 @@ from nova_synesis.domain.models import (
     FlowEdge,
     FlowNode,
     Intent,
+    ManualApproval,
     Resource,
     ResourceType,
     RetryPolicy,
@@ -30,6 +31,8 @@ class TaskBlueprint:
     rollback_strategy: RollbackStrategy = RollbackStrategy.FAIL_FAST
     validator_rules: dict[str, Any] = field(default_factory=dict)
     metadata: dict[str, Any] = field(default_factory=dict)
+    requires_manual_approval: bool = False
+    manual_approval: dict[str, Any] = field(default_factory=dict)
     compensation_handler: str | None = None
     dependencies: list[str] = field(default_factory=list)
     conditions: dict[str, str] = field(default_factory=dict)
@@ -75,6 +78,8 @@ class IntentPlanner:
                 validator_rules=blueprint.validator_rules,
                 context={"required_capabilities": blueprint.required_capabilities},
                 metadata=blueprint.metadata,
+                requires_manual_approval=blueprint.requires_manual_approval,
+                manual_approval=ManualApproval.from_dict(blueprint.manual_approval),
                 rollback_strategy=blueprint.rollback_strategy,
                 compensation_handler=blueprint.compensation_handler,
             )
@@ -145,6 +150,8 @@ class IntentPlanner:
             validator_rules=blueprint.validator_rules,
             context={"required_capabilities": required_capabilities},
             metadata=blueprint.metadata,
+            requires_manual_approval=blueprint.requires_manual_approval,
+            manual_approval=ManualApproval.from_dict(blueprint.manual_approval),
             rollback_strategy=blueprint.rollback_strategy,
             compensation_handler=blueprint.compensation_handler,
         )
@@ -174,6 +181,8 @@ class IntentPlanner:
                 ),
                 validator_rules=dict(constraints.get("validator_rules", {})),
                 metadata=dict(constraints.get("metadata", {})),
+                requires_manual_approval=bool(constraints.get("requires_manual_approval", False)),
+                manual_approval=dict(constraints.get("manual_approval", {})),
                 compensation_handler=constraints.get("compensation_handler"),
             )
             return [blueprint], [], dict(flow_container.get("flow_metadata", {}))
@@ -197,6 +206,8 @@ class IntentPlanner:
                     ),
                     validator_rules=dict(raw_task.get("validator_rules", {})),
                     metadata=dict(raw_task.get("metadata", {})),
+                    requires_manual_approval=bool(raw_task.get("requires_manual_approval", False)),
+                    manual_approval=dict(raw_task.get("manual_approval", {})),
                     compensation_handler=raw_task.get("compensation_handler"),
                     dependencies=list(raw_task.get("dependencies", [])),
                     conditions=dict(raw_task.get("conditions", {})),

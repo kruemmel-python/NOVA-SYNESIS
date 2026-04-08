@@ -10,6 +10,7 @@ import { create } from "zustand";
 
 import { autoLayoutNodes } from "../lib/autoLayout";
 import {
+  DEFAULT_MANUAL_APPROVAL,
   DEFAULT_RETRY_POLICY,
   createTaskEdge,
   createTaskNode,
@@ -19,6 +20,7 @@ import type {
   AgentSummary,
   EditorExport,
   FlowSnapshot,
+  HandlerSummary,
   ResourceSummary,
   RollbackStrategy,
   TaskFlowEdge,
@@ -44,7 +46,7 @@ interface ExecutionState {
 interface FlowStore {
   nodes: TaskFlowNode[];
   edges: TaskFlowEdge[];
-  handlers: string[];
+  handlers: HandlerSummary[];
   agents: AgentSummary[];
   resources: ResourceSummary[];
   flowId: number | null;
@@ -55,7 +57,7 @@ interface FlowStore {
   history: GraphSnapshot[];
   future: GraphSnapshot[];
   setCatalogData: (payload: {
-    handlers: string[];
+    handlers: HandlerSummary[];
     agents: AgentSummary[];
     resources: ResourceSummary[];
   }) => void;
@@ -123,6 +125,8 @@ function mergeSnapshotIntoNode(node: TaskFlowNode, snapshot: FlowSnapshot): Task
       rollback_strategy: info.rollback_strategy as RollbackStrategy,
       validator_rules: info.validator_rules,
       metadata: info.metadata ?? {},
+      requires_manual_approval: info.requires_manual_approval ?? false,
+      manual_approval: info.manual_approval ?? { ...DEFAULT_MANUAL_APPROVAL },
       compensation_handler: info.compensation_handler,
       preferred_agent_id: info.assigned_agent_id,
       task_status: info.task_status,

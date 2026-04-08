@@ -65,8 +65,27 @@ class OrchestratorService:
         self.task_executor = TaskExecutor(execution_context)
         self.flow_executor = FlowExecutor(execution_context, self.task_executor)
 
-    def register_handler(self, name: str, handler: Callable[[dict[str, Any]], Any]) -> None:
-        self.handler_registry.register(name, handler)
+    def register_handler(
+        self,
+        name: str,
+        handler: Callable[[dict[str, Any]], Any],
+        *,
+        certificate: dict[str, Any] | None = None,
+    ) -> None:
+        self.handler_registry.register(name, handler, certificate=certificate)
+
+    def list_handlers(self) -> list[dict[str, Any]]:
+        return self.handler_registry.describe()
+
+    def issue_handler_certificate(
+        self,
+        handler_name: str,
+        expires_in_hours: int | None = None,
+    ) -> dict[str, Any]:
+        return self.handler_registry.issue_certificate(
+            handler_name,
+            expires_in_hours=expires_in_hours,
+        )
 
     def register_memory_system(
         self,
@@ -223,6 +242,7 @@ class OrchestratorService:
             nodes=self._snapshot_nodes_to_specs(flow_snapshot),
             edges=flow_snapshot.get("edges", []),
             metadata=flow_snapshot.get("metadata", {}),
+            phase="run",
         ).ensure_allowed()
         snapshot = await self.flow_executor.run_flow(self.flows[flow_id])
         self.repository.save_flow(self.flows[flow_id])
@@ -257,6 +277,46 @@ class OrchestratorService:
 
     def get_llm_planner_status(self) -> dict[str, Any]:
         return self.lit_planner.status()
+
+    def approve_flow_node(
+        self,
+        flow_id: int,
+        node_id: str,
+        approved_by: str,
+        reason: str | None = None,
+    ) -> dict[str, Any]:
+        flow = self.flows.get(flow_id)
+        if flow is None:
+            raise KeyError(f"Unknown flow '{flow_id}'")
+        if node_id not in flow.nodes:
+            raise KeyError(f"Unknown node '{node_id}' in flow '{flow_id}'")
+        task = flow.nodes[node_id].task
+        task.manual_approval.approve(approved_by=approved_by, reason=reason)
+        self.repository.save_task(task)
+        self.repository.save_flow(flow)
+        snapshot = self._serialize_flow(flow)
+        self._schedule_publish(flow_id, "node.approval.updated", snapshot)
+        return snapshot
+
+    def revoke_flow_node_approval(
+        self,
+        flow_id: int,
+        node_id: str,
+        revoked_by: str | None = None,
+        reason: str | None = None,
+    ) -> dict[str, Any]:
+        flow = self.flows.get(flow_id)
+        if flow is None:
+            raise KeyError(f"Unknown flow '{flow_id}'")
+        if node_id not in flow.nodes:
+            raise KeyError(f"Unknown node '{node_id}' in flow '{flow_id}'")
+        task = flow.nodes[node_id].task
+        task.manual_approval.revoke(revoked_by=revoked_by, reason=reason)
+        self.repository.save_task(task)
+        self.repository.save_flow(flow)
+        snapshot = self._serialize_flow(flow)
+        self._schedule_publish(flow_id, "node.approval.revoked", snapshot)
+        return snapshot
 
     async def generate_flow_with_llm(
         self,
@@ -345,7 +405,7 @@ class OrchestratorService:
 
     def _build_planner_catalog(self) -> PlannerCatalog:
         return PlannerCatalog(
-            handlers=self.handler_registry.names(),
+            handlers=self.handler_registry.names(trusted_only=True),
             agents=self.list_agents(),
             resources=[
                 resource
@@ -373,6 +433,7 @@ class OrchestratorService:
             nodes=nodes,
             edges=edges or [],
             metadata=metadata or {},
+            handlers=self.list_handlers(),
             agents=self.list_agents(),
             resources=self.list_resources(),
             memory_systems=self.list_memory_systems(),
@@ -396,6 +457,8 @@ class OrchestratorService:
                     "rollback_strategy": node.get("rollback_strategy", "FAIL_FAST"),
                     "validator_rules": node.get("validator_rules", {}),
                     "metadata": node.get("metadata", {}),
+                    "requires_manual_approval": node.get("requires_manual_approval", False),
+                    "manual_approval": node.get("manual_approval", {}),
                     "compensation_handler": node.get("compensation_handler"),
                     "dependencies": [
                         edge["from_node"]
@@ -483,5 +546,5 @@ def create_orchestrator(settings: Settings | None = None) -> OrchestratorService
         planner=IntentPlanner(),
         resource_manager=ResourceManager(),
         memory_manager=MemoryManager(),
-        handler_registry=TaskHandlerRegistry(),
+        handler_registry=TaskHandlerRegistry(resolved_settings),
     )

@@ -21,6 +21,8 @@ Wenn neue Backend-Endpunkte im Frontend angebunden werden.
 - `createFlow`: Funktion oder Definition `createFlow` dieses Moduls.
 - `runFlow`: Steuert den Ablauf von `runFlow`.
 - `fetchFlow`: Funktion oder Definition `fetchFlow` dieses Moduls.
+- `approveFlowNode`: Funktion oder Definition `approveFlowNode` dieses Moduls.
+- `revokeFlowNodeApproval`: Funktion oder Definition `revokeFlowNodeApproval` dieses Moduls.
 - `generateFlowWithPlanner`: Funktion oder Definition `generateFlowWithPlanner` dieses Moduls.
 
 ## Abhaengigkeiten

@@ -121,6 +121,11 @@ FILE_NOTES = {
         'edit': 'Wenn Security-Klassen neu exportiert oder das Security-Paket umstrukturiert werden soll.',
         'related': ['src/nova_synesis/security/policy.py', 'src/nova_synesis/services/orchestrator.py'],
     },
+    'src/nova_synesis/security/trust.py': {
+        'purpose': 'Digitale Handler-Zertifikate, Fingerprints und Trust-Validierung fuer Runtime-Handler.',
+        'edit': 'Wenn Handler-Zertifikate, Fingerprinting oder der Signaturmechanismus angepasst werden muessen.',
+        'related': ['src/nova_synesis/runtime/handlers.py', 'src/nova_synesis/config.py', 'src/nova_synesis/services/orchestrator.py'],
+    },
     'src/nova_synesis/security/policy.py': {
         'purpose': 'Semantische Firewall fuer Flow- und Agent-Validierung vor Planung, Speicherung und Ausfuehrung.',
         'edit': 'Wenn Sicherheitsregeln, Allowlists oder die Graph-Absichtspruefung veraendert werden muessen.',
@@ -207,14 +212,19 @@ SYMBOL_NOTES = {
     'create_orchestrator': 'Factory fuer ein komplett verdrahtetes Orchestrator-System.',
     'ExecutionFlow': 'Graph-Modell des ausfuehrbaren Workflows.',
     'ExecutionFlow.observe': 'Erzeugt den serialisierbaren Zustand eines Flows fuer API und UI.',
+    'ManualApproval': 'Speichert den manuellen Freigabestatus eines Nodes fuer die Ausfuehrung.',
     'TaskExecutor': 'Fuehrt eine einzelne Task inklusive Fehlerbehandlung aus.',
     'FlowExecutor': 'Fuehrt einen gesamten Workflow-Graphen aus.',
     'TaskHandlerRegistry': 'Registry der registrierten Runtime-Handler.',
+    'TaskHandlerRegistry.issue_certificate': 'Erzeugt ein digitales Zertifikat fuer einen bereits registrierten Handler.',
     'register_default_handlers': 'Registriert alle eingebauten Handler.',
     'SQLiteRepository': 'Persistenzschicht fuer SQLite.',
     'LiteRTPlanner': 'Lokale LLM-Planung ueber LiteRT-LM.',
     'LiteRTPlanner.generate_flow_request': 'Erzeugt aus natuerlicher Sprache einen validierten FlowRequest.',
     'IntentPlanner': 'Regelbasierter Planer fuer strukturierte Intents.',
+    'HandlerCertificate': 'Signierte Beschreibung eines vertrauenswuerdigen Handlers inklusive Fingerprint und Ablaufdatum.',
+    'HandlerTrustRecord': 'Serialisierbare Trust-Sicht auf einen registrierten Handler fuer API und UI.',
+    'HandlerTrustAuthority': 'Signiert und validiert Handler-Zertifikate gegen den aktuellen Code-Fingerprint.',
     'SemanticFirewall': 'Semantische Sicherheitspruefung fuer Flows, Agenten und aus Planner-Graphen abgeleitete Absichten.',
     'FlowSecurityReport': 'Strukturiertes Ergebnis einer Policy-Pruefung mit Fehlern und Warnungen.',
     'FlowSecurityReport.ensure_allowed': 'Bricht den aktuellen Vorgang ab, wenn Regelverletzungen gefunden wurden.',
@@ -249,6 +259,8 @@ TS_INTERNALS = {
         ('splitCsv', 'Konvertiert komma-separierte Texte in Stringlisten.'),
         ('asObject', 'Normalisiert unbekannte Werte zu einem sicheren Objekt.'),
         ('statusTone', 'Ordnet Task-Status einer Badge-Farbe zu.'),
+        ('handleApproveNode', 'Freigabe eines Nodes lokal oder ueber die Approval-API.'),
+        ('handleRevokeNodeApproval', 'Hebt eine bestehende manuelle Freigabe lokal oder ueber die Approval-API auf.'),
         ('NodeField', 'Hilfskomponente fuer einfache Texteingaben im Inspector.'),
         ('NumericField', 'Hilfskomponente fuer numerische Eingaben im Inspector.'),
     ],
@@ -278,17 +290,18 @@ Diese Dokumentation erklaert das System so, dass auch ein Entwickler ohne Vorwis
 4. [Frontend-Editor](frontend-editor.md)
 5. [LLM-Planer und LiteRT](planner-and-lit.md)
 6. [Security und Policy](security-and-policy.md)
-7. [Failure Playbook](failure-playbook.md)
-8. [Decision Guide](decision-guide.md)
-9. [Real World Scenarios](real-world-scenarios.md)
-10. [Aenderungsleitfaden](change-workflows.md)
-11. [Referenzindex](reference/index.md)
+7. [Handler Trust und Freigaben](handler-trust-and-approval.md)
+8. [Failure Playbook](failure-playbook.md)
+9. [Decision Guide](decision-guide.md)
+10. [Real World Scenarios](real-world-scenarios.md)
+11. [Aenderungsleitfaden](change-workflows.md)
+12. [Referenzindex](reference/index.md)
 
 ## Wie du diese Doku liest
 
 - Starte mit `getting-started.md`, wenn du das System lokal hochfahren willst.
 - Lies `system-overview.md` und `backend-runtime.md`, wenn du Architektur und Laufzeit verstehen willst.
-- Nutze `security-and-policy.md` und `failure-playbook.md`, bevor du produktive Flows oder neue Handler einsetzt.
+- Nutze `security-and-policy.md`, `handler-trust-and-approval.md` und `failure-playbook.md`, bevor du produktive Flows oder neue Handler einsetzt.
 - Verwende `decision-guide.md` und `real-world-scenarios.md`, wenn du eigene Flows sicher entwerfen oder veraendern willst.
 ''',
     'getting-started.md': '''# Schnellstart
@@ -324,17 +337,24 @@ npm run dev
 ## 3. Minimaler Arbeitsablauf
 
 1. Handler, Agenten und Ressourcen im Frontend laden.
-2. Einen Graphen im Canvas zeichnen oder ueber den Planner erzeugen.
-3. Vor dem Speichern `POST /flows/validate` verwenden oder die UI-Validierung ausloesen.
-4. Den Flow ueber `POST /flows` speichern.
-5. Den Flow ueber `POST /flows/{flow_id}/run` ausfuehren.
-6. Laufzeit und Status ueber `GET /flows/{flow_id}` oder `/ws/flows/{flow_id}` beobachten.
+2. In `GET /handlers` oder der Sidebar pruefen, welche Handler trusted sind.
+3. Einen Graphen im Canvas zeichnen oder ueber den Planner erzeugen.
+4. Fuer sensitive oder untrusted Handler im Inspector entscheiden, ob `requires_manual_approval` gesetzt sein soll.
+5. Vor dem Speichern `POST /flows/validate` verwenden oder die UI-Validierung ausloesen.
+6. Den Flow ueber `POST /flows` speichern.
+7. Falls noetig den Node per Inspector oder Approval-API freigeben.
+8. Den Flow ueber `POST /flows/{flow_id}/run` ausfuehren.
+9. Laufzeit und Status ueber `GET /flows/{flow_id}` oder `/ws/flows/{flow_id}` beobachten.
 
 ## 4. Wichtige Umgebungsvariablen
 
 - `NS_API_HOST`, `NS_API_PORT`: FastAPI-Bindung
 - `NS_LIT_BINARY_PATH`, `NS_LIT_MODEL_PATH`, `NS_LIT_TIMEOUT_S`: lokaler Planner
+- `NS_HANDLER_CERTIFICATE_SECRET`, `NS_HANDLER_CERTIFICATE_ISSUER`, `NS_HANDLER_CERTIFICATE_TTL_HOURS`: Handler-Zertifikate
 - `NS_SECURITY_ENABLED`: Semantic Firewall global ein- oder ausschalten
+- `NS_SECURITY_AUTO_ISSUE_BUILTIN_HANDLER_CERTIFICATES`: Built-ins automatisch signieren
+- `NS_SECURITY_REQUIRE_TRUSTED_HANDLERS`: untrusted Handler beim Run blockieren
+- `NS_SECURITY_ALLOW_MANUAL_APPROVAL_FOR_UNTRUSTED_HANDLERS`: explizite Override-Freigabe zulassen
 - `NS_SECURITY_HTTP_ALLOWED_HOSTS`: erlaubte HTTP-Zielhosts
 - `NS_SECURITY_SEND_PROTOCOLS`: erlaubte Kommunikationsprotokolle fuer `send_message`
 - `NS_CORS_ORIGINS`: erlaubte Frontend-Urspruenge
@@ -343,7 +363,7 @@ npm run dev
 
 - Das Frontend bearbeitet einen gerichteten Graphen aus Nodes und Edges.
 - `toFlowRequest()` wandelt den Editorgraphen in das Backend-Schema.
-- Das Backend validiert Struktur, Expressions und Sicherheitsregeln.
+- Das Backend validiert Struktur, Expressions, Handler-Trust und Sicherheitsregeln.
 - Erst danach wird gespeichert oder ausgefuehrt.
 - Die Runtime fuehrt nur DAGs aus und meldet Snapshots laufend an UI und Persistenz zurueck.
 ''',
@@ -353,7 +373,7 @@ npm run dev
 
 - Domaene: `src/nova_synesis/domain/models.py`
 - Planung: `planning/planner.py` und `planning/lit_planner.py`
-- Sicherheitspruefung: `security/policy.py`
+- Sicherheitspruefung: `security/policy.py` und `security/trust.py`
 - Runtime: `runtime/engine.py` und `runtime/handlers.py`
 - Persistenz: `persistence/sqlite_repository.py`
 - API: `api/app.py`
@@ -363,12 +383,13 @@ npm run dev
 
 1. Graph im Frontend erstellen oder ueber den LiteRT-Planer generieren
 2. `toFlowRequest()` erzeugt das Backend-Schema
-3. `POST /flows/validate` prueft Graph, Expressions, Egress und Memory-Fluesse
+3. `POST /flows/validate` prueft Graph, Expressions, Handler-Trust, Egress und Memory-Fluesse
 4. `POST /flows` speichert den Graphen
-5. `POST /flows/{id}/run` startet die Ausfuehrung
-6. `FlowExecutor` verarbeitet den Graphen Node fuer Node
-7. `/ws/flows/{flow_id}` uebertraegt Snapshots an die UI
-8. `GET /flows/{flow_id}` bleibt die kanonische Wahrheit fuer den Laufzeitstand
+5. optionale manuelle Freigaben werden node-spezifisch gesetzt
+6. `POST /flows/{id}/run` startet die Ausfuehrung
+7. `FlowExecutor` verarbeitet den Graphen Node fuer Node
+8. `/ws/flows/{flow_id}` uebertraegt Snapshots an die UI
+9. `GET /flows/{flow_id}` bleibt die kanonische Wahrheit fuer den Laufzeitstand
 
 ## Was dieses System bewusst ist
 
@@ -376,6 +397,7 @@ npm run dev
 - zustandsbehaftet statt nur requestbasiert
 - planner-unterstuetzt, aber nicht planner-abhaengig
 - sicherheitsgefiltert, bevor Seiteneffekte entstehen
+- handler-vertrauensbasiert statt nur handler-namensbasiert
 ''',
     'backend-runtime.md': '''# Backend-Laufzeit
 
@@ -384,11 +406,19 @@ Die Backend-Laufzeit wird durch `OrchestratorService` zusammengesetzt. Er verdra
 ## Reihenfolge eines normalen Flows
 
 1. API nimmt einen `FlowCreateRequest` oder eine Planner-Anfrage entgegen.
-2. `OrchestratorService.validate_flow_request()` laesst die semantische Firewall laufen.
-3. Der Flow wird in Domaenenobjekte ueberfuehrt und in SQLite gespeichert.
-4. `FlowExecutor.run_flow()` startet die DAG-Ausfuehrung.
-5. `TaskExecutor.execute_task()` loest Templates auf, reserviert Ressourcen, ruft Agent und Handler auf und persistiert Snapshots.
-6. WebSocket-Abonnenten erhalten Ereignisse wie `flow.started`, `node.completed` oder `flow.failed`.
+2. `TaskHandlerRegistry` bewertet alle Handler gegen digitale Zertifikate und erzeugt Trust-Records.
+3. `OrchestratorService.validate_flow_request()` laesst die semantische Firewall laufen.
+4. Der Flow wird in Domaenenobjekte ueberfuehrt und in SQLite gespeichert.
+5. `FlowExecutor.run_flow()` startet die DAG-Ausfuehrung.
+6. `TaskExecutor.execute_task()` loest Templates auf, reserviert Ressourcen, ruft Agent und Handler auf und persistiert Snapshots.
+7. WebSocket-Abonnenten erhalten Ereignisse wie `flow.started`, `node.completed`, `node.approval.updated` oder `flow.failed`.
+
+## Trust- und Approval-Gates
+
+- `GET /handlers` ist die kanonische Betriebsansicht auf Handler-Trust.
+- Der Planner-Katalog enthaelt nur trusted Handler.
+- Freigaben liegen an `Task.manual_approval` und werden im Flow-Snapshot persistiert.
+- `POST /flows/{flow_id}/nodes/{node_id}/approval` und `DELETE /flows/{flow_id}/nodes/{node_id}/approval` aendern den Freigabestatus ohne den ganzen Flow neu anzulegen.
 
 ## Regel fuer Aenderungen
 
@@ -405,13 +435,21 @@ Die UI besteht aus `App.tsx`, dem Zustand-Store `useFlowStore.ts`, der Zeichenfl
 - serialisiert den Editorzustand ueber `toFlowRequest()`
 - speichert und startet echte Flows
 - uebernimmt Live-Snapshots ueber WebSocket oder Polling
+- zeigt pro Node Handler-Trust und manuelle Freigaben im Inspector
 
 ## Kritische Integrationsstellen
 
 - `frontend/src/lib/flowSerialization.ts`: muss exakt zum FastAPI-Schema passen
-- `frontend/src/lib/apiClient.ts`: enthaelt die echten REST- und WebSocket-Aufrufe inklusive `POST /flows/validate`
+- `frontend/src/lib/apiClient.ts`: enthaelt die echten REST-, Approval- und WebSocket-Aufrufe inklusive `POST /flows/validate`
 - `frontend/src/store/useFlowStore.ts`: haelt den kanonischen UI-Zustand fuer Nodes, Edges, Auswahl und Laufzeitstatus
 - `frontend/src/hooks/useFlowLiveUpdates.ts`: faellt bei Socket-Problemen auf Polling zurueck
+
+## Betreiberperspektive im Inspector
+
+- `Handler trust` zeigt Zertifikatsstatus, Issuer, Fingerprint und Ablaufdatum
+- `Require manual approval before execution` markiert einen Node als freigabepflichtig
+- `Approve Node` und `Revoke Approval` sprechen direkt mit der Approval-API, wenn der Flow bereits gespeichert ist
+- bei ungespeicherten lokalen Aenderungen arbeitet der Inspector bewusst lokal weiter, um den Canvas-Zustand nicht zu ueberschreiben
 ''',
     'planner-and-lit.md': '''# LLM-Planer und LiteRT
 
@@ -428,8 +466,10 @@ Der Planner erzeugt keine Mock-Graphen. Er nutzt die lokale `lit`-Binary und das
 ## Wichtige Sicherheitsgrenzen
 
 - Ressourcen und Memories mit `sensitive = true` oder `planner_visible = false` werden aus dem Planner-Katalog herausgefiltert.
+- untrusted Handler werden komplett aus dem Planner-Katalog entfernt.
 - Die Antwort enthaelt `security_report`, damit UI und Betreiber sehen, ob der generierte Graph policy-konform war.
 - Planner-Warnungen bedeuten: der Graph wurde normalisiert, aber nicht stillschweigend erweitert.
+- `requires_manual_approval` wird standardmaessig auf `false` normalisiert und nur uebernommen, wenn es explizit im Graphen gesetzt ist.
 ''',
     'security-and-policy.md': '''# Security und Policy
 
@@ -447,6 +487,7 @@ NOVA-SYNESIS sichert nicht nur Code, sondern die Absicht eines Graphen. Diese Au
 
 - Graph-Struktur: keine Zyklen, keine Selbstkanten, keine unbekannten Nodes
 - Retry-Budget und maximale Graphgroesse
+- Handler-Trust: unbekannte, untrusted oder abgelaufene Handler-Zustaende
 - Expressions und Templates: nur erlaubte Symbole und AST-Knoten
 - HTTP-Egress: nur erlaubte Hosts oder Loopback
 - Messaging: nur erlaubte Protokolle und kein Endpoint-Override im Payload
@@ -455,15 +496,39 @@ NOVA-SYNESIS sichert nicht nur Code, sondern die Absicht eines Graphen. Diese Au
 - Planner-visible Memories: kein untrusted Ingest ohne explizites Opt-in
 - Agent-Registrierung: keine unerlaubten REST/WebSocket-Endpunkte und keine blockierten Capability-Profile
 
+## Digitale Handler-Zertifikate
+
+- `HandlerTrustAuthority` signiert interne Handler-Zertifikate mit HMAC ueber einen kanonischen Payload.
+- Der Fingerprint wird aus Handlername, Modul, Qualname und Quellcode abgeleitet.
+- Built-in-Handler koennen automatisch signiert werden.
+- Custom Handler bleiben ohne Zertifikat sichtbar, aber sie gelten als untrusted.
+- `GET /handlers` ist die Betriebsansicht fuer `trusted`, `trust_reason`, `fingerprint` und `certificate`.
+
+## Manuelle Freigabe
+
+- Ein Node kann `requires_manual_approval = true` tragen.
+- Die Freigabe liegt in `manual_approval`.
+- Im Create- und Validate-Pfad wird das als Warnung behandelt.
+- Im Run-Pfad blockiert die Policy den Start, solange keine gueltige Freigabe mit `approved_by` vorliegt.
+- Wenn `NS_SECURITY_ALLOW_MANUAL_APPROVAL_FOR_UNTRUSTED_HANDLERS=true` aktiv ist, kann eine explizite Node-Freigabe einen untrusted Handler fuer genau diesen Flow-Node erlauben.
+
 ## Bedeutende Felder
 
 - `sensitive = true`
 - `planner_visible = false`
 - `allow_untrusted_ingest = true`
+- `requires_manual_approval = true`
+- `manual_approval.approved = true`
 
 ## Wichtige Settings
 
+- `NS_HANDLER_CERTIFICATE_SECRET`
+- `NS_HANDLER_CERTIFICATE_ISSUER`
+- `NS_HANDLER_CERTIFICATE_TTL_HOURS`
 - `NS_SECURITY_ENABLED`
+- `NS_SECURITY_AUTO_ISSUE_BUILTIN_HANDLER_CERTIFICATES`
+- `NS_SECURITY_REQUIRE_TRUSTED_HANDLERS`
+- `NS_SECURITY_ALLOW_MANUAL_APPROVAL_FOR_UNTRUSTED_HANDLERS`
 - `NS_SECURITY_MAX_NODES`
 - `NS_SECURITY_MAX_EDGES`
 - `NS_SECURITY_MAX_TOTAL_ATTEMPTS`
@@ -471,6 +536,63 @@ NOVA-SYNESIS sichert nicht nur Code, sondern die Absicht eines Graphen. Diese Au
 - `NS_SECURITY_MAX_EXPRESSION_NODES`
 - `NS_SECURITY_HTTP_ALLOWED_HOSTS`
 - `NS_SECURITY_SEND_PROTOCOLS`
+''',
+    'handler-trust-and-approval.md': '''# Handler Trust und Freigaben
+
+Diese Seite beschreibt die zweite Sicherheitslinie nach der Semantic Firewall: vertrauenswuerdige Handler und die explizite manuelle Node-Freigabe.
+
+## 1. Was ein Handler-Zertifikat hier bedeutet
+
+NOVA-SYNESIS nutzt kein externes X.509-PKI, sondern ein internes, signiertes Handler-Zertifikat:
+
+- der Fingerprint wird aus Modul, Qualname und Quellcode des Handlers abgeleitet
+- `HandlerTrustAuthority` signiert diesen Fingerprint per HMAC
+- das Zertifikat enthaelt `issuer`, `issued_at`, `expires_at`, `fingerprint` und `built_in`
+- bei jeder Registrierung wird geprueft, ob Zertifikat und aktueller Handler-Code noch zusammenpassen
+
+## 2. Trust-Lebenszyklus
+
+1. Ein Handler wird registriert.
+2. Built-in-Handler erhalten automatisch ein Zertifikat, wenn `NS_SECURITY_AUTO_ISSUE_BUILTIN_HANDLER_CERTIFICATES=true` ist.
+3. Custom Handler koennen beim Registrieren ein Zertifikat mitgeben oder spaeter ueber `TaskHandlerRegistry.issue_certificate()` signiert werden.
+4. `GET /handlers` liefert den aktuellen Trust-Status inklusive Zertifikat an UI und Betrieb.
+5. Der LiteRT-Planer sieht nur trusted Handler im Katalog.
+
+## 3. API und UI
+
+- `GET /handlers`: liefert `handlers` und `details`
+- `POST /flows/{flow_id}/nodes/{node_id}/approval`: setzt eine manuelle Freigabe
+- `DELETE /flows/{flow_id}/nodes/{node_id}/approval`: hebt sie wieder auf
+
+Im `InspectorPanel` sieht der Betreiber:
+
+- ob der aktuelle Handler trusted oder untrusted ist
+- warum der Handler so eingestuft wurde
+- Zertifikatsdetails wie Issuer, Fingerprint und Ablaufdatum
+- ob fuer den Node eine manuelle Freigabe erforderlich oder bereits gesetzt ist
+
+## 4. Wann die Ausfuehrung blockiert wird
+
+- unbekannter Handler: immer blockiert
+- untrusted Handler bei `NS_SECURITY_REQUIRE_TRUSTED_HANDLERS=true`: spaetestens beim Run blockiert
+- `requires_manual_approval=true`, aber keine Freigabe gesetzt: beim Run blockiert
+- Freigabe ohne `approved_by`: ebenfalls blockiert
+
+## 5. Operator-Regeln
+
+- Built-in-Handler bleiben der Normalfall.
+- Eigene Handler nur dann trusten, wenn Codequelle und Seiteneffektprofil klar sind.
+- Manuelle Freigaben sind flow-spezifisch, nicht global.
+- Eine Freigabe ersetzt kein Zertifikat; sie ist eine bewusste Ausnahme fuer einen konkreten Node.
+
+## 6. Relevante Settings
+
+- `NS_HANDLER_CERTIFICATE_SECRET`
+- `NS_HANDLER_CERTIFICATE_ISSUER`
+- `NS_HANDLER_CERTIFICATE_TTL_HOURS`
+- `NS_SECURITY_AUTO_ISSUE_BUILTIN_HANDLER_CERTIFICATES`
+- `NS_SECURITY_REQUIRE_TRUSTED_HANDLERS`
+- `NS_SECURITY_ALLOW_MANUAL_APPROVAL_FOR_UNTRUSTED_HANDLERS`
 ''',
     'failure-playbook.md': '''# Failure Playbook
 
@@ -528,7 +650,30 @@ Diese Seite beschreibt die realen Stoerungsbilder des Systems. Ziel ist nicht nu
 3. pruefen, ob das Problem fachlich oder rein policy-seitig ist
 4. bei legitimen Produktionsfaellen erst Settings oder Memory-/Resource-Metadaten anpassen, nicht die Regel blind entfernen
 
-## 3. WebSocket bricht waehrend der Execution ab
+## 3. Handler ist untrusted, Zertifikat abgelaufen oder Freigabe fehlt
+
+### Woran du es erkennst
+
+- `POST /flows/{flow_id}/run` liefert einen Policy-Fehler
+- `POST /flows/validate` meldet Warnungen zu `requires_manual_approval` oder einem untrusted Handler
+- `GET /handlers` zeigt `trusted = false` oder ein abgelaufenes Zertifikat
+
+### Typische Ursachen
+
+- Custom Handler wurde ohne Zertifikat registriert
+- Handler-Code hat sich geaendert und der Fingerprint passt nicht mehr
+- Zertifikat ist abgelaufen
+- `requires_manual_approval = true`, aber der Node wurde nicht freigegeben
+- `manual_approval.approved = true`, aber `approved_by` fehlt
+
+### Sofortmassnahmen
+
+1. `GET /handlers` lesen und `trust_reason`, Fingerprint und Ablaufdatum pruefen
+2. bei gespeichertem Flow den Node ueber `POST /flows/{flow_id}/nodes/{node_id}/approval` freigeben oder im Inspector freigeben
+3. bei echten Custom Handlern ein neues Zertifikat ausstellen statt die Policy zu lockern
+4. nur wenn fachlich gewollt `NS_SECURITY_ALLOW_MANUAL_APPROVAL_FOR_UNTRUSTED_HANDLERS` verwenden
+
+## 4. WebSocket bricht waehrend der Execution ab
 
 ### Woran du es erkennst
 
@@ -547,7 +692,7 @@ Diese Seite beschreibt die realen Stoerungsbilder des Systems. Ziel ist nicht nu
 3. unterscheiden: ist nur `/ws/flows/{flow_id}` defekt oder auch REST?
 4. wenn REST geht, die Ausfuehrung nicht abbrechen, sondern Snapshot weiter per Polling beobachten
 
-## 4. Resource haengt oder laeuft in Timeout / Sattlauf
+## 5. Resource haengt oder laeuft in Timeout / Sattlauf
 
 ### Woran du es erkennst
 
@@ -567,7 +712,7 @@ Diese Seite beschreibt die realen Stoerungsbilder des Systems. Ziel ist nicht nu
 4. bei HTTP-Aufrufen explizit `timeout_s` setzen
 5. wenn moeglich auf `required_resource_types` plus `FALLBACK_RESOURCE` umstellen
 
-## 5. Flow bleibt auf `RUNNING` stehen
+## 6. Flow bleibt auf `RUNNING` stehen
 
 ### Woran du es erkennst
 
@@ -590,7 +735,7 @@ Diese Seite beschreibt die realen Stoerungsbilder des Systems. Ziel ist nicht nu
 4. bei `http_request` ein sinnvolles `timeout_s` setzen
 5. pruefen, ob Ressource oder Kommunikationsziel erreichbar sind
 
-## 6. Graph-Deadlock oder logisch blockierter Flow
+## 7. Graph-Deadlock oder logisch blockierter Flow
 
 Wichtig: Wenn keine Node mehr startbar ist und trotzdem noch `pending` existiert, setzt `FlowExecutor.run_flow()` den Flow auf `FAILED` und schreibt `deadlock_nodes` in die Metadaten.
 
@@ -607,7 +752,7 @@ Wichtig: Wenn keine Node mehr startbar ist und trotzdem noch `pending` existiert
    - `failed`
 4. pruefen, ob mindestens ein Node ohne eingehende Kante existiert
 
-## 7. Handler wirft Exception
+## 8. Handler wirft Exception
 
 ### Woran du es erkennst
 
@@ -853,11 +998,12 @@ Ein fragiler Infrastrukturzugriff soll auch dann stabil laufen, wenn die bevorzu
 ## Neuer Handler
 
 1. Handler in `runtime/handlers.py` implementieren und registrieren
-2. pruefen, ob der Handler im Planner sichtbar sein soll
-3. Security-Regeln fuer Egress, Templates oder Seiteneffekte in `security/policy.py` bewerten
-4. Tests in `tests/test_orchestrator.py` erweitern
-5. Frontend prueft den Handler automatisch ueber `/handlers`
-6. `tools/generate_docs.py` und danach `docs/` neu erzeugen
+2. entscheiden, ob der Handler ein digitales Zertifikat erhalten soll oder bewusst untrusted bleibt
+3. pruefen, ob der Handler im Planner sichtbar sein soll
+4. Security-Regeln fuer Egress, Templates oder Seiteneffekte in `security/policy.py` bewerten
+5. Tests in `tests/test_orchestrator.py` erweitern
+6. Frontend prueft den Handler automatisch ueber `/handlers`
+7. `tools/generate_docs.py` und danach `docs/` neu erzeugen
 
 ## Neues Node-Feld
 
@@ -876,6 +1022,14 @@ Ein fragiler Infrastrukturzugriff soll auch dann stabil laufen, wenn die bevorzu
 3. API- und Planner-Auswirkungen pruefen
 4. mindestens einen positiven und einen negativen Testfall schreiben
 5. `tools/generate_docs.py` ausfuehren und `docs/` neu erzeugen
+
+## Neuer Trust- oder Approval-Pfad
+
+1. Zertifikats- oder Approval-Logik in `security/trust.py`, `runtime/handlers.py` oder `domain/models.py` anpassen
+2. `services/orchestrator.py` und `api/app.py` auf neue Operator-Aktionen abstimmen
+3. Frontend-Inspector und Typen synchronisieren
+4. mindestens einen positiven und einen negativen Security-Test ergaenzen
+5. danach Referenzdoku und Betriebsdoku neu erzeugen
 ''',
 }
 

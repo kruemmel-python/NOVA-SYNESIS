@@ -23,6 +23,14 @@ export const DEFAULT_RETRY_POLICY: RetryPolicy = {
 };
 
 export const DEFAULT_ROLLBACK_STRATEGY: RollbackStrategy = "FAIL_FAST";
+export const DEFAULT_MANUAL_APPROVAL = {
+  approved: false,
+  approved_by: null,
+  approved_at: null,
+  reason: null,
+  revoked_by: null,
+  revoked_at: null,
+};
 
 export function createTaskNode(
   handlerName: string,
@@ -44,6 +52,8 @@ export function createTaskNode(
       rollback_strategy: DEFAULT_ROLLBACK_STRATEGY,
       validator_rules: {},
       metadata: {},
+      requires_manual_approval: false,
+      manual_approval: { ...DEFAULT_MANUAL_APPROVAL },
       compensation_handler: null,
       preferred_agent_id: null,
       task_status: "PENDING",
@@ -86,6 +96,8 @@ export function toTaskSpec(node: TaskFlowNode, edges: TaskFlowEdge[]): TaskSpecM
         title: node.data.title,
       },
     },
+    requires_manual_approval: node.data.requires_manual_approval,
+    manual_approval: node.data.manual_approval,
     compensation_handler: node.data.compensation_handler,
     dependencies: dependencyEdges.map((edge) => edge.source),
     conditions: dependencyEdges.reduce<Record<string, string>>((accumulator, edge) => {
@@ -153,6 +165,8 @@ export function fromFlowRequest(request: FlowRequest): {
       rollback_strategy: node.rollback_strategy,
       validator_rules: node.validator_rules,
       metadata: node.metadata,
+      requires_manual_approval: node.requires_manual_approval,
+      manual_approval: node.manual_approval,
       compensation_handler: node.compensation_handler,
     };
     return accumulator;
@@ -221,6 +235,8 @@ function snapshotNodeToEditorNode(
     rollback_strategy: node.rollback_strategy ?? DEFAULT_ROLLBACK_STRATEGY,
     validator_rules: node.validator_rules ?? {},
     metadata: node.metadata ?? {},
+    requires_manual_approval: node.requires_manual_approval ?? false,
+    manual_approval: node.manual_approval ?? { ...DEFAULT_MANUAL_APPROVAL },
     compensation_handler: node.compensation_handler ?? null,
     preferred_agent_id: node.assigned_agent_id ?? null,
     task_status: node.task_status,

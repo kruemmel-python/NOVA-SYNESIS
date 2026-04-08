@@ -178,6 +178,7 @@ class SemanticFirewall:
         nodes: list[dict[str, Any]],
         edges: list[dict[str, Any]] | None,
         metadata: dict[str, Any] | None,
+        handlers: list[dict[str, Any]],
         agents: list[dict[str, Any]],
         resources: list[dict[str, Any]],
         memory_systems: list[dict[str, Any]],
@@ -240,6 +241,7 @@ class SemanticFirewall:
                     f"Flow max_concurrency {max_concurrency} exceeds the service limit {self.settings.max_flow_concurrency}",
                 )
 
+        handler_index = {str(handler["name"]): handler for handler in handlers}
         agent_index = {int(agent["agent_id"]): agent for agent in agents}
         resource_index = {int(resource["resource_id"]): resource for resource in resources}
         memory_index = {str(system["memory_id"]): system for system in memory_systems}
@@ -249,6 +251,15 @@ class SemanticFirewall:
             input_payload = node.get("input")
             if not isinstance(input_payload, dict):
                 input_payload = {}
+
+            self._validate_handler_definition(
+                node_id=node_id,
+                handler_name=handler_name,
+                handler_index=handler_index,
+                node=node,
+                phase=phase,
+                report=report,
+            )
 
             self._validate_expression_container(
                 node_id=node_id,
@@ -294,6 +305,106 @@ class SemanticFirewall:
         self._detect_sensitive_exfiltration(node_index, merged_edges, agent_index, memory_index, report)
         self._detect_memory_poisoning(node_index, merged_edges, memory_index, report)
         return report
+
+    def _validate_handler_definition(
+        self,
+        node_id: str,
+        handler_name: str,
+        handler_index: dict[str, dict[str, Any]],
+        node: dict[str, Any],
+        phase: str,
+        report: FlowSecurityReport,
+    ) -> None:
+        handler_info = handler_index.get(handler_name)
+        if handler_info is None:
+            report.add_violation(
+                "node.unknown_handler",
+                f"Handler '{handler_name}' is not registered in this runtime",
+                node_id=node_id,
+                field="handler_name",
+            )
+            return
+
+        trusted = bool(handler_info.get("trusted", False))
+        trust_reason = str(handler_info.get("trust_reason", "Handler is not trusted"))
+        requires_manual_approval = bool(node.get("requires_manual_approval", False))
+        manual_approval_payload = node.get("manual_approval")
+        manual_approval = manual_approval_payload if isinstance(manual_approval_payload, dict) else {}
+        approved = bool(manual_approval.get("approved", False))
+
+        if approved and not str(manual_approval.get("approved_by", "")).strip():
+            report.add_violation(
+                "node.manual_approval_invalid",
+                "Approved nodes must record approved_by",
+                node_id=node_id,
+                field="manual_approval.approved_by",
+            )
+
+        if trusted:
+            if requires_manual_approval and not approved:
+                self._report_pending_manual_approval(node_id, phase, report)
+            return
+
+        if not self.settings.security_require_trusted_handlers:
+            report.add_warning(
+                "node.untrusted_handler_allowed",
+                f"Node '{node_id}' uses untrusted handler '{handler_name}': {trust_reason}",
+                node_id=node_id,
+                field="handler_name",
+            )
+            if requires_manual_approval and not approved:
+                self._report_pending_manual_approval(node_id, phase, report)
+            return
+
+        if approved and self.settings.security_allow_manual_approval_for_untrusted_handlers:
+            report.add_warning(
+                "node.untrusted_handler_override",
+                f"Node '{node_id}' uses manually approved untrusted handler '{handler_name}': {trust_reason}",
+                node_id=node_id,
+                field="handler_name",
+            )
+            return
+
+        message = (
+            f"Node '{node_id}' uses untrusted handler '{handler_name}'. "
+            "A valid handler certificate or manual approval is required."
+        )
+        if phase == "run":
+            report.add_violation(
+                "node.untrusted_handler",
+                message,
+                node_id=node_id,
+                field="handler_name",
+            )
+        else:
+            report.add_warning(
+                "node.untrusted_handler_pending",
+                message,
+                node_id=node_id,
+                field="handler_name",
+            )
+
+    @staticmethod
+    def _report_pending_manual_approval(
+        node_id: str,
+        phase: str,
+        report: FlowSecurityReport,
+    ) -> None:
+        message = f"Node '{node_id}' requires manual approval before execution"
+        if phase == "run":
+            report.add_violation(
+                "node.manual_approval_required",
+                message,
+                node_id=node_id,
+                field="manual_approval",
+            )
+            return
+        report.add_warning(
+            "node.manual_approval_pending",
+            message,
+            node_id=node_id,
+            field="manual_approval",
+        )
 
     def _collect_edges(
         self,

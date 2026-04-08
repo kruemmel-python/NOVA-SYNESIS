@@ -20,6 +20,9 @@ Wenn Backend-Vertraege oder UI-Datentypen erweitert werden.
 - `TaskFlowNode`: TypeScript-Typ `TaskFlowNode` fuer einen Datenvertrag.
 - `TaskFlowEdge`: TypeScript-Typ `TaskFlowEdge` fuer einen Datenvertrag.
 - `RetryPolicy`: TypeScript-Typ `RetryPolicy` fuer einen Datenvertrag.
+- `HandlerCertificate`: Signierte Beschreibung eines vertrauenswuerdigen Handlers inklusive Fingerprint und Ablaufdatum.
+- `HandlerSummary`: TypeScript-Typ `HandlerSummary` fuer einen Datenvertrag.
+- `ManualApproval`: Speichert den manuellen Freigabestatus eines Nodes fuer die Ausfuehrung.
 - `AgentSummary`: TypeScript-Typ `AgentSummary` fuer einen Datenvertrag.
 - `ResourceSummary`: TypeScript-Typ `ResourceSummary` fuer einen Datenvertrag.
 - `TaskNodeData`: TypeScript-Typ `TaskNodeData` fuer einen Datenvertrag.
@@ -34,6 +37,7 @@ Wenn Backend-Vertraege oder UI-Datentypen erweitert werden.
 - `PlannerStatus`: TypeScript-Typ `PlannerStatus` fuer einen Datenvertrag.
 - `PlannerGenerateRequest`: TypeScript-Typ `PlannerGenerateRequest` fuer einen Datenvertrag.
 - `PlannerGenerateResponse`: TypeScript-Typ `PlannerGenerateResponse` fuer einen Datenvertrag.
+- `HandlerCatalogResponse`: TypeScript-Typ `HandlerCatalogResponse` fuer einen Datenvertrag.
 
 ## Abhaengigkeiten
 

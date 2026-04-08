@@ -18,6 +18,7 @@ Diese Datei enthaelt keine eigenen Klassen oder Funktionen, sondern primar Paket
 ## Abhaengigkeiten
 
 - `from .policy import FlowSecurityReport, SecurityFinding, SemanticFirewall`
+- `from .trust import HandlerCertificate, HandlerTrustAuthority, HandlerTrustRecord`
 
 ## Aenderungshinweise
 

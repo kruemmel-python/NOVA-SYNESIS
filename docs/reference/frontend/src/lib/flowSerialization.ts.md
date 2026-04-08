@@ -23,6 +23,7 @@ Wenn Node-Felder oder Flow-Schema geaendert werden.
 - `humanizeHandlerName`: Funktion oder Definition `humanizeHandlerName` dieses Moduls.
 - `DEFAULT_RETRY_POLICY`: Funktion oder Definition `DEFAULT_RETRY_POLICY` dieses Moduls.
 - `DEFAULT_ROLLBACK_STRATEGY`: Funktion oder Definition `DEFAULT_ROLLBACK_STRATEGY` dieses Moduls.
+- `DEFAULT_MANUAL_APPROVAL`: Funktion oder Definition `DEFAULT_MANUAL_APPROVAL` dieses Moduls.
 
 ## Wichtige interne Routinen
 

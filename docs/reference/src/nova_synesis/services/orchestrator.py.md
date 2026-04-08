@@ -20,7 +20,9 @@ Zentrale Fassade, die alle Backend-Bausteine zusammenhaelt.
 Methoden:
 
 - `__init__(self, settings, repository, planner, resource_manager, memory_manager, handler_registry)`: Konstruktor, der Abhaengigkeiten und Ausgangszustand vorbereitet.
-- `register_handler(self, name, handler)`: Registriert Verhalten oder Objekte fuer `register_handler`.
+- `register_handler(self, name, handler, *, certificate)`: Registriert Verhalten oder Objekte fuer `register_handler`.
+- `list_handlers(self)`: Gibt eine Liste von Daten fuer `list_handlers` zurueck.
+- `issue_handler_certificate(self, handler_name, expires_in_hours)`: Funktion oder Definition `issue_handler_certificate` dieses Moduls.
 - `register_memory_system(self, memory_id, memory_type, backend, config)`: Registriert Verhalten oder Objekte fuer `register_memory_system`.
 - `register_agent(self, name, role, capabilities, communication, memory_ids)`: Registriert Verhalten oder Objekte fuer `register_agent`.
 - `register_resource(self, resource_type, endpoint, metadata)`: Registriert Verhalten oder Objekte fuer `register_resource`.
@@ -36,6 +38,8 @@ Methoden:
 - `list_memory_systems(self)`: Gibt eine Liste von Daten fuer `list_memory_systems` zurueck.
 - `list_executions(self)`: Gibt eine Liste von Daten fuer `list_executions` zurueck.
 - `get_llm_planner_status(self)`: Liest Daten fuer `get_llm_planner_status` aus einem Speicher oder einer Laufzeitquelle.
+- `approve_flow_node(self, flow_id, node_id, approved_by, reason)`: Funktion oder Definition `approve_flow_node` dieses Moduls.
+- `revoke_flow_node_approval(self, flow_id, node_id, revoked_by, reason)`: Funktion oder Definition `revoke_flow_node_approval` dieses Moduls.
 - `generate_flow_with_llm(self, prompt, current_flow, max_nodes)`: Funktion oder Definition `generate_flow_with_llm` dieses Moduls.
 - `shutdown(self)`: Funktion oder Definition `shutdown` dieses Moduls.
 - `subscribe_flow(self, flow_id)`: Funktion oder Definition `subscribe_flow` dieses Moduls.

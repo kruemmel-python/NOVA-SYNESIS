@@ -37,6 +37,10 @@ Datenmodell `ResourceCreateRequest` fuer validierte Schichtgrenzen.
 
 Datenmodell `RetryPolicyModel` fuer validierte Schichtgrenzen.
 
+### `ManualApprovalModel`
+
+Datenmodell `ManualApprovalModel` fuer validierte Schichtgrenzen.
+
 ### `TaskSpecModel`
 
 Datenmodell `TaskSpecModel` fuer validierte Schichtgrenzen.
@@ -56,6 +60,14 @@ Datenmodell `IntentRequest` fuer validierte Schichtgrenzen.
 ### `LLMPlannerRequest`
 
 Datenmodell `LLMPlannerRequest` fuer validierte Schichtgrenzen.
+
+### `NodeApprovalRequest`
+
+Datenmodell `NodeApprovalRequest` fuer validierte Schichtgrenzen.
+
+### `NodeApprovalRevokeRequest`
+
+Datenmodell `NodeApprovalRevokeRequest` fuer validierte Schichtgrenzen.
 
 ## Funktionen
 

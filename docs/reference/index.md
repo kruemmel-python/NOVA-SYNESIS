@@ -25,6 +25,7 @@
 - [src/nova_synesis/runtime/handlers.py](src/nova_synesis/runtime/handlers.py.md)
 - [src/nova_synesis/security/__init__.py](src/nova_synesis/security/__init__.py.md)
 - [src/nova_synesis/security/policy.py](src/nova_synesis/security/policy.py.md)
+- [src/nova_synesis/security/trust.py](src/nova_synesis/security/trust.py.md)
 - [src/nova_synesis/services/__init__.py](src/nova_synesis/services/__init__.py.md)
 - [src/nova_synesis/services/orchestrator.py](src/nova_synesis/services/orchestrator.py.md)
 

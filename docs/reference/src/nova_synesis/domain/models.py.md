@@ -69,6 +69,17 @@ Methoden:
 
 - `as_dict(self)`: Funktion oder Definition `as_dict` dieses Moduls.
 
+### `ManualApproval`
+
+Speichert den manuellen Freigabestatus eines Nodes fuer die Ausfuehrung.
+
+Methoden:
+
+- `approve(self, approved_by, reason)`: Funktion oder Definition `approve` dieses Moduls.
+- `revoke(self, revoked_by, reason)`: Funktion oder Definition `revoke` dieses Moduls.
+- `as_dict(self)`: Funktion oder Definition `as_dict` dieses Moduls.
+- `from_dict(cls, payload)`: Wandelt externe Daten fuer `from_dict` in das interne Format um.
+
 ### `SafeExpressionEvaluator`
 
 Klasse `SafeExpressionEvaluator` dieses Moduls.

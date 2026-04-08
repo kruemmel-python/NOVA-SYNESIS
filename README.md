@@ -105,6 +105,32 @@ Relevanter API-Endpunkt:
 
 - `POST /flows/validate`
 
+## Handler Trust und manuelle Freigabe
+
+Handler werden in NOVA-SYNESIS nicht nur namentlich registriert, sondern kryptographisch als vertrauenswuerdig markiert. Die Runtime erzeugt fuer Built-in-Handler automatisch digitale Zertifikate auf Basis eines signierten Handler-Fingerprints. Eigene Handler koennen beim Registrieren mit einem Zertifikat eingebracht oder spaeter ueber die Service-Schicht signiert werden.
+
+Wichtige Regeln:
+
+- `GET /handlers` liefert nicht nur Handlernamen, sondern auch Trust-Metadaten, Zertifikatsinformationen und den aktuellen Fingerprint.
+- Der LiteRT-Planer sieht nur trusted Handler im Planner-Katalog.
+- Wenn `NS_SECURITY_REQUIRE_TRUSTED_HANDLERS=true` aktiv ist, blockiert die Semantic Firewall untrusted Handler spaetestens beim Run.
+- Wenn `NS_SECURITY_ALLOW_MANUAL_APPROVAL_FOR_UNTRUSTED_HANDLERS=true` gesetzt ist, kann ein Node im InspectorPanel explizit fuer die Ausfuehrung freigegeben werden.
+
+Relevante Endpunkte:
+
+- `GET /handlers`
+- `POST /flows/{flow_id}/nodes/{node_id}/approval`
+- `DELETE /flows/{flow_id}/nodes/{node_id}/approval`
+
+Relevante Settings:
+
+- `NS_HANDLER_CERTIFICATE_SECRET`
+- `NS_HANDLER_CERTIFICATE_ISSUER`
+- `NS_HANDLER_CERTIFICATE_TTL_HOURS`
+- `NS_SECURITY_AUTO_ISSUE_BUILTIN_HANDLER_CERTIFICATES`
+- `NS_SECURITY_REQUIRE_TRUSTED_HANDLERS`
+- `NS_SECURITY_ALLOW_MANUAL_APPROVAL_FOR_UNTRUSTED_HANDLERS`
+
 ## Branding
 
 `NOVA-SYNESIS` steht in diesem Projekt für:

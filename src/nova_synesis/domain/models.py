@@ -129,6 +129,55 @@ class ErrorEvent:
         }
 
 
+@dataclass(slots=True)
+class ManualApproval:
+    approved: bool = False
+    approved_by: str | None = None
+    approved_at: datetime | None = None
+    reason: str | None = None
+    revoked_by: str | None = None
+    revoked_at: datetime | None = None
+
+    def approve(self, approved_by: str, reason: str | None = None) -> None:
+        self.approved = True
+        self.approved_by = approved_by
+        self.approved_at = utcnow()
+        self.reason = reason
+        self.revoked_by = None
+        self.revoked_at = None
+
+    def revoke(self, revoked_by: str | None = None, reason: str | None = None) -> None:
+        self.approved = False
+        self.revoked_by = revoked_by
+        self.revoked_at = utcnow()
+        if reason is not None:
+            self.reason = reason
+
+    def as_dict(self) -> dict[str, Any]:
+        return {
+            "approved": self.approved,
+            "approved_by": self.approved_by,
+            "approved_at": self.approved_at.isoformat() if self.approved_at else None,
+            "reason": self.reason,
+            "revoked_by": self.revoked_by,
+            "revoked_at": self.revoked_at.isoformat() if self.revoked_at else None,
+        }
+
+    @classmethod
+    def from_dict(cls, payload: dict[str, Any] | None) -> "ManualApproval":
+        raw = payload or {}
+        approved_at = raw.get("approved_at")
+        revoked_at = raw.get("revoked_at")
+        return cls(
+            approved=bool(raw.get("approved", False)),
+            approved_by=raw.get("approved_by"),
+            approved_at=datetime.fromisoformat(approved_at) if isinstance(approved_at, str) and approved_at else None,
+            reason=raw.get("reason"),
+            revoked_by=raw.get("revoked_by"),
+            revoked_at=datetime.fromisoformat(revoked_at) if isinstance(revoked_at, str) and revoked_at else None,
+        )
+
+
 class SafeExpressionEvaluator(ast.NodeVisitor):
     _comparators: dict[type[ast.AST], Callable[[Any, Any], bool]] = {
         ast.Eq: lambda left, right: left == right,
@@ -414,6 +463,8 @@ class Task:
     validator_rules: dict[str, Any] = field(default_factory=dict)
     context: dict[str, Any] = field(default_factory=dict)
     metadata: dict[str, Any] = field(default_factory=dict)
+    requires_manual_approval: bool = False
+    manual_approval: ManualApproval = field(default_factory=ManualApproval)
     rollback_strategy: RollbackStrategy = RollbackStrategy.FAIL_FAST
     compensation_handler: str | None = None
 
@@ -625,6 +676,8 @@ class ExecutionFlow:
                     "rollback_strategy": node.task.rollback_strategy.value,
                     "validator_rules": node.task.validator_rules,
                     "metadata": node.task.metadata,
+                    "requires_manual_approval": node.task.requires_manual_approval,
+                    "manual_approval": node.task.manual_approval.as_dict(),
                     "compensation_handler": node.task.compensation_handler,
                 }
                 for node_id, node in self.nodes.items()

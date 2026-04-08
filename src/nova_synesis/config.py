@@ -26,7 +26,13 @@ class Settings:
     lit_model_path: str = "LIT/gemma-4-E2B-it.litertlm"
     lit_backend: str = "cpu"
     lit_timeout_s: int = 240
+    handler_certificate_secret: str = "nova-synesis-development-root"
+    handler_certificate_issuer: str = "NOVA-SYNESIS Root CA"
+    handler_certificate_ttl_hours: int = 8_760
     security_enabled: bool = True
+    security_auto_issue_builtin_handler_certificates: bool = True
+    security_require_trusted_handlers: bool = True
+    security_allow_manual_approval_for_untrusted_handlers: bool = True
     security_max_nodes: int = 40
     security_max_edges: int = 160
     security_max_total_attempts: int = 120
@@ -132,9 +138,56 @@ class Settings:
                 _env("NS_LIT_TIMEOUT_S", "AO_LIT_TIMEOUT_S", str(defaults.lit_timeout_s))
                 or defaults.lit_timeout_s
             ),
+            handler_certificate_secret=_env(
+                "NS_HANDLER_CERTIFICATE_SECRET",
+                "AO_HANDLER_CERTIFICATE_SECRET",
+                defaults.handler_certificate_secret,
+            )
+            or defaults.handler_certificate_secret,
+            handler_certificate_issuer=_env(
+                "NS_HANDLER_CERTIFICATE_ISSUER",
+                "AO_HANDLER_CERTIFICATE_ISSUER",
+                defaults.handler_certificate_issuer,
+            )
+            or defaults.handler_certificate_issuer,
+            handler_certificate_ttl_hours=int(
+                _env(
+                    "NS_HANDLER_CERTIFICATE_TTL_HOURS",
+                    "AO_HANDLER_CERTIFICATE_TTL_HOURS",
+                    str(defaults.handler_certificate_ttl_hours),
+                )
+                or defaults.handler_certificate_ttl_hours
+            ),
             security_enabled=(
                 _env("NS_SECURITY_ENABLED", "AO_SECURITY_ENABLED", str(defaults.security_enabled))
                 or str(defaults.security_enabled)
+            ).strip().lower()
+            in {"1", "true", "yes", "on"},
+            security_auto_issue_builtin_handler_certificates=(
+                _env(
+                    "NS_SECURITY_AUTO_ISSUE_BUILTIN_HANDLER_CERTIFICATES",
+                    "AO_SECURITY_AUTO_ISSUE_BUILTIN_HANDLER_CERTIFICATES",
+                    str(defaults.security_auto_issue_builtin_handler_certificates),
+                )
+                or str(defaults.security_auto_issue_builtin_handler_certificates)
+            ).strip().lower()
+            in {"1", "true", "yes", "on"},
+            security_require_trusted_handlers=(
+                _env(
+                    "NS_SECURITY_REQUIRE_TRUSTED_HANDLERS",
+                    "AO_SECURITY_REQUIRE_TRUSTED_HANDLERS",
+                    str(defaults.security_require_trusted_handlers),
+                )
+                or str(defaults.security_require_trusted_handlers)
+            ).strip().lower()
+            in {"1", "true", "yes", "on"},
+            security_allow_manual_approval_for_untrusted_handlers=(
+                _env(
+                    "NS_SECURITY_ALLOW_MANUAL_APPROVAL_FOR_UNTRUSTED_HANDLERS",
+                    "AO_SECURITY_ALLOW_MANUAL_APPROVAL_FOR_UNTRUSTED_HANDLERS",
+                    str(defaults.security_allow_manual_approval_for_untrusted_handlers),
+                )
+                or str(defaults.security_allow_manual_approval_for_untrusted_handlers)
             ).strip().lower()
             in {"1", "true", "yes", "on"},
             security_max_nodes=int(

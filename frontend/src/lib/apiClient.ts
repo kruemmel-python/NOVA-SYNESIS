@@ -2,6 +2,8 @@ import type {
   AgentSummary,
   FlowRequest,
   FlowSnapshot,
+  HandlerCatalogResponse,
+  HandlerSummary,
   PlannerGenerateRequest,
   PlannerGenerateResponse,
   PlannerStatus,
@@ -54,9 +56,9 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return (await response.json()) as T;
 }
 
-export async function fetchHandlers(): Promise<string[]> {
-  const payload = await request<{ handlers: string[] }>("/handlers");
-  return payload.handlers;
+export async function fetchHandlers(): Promise<HandlerSummary[]> {
+  const payload = await request<HandlerCatalogResponse>("/handlers");
+  return payload.details;
 }
 
 export function fetchPlannerStatus(): Promise<PlannerStatus> {
@@ -87,6 +89,28 @@ export function runFlow(flowId: number, background = true): Promise<FlowSnapshot
 
 export function fetchFlow(flowId: number): Promise<FlowSnapshot> {
   return request<FlowSnapshot>(`/flows/${flowId}`);
+}
+
+export function approveFlowNode(
+  flowId: number,
+  nodeId: string,
+  requestBody: { approved_by: string; reason?: string | null },
+): Promise<FlowSnapshot> {
+  return request<FlowSnapshot>(`/flows/${flowId}/nodes/${nodeId}/approval`, {
+    method: "POST",
+    body: JSON.stringify(requestBody),
+  });
+}
+
+export function revokeFlowNodeApproval(
+  flowId: number,
+  nodeId: string,
+  requestBody: { revoked_by?: string | null; reason?: string | null },
+): Promise<FlowSnapshot> {
+  return request<FlowSnapshot>(`/flows/${flowId}/nodes/${nodeId}/approval`, {
+    method: "DELETE",
+    body: JSON.stringify(requestBody),
+  });
 }
 
 export function generateFlowWithPlanner(

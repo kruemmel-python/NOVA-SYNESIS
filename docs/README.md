@@ -13,15 +13,16 @@ Diese Dokumentation erklaert das System so, dass auch ein Entwickler ohne Vorwis
 4. [Frontend-Editor](frontend-editor.md)
 5. [LLM-Planer und LiteRT](planner-and-lit.md)
 6. [Security und Policy](security-and-policy.md)
-7. [Failure Playbook](failure-playbook.md)
-8. [Decision Guide](decision-guide.md)
-9. [Real World Scenarios](real-world-scenarios.md)
-10. [Aenderungsleitfaden](change-workflows.md)
-11. [Referenzindex](reference/index.md)
+7. [Handler Trust und Freigaben](handler-trust-and-approval.md)
+8. [Failure Playbook](failure-playbook.md)
+9. [Decision Guide](decision-guide.md)
+10. [Real World Scenarios](real-world-scenarios.md)
+11. [Aenderungsleitfaden](change-workflows.md)
+12. [Referenzindex](reference/index.md)
 
 ## Wie du diese Doku liest
 
 - Starte mit `getting-started.md`, wenn du das System lokal hochfahren willst.
 - Lies `system-overview.md` und `backend-runtime.md`, wenn du Architektur und Laufzeit verstehen willst.
-- Nutze `security-and-policy.md` und `failure-playbook.md`, bevor du produktive Flows oder neue Handler einsetzt.
+- Nutze `security-and-policy.md`, `handler-trust-and-approval.md` und `failure-playbook.md`, bevor du produktive Flows oder neue Handler einsetzt.
 - Verwende `decision-guide.md` und `real-world-scenarios.md`, wenn du eigene Flows sicher entwerfen oder veraendern willst.

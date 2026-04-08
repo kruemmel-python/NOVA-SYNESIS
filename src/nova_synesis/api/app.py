@@ -54,6 +54,15 @@ class RetryPolicyModel(BaseModel):
     jitter_ratio: float = 0.0
 
 
+class ManualApprovalModel(BaseModel):
+    approved: bool = False
+    approved_by: str | None = None
+    approved_at: str | None = None
+    reason: str | None = None
+    revoked_by: str | None = None
+    revoked_at: str | None = None
+
+
 class TaskSpecModel(BaseModel):
     node_id: str
     handler_name: str
@@ -65,6 +74,8 @@ class TaskSpecModel(BaseModel):
     rollback_strategy: RollbackStrategy = RollbackStrategy.FAIL_FAST
     validator_rules: dict[str, Any] = Field(default_factory=dict)
     metadata: dict[str, Any] = Field(default_factory=dict)
+    requires_manual_approval: bool = False
+    manual_approval: ManualApprovalModel = Field(default_factory=ManualApprovalModel)
     compensation_handler: str | None = None
     dependencies: list[str] = Field(default_factory=list)
     conditions: dict[str, str] = Field(default_factory=dict)
@@ -95,6 +106,16 @@ class LLMPlannerRequest(BaseModel):
     max_nodes: int = Field(default=12, ge=1, le=40)
 
 
+class NodeApprovalRequest(BaseModel):
+    approved_by: str = Field(min_length=1)
+    reason: str | None = None
+
+
+class NodeApprovalRevokeRequest(BaseModel):
+    revoked_by: str | None = None
+    reason: str | None = None
+
+
 def create_app(
     settings: Settings | None = None,
     orchestrator: OrchestratorService | None = None,
@@ -106,7 +127,7 @@ def create_app(
         yield
         await runtime.shutdown()
 
-    app = FastAPI(title=runtime.settings.app_name, version="1.0.1", lifespan=lifespan)
+    app = FastAPI(title=runtime.settings.app_name, version="1.0.2", lifespan=lifespan)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=list(runtime.settings.cors_origins),
@@ -132,7 +153,11 @@ def create_app(
 
     @app.get("/handlers")
     async def list_handlers() -> dict[str, Any]:
-        return {"handlers": runtime.handler_registry.names()}
+        details = runtime.list_handlers()
+        return {
+            "handlers": [item["name"] for item in details],
+            "details": details,
+        }
 
     @app.get("/planner/status")
     async def planner_status() -> dict[str, Any]:
@@ -231,6 +256,38 @@ def create_app(
     async def pause_flow(flow_id: int) -> dict[str, Any]:
         try:
             return runtime.pause_flow(flow_id)
+        except Exception as exc:
+            raise _translate_error(exc) from exc
+
+    @app.post("/flows/{flow_id}/nodes/{node_id}/approval")
+    async def approve_flow_node(
+        flow_id: int,
+        node_id: str,
+        request: NodeApprovalRequest,
+    ) -> dict[str, Any]:
+        try:
+            return runtime.approve_flow_node(
+                flow_id=flow_id,
+                node_id=node_id,
+                approved_by=request.approved_by,
+                reason=request.reason,
+            )
+        except Exception as exc:
+            raise _translate_error(exc) from exc
+
+    @app.delete("/flows/{flow_id}/nodes/{node_id}/approval")
+    async def revoke_flow_node_approval(
+        flow_id: int,
+        node_id: str,
+        request: NodeApprovalRevokeRequest,
+    ) -> dict[str, Any]:
+        try:
+            return runtime.revoke_flow_node_approval(
+                flow_id=flow_id,
+                node_id=node_id,
+                revoked_by=request.revoked_by,
+                reason=request.reason,
+            )
         except Exception as exc:
             raise _translate_error(exc) from exc
 

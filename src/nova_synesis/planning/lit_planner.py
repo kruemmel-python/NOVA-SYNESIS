@@ -243,6 +243,8 @@ The JSON schema must be:
       "rollback_strategy": "FAIL_FAST",
       "validator_rules": {{}},
       "metadata": {{}},
+      "requires_manual_approval": false,
+      "manual_approval": {{}},
       "compensation_handler": null,
       "dependencies": [],
       "conditions": {{}},
@@ -274,6 +276,7 @@ Rules:
 - Build executable node inputs that match the chosen handler.
 - Prefer explicit dependencies and matching edges.
 - If a condition is unconditional, use "True".
+- Default requires_manual_approval to false and manual_approval to an empty object unless gated execution is explicitly required.
 - metadata may include domain assumptions, but no prose outside the explanation field.
 
 Current flow for context:
@@ -445,6 +448,8 @@ User goal:
                     "rollback_strategy": rollback_strategy,
                     "validator_rules": self._normalize_object(raw_node.get("validator_rules")),
                     "metadata": metadata,
+                    "requires_manual_approval": bool(raw_node.get("requires_manual_approval", False)),
+                    "manual_approval": self._normalize_object(raw_node.get("manual_approval")),
                     "compensation_handler": self._normalize_compensation_handler(
                         raw_node.get("compensation_handler"),
                         handler_set,

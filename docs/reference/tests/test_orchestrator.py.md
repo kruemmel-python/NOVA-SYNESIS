@@ -17,6 +17,8 @@ Wenn neue Features abgesichert, Sicherheitsregeln erweitert oder Fehler reproduz
 - `test_end_to_end_flow_with_vector_memory_and_message_queue(tmp_path)`: Funktion oder Definition `test_end_to_end_flow_with_vector_memory_and_message_queue` dieses Moduls.
 - `test_fallback_resource_strategy_switches_to_secondary_resource(tmp_path)`: Funktion oder Definition `test_fallback_resource_strategy_switches_to_secondary_resource` dieses Moduls.
 - `test_fastapi_flow_execution_endpoint(tmp_path)`: Funktion oder Definition `test_fastapi_flow_execution_endpoint` dieses Moduls.
+- `test_handlers_endpoint_exposes_trust_metadata(tmp_path)`: Funktion oder Definition `test_handlers_endpoint_exposes_trust_metadata` dieses Moduls.
+- `test_manual_approval_endpoint_enables_execution(tmp_path)`: Funktion oder Definition `test_manual_approval_endpoint_enables_execution` dieses Moduls.
 - `test_websocket_flow_updates_stream_runtime_events(tmp_path)`: Funktion oder Definition `test_websocket_flow_updates_stream_runtime_events` dieses Moduls.
 - `test_lit_planner_normalizes_graph_output(tmp_path)`: Funktion oder Definition `test_lit_planner_normalizes_graph_output` dieses Moduls.
 - `test_semantic_firewall_rejects_cyclic_flow(tmp_path)`: Funktion oder Definition `test_semantic_firewall_rejects_cyclic_flow` dieses Moduls.
@@ -25,6 +27,7 @@ Wenn neue Features abgesichert, Sicherheitsregeln erweitert oder Fehler reproduz
 - `test_semantic_firewall_blocks_external_rest_agent_registration(tmp_path)`: Funktion oder Definition `test_semantic_firewall_blocks_external_rest_agent_registration` dieses Moduls.
 - `test_semantic_firewall_blocks_sensitive_memory_exfiltration(tmp_path)`: Funktion oder Definition `test_semantic_firewall_blocks_sensitive_memory_exfiltration` dieses Moduls.
 - `test_semantic_firewall_blocks_template_context_escape(tmp_path)`: Funktion oder Definition `test_semantic_firewall_blocks_template_context_escape` dieses Moduls.
+- `test_untrusted_handler_requires_manual_approval_override(tmp_path)`: Funktion oder Definition `test_untrusted_handler_requires_manual_approval_override` dieses Moduls.
 - `test_planner_status_endpoint_exposes_lit_configuration(tmp_path)`: Funktion oder Definition `test_planner_status_endpoint_exposes_lit_configuration` dieses Moduls.
 
 ## Abhaengigkeiten

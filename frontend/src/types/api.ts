@@ -17,6 +17,38 @@ export interface RetryPolicy {
   jitter_ratio: number;
 }
 
+export interface HandlerCertificate {
+  handler_name: string;
+  fingerprint: string;
+  module_name: string;
+  qualname: string;
+  issuer: string;
+  issued_at: string;
+  expires_at: string;
+  built_in: boolean;
+  signature: string;
+}
+
+export interface HandlerSummary {
+  name: string;
+  module_name: string;
+  qualname: string;
+  fingerprint: string;
+  trusted: boolean;
+  built_in: boolean;
+  trust_reason: string;
+  certificate: HandlerCertificate | null;
+}
+
+export interface ManualApproval {
+  approved: boolean;
+  approved_by: string | null;
+  approved_at: string | null;
+  reason: string | null;
+  revoked_by: string | null;
+  revoked_at: string | null;
+}
+
 export interface AgentSummary {
   agent_id: number;
   name: string;
@@ -54,6 +86,8 @@ export interface TaskNodeData extends Record<string, unknown> {
   rollback_strategy: RollbackStrategy;
   validator_rules: Record<string, unknown>;
   metadata: Record<string, unknown>;
+  requires_manual_approval: boolean;
+  manual_approval: ManualApproval;
   compensation_handler: string | null;
   preferred_agent_id: number | null;
   task_status: TaskStatus;
@@ -79,6 +113,8 @@ export interface TaskSpecModel {
   rollback_strategy: RollbackStrategy;
   validator_rules: Record<string, unknown>;
   metadata: Record<string, unknown>;
+  requires_manual_approval: boolean;
+  manual_approval: ManualApproval;
   compensation_handler: string | null;
   dependencies: string[];
   conditions: Record<string, string>;
@@ -110,6 +146,8 @@ export interface FlowNodeSnapshot {
   rollback_strategy: RollbackStrategy;
   validator_rules: Record<string, unknown>;
   metadata: Record<string, unknown>;
+  requires_manual_approval: boolean;
+  manual_approval: ManualApproval;
   compensation_handler: string | null;
 }
 
@@ -161,4 +199,9 @@ export interface PlannerGenerateResponse {
   model_path: string;
   backend: string;
   raw_response: string;
+}
+
+export interface HandlerCatalogResponse {
+  handlers: string[];
+  details: HandlerSummary[];
 }
