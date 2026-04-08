@@ -39,6 +39,8 @@ Optional kann das Setup auch separat ausgefuehrt werden:
 .\Use_Cases\platform_health_snapshot\setup.ps1 -ApiBaseUrl http://127.0.0.1:8552
 ```
 
+`setup.ps1` aktualisiert `ops-long-term` bewusst mit `planner_visible = false`, damit der Flow auch in der Web UI direkt gespeichert und gestartet werden kann, ohne an der Memory-Poisoning-Regel zu scheitern.
+
 ## Ablauf im Graphen
 
 - `fetch_health`: holt `GET /health` von der laufenden Instanz

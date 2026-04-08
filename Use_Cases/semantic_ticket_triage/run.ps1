@@ -8,33 +8,7 @@ $ApiBaseUrl = $ApiBaseUrl.TrimEnd("/")
 $null = & (Join-Path $PSScriptRoot "setup.ps1") -ApiBaseUrl $ApiBaseUrl
 
 $flowPath = Join-Path $PSScriptRoot "flow.json"
-$flowRequest = Get-Content $flowPath | ConvertFrom-Json
-
-$agents = Invoke-RestMethod -Method Get -Uri "$ApiBaseUrl/agents"
-$supportAgent = $agents | Where-Object { $_.name -eq "support-sink" } | Select-Object -First 1
-$salesAgent = $agents | Where-Object { $_.name -eq "sales-sink" } | Select-Object -First 1
-
-if ($null -eq $supportAgent) {
-    throw "support-sink was not found after setup"
-}
-
-if ($null -eq $salesAgent) {
-    throw "sales-sink was not found after setup"
-}
-
-$supportAgentId = [int]$supportAgent.agent_id
-$salesAgentId = [int]$salesAgent.agent_id
-
-foreach ($node in $flowRequest.nodes) {
-    if ($node.node_id -eq "route_to_support") {
-        $node.input.target_agent_id = $supportAgentId
-    }
-    elseif ($node.node_id -eq "route_to_sales") {
-        $node.input.target_agent_id = $salesAgentId
-    }
-}
-
-$flowBody = $flowRequest | ConvertTo-Json -Depth 32
+$flowBody = Get-Content $flowPath -Raw
 
 $createdFlow = Invoke-RestMethod `
     -Method Post `

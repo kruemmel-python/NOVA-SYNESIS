@@ -543,33 +543,43 @@ class SemanticFirewall:
         agent_index: dict[int, dict[str, Any]],
         report: FlowSecurityReport,
     ) -> None:
-        if "target_agent_id" not in input_payload:
-            report.add_violation(
-                "send_message.target_required",
-                "send_message requires an explicit target_agent_id",
-                node_id=node_id,
-                field="input.target_agent_id",
-            )
-            return
-
-        try:
-            target_agent_id = int(input_payload["target_agent_id"])
-        except (TypeError, ValueError):
-            report.add_violation(
-                "send_message.target_invalid",
-                "send_message target_agent_id must be numeric",
-                node_id=node_id,
-                field="input.target_agent_id",
-            )
-            return
-
-        target_agent = agent_index.get(target_agent_id)
+        target_agent = self._resolve_target_agent(agent_index, input_payload)
         if target_agent is None:
+            target_agent_id = input_payload.get("target_agent_id")
+            target_agent_name = str(input_payload.get("target_agent_name", "")).strip()
+            if target_agent_id is None and not target_agent_name:
+                report.add_violation(
+                    "send_message.target_required",
+                    "send_message requires an explicit target_agent_id or target_agent_name",
+                    node_id=node_id,
+                    field="input.target_agent_id",
+                )
+                return
+
+            if target_agent_id is not None:
+                try:
+                    int(target_agent_id)
+                except (TypeError, ValueError):
+                    report.add_violation(
+                        "send_message.target_invalid",
+                        "send_message target_agent_id must be numeric",
+                        node_id=node_id,
+                        field="input.target_agent_id",
+                    )
+                    return
+                report.add_violation(
+                    "send_message.target_unknown",
+                    f"send_message references unknown agent '{target_agent_id}'",
+                    node_id=node_id,
+                    field="input.target_agent_id",
+                )
+                return
+
             report.add_violation(
                 "send_message.target_unknown",
-                f"send_message references unknown agent '{target_agent_id}'",
+                f"send_message references unknown agent '{target_agent_name}'",
                 node_id=node_id,
-                field="input.target_agent_id",
+                field="input.target_agent_name",
             )
             return
 
@@ -577,7 +587,7 @@ class SemanticFirewall:
         if not isinstance(communication, dict):
             report.add_violation(
                 "send_message.target_no_comms",
-                f"Target agent '{target_agent_id}' has no communication adapter",
+                f"Target agent '{target_agent.get('agent_id', target_agent.get('name', 'unknown'))}' has no communication adapter",
                 node_id=node_id,
             )
             return
@@ -600,6 +610,27 @@ class SemanticFirewall:
                         node_id=node_id,
                         field=f"input.message.{blocked_key}",
                     )
+
+    @staticmethod
+    def _resolve_target_agent(
+        agent_index: dict[int, dict[str, Any]],
+        input_payload: dict[str, Any],
+    ) -> dict[str, Any] | None:
+        target_agent_id = input_payload.get("target_agent_id")
+        if target_agent_id is not None:
+            try:
+                return agent_index.get(int(target_agent_id))
+            except (TypeError, ValueError):
+                return None
+
+        target_agent_name = str(input_payload.get("target_agent_name", "")).strip()
+        if not target_agent_name:
+            return None
+        resolved_name = target_agent_name.casefold()
+        for agent in agent_index.values():
+            if str(agent.get("name", "")).casefold() == resolved_name:
+                return agent
+        return None
 
     def _validate_file_handler(
         self,
@@ -792,11 +823,8 @@ class SemanticFirewall:
                 continue
 
             input_payload = node.get("input") if isinstance(node.get("input"), dict) else {}
-            try:
-                target_agent_id = int(input_payload.get("target_agent_id"))
-            except (TypeError, ValueError):
-                continue
-            communication = agent_index.get(target_agent_id, {}).get("communication")
+            target_agent = self._resolve_target_agent(agent_index, input_payload)
+            communication = target_agent.get("communication") if isinstance(target_agent, dict) else None
             protocol = str(communication.get("protocol", "")) if isinstance(communication, dict) else ""
             if protocol.casefold() != "message_queue":
                 report.add_violation(

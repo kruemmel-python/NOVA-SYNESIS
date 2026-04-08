@@ -50,8 +50,8 @@ Optional kann das Setup auch separat ausgefuehrt werden:
 - `route_to_support` oder `route_to_sales`: brancht anhand des Suchergebnisses
 - `write_support_dispatch` oder `write_sales_dispatch`: schreibt den Branch-Nachweis
 
-`run.ps1` setzt vor dem `POST /flows` automatisch die echten `target_agent_id` Werte fuer `support-sink` und `sales-sink`.
-Wenn du `flow.json` manuell oder ueber die Web UI startest, musst du diese beiden IDs vorher aus `GET /agents` eintragen.
+`flow.json` verwendet stabile Agentennamen ueber `target_agent_name`.
+Wenn `setup.ps1` einmal gelaufen ist und die Agents `support-sink` und `sales-sink` existieren, kann derselbe Flow direkt ueber die Web UI importiert, gespeichert und gestartet werden.
 
 ## Erwartete Artefakte
 

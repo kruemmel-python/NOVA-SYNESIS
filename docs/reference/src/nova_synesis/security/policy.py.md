@@ -47,6 +47,7 @@ Methoden:
 - `_validate_acyclic(self, node_index, edges, report)`: Funktion oder Definition `_validate_acyclic` dieses Moduls.
 - `_validate_http_request(self, node_id, node, input_payload, resource_index, report)`: Funktion oder Definition `_validate_http_request` dieses Moduls.
 - `_validate_send_message(self, node_id, input_payload, agent_index, report)`: Funktion oder Definition `_validate_send_message` dieses Moduls.
+- `_resolve_target_agent(agent_index, input_payload)`: Funktion oder Definition `_resolve_target_agent` dieses Moduls.
 - `_validate_file_handler(self, node_id, input_payload, report)`: Funktion oder Definition `_validate_file_handler` dieses Moduls.
 - `_validate_expression_container(self, node_id, field, value, allowed_names, report)`: Funktion oder Definition `_validate_expression_container` dieses Moduls.
 - `_validate_expression_map(self, node_id, field, expressions, allowed_names, report)`: Funktion oder Definition `_validate_expression_map` dieses Moduls.

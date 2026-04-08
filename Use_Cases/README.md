@@ -34,6 +34,11 @@ Beispiel:
 Die `flow.json` Dateien koennen auch in den visuellen Editor importiert werden.
 Die Skripte sind trotzdem sinnvoll, weil sie vor dem Lauf die erforderlichen Memory-Systeme und Agents anlegen.
 
+Wichtig:
+
+- `platform_health_snapshot/setup.ps1` setzt `ops-long-term` absichtlich auf `planner_visible = false`, damit der Import nicht an der Memory-Poisoning-Policy scheitert.
+- `semantic_ticket_triage/flow.json` verwendet stabile `target_agent_name` Werte statt lokaler Agent-IDs, damit derselbe Flow nach dem Setup direkt in der Web UI gespeichert und gestartet werden kann.
+
 ## Erwartete Ergebnisse
 
 - `platform_health_snapshot` schreibt einen JSON-Health-Report und eine Text-Zusammenfassung

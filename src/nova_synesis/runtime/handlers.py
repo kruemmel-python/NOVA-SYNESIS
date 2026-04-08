@@ -200,8 +200,16 @@ async def send_message_handler(context: dict[str, Any]) -> dict[str, Any]:
     agents = context["agents"]
     target_agent = None
     target_agent_id = payload.get("target_agent_id")
+    target_agent_name = payload.get("target_agent_name")
     if target_agent_id is not None:
         target_agent = agents[int(target_agent_id)]
+    elif target_agent_name is not None:
+        resolved_name = str(target_agent_name).strip().casefold()
+        for agent in agents.values():
+            if agent.name.casefold() == resolved_name:
+                target_agent = agent
+                target_agent_id = agent.agent_id
+                break
 
     message = payload.get("message", payload)
     if isinstance(message, dict) and target_agent is not None and target_agent.comms is not None:
@@ -220,7 +228,9 @@ async def send_message_handler(context: dict[str, Any]) -> dict[str, Any]:
     elif target_agent is not None and target_agent.comms is not None:
         receipt = await target_agent.comms.send(message)
     else:
-        raise ValueError("send_message requires either a sender with comms or a target agent with comms")
+        raise ValueError(
+            "send_message requires either a sender with comms or a target agent resolved by target_agent_id or target_agent_name"
+        )
 
     return {"delivered": True, "receipt": receipt}
 

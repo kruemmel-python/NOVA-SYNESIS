@@ -45,20 +45,15 @@ function Get-OrCreateMemorySystem {
     param(
         [string]$MemoryId,
         [string]$Type,
-        [string]$Backend
+        [string]$Backend,
+        [hashtable]$Config = @{}
     )
-
-    $systems = Get-NovaCollection -Path "/memory-systems"
-    $existing = $systems | Where-Object { $_.memory_id -eq $MemoryId } | Select-Object -First 1
-    if ($null -ne $existing) {
-        return $existing
-    }
 
     return Post-NovaJson -Path "/memory-systems" -Body @{
         memory_id = $MemoryId
         type = $Type
         backend = $Backend
-        config = @{}
+        config = $Config
     }
 }
 
@@ -87,7 +82,10 @@ function Get-OrCreateAgent {
 $memory = Get-OrCreateMemorySystem `
     -MemoryId "ops-long-term" `
     -Type "LONG_TERM" `
-    -Backend "Use_Cases/platform_health_snapshot/state/ops-long-term.db"
+    -Backend "Use_Cases/platform_health_snapshot/state/ops-long-term.db" `
+    -Config @{
+        planner_visible = $false
+    }
 
 $agent = Get-OrCreateAgent `
     -Name "ops-archiver" `

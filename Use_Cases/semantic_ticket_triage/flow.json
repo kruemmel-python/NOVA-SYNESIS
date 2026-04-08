@@ -105,7 +105,7 @@
       "node_id": "route_to_support",
       "handler_name": "send_message",
       "input": {
-        "target_agent_id": 0,
+        "target_agent_name": "support-sink",
         "message": {
           "route": "support",
           "match_key": "{{ results['search_ticket']['matches'][0]['key'] }}",
@@ -140,7 +140,7 @@
       "node_id": "route_to_sales",
       "handler_name": "send_message",
       "input": {
-        "target_agent_id": 0,
+        "target_agent_name": "sales-sink",
         "message": {
           "route": "sales",
           "match_key": "{{ results['search_ticket']['matches'][0]['key'] }}",

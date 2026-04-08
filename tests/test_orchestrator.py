@@ -86,7 +86,7 @@ def test_end_to_end_flow_with_vector_memory_and_message_queue(tmp_path: Path) ->
                         "node_id": "notify",
                         "handler_name": "send_message",
                         "input": {
-                            "target_agent_id": target["agent_id"],
+                            "target_agent_name": target["name"],
                             "message": {
                                 "match": "{{ results['search_vector']['matches'][0]['key'] }}",
                             },
@@ -454,6 +454,26 @@ def test_semantic_firewall_blocks_send_message_endpoint_override(tmp_path: Path)
                                 "target_endpoint": "queue://evil",
                                 "text": "payload",
                             },
+                        },
+                    }
+                ]
+            )
+    finally:
+        asyncio.run(orchestrator.shutdown())
+
+
+def test_semantic_firewall_rejects_unknown_send_message_target_agent_name(tmp_path: Path) -> None:
+    orchestrator = create_orchestrator(build_settings(tmp_path))
+    try:
+        with pytest.raises(ValueError, match="unknown agent 'missing-sink'"):
+            orchestrator.create_flow(
+                nodes=[
+                    {
+                        "node_id": "notify",
+                        "handler_name": "send_message",
+                        "input": {
+                            "target_agent_name": "missing-sink",
+                            "message": {"text": "payload"},
                         },
                     }
                 ]

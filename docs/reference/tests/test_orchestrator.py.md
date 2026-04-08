@@ -24,6 +24,7 @@ Wenn neue Features abgesichert, Sicherheitsregeln erweitert oder Fehler reproduz
 - `test_semantic_firewall_rejects_cyclic_flow(tmp_path)`: Funktion oder Definition `test_semantic_firewall_rejects_cyclic_flow` dieses Moduls.
 - `test_semantic_firewall_rejects_external_http_request(tmp_path)`: Funktion oder Definition `test_semantic_firewall_rejects_external_http_request` dieses Moduls.
 - `test_semantic_firewall_blocks_send_message_endpoint_override(tmp_path)`: Funktion oder Definition `test_semantic_firewall_blocks_send_message_endpoint_override` dieses Moduls.
+- `test_semantic_firewall_rejects_unknown_send_message_target_agent_name(tmp_path)`: Funktion oder Definition `test_semantic_firewall_rejects_unknown_send_message_target_agent_name` dieses Moduls.
 - `test_semantic_firewall_blocks_external_rest_agent_registration(tmp_path)`: Funktion oder Definition `test_semantic_firewall_blocks_external_rest_agent_registration` dieses Moduls.
 - `test_semantic_firewall_blocks_sensitive_memory_exfiltration(tmp_path)`: Funktion oder Definition `test_semantic_firewall_blocks_sensitive_memory_exfiltration` dieses Moduls.
 - `test_semantic_firewall_blocks_template_context_escape(tmp_path)`: Funktion oder Definition `test_semantic_firewall_blocks_template_context_escape` dieses Moduls.
