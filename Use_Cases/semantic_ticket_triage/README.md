@@ -52,6 +52,7 @@ Optional kann das Setup auch separat ausgefuehrt werden:
 
 `flow.json` verwendet stabile Agentennamen ueber `target_agent_name`.
 Wenn `setup.ps1` einmal gelaufen ist und die Agents `support-sink` und `sales-sink` existieren, kann derselbe Flow direkt ueber die Web UI importiert, gespeichert und gestartet werden.
+`run.ps1` ist zusaetzlich abwaertskompatibel: falls ein noch nicht neu gestartetes Backend nur `target_agent_id` akzeptiert, loest das Skript die Agentennamen vor dem `POST /flows` automatisch in IDs auf.
 
 ## Erwartete Artefakte
 
