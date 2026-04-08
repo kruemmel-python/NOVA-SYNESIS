@@ -5,11 +5,11 @@
 
 ## Aufgabe der Datei
 
-Graph-Ausfuehrungsengine fuer Task- und Flow-Lifecycle.
+Graph-Ausfuehrungsengine fuer Task- und Flow-Lifecycle inklusive Template-Aufloesung und Live-Snapshots.
 
 ## Wann du diese Datei bearbeitest
 
-Wenn Ablaufsteuerung, Parallelitaet oder Snapshot-Logik geaendert wird.
+Wenn Ablaufsteuerung, Parallelitaet, Template-Kontext oder Snapshot-Logik geaendert wird.
 
 ## Klassen
 

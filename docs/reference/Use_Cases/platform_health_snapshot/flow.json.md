@@ -1,15 +1,15 @@
-# `Agenten_UML.zip`
+# `Use_Cases/platform_health_snapshot/flow.json`
 
-- Quellpfad: [Agenten_UML.zip](../../Agenten_UML.zip)
-- Kategorie: `Projektdatei`
+- Quellpfad: [Use_Cases/platform_health_snapshot/flow.json](../../../../Use_Cases/platform_health_snapshot/flow.json)
+- Kategorie: `Use Cases`
 
 ## Aufgabe der Datei
 
-Binaeres Artefakt des Projekts.
+Konfigurationsdatei des Projekts.
 
 ## Wann du diese Datei bearbeitest
 
-Nur bei gezieltem Austausch des Artefakts.
+Wenn Build-, Paket- oder Compilerkonfiguration angepasst werden muss.
 
 ## Inhalt
 

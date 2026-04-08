@@ -5,7 +5,7 @@
 
 ## Aufgabe der Datei
 
-Echter API-Client fuer REST und WebSocket-Basis-URLs.
+Echter API-Client fuer REST, Flow-Validierung, Planner und WebSocket-Basis-URLs.
 
 ## Wann du diese Datei bearbeitest
 

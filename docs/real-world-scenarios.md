@@ -1,170 +1,57 @@
 # Real World Scenarios
 
-Diese Seite enthaelt bewusst nur drei End-to-End-Beispiele. Ziel ist nicht Vollstaendigkeit, sondern sichere Anwendbarkeit.
+Diese Seite enthaelt bewusst nur drei End-to-End-Beispiele. Ziel ist nicht Vollstaendigkeit, sondern sichere Anwendbarkeit mit dem echten Backend und der aktiven Security-Policy.
 
-## Szenario 1: Einfacher Flow "API abrufen und Ergebnis merken"
+## Szenario 1: Einfacher Betriebsflow "Platform Health Snapshot"
 
-### Ziel
-
-Remote-Daten laden und in einem vorhandenen Memory-System speichern.
-
-### Voraussetzungen
-
-- mindestens eine API-Ressource ist registriert
-- ein Memory-System mit passender `memory_id` existiert
-
-### Ablauf
-
-1. API-Ressource pruefen
-2. Daten abrufen
-3. Antwort bei Erfolg im Memory sichern
-
-### Beispielstruktur
-
-```json
-{
-  "nodes": [
-    {
-      "node_id": "check-api",
-      "handler_name": "resource_health_check",
-      "input": { "resource_ids": [1] },
-      "dependencies": []
-    },
-    {
-      "node_id": "fetch-data",
-      "handler_name": "http_request",
-      "input": { "method": "GET", "timeout_s": 10 },
-      "required_resource_ids": [1],
-      "validator_rules": {
-        "required_keys": ["status_code", "body"],
-        "expression": "result['status_code'] < 400"
-      },
-      "dependencies": ["check-api"],
-      "conditions": { "check-api": "True" }
-    },
-    {
-      "node_id": "store-result",
-      "handler_name": "memory_store",
-      "input": {
-        "memory_id": "working-memory",
-        "key": "latest-api-result",
-        "value": "{{ results['fetch-data']['body'] }}"
-      },
-      "dependencies": ["fetch-data"],
-      "conditions": { "fetch-data": "source_result['status_code'] < 400" }
-    }
-  ],
-  "edges": [
-    { "from_node": "check-api", "to_node": "fetch-data", "condition": "True" },
-    { "from_node": "fetch-data", "to_node": "store-result", "condition": "source_result['status_code'] < 400" }
-  ]
-}
-```
-
-### Warum dieses Beispiel wichtig ist
-
-- nutzt nur reale Built-in-Handler
-- zeigt Resource-Einsatz, Validierung und Template-Zugriff
-- ist klein genug, um die komplette Lebenslinie des Systems zu verstehen
-
-## Szenario 2: Komplexer Flow mit Branching "Erfolgspfad und Fehlerpfad trennen"
+Referenz: `Use_Cases/platform_health_snapshot/`
 
 ### Ziel
 
-Eine API-Antwort soll unterschiedlich weiterverarbeitet werden, je nachdem ob der HTTP-Status erfolgreich ist oder nicht.
+Die lokale Plattform pruefen, einen Snapshot speichern und daraus eine Textzusammenfassung schreiben.
 
-### Ablauf
+### Warum dieser Flow produktionsnah ist
 
-1. Daten abrufen
-2. bei Erfolg eine Zusammenfassung schreiben und speichern
-3. bei Fehler einen Fehlerbericht rendern und separat persistieren
+- nutzt nur echte Built-in-Handler
+- benoetigt keinen Mock-Service
+- zeigt HTTP, Memory, Serialisierung und Dateiablage in einer kleinen, gut kontrollierbaren Kette
 
-### Beispielstruktur
+### Typischer Ablauf
 
-```json
-{
-  "nodes": [
-    {
-      "node_id": "fetch-data",
-      "handler_name": "http_request",
-      "input": { "url": "https://example.invalid/data", "method": "GET", "timeout_s": 10 },
-      "dependencies": []
-    },
-    {
-      "node_id": "render-success",
-      "handler_name": "template_render",
-      "input": {
-        "template": "Fetch succeeded with status {status}",
-        "values": { "status": "{{ results['fetch-data']['status_code'] }}" }
-      },
-      "dependencies": ["fetch-data"],
-      "conditions": { "fetch-data": "source_result['status_code'] < 400" }
-    },
-    {
-      "node_id": "store-success",
-      "handler_name": "memory_store",
-      "input": {
-        "memory_id": "working-memory",
-        "key": "last-success-summary",
-        "value": "{{ results['render-success']['rendered'] }}"
-      },
-      "dependencies": ["render-success"],
-      "conditions": { "render-success": "True" }
-    },
-    {
-      "node_id": "render-error",
-      "handler_name": "template_render",
-      "input": {
-        "template": "Fetch failed with status {status}",
-        "values": { "status": "{{ results['fetch-data']['status_code'] }}" }
-      },
-      "dependencies": ["fetch-data"],
-      "conditions": { "fetch-data": "source_result['status_code'] >= 400" }
-    },
-    {
-      "node_id": "write-error-report",
-      "handler_name": "write_file",
-      "input": {
-        "path": "reports/fetch-error.txt",
-        "content": "{{ results['render-error']['rendered'] }}",
-        "append": false
-      },
-      "dependencies": ["render-error"],
-      "conditions": { "render-error": "True" }
-    }
-  ],
-  "edges": [
-    { "from_node": "fetch-data", "to_node": "render-success", "condition": "source_result['status_code'] < 400" },
-    { "from_node": "render-success", "to_node": "store-success", "condition": "True" },
-    { "from_node": "fetch-data", "to_node": "render-error", "condition": "source_result['status_code'] >= 400" },
-    { "from_node": "render-error", "to_node": "write-error-report", "condition": "True" }
-  ]
-}
-```
+1. `http_request` gegen einen lokalen oder allowlist-konformen Health-Endpunkt
+2. `json_serialize` fuer den Snapshot
+3. `write_file` fuer Rohdaten
+4. `template_render` fuer die Zusammenfassung
+5. `write_file` fuer den lesbaren Report
+6. optional `memory_store` fuer den letzten Snapshot-Key
 
-### Warum dieses Beispiel wichtig ist
+## Szenario 2: Komplexer Flow mit Branching "Semantic Ticket Triage"
 
-- zeigt echtes Branching statt linearer Demo-Flows
-- benutzt Kantenbedingungen korrekt fuer fachliche Entscheidungen
-- trennt Erfolgspfad und Fehlerpfad sauber
-
-## Szenario 3: Fehler plus Retry / Fallback "API-Replica uebernimmt bei Ausfall"
+Referenz: `Use_Cases/semantic_ticket_triage/`
 
 ### Ziel
 
-Eine Anfrage soll nicht sofort scheitern, wenn die bevorzugte API-Ressource nicht nutzbar ist.
+Tickets semantisch bewerten, Wissen aus Memory laden und je nach Ergebnis an unterschiedliche interne Queue-Agenten dispatchen.
 
-### Voraussetzungen
+### Warum dieser Flow produktionsnah ist
 
-- mindestens zwei Ressourcen vom Typ `API` sind registriert
-- die Node verwendet `rollback_strategy = FALLBACK_RESOURCE`
+- kombiniert Vector Memory, Planner-verwertbares Wissen und Messaging
+- nutzt Branching ueber Edge-Conditions
+- bleibt policy-konform, weil `send_message` auf interne Message Queues begrenzt bleibt
 
-### Ablauf
+### Typischer Ablauf
 
-1. Daten ueber eine API-Ressource abrufen
-2. bei transientem Fehler erneut versuchen
-3. wenn noetig auf eine andere API-Ressource gleicher Art wechseln
-4. nur bei Erfolg das Ergebnis speichern
+1. Ticketdaten laden oder als Input entgegennehmen
+2. `memory_search` in einem Vector-Memory
+3. `template_render` fuer die Triage-Zusammenfassung
+4. Branching auf `dispatch-support` oder `dispatch-sales`
+5. `send_message` an registrierte Queue-Agenten
+
+## Szenario 3: Fehlerfall mit Retry und Fallback "API-Replica uebernimmt"
+
+### Ziel
+
+Ein fragiler Infrastrukturzugriff soll auch dann stabil laufen, wenn die bevorzugte Ressource kurzzeitig ausfaellt.
 
 ### Beispielstruktur
 
@@ -187,8 +74,7 @@ Eine Anfrage soll nicht sofort scheitern, wenn die bevorzugte API-Ressource nich
       "validator_rules": {
         "required_keys": ["status_code", "body"],
         "expression": "result['status_code'] < 500"
-      },
-      "dependencies": []
+      }
     },
     {
       "node_id": "store-result",
@@ -203,13 +89,18 @@ Eine Anfrage soll nicht sofort scheitern, wenn die bevorzugte API-Ressource nich
     }
   ],
   "edges": [
-    { "from_node": "fetch-primary-or-fallback", "to_node": "store-result", "condition": "source_result['status_code'] < 400" }
+    {
+      "from_node": "fetch-primary-or-fallback",
+      "to_node": "store-result",
+      "condition": "source_result['status_code'] < 400"
+    }
   ]
 }
 ```
 
-### Warum dieses Beispiel wichtig ist
+### Sichere Betriebsreihenfolge
 
-- zeigt den Unterschied zwischen Retry und Fallback
-- bildet ein realistisches Produktionsmuster fuer fragile Infrastruktur ab
-- ist direkt mit den vorhandenen Built-in-Handlern und Runtime-Regeln vereinbar
+1. zuerst `POST /flows/validate`
+2. danach speichern
+3. Laufzeit ueber `GET /flows/{flow_id}` beobachten
+4. bei Auffaelligkeiten pruefen, ob wirklich Retry oder bereits Resource-Fallback greift

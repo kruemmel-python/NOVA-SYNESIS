@@ -106,7 +106,7 @@ def create_app(
         yield
         await runtime.shutdown()
 
-    app = FastAPI(title=runtime.settings.app_name, version="1.0.0", lifespan=lifespan)
+    app = FastAPI(title=runtime.settings.app_name, version="1.0.1", lifespan=lifespan)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=list(runtime.settings.cors_origins),
@@ -194,6 +194,19 @@ def create_app(
                 edges=[edge.model_dump(mode="json") for edge in request.edges],
                 metadata=request.metadata,
             )
+        except Exception as exc:
+            raise _translate_error(exc) from exc
+
+    @app.post("/flows/validate")
+    async def validate_flow_endpoint(request: FlowCreateRequest) -> dict[str, Any]:
+        try:
+            report = runtime.validate_flow_request(
+                nodes=[node.model_dump(mode="json") for node in request.nodes],
+                edges=[edge.model_dump(mode="json") for edge in request.edges],
+                metadata=request.metadata,
+                phase="validate",
+            )
+            return report.as_dict()
         except Exception as exc:
             raise _translate_error(exc) from exc
 

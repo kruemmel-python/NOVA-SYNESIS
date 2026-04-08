@@ -11,11 +11,13 @@ DOCS = ROOT / 'docs'
 REF = DOCS / 'reference'
 
 EXCLUDED = {
+    '.git',
     'docs',
     'data',
     'debug_tmp',
     'planner_live_check',
     'planner_live_check2',
+    'release',
     'ws_debug',
     '.pytest_cache',
     '__pycache__',
@@ -25,8 +27,8 @@ EXCLUDED = {
 
 FILE_NOTES = {
     '.env.example': {
-        'purpose': 'Beispielkonfiguration fuer das Backend mit API-, Speicher-, Planner- und CORS-Settings.',
-        'edit': 'Wenn neue Umgebungsvariablen eingefuehrt oder Standardwerte kommuniziert werden muessen.',
+        'purpose': 'Beispielkonfiguration fuer Backend, Planner, CORS und die semantische Sicherheitsrichtlinie.',
+        'edit': 'Wenn neue Umgebungsvariablen eingefuehrt, Security-Grenzen angepasst oder Standardwerte kommuniziert werden muessen.',
         'related': ['src/nova_synesis/config.py', 'README.md'],
     },
     'Anweisung.md': {
@@ -75,8 +77,8 @@ FILE_NOTES = {
         'related': ['LIT/lit.windows_x86_64.exe', 'src/nova_synesis/planning/lit_planner.py'],
     },
     'src/nova_synesis/api/app.py': {
-        'purpose': 'FastAPI- und WebSocket-Schicht des Backends inklusive Request-Modelle.',
-        'edit': 'Wenn API-Endpunkte, Schemafelder oder Live-Streaming erweitert werden.',
+        'purpose': 'FastAPI- und WebSocket-Schicht des Backends inklusive Request-Modelle, Flow-Validierung und Live-Streaming.',
+        'edit': 'Wenn API-Endpunkte, Schemafelder, Sicherheitspruefung oder Live-Streaming erweitert werden.',
         'related': ['src/nova_synesis/services/orchestrator.py', 'frontend/src/lib/apiClient.ts', 'frontend/src/types/api.ts'],
     },
     'src/nova_synesis/cli.py': {
@@ -85,8 +87,8 @@ FILE_NOTES = {
         'related': ['run-backend.ps1', 'pyproject.toml'],
     },
     'src/nova_synesis/config.py': {
-        'purpose': 'Zentrale Laufzeitkonfiguration des Backends.',
-        'edit': 'Wenn neue Settings, Standardpfade oder Planner-Optionen benoetigt werden.',
+        'purpose': 'Zentrale Laufzeitkonfiguration des Backends inklusive LiteRT- und Semantic-Firewall-Settings.',
+        'edit': 'Wenn neue Settings, Standardpfade, Planner-Optionen oder Policy-Grenzen benoetigt werden.',
         'related': ['.env.example', 'src/nova_synesis/cli.py'],
     },
     'src/nova_synesis/domain/models.py': {
@@ -110,9 +112,19 @@ FILE_NOTES = {
         'related': ['src/nova_synesis/domain/models.py', 'src/nova_synesis/services/orchestrator.py'],
     },
     'src/nova_synesis/planning/lit_planner.py': {
-        'purpose': 'Lokaler LLM-Planer ueber LiteRT-LM inklusive Prompting, Parsing und Normalisierung.',
-        'edit': 'Wenn Planner-Qualitaet, Modellaufruf oder Validierung verbessert werden soll.',
+        'purpose': 'Lokaler LLM-Planer ueber LiteRT-LM inklusive Prompting, Parsing, Katalognutzung und Graph-Normalisierung.',
+        'edit': 'Wenn Planner-Qualitaet, Modellaufruf, Katalogfilterung oder Vorvalidierung verbessert werden soll.',
         'related': ['LIT/lit.windows_x86_64.exe', 'LIT/gemma-4-E2B-it.litertlm', 'frontend/src/components/layout/PlannerComposer.tsx'],
+    },
+    'src/nova_synesis/security/__init__.py': {
+        'purpose': 'Paketexporte fuer die semantische Sicherheitspruefung.',
+        'edit': 'Wenn Security-Klassen neu exportiert oder das Security-Paket umstrukturiert werden soll.',
+        'related': ['src/nova_synesis/security/policy.py', 'src/nova_synesis/services/orchestrator.py'],
+    },
+    'src/nova_synesis/security/policy.py': {
+        'purpose': 'Semantische Firewall fuer Flow- und Agent-Validierung vor Planung, Speicherung und Ausfuehrung.',
+        'edit': 'Wenn Sicherheitsregeln, Allowlists oder die Graph-Absichtspruefung veraendert werden muessen.',
+        'related': ['src/nova_synesis/services/orchestrator.py', 'src/nova_synesis/config.py', 'tests/test_orchestrator.py'],
     },
     'src/nova_synesis/resources/manager.py': {
         'purpose': 'Verwaltung und Aufloesung registrierter Ressourcen.',
@@ -120,8 +132,8 @@ FILE_NOTES = {
         'related': ['src/nova_synesis/runtime/engine.py'],
     },
     'src/nova_synesis/runtime/engine.py': {
-        'purpose': 'Graph-Ausfuehrungsengine fuer Task- und Flow-Lifecycle.',
-        'edit': 'Wenn Ablaufsteuerung, Parallelitaet oder Snapshot-Logik geaendert wird.',
+        'purpose': 'Graph-Ausfuehrungsengine fuer Task- und Flow-Lifecycle inklusive Template-Aufloesung und Live-Snapshots.',
+        'edit': 'Wenn Ablaufsteuerung, Parallelitaet, Template-Kontext oder Snapshot-Logik geaendert wird.',
         'related': ['src/nova_synesis/domain/models.py', 'src/nova_synesis/runtime/handlers.py'],
     },
     'src/nova_synesis/runtime/handlers.py': {
@@ -130,13 +142,13 @@ FILE_NOTES = {
         'related': ['src/nova_synesis/runtime/engine.py', 'frontend/src/components/layout/Sidebar.tsx'],
     },
     'src/nova_synesis/services/orchestrator.py': {
-        'purpose': 'Zentrale Service-Fassade des Backends.',
-        'edit': 'Wenn Systemkomposition, Registrierungen oder Lifecycle-Management geaendert werden.',
+        'purpose': 'Zentrale Service-Fassade des Backends inklusive Security-Gates, Planner-Katalog und Lifecycle-Management.',
+        'edit': 'Wenn Systemkomposition, Registrierungen, Policy-Durchsetzung oder Lifecycle-Management geaendert werden.',
         'related': ['src/nova_synesis/api/app.py', 'src/nova_synesis/runtime/engine.py'],
     },
     'tests/test_orchestrator.py': {
-        'purpose': 'Regressionstests fuer Kernfunktionen des Backends.',
-        'edit': 'Wenn neue Features abgesichert oder Fehler reproduzierbar getestet werden.',
+        'purpose': 'Regressionstests fuer Backend, Planner, WebSocket-Livebetrieb und Semantic-Firewall.',
+        'edit': 'Wenn neue Features abgesichert, Sicherheitsregeln erweitert oder Fehler reproduzierbar getestet werden.',
         'related': ['src/nova_synesis/services/orchestrator.py', 'src/nova_synesis/api/app.py'],
     },
     'frontend/src/App.tsx': {
@@ -150,7 +162,7 @@ FILE_NOTES = {
         'related': ['src/nova_synesis/api/app.py', 'frontend/src/lib/flowSerialization.ts'],
     },
     'frontend/src/lib/apiClient.ts': {
-        'purpose': 'Echter API-Client fuer REST und WebSocket-Basis-URLs.',
+        'purpose': 'Echter API-Client fuer REST, Flow-Validierung, Planner und WebSocket-Basis-URLs.',
         'edit': 'Wenn neue Backend-Endpunkte im Frontend angebunden werden.',
         'related': ['src/nova_synesis/api/app.py', 'frontend/src/types/api.ts'],
     },
@@ -203,6 +215,11 @@ SYMBOL_NOTES = {
     'LiteRTPlanner': 'Lokale LLM-Planung ueber LiteRT-LM.',
     'LiteRTPlanner.generate_flow_request': 'Erzeugt aus natuerlicher Sprache einen validierten FlowRequest.',
     'IntentPlanner': 'Regelbasierter Planer fuer strukturierte Intents.',
+    'SemanticFirewall': 'Semantische Sicherheitspruefung fuer Flows, Agenten und aus Planner-Graphen abgeleitete Absichten.',
+    'FlowSecurityReport': 'Strukturiertes Ergebnis einer Policy-Pruefung mit Fehlern und Warnungen.',
+    'FlowSecurityReport.ensure_allowed': 'Bricht den aktuellen Vorgang ab, wenn Regelverletzungen gefunden wurden.',
+    'SemanticFirewall.validate_flow_request': 'Prueft Graph-Struktur, Expressions, Egress und Memory-Fluesse vor der Ausfuehrung.',
+    'SemanticFirewall.validate_agent_registration': 'Prueft Agent-Registrierung auf riskante Capabilities und unerlaubte Endpunkte.',
     'FlowCanvas': 'React-Flow-Leinwand des Editors.',
     'TaskNode': 'Custom Node fuer einzelne Tasks im Canvas.',
     'InspectorPanel': 'Eigenschaftseditor fuer Nodes und Edges.',
@@ -251,7 +268,7 @@ GUIDES = {
 Neural Orchestration Visual Autonomy  
 Stateful Yielding Node-based Execution Semantic Integrated Surface
 
-Diese Dokumentation erklaert das System so, dass auch ein Entwickler ohne Vorwissen NOVA-SYNESIS starten, verstehen und gezielt aendern kann.
+Diese Dokumentation erklaert das System so, dass auch ein Entwickler ohne Vorwissen NOVA-SYNESIS starten, verstehen, absichern und gezielt aendern kann.
 
 ## Einstieg
 
@@ -260,15 +277,23 @@ Diese Dokumentation erklaert das System so, dass auch ein Entwickler ohne Vorwis
 3. [Backend-Laufzeit](backend-runtime.md)
 4. [Frontend-Editor](frontend-editor.md)
 5. [LLM-Planer und LiteRT](planner-and-lit.md)
-6. [Failure Playbook](failure-playbook.md)
-7. [Decision Guide](decision-guide.md)
-8. [Real World Scenarios](real-world-scenarios.md)
-9. [Aenderungsleitfaden](change-workflows.md)
-10. [Referenzindex](reference/index.md)
+6. [Security und Policy](security-and-policy.md)
+7. [Failure Playbook](failure-playbook.md)
+8. [Decision Guide](decision-guide.md)
+9. [Real World Scenarios](real-world-scenarios.md)
+10. [Aenderungsleitfaden](change-workflows.md)
+11. [Referenzindex](reference/index.md)
+
+## Wie du diese Doku liest
+
+- Starte mit `getting-started.md`, wenn du das System lokal hochfahren willst.
+- Lies `system-overview.md` und `backend-runtime.md`, wenn du Architektur und Laufzeit verstehen willst.
+- Nutze `security-and-policy.md` und `failure-playbook.md`, bevor du produktive Flows oder neue Handler einsetzt.
+- Verwende `decision-guide.md` und `real-world-scenarios.md`, wenn du eigene Flows sicher entwerfen oder veraendern willst.
 ''',
     'getting-started.md': '''# Schnellstart
 
-## Backend
+## 1. Backend starten
 
 ```powershell
 ./run-backend.ps1 -BindHost 127.0.0.1 -Port 8552
@@ -276,11 +301,12 @@ Diese Dokumentation erklaert das System so, dass auch ein Entwickler ohne Vorwis
 
 Wichtige URLs:
 
-- `/docs`
-- `/health`
-- `/planner/status`
+- `GET /docs`
+- `GET /health`
+- `GET /planner/status`
+- `POST /flows/validate`
 
-## Frontend
+## 2. Frontend starten
 
 `frontend/.env`:
 
@@ -295,12 +321,31 @@ cd frontend
 npm run dev
 ```
 
-## Mentales Modell
+## 3. Minimaler Arbeitsablauf
 
-- Das Frontend baut einen gerichteten Graphen.
-- Das Backend speichert ihn als `FlowRequest`.
-- Die Runtime fuehrt Knoten gemaess ihren Abhaengigkeiten aus.
-- Live-Snapshots fliessen per WebSocket zur UI zurueck.
+1. Handler, Agenten und Ressourcen im Frontend laden.
+2. Einen Graphen im Canvas zeichnen oder ueber den Planner erzeugen.
+3. Vor dem Speichern `POST /flows/validate` verwenden oder die UI-Validierung ausloesen.
+4. Den Flow ueber `POST /flows` speichern.
+5. Den Flow ueber `POST /flows/{flow_id}/run` ausfuehren.
+6. Laufzeit und Status ueber `GET /flows/{flow_id}` oder `/ws/flows/{flow_id}` beobachten.
+
+## 4. Wichtige Umgebungsvariablen
+
+- `NS_API_HOST`, `NS_API_PORT`: FastAPI-Bindung
+- `NS_LIT_BINARY_PATH`, `NS_LIT_MODEL_PATH`, `NS_LIT_TIMEOUT_S`: lokaler Planner
+- `NS_SECURITY_ENABLED`: Semantic Firewall global ein- oder ausschalten
+- `NS_SECURITY_HTTP_ALLOWED_HOSTS`: erlaubte HTTP-Zielhosts
+- `NS_SECURITY_SEND_PROTOCOLS`: erlaubte Kommunikationsprotokolle fuer `send_message`
+- `NS_CORS_ORIGINS`: erlaubte Frontend-Urspruenge
+
+## 5. Mentales Modell
+
+- Das Frontend bearbeitet einen gerichteten Graphen aus Nodes und Edges.
+- `toFlowRequest()` wandelt den Editorgraphen in das Backend-Schema.
+- Das Backend validiert Struktur, Expressions und Sicherheitsregeln.
+- Erst danach wird gespeichert oder ausgefuehrt.
+- Die Runtime fuehrt nur DAGs aus und meldet Snapshots laufend an UI und Persistenz zurueck.
 ''',
     'system-overview.md': '''# Systemueberblick
 
@@ -308,6 +353,7 @@ npm run dev
 
 - Domaene: `src/nova_synesis/domain/models.py`
 - Planung: `planning/planner.py` und `planning/lit_planner.py`
+- Sicherheitspruefung: `security/policy.py`
 - Runtime: `runtime/engine.py` und `runtime/handlers.py`
 - Persistenz: `persistence/sqlite_repository.py`
 - API: `api/app.py`
@@ -315,30 +361,116 @@ npm run dev
 
 ## Hauptdatenfluss
 
-1. Graph im Frontend erstellen oder generieren
+1. Graph im Frontend erstellen oder ueber den LiteRT-Planer generieren
 2. `toFlowRequest()` erzeugt das Backend-Schema
-3. `POST /flows` speichert den Graphen
-4. `POST /flows/{id}/run` startet die Ausfuehrung
-5. `FlowExecutor` verarbeitet den Graphen
-6. `/ws/flows/{flow_id}` uebertraegt Snapshots an die UI
+3. `POST /flows/validate` prueft Graph, Expressions, Egress und Memory-Fluesse
+4. `POST /flows` speichert den Graphen
+5. `POST /flows/{id}/run` startet die Ausfuehrung
+6. `FlowExecutor` verarbeitet den Graphen Node fuer Node
+7. `/ws/flows/{flow_id}` uebertraegt Snapshots an die UI
+8. `GET /flows/{flow_id}` bleibt die kanonische Wahrheit fuer den Laufzeitstand
+
+## Was dieses System bewusst ist
+
+- graphbasiert statt chatbasiert
+- zustandsbehaftet statt nur requestbasiert
+- planner-unterstuetzt, aber nicht planner-abhaengig
+- sicherheitsgefiltert, bevor Seiteneffekte entstehen
 ''',
     'backend-runtime.md': '''# Backend-Laufzeit
 
-Die Backend-Laufzeit wird durch `OrchestratorService` zusammengesetzt. Er besitzt Repository, Speicher, Ressourcenmanager, Planner, Handler-Registry und Execution-Engine.
+Die Backend-Laufzeit wird durch `OrchestratorService` zusammengesetzt. Er verdrahtet Repository, Speicher, Ressourcenmanager, Handler-Registry, Planner, Semantic Firewall und Execution-Engine.
 
-Wichtige Regel: Laufzeitveraenderungen betreffen fast immer gleichzeitig Domaene, Engine und API-Snapshot.
+## Reihenfolge eines normalen Flows
+
+1. API nimmt einen `FlowCreateRequest` oder eine Planner-Anfrage entgegen.
+2. `OrchestratorService.validate_flow_request()` laesst die semantische Firewall laufen.
+3. Der Flow wird in Domaenenobjekte ueberfuehrt und in SQLite gespeichert.
+4. `FlowExecutor.run_flow()` startet die DAG-Ausfuehrung.
+5. `TaskExecutor.execute_task()` loest Templates auf, reserviert Ressourcen, ruft Agent und Handler auf und persistiert Snapshots.
+6. WebSocket-Abonnenten erhalten Ereignisse wie `flow.started`, `node.completed` oder `flow.failed`.
+
+## Regel fuer Aenderungen
+
+Wenn du etwas an einem Runtime-Vertrag aenderst, pruefe fast immer gleichzeitig API, Domaenenmodell, Engine, Frontend-Typen, Serialisierung und Tests.
 ''',
     'frontend-editor.md': '''# Frontend-Editor
 
-Die UI besteht aus `App.tsx`, dem Zustand-Store `useFlowStore.ts`, der Zeichenflaeche `FlowCanvas.tsx`, der linken `Sidebar.tsx`, dem `InspectorPanel.tsx` und der `TopBar.tsx`.
+Die UI besteht aus `App.tsx`, dem Zustand-Store `useFlowStore.ts`, der Zeichenflaeche `FlowCanvas.tsx`, der linken `Sidebar.tsx`, dem `InspectorPanel.tsx`, dem Planner-Dialog und der `TopBar.tsx`.
 
-Die kritischste Integrationsdatei ist `frontend/src/lib/flowSerialization.ts`. Wenn dort Felder falsch gemappt werden, speichert die UI keinen korrekten Backend-Flow.
+## Was der Editor wirklich tut
+
+- laedt Handler, Agenten und Ressourcen aus dem echten Backend
+- baut daraus React-Flow-Nodes und -Edges
+- serialisiert den Editorzustand ueber `toFlowRequest()`
+- speichert und startet echte Flows
+- uebernimmt Live-Snapshots ueber WebSocket oder Polling
+
+## Kritische Integrationsstellen
+
+- `frontend/src/lib/flowSerialization.ts`: muss exakt zum FastAPI-Schema passen
+- `frontend/src/lib/apiClient.ts`: enthaelt die echten REST- und WebSocket-Aufrufe inklusive `POST /flows/validate`
+- `frontend/src/store/useFlowStore.ts`: haelt den kanonischen UI-Zustand fuer Nodes, Edges, Auswahl und Laufzeitstatus
+- `frontend/src/hooks/useFlowLiveUpdates.ts`: faellt bei Socket-Problemen auf Polling zurueck
 ''',
     'planner-and-lit.md': '''# LLM-Planer und LiteRT
 
-Der Planner erzeugt keine Mock-Graphen. Er nutzt die lokale `lit`-Binary und das Gemma-Modell im `LIT/`-Ordner, extrahiert JSON und validiert das Resultat gegen den echten Backend-Katalog.
+Der Planner erzeugt keine Mock-Graphen. Er nutzt die lokale `lit`-Binary und das Gemma-Modell im `LIT/`-Ordner, extrahiert JSON und normalisiert das Resultat auf das echte `FlowRequest`-Schema.
 
-Wenn du Planner-Qualitaet verbesserst, arbeite primär in `src/nova_synesis/planning/lit_planner.py`.
+## Ablauf
+
+1. `LiteRTPlanner._build_prompt()` baut den Prompt aus Benutzerziel und echtem Katalog.
+2. `_invoke_model()` ruft `lit.windows_x86_64.exe` mit `gemma-4-E2B-it.litertlm` auf.
+3. `_parse_model_output()` extrahiert genau ein JSON-Objekt.
+4. `_normalize_flow_request()` korrigiert IDs, Defaults, Abhaengigkeiten und Handler-Inputs.
+5. `OrchestratorService.generate_flow_with_llm()` laesst den Graphen anschliessend noch durch die Semantic Firewall laufen.
+
+## Wichtige Sicherheitsgrenzen
+
+- Ressourcen und Memories mit `sensitive = true` oder `planner_visible = false` werden aus dem Planner-Katalog herausgefiltert.
+- Die Antwort enthaelt `security_report`, damit UI und Betreiber sehen, ob der generierte Graph policy-konform war.
+- Planner-Warnungen bedeuten: der Graph wurde normalisiert, aber nicht stillschweigend erweitert.
+''',
+    'security-and-policy.md': '''# Security und Policy
+
+NOVA-SYNESIS sichert nicht nur Code, sondern die Absicht eines Graphen. Diese Aufgabe uebernimmt die Semantic Firewall in `src/nova_synesis/security/policy.py`.
+
+## Wann die Policy greift
+
+- bei Agent-Registrierung
+- bei `POST /flows/validate`
+- bei `POST /flows`
+- vor `POST /flows/{flow_id}/run`
+- nach einer Planner-Generierung, bevor der Graph an die UI zurueckgeht
+
+## Was geprueft wird
+
+- Graph-Struktur: keine Zyklen, keine Selbstkanten, keine unbekannten Nodes
+- Retry-Budget und maximale Graphgroesse
+- Expressions und Templates: nur erlaubte Symbole und AST-Knoten
+- HTTP-Egress: nur erlaubte Hosts oder Loopback
+- Messaging: nur erlaubte Protokolle und kein Endpoint-Override im Payload
+- Dateioperationen: kein `allow_outside_workdir`
+- Sensitive Memories: kein Abfluss in `http_request` oder externe Nachrichtenziele
+- Planner-visible Memories: kein untrusted Ingest ohne explizites Opt-in
+- Agent-Registrierung: keine unerlaubten REST/WebSocket-Endpunkte und keine blockierten Capability-Profile
+
+## Bedeutende Felder
+
+- `sensitive = true`
+- `planner_visible = false`
+- `allow_untrusted_ingest = true`
+
+## Wichtige Settings
+
+- `NS_SECURITY_ENABLED`
+- `NS_SECURITY_MAX_NODES`
+- `NS_SECURITY_MAX_EDGES`
+- `NS_SECURITY_MAX_TOTAL_ATTEMPTS`
+- `NS_SECURITY_MAX_EXPRESSION_LENGTH`
+- `NS_SECURITY_MAX_EXPRESSION_NODES`
+- `NS_SECURITY_HTTP_ALLOWED_HOSTS`
+- `NS_SECURITY_SEND_PROTOCOLS`
 ''',
     'failure-playbook.md': '''# Failure Playbook
 
@@ -346,9 +478,10 @@ Diese Seite beschreibt die realen Stoerungsbilder des Systems. Ziel ist nicht nu
 
 ## Triage-Reihenfolge
 
-1. Zuerst unterscheiden: Planner-Problem, Live-Transportproblem oder echte Runtime-Stoerung.
+1. Zuerst unterscheiden: Planner-Problem, Policy-Rejektion, Live-Transportproblem oder echte Runtime-Stoerung.
 2. Immer den echten Snapshot ueber `GET /flows/{flow_id}` lesen.
-3. Erst danach UI, WebSocket oder Planner-Oberflaeche beurteilen.
+3. Bei Save-/Run-Fehlern zuerst `POST /flows/validate` auswerten.
+4. Erst danach UI, WebSocket oder Planner-Oberflaeche beurteilen.
 
 ## 1. Planner liefert ungueltiges JSON
 
@@ -361,35 +494,41 @@ Diese Seite beschreibt die realen Stoerungsbilder des Systems. Ziel ist nicht nu
   - `Planner response does not contain a JSON object`
   - `Planner response contains an incomplete JSON object`
 
-### Was im Code passiert
-
-- `LiteRTPlanner._invoke_model()` ruft die lokale `lit`-Binary auf
-- `LiteRTPlanner._parse_model_output()` extrahiert den JSON-Anteil
-- `LiteRTPlanner._normalize_flow_request()` validiert das Resultat gegen echte Handler, Ressourcen, Agenten und Memory-Systeme
-
-### Typische Ursachen
-
-- das Modell schreibt Text ausserhalb des JSON
-- das JSON ist syntaktisch unvollstaendig
-- das Modell erfindet Handler oder Ressourcen
-- `max_nodes` ist zu hoch und das Modell driftet
-- Binary- oder Modellpfad sind falsch
-
 ### Sofortmassnahmen
 
 1. `GET /planner/status` pruefen
-2. den Prompt kuerzer und restriktiver formulieren
+2. Prompt kuerzen und restriktiver machen
 3. `max_nodes` senken
-4. sicherstellen, dass benoetigte Memory-IDs, Agenten und Ressourcen wirklich registriert sind
+4. sicherstellen, dass benoetigte Handler, Agenten, Ressourcen und Memory-IDs wirklich registriert sind
 5. bei wiederholtem Fehler den Flow manuell im Editor bauen
 
-### Dauerhafte Korrektur
+## 2. Semantic Firewall lehnt den Flow ab
 
-- Prompt-Kontrakt in `src/nova_synesis/planning/lit_planner.py` schaerfen
-- Normalisierung erweitern, wenn das Modell wiederholt denselben plausiblen, aber falschen Vertrag produziert
-- nur echte Handler in den Planner-Katalog aufnehmen
+### Woran du es erkennst
 
-## 2. WebSocket bricht waehrend der Execution ab
+- `POST /flows/validate`, `POST /flows` oder `POST /planner/generate-flow` liefert einen Fehler
+- typische Fehlermeldungen:
+  - `Semantic firewall rejected flow`
+  - `Outbound host ... is outside the semantic firewall allowlist`
+  - `Flow contains a cycle`
+  - `Sensitive memory data may not flow into http_request nodes`
+
+### Typische Ursachen
+
+- zyklischer Graph
+- `http_request` auf einen nicht erlaubten Host
+- `send_message` ohne `target_agent_id` oder mit Endpoint-Override
+- Template oder Condition mit nicht erlaubten Symbolen
+- planner-sichtbare Memory-Store-Node hinter untrusted Ingest
+
+### Sofortmassnahmen
+
+1. denselben Payload gegen `POST /flows/validate` schicken
+2. `violations` und `warnings` getrennt lesen
+3. pruefen, ob das Problem fachlich oder rein policy-seitig ist
+4. bei legitimen Produktionsfaellen erst Settings oder Memory-/Resource-Metadaten anpassen, nicht die Regel blind entfernen
+
+## 3. WebSocket bricht waehrend der Execution ab
 
 ### Woran du es erkennst
 
@@ -399,14 +538,7 @@ Diese Seite beschreibt die realen Stoerungsbilder des Systems. Ziel ist nicht nu
 
 ### Was das System bereits fuer dich macht
 
-`frontend/src/hooks/useFlowLiveUpdates.ts` faellt automatisch auf Polling gegen `GET /flows/{flow_id}` zurueck. Das bedeutet: Die UI bleibt nutzbar, auch wenn der Socket weg ist.
-
-### Typische Ursachen
-
-- Backend wurde neu gestartet
-- Port oder Host in `frontend/.env` stimmen nicht
-- Proxy oder Netzwerkumgebung blockieren WebSocket-Upgrades
-- der Benutzer ist noch auf einem alten `flow_id`
+`frontend/src/hooks/useFlowLiveUpdates.ts` faellt automatisch auf Polling gegen `GET /flows/{flow_id}` zurueck. Die UI bleibt dadurch nutzbar, auch wenn der Socket weg ist.
 
 ### Sofortmassnahmen
 
@@ -415,13 +547,7 @@ Diese Seite beschreibt die realen Stoerungsbilder des Systems. Ziel ist nicht nu
 3. unterscheiden: ist nur `/ws/flows/{flow_id}` defekt oder auch REST?
 4. wenn REST geht, die Ausfuehrung nicht abbrechen, sondern Snapshot weiter per Polling beobachten
 
-### Dauerhafte Korrektur
-
-- gleiche Host-/Port-Konfiguration fuer REST und WebSocket erzwingen
-- bei Reverse Proxy WebSocket-Support explizit konfigurieren
-- Polling-Fallback als Sicherheitsnetz beibehalten
-
-## 3. Resource haengt oder laeuft in Timeout / Sattlauf
+## 4. Resource haengt oder laeuft in Timeout / Sattlauf
 
 ### Woran du es erkennst
 
@@ -429,37 +555,19 @@ Diese Seite beschreibt die realen Stoerungsbilder des Systems. Ziel ist nicht nu
 - der Flow macht keine sichtbaren Fortschritte, ohne sofort auf `FAILED` zu springen
 - einzelne Ressourcen stehen auf `BUSY` oder `DOWN`
 
-### Wichtige technische Besonderheit dieses Projekts
+### Wichtige technische Besonderheit
 
-Die Engine ruft `ResourceManager.acquire_many()` ohne globalen Timeout auf. Das heisst:
-
-- ist eine Ressource `DOWN`, scheitert die Reservierung schnell
-- ist eine Ressource nur voll ausgelastet, kann eine Task auf Freigabe warten
-- handler-spezifische Timeouts, etwa `http_request.timeout_s`, greifen nur innerhalb des Handlers, nicht waehrend der Ressourcenreservierung selbst
-
-### Typische Ursachen
-
-- Resource-Kapazitaet (`metadata.capacity`) ist zu klein fuer die Flow-Konkurrenz
-- externe API oder Dateiressource blockiert
-- eine vorherige Task haelt die Ressource laenger als erwartet
-- der Flow nutzt feste `required_resource_ids`, obwohl eigentlich ein Typ-Fallback sinnvoll waere
+`ResourceManager.acquire_many()` hat keinen globalen Flow-Timeout. Handler-Timeouts wie `http_request.timeout_s` greifen erst nach erfolgreicher Ressourcenreservierung.
 
 ### Sofortmassnahmen
 
-1. `GET /flows/{flow_id}` lesen und die auf `RUNNING` stehenden Nodes identifizieren
+1. `GET /flows/{flow_id}` lesen und die `RUNNING`-Nodes identifizieren
 2. `GET /resources` und gegebenenfalls `resource_health_check` verwenden
-3. pruefen, ob `max_concurrency` oder die Ressourcenkapazitaet zu aggressiv eingestellt sind
+3. `max_concurrency`, Kapazitaet und `required_resource_ids` gegen die echte Infrastruktur pruefen
 4. bei HTTP-Aufrufen explizit `timeout_s` setzen
 5. wenn moeglich auf `required_resource_types` plus `FALLBACK_RESOURCE` umstellen
 
-### Dauerhafte Korrektur
-
-- Kapazitaet der Ressource realistisch modellieren
-- konkurrierende Flows oder Node-Level-Konkurrenz reduzieren
-- fuer fragilen Infrastrukturzugriff `RETRY` oder `FALLBACK_RESOURCE` statt `FAIL_FAST` nutzen
-- lang laufende Seiteneffekte in kleinere, kontrollierbare Nodes zerlegen
-
-## 4. Flow bleibt auf `RUNNING` stehen
+## 5. Flow bleibt auf `RUNNING` stehen
 
 ### Woran du es erkennst
 
@@ -467,14 +575,12 @@ Die Engine ruft `ResourceManager.acquire_many()` ohne globalen Timeout auf. Das 
 - dieselben Nodes bleiben ueber mehrere Snapshots hinweg `RUNNING`
 - `completed_nodes` waechst nicht mehr
 
-### Was das in diesem System meist bedeutet
-
-Das ist haeufig kein Graph-Deadlock, sondern eine laufende Task, die nie sauber zurueckkehrt:
+### Typische Ursachen
 
 - Handler wartet auf externen Dienst
 - Ressource wartet auf Freigabe
 - externer Endpunkt antwortet nie innerhalb eines sinnvollen Timeouts
-- die UI hat den letzten erfolgreichen Zustand gezeigt und der Nutzer verwechselt das mit einem eigentlichen Engine-Stall
+- ein lang laufender Seiteneffekt wurde nicht in kleinere Nodes zerlegt
 
 ### Sofortmassnahmen
 
@@ -484,28 +590,9 @@ Das ist haeufig kein Graph-Deadlock, sondern eine laufende Task, die nie sauber 
 4. bei `http_request` ein sinnvolles `timeout_s` setzen
 5. pruefen, ob Ressource oder Kommunikationsziel erreichbar sind
 
-### Dauerhafte Korrektur
-
-- fuer externe I/O immer explizite Timeouts und Retries modellieren
-- Flows nicht mit ungebremster Parallelitaet gegen knappe Ressourcen fahren
-- problematische Langlaeufer erst manuell als Einzel-Flow testen
-
-## 5. Graph-Deadlock oder logisch blockierter Flow
+## 6. Graph-Deadlock oder logisch blockierter Flow
 
 Wichtig: Wenn keine Node mehr startbar ist und trotzdem noch `pending` existiert, setzt `FlowExecutor.run_flow()` den Flow auf `FAILED` und schreibt `deadlock_nodes` in die Metadaten.
-
-### Woran du es erkennst
-
-- `GET /flows/{flow_id}` zeigt `state = FAILED`
-- `metadata.deadlock_nodes` ist gesetzt
-- `blocked_nodes` enthaelt Knoten, deren Bedingungen nie wahr wurden
-
-### Typische Ursachen
-
-- zyklische Abhaengigkeiten
-- alle Kantenbedingungen sind formal ausgewertet, aber keine fuehrt zu einem startbaren Node
-- ein Bedingungsausdruck referenziert unbekannte Symbole
-- es existiert kein echter Startknoten
 
 ### Sofortmassnahmen
 
@@ -520,13 +607,7 @@ Wichtig: Wenn keine Node mehr startbar ist und trotzdem noch `pending` existiert
    - `failed`
 4. pruefen, ob mindestens ein Node ohne eingehende Kante existiert
 
-### Dauerhafte Korrektur
-
-- Graph strikt als DAG modellieren
-- Branching nur fuer fachliche Entscheidungen verwenden
-- komplexe Vorbedingungen lieber als eigenen vorbereitenden Node modellieren
-
-## 6. Handler wirft Exception
+## 7. Handler wirft Exception
 
 ### Woran du es erkennst
 
@@ -545,16 +626,6 @@ Wichtig: Wenn keine Node mehr startbar ist und trotzdem noch `pending` existiert
 - `validator_rules` schlagen fehl
 - eine Ressource kann nicht reserviert werden
 
-### Was die Engine dann macht
-
-- sie erzeugt ein `ErrorEvent`
-- je nach `rollback_strategy` folgt:
-  - `FAIL_FAST`
-  - `RETRY`
-  - `COMPENSATE`
-  - `FALLBACK_RESOURCE`
-- bei `FALLBACK_RESOURCE` versucht `ResourceManager.find_fallback_resources()` einen Ersatz gleicher Art
-
 ### Sofortmassnahmen
 
 1. `failed_nodes` im Snapshot lesen
@@ -562,39 +633,27 @@ Wichtig: Wenn keine Node mehr startbar ist und trotzdem noch `pending` existiert
 3. Ressourcen, Agenten und Memory-Systeme pruefen
 4. `retry_policy` und `rollback_strategy` auf Infrastrukturrealitaet abstimmen
 
-### Dauerhafte Korrektur
-
-- Handler klein und vertragsscharf halten
-- `validator_rules` bewusst einsetzen
-- bei externen Diensten eher `RETRY` oder `FALLBACK_RESOURCE` als `FAIL_FAST` verwenden
-
 ## Welche Daten du vor tieferer Analyse sammeln solltest
 
 - `flow_id`
 - kompletter Snapshot aus `GET /flows/{flow_id}`
+- Ergebnis von `POST /flows/validate`, falls Save oder Run scheitert
 - alle aktuell `RUNNING`, `FAILED` und `blocked` Nodes
 - Handlername und Input der auffaelligen Node
 - verwendete Ressourcen, Agenten und Memory-IDs
-- bei Planner-Problemen: Prompt und `max_nodes`
+- bei Planner-Problemen: Prompt, `max_nodes` und `security_report`
 ''',
     'decision-guide.md': '''# Decision Guide
 
-Diese Seite dokumentiert keine Syntax, sondern Entscheidungslogik. Genau dieses Wissen fehlt oft, wenn ein System zwar sauber gebaut, aber noch nicht betriebssicher uebergeben wurde.
+Diese Seite dokumentiert Entscheidungslogik. Genau dieses Wissen fehlt oft, wenn ein System zwar sauber gebaut, aber noch nicht betriebssicher uebergeben wurde.
 
-## 1. Warum dieser Planner der Standard ist
+## 1. Wann Planner, wann manuell?
 
-Der lokale LiteRT-Planer ist hier die richtige Standardwahl, weil er vier Anforderungen gleichzeitig erfuellt:
+Nutze den LiteRT-Planer, wenn:
 
-- lokal und ohne Cloud-Abhaengigkeit
-- auf den echten Handler-, Agenten- und Ressourcenkatalog begrenzt
-- normalisiert auf das reale `FlowRequest`-Schema
-- fuer manuelle Nachbearbeitung im visuellen Editor geeignet
-
-Nutze den Planner, wenn:
-
-- du einen Workflow schnell aus einer fachlichen Beschreibung ableiten willst
-- du eine erste Graph-Struktur brauchst
-- du vorhandene Flows mit neuen Ideen erweitern willst
+- du aus einer fachlichen Beschreibung schnell einen ersten Graphen ableiten willst
+- du eine komplexe Kette mit mehreren Handlern skizzieren musst
+- du anschliessend im visuellen Editor nacharbeiten willst
 
 Baue den Flow lieber manuell, wenn:
 
@@ -617,38 +676,13 @@ Baue einen neuen Handler, wenn:
 - der Inputvertrag fachlich anders ist
 - der Nutzer den Baustein im Editor als eigenstaendige Aktion verstehen soll
 
-Praktische Regel:
-
-- `http_request` mit neuen optionalen Headern: bestehenden Handler erweitern
-- Dateischreiben plus Upload zu einem Fremddienst: neuer Handler
-
-Vermeide absichtlich einen Mega-Handler, der viele unverbundene Modi mit einem einzigen Namen abdeckt. Solche Handler sind schwer zu testen, schwer zu dokumentieren und fuehren im Planner schnell zu unsauberen Flows.
-
 ## 3. Flow, einzelne Task oder Agent?
 
-### Verwende einen Flow, wenn
+- Verwende einen Flow, wenn Reihenfolge, Verzweigung oder Fehlerbehandlung sichtbar modelliert werden muessen.
+- Verwende nur eine einzelne Task, wenn genau ein isolierter Arbeitsschritt existiert.
+- Verwende einen Agenten, wenn Faehigkeiten, Kommunikationsadapter oder eine feste Verantwortlichkeit wichtig sind.
 
-- Reihenfolge wichtig ist
-- Verzweigungen oder Bedingungen existieren
-- mehrere Nebenwirkungen koordiniert werden muessen
-- Fehlerbehandlung ueber mehrere Schritte sichtbar sein soll
-
-### Verwende nur eine einzelne Task, wenn
-
-- genau ein Arbeitsschritt benoetigt wird
-- keine Verzweigung und keine nachgelagerten Schritte existieren
-
-### Verwende einen Agenten, wenn
-
-- eine Task bewusst an einen bestimmten Faehigkeitstraeger gebunden sein soll
-- Kommunikationsadapter benoetigt werden
-- Capability-Gating fachlich wichtig ist
-
-Wichtig:
-
-Ein Agent ersetzt keinen Flow. Der Flow modelliert den Prozess. Der Agent modelliert, wer eine Task uebernehmen darf oder wie eine Task in ein Kommunikationsnetz eingebettet ist.
-
-Viele sinnvolle Flows brauchen ueberhaupt keinen Agenten. Ein deterministischer `http_request -> memory_store`-Flow ist dafuer das beste Beispiel.
+Ein Agent ersetzt keinen Flow. Der Flow modelliert den Prozess. Der Agent modelliert, wer oder was eine Task ausfuehren darf.
 
 ## 4. Wann ist eine Resource wirklich notwendig?
 
@@ -668,31 +702,36 @@ Nutze keine Resource, wenn der Schritt rein lokal und transformativ ist:
 
 ## 5. Konkrete Resource-ID oder nur Resource-Type?
 
-Nutze `required_resource_ids`, wenn:
+- `required_resource_ids`: wenn exakt ein bestimmtes System getroffen werden muss
+- `required_resource_types`: wenn jeder passende Vertreter einer Kategorie ausreicht oder Fallback sinnvoll ist
 
-- exakt ein bestimmter Endpunkt oder ein bestimmtes System getroffen werden muss
-- Compliance, Umgebung oder Datenlokalitaet fest vorgegeben sind
-
-Nutze `required_resource_types`, wenn:
-
-- jeder passende Vertreter einer Kategorie ausreicht
-- Fallback zwischen Ressourcen gleicher Art sinnvoll ist
-
-Praxis:
-
-- produktive Kern-API mit fester URL: konkrete Resource-ID
-- beliebige freie GPU oder alternatives API-Replica: Resource-Type
+Faustregel: feste Kern-API per ID, austauschbare Replikate oder GPUs per Typ.
 
 ## 6. Welche Rollback-Strategie ist die richtige?
 
-- `FAIL_FAST`: bei irreversiblen Fehlern oder wenn Folgeschritte keinen Sinn mehr ergeben
+- `FAIL_FAST`: wenn Folgeschritte ohne Erfolg des Nodes keinen Sinn ergeben
 - `RETRY`: bei transienten Netz- oder Dienstfehlern
 - `FALLBACK_RESOURCE`: wenn mehrere Ressourcen gleicher Art vorhanden sind
 - `COMPENSATE`: wenn ein Fehler nach einer Nebenwirkung aktiv bereinigt werden muss
 
-Die Standardwahl fuer reine Infrastrukturprobleme ist meist `RETRY` oder `FALLBACK_RESOURCE`, nicht `COMPENSATE`.
+## 7. Wann musst du `POST /flows/validate` aktiv nutzen?
 
-## 7. Wann soll eine Condition auf eine Edge?
+Immer vor produktivem Speichern oder Ausfuehren, wenn:
+
+- ein Flow durch den Planner erzeugt wurde
+- neue Templates, Conditions oder Validator-Ausdruecke eingebaut wurden
+- neue Ressourcen, Agenten oder Memory-Systeme beteiligt sind
+- du Security-Grenzen geaendert hast
+
+## 8. Wie klassifizierst du Memory-Systeme?
+
+- `sensitive = true`: fuer vertrauliche Inhalte, die nicht in Planner oder externe Sinks gelangen sollen
+- `planner_visible = false`: wenn ein Memory manuell nutzbar, aber nicht planner-sichtbar sein soll
+- `allow_untrusted_ingest = true`: nur wenn bewusst Daten aus HTTP, Messaging oder Dateiquellen in planner-sichtbares Wissen einfliessen duerfen
+
+Wenn du unsicher bist, starte konservativ: `sensitive = true` oder `planner_visible = false`.
+
+## 9. Wann soll eine Condition auf eine Edge?
 
 Eine Edge-Condition ist richtig, wenn du einen fachlichen Branch modellierst:
 
@@ -700,175 +739,62 @@ Eine Edge-Condition ist richtig, wenn du einen fachlichen Branch modellierst:
 - weitere Verarbeitung nur bei gueltigem Ergebnis
 - optionale Folgeaktionen
 
-Eine Edge-Condition ist falsch, wenn du damit versuchst, Daten umzubauen oder fehlende Vorverarbeitung zu kompensieren. Dann fehlt meist ein eigener Node.
+Eine Edge-Condition ist falsch, wenn du damit Daten umbauen oder fehlende Vorverarbeitung verstecken willst. Dann fehlt meist ein eigener Node.
 ''',
     'real-world-scenarios.md': '''# Real World Scenarios
 
-Diese Seite enthaelt bewusst nur drei End-to-End-Beispiele. Ziel ist nicht Vollstaendigkeit, sondern sichere Anwendbarkeit.
+Diese Seite enthaelt bewusst nur drei End-to-End-Beispiele. Ziel ist nicht Vollstaendigkeit, sondern sichere Anwendbarkeit mit dem echten Backend und der aktiven Security-Policy.
 
-## Szenario 1: Einfacher Flow "API abrufen und Ergebnis merken"
+## Szenario 1: Einfacher Betriebsflow "Platform Health Snapshot"
 
-### Ziel
-
-Remote-Daten laden und in einem vorhandenen Memory-System speichern.
-
-### Voraussetzungen
-
-- mindestens eine API-Ressource ist registriert
-- ein Memory-System mit passender `memory_id` existiert
-
-### Ablauf
-
-1. API-Ressource pruefen
-2. Daten abrufen
-3. Antwort bei Erfolg im Memory sichern
-
-### Beispielstruktur
-
-```json
-{
-  "nodes": [
-    {
-      "node_id": "check-api",
-      "handler_name": "resource_health_check",
-      "input": { "resource_ids": [1] },
-      "dependencies": []
-    },
-    {
-      "node_id": "fetch-data",
-      "handler_name": "http_request",
-      "input": { "method": "GET", "timeout_s": 10 },
-      "required_resource_ids": [1],
-      "validator_rules": {
-        "required_keys": ["status_code", "body"],
-        "expression": "result['status_code'] < 400"
-      },
-      "dependencies": ["check-api"],
-      "conditions": { "check-api": "True" }
-    },
-    {
-      "node_id": "store-result",
-      "handler_name": "memory_store",
-      "input": {
-        "memory_id": "working-memory",
-        "key": "latest-api-result",
-        "value": "{{ results['fetch-data']['body'] }}"
-      },
-      "dependencies": ["fetch-data"],
-      "conditions": { "fetch-data": "source_result['status_code'] < 400" }
-    }
-  ],
-  "edges": [
-    { "from_node": "check-api", "to_node": "fetch-data", "condition": "True" },
-    { "from_node": "fetch-data", "to_node": "store-result", "condition": "source_result['status_code'] < 400" }
-  ]
-}
-```
-
-### Warum dieses Beispiel wichtig ist
-
-- nutzt nur reale Built-in-Handler
-- zeigt Resource-Einsatz, Validierung und Template-Zugriff
-- ist klein genug, um die komplette Lebenslinie des Systems zu verstehen
-
-## Szenario 2: Komplexer Flow mit Branching "Erfolgspfad und Fehlerpfad trennen"
+Referenz: `Use_Cases/platform_health_snapshot/`
 
 ### Ziel
 
-Eine API-Antwort soll unterschiedlich weiterverarbeitet werden, je nachdem ob der HTTP-Status erfolgreich ist oder nicht.
+Die lokale Plattform pruefen, einen Snapshot speichern und daraus eine Textzusammenfassung schreiben.
 
-### Ablauf
+### Warum dieser Flow produktionsnah ist
 
-1. Daten abrufen
-2. bei Erfolg eine Zusammenfassung schreiben und speichern
-3. bei Fehler einen Fehlerbericht rendern und separat persistieren
+- nutzt nur echte Built-in-Handler
+- benoetigt keinen Mock-Service
+- zeigt HTTP, Memory, Serialisierung und Dateiablage in einer kleinen, gut kontrollierbaren Kette
 
-### Beispielstruktur
+### Typischer Ablauf
 
-```json
-{
-  "nodes": [
-    {
-      "node_id": "fetch-data",
-      "handler_name": "http_request",
-      "input": { "url": "https://example.invalid/data", "method": "GET", "timeout_s": 10 },
-      "dependencies": []
-    },
-    {
-      "node_id": "render-success",
-      "handler_name": "template_render",
-      "input": {
-        "template": "Fetch succeeded with status {status}",
-        "values": { "status": "{{ results['fetch-data']['status_code'] }}" }
-      },
-      "dependencies": ["fetch-data"],
-      "conditions": { "fetch-data": "source_result['status_code'] < 400" }
-    },
-    {
-      "node_id": "store-success",
-      "handler_name": "memory_store",
-      "input": {
-        "memory_id": "working-memory",
-        "key": "last-success-summary",
-        "value": "{{ results['render-success']['rendered'] }}"
-      },
-      "dependencies": ["render-success"],
-      "conditions": { "render-success": "True" }
-    },
-    {
-      "node_id": "render-error",
-      "handler_name": "template_render",
-      "input": {
-        "template": "Fetch failed with status {status}",
-        "values": { "status": "{{ results['fetch-data']['status_code'] }}" }
-      },
-      "dependencies": ["fetch-data"],
-      "conditions": { "fetch-data": "source_result['status_code'] >= 400" }
-    },
-    {
-      "node_id": "write-error-report",
-      "handler_name": "write_file",
-      "input": {
-        "path": "reports/fetch-error.txt",
-        "content": "{{ results['render-error']['rendered'] }}",
-        "append": false
-      },
-      "dependencies": ["render-error"],
-      "conditions": { "render-error": "True" }
-    }
-  ],
-  "edges": [
-    { "from_node": "fetch-data", "to_node": "render-success", "condition": "source_result['status_code'] < 400" },
-    { "from_node": "render-success", "to_node": "store-success", "condition": "True" },
-    { "from_node": "fetch-data", "to_node": "render-error", "condition": "source_result['status_code'] >= 400" },
-    { "from_node": "render-error", "to_node": "write-error-report", "condition": "True" }
-  ]
-}
-```
+1. `http_request` gegen einen lokalen oder allowlist-konformen Health-Endpunkt
+2. `json_serialize` fuer den Snapshot
+3. `write_file` fuer Rohdaten
+4. `template_render` fuer die Zusammenfassung
+5. `write_file` fuer den lesbaren Report
+6. optional `memory_store` fuer den letzten Snapshot-Key
 
-### Warum dieses Beispiel wichtig ist
+## Szenario 2: Komplexer Flow mit Branching "Semantic Ticket Triage"
 
-- zeigt echtes Branching statt linearer Demo-Flows
-- benutzt Kantenbedingungen korrekt fuer fachliche Entscheidungen
-- trennt Erfolgspfad und Fehlerpfad sauber
-
-## Szenario 3: Fehler plus Retry / Fallback "API-Replica uebernimmt bei Ausfall"
+Referenz: `Use_Cases/semantic_ticket_triage/`
 
 ### Ziel
 
-Eine Anfrage soll nicht sofort scheitern, wenn die bevorzugte API-Ressource nicht nutzbar ist.
+Tickets semantisch bewerten, Wissen aus Memory laden und je nach Ergebnis an unterschiedliche interne Queue-Agenten dispatchen.
 
-### Voraussetzungen
+### Warum dieser Flow produktionsnah ist
 
-- mindestens zwei Ressourcen vom Typ `API` sind registriert
-- die Node verwendet `rollback_strategy = FALLBACK_RESOURCE`
+- kombiniert Vector Memory, Planner-verwertbares Wissen und Messaging
+- nutzt Branching ueber Edge-Conditions
+- bleibt policy-konform, weil `send_message` auf interne Message Queues begrenzt bleibt
 
-### Ablauf
+### Typischer Ablauf
 
-1. Daten ueber eine API-Ressource abrufen
-2. bei transientem Fehler erneut versuchen
-3. wenn noetig auf eine andere API-Ressource gleicher Art wechseln
-4. nur bei Erfolg das Ergebnis speichern
+1. Ticketdaten laden oder als Input entgegennehmen
+2. `memory_search` in einem Vector-Memory
+3. `template_render` fuer die Triage-Zusammenfassung
+4. Branching auf `dispatch-support` oder `dispatch-sales`
+5. `send_message` an registrierte Queue-Agenten
+
+## Szenario 3: Fehlerfall mit Retry und Fallback "API-Replica uebernimmt"
+
+### Ziel
+
+Ein fragiler Infrastrukturzugriff soll auch dann stabil laufen, wenn die bevorzugte Ressource kurzzeitig ausfaellt.
 
 ### Beispielstruktur
 
@@ -891,8 +817,7 @@ Eine Anfrage soll nicht sofort scheitern, wenn die bevorzugte API-Ressource nich
       "validator_rules": {
         "required_keys": ["status_code", "body"],
         "expression": "result['status_code'] < 500"
-      },
-      "dependencies": []
+      }
     },
     {
       "node_id": "store-result",
@@ -907,31 +832,50 @@ Eine Anfrage soll nicht sofort scheitern, wenn die bevorzugte API-Ressource nich
     }
   ],
   "edges": [
-    { "from_node": "fetch-primary-or-fallback", "to_node": "store-result", "condition": "source_result['status_code'] < 400" }
+    {
+      "from_node": "fetch-primary-or-fallback",
+      "to_node": "store-result",
+      "condition": "source_result['status_code'] < 400"
+    }
   ]
 }
 ```
 
-### Warum dieses Beispiel wichtig ist
+### Sichere Betriebsreihenfolge
 
-- zeigt den Unterschied zwischen Retry und Fallback
-- bildet ein realistisches Produktionsmuster fuer fragile Infrastruktur ab
-- ist direkt mit den vorhandenen Built-in-Handlern und Runtime-Regeln vereinbar
+1. zuerst `POST /flows/validate`
+2. danach speichern
+3. Laufzeit ueber `GET /flows/{flow_id}` beobachten
+4. bei Auffaelligkeiten pruefen, ob wirklich Retry oder bereits Resource-Fallback greift
 ''',
     'change-workflows.md': '''# Aenderungsleitfaden
 
 ## Neuer Handler
 
 1. Handler in `runtime/handlers.py` implementieren und registrieren
-2. Tests erweitern
-3. UI laedt den Handler automatisch ueber `/handlers`
+2. pruefen, ob der Handler im Planner sichtbar sein soll
+3. Security-Regeln fuer Egress, Templates oder Seiteneffekte in `security/policy.py` bewerten
+4. Tests in `tests/test_orchestrator.py` erweitern
+5. Frontend prueft den Handler automatisch ueber `/handlers`
+6. `tools/generate_docs.py` und danach `docs/` neu erzeugen
 
 ## Neues Node-Feld
 
 1. Backend-Schema in `api/app.py`
-2. TypeScript-Typen in `frontend/src/types/api.ts`
-3. Serialisierung in `frontend/src/lib/flowSerialization.ts`
-4. Inspector in `frontend/src/components/layout/InspectorPanel.tsx`
+2. Domaenenmodell und Snapshot in `domain/models.py`
+3. TypeScript-Typen in `frontend/src/types/api.ts`
+4. Serialisierung in `frontend/src/lib/flowSerialization.ts`
+5. Inspector in `frontend/src/components/layout/InspectorPanel.tsx`
+6. Validierung und Security-Auswirkungen pruefen
+7. Tests und Dokumentation nachziehen
+
+## Neue Security-Regel
+
+1. Policy in `security/policy.py` erweitern
+2. Settings in `config.py` und `.env.example` nachziehen
+3. API- und Planner-Auswirkungen pruefen
+4. mindestens einen positiven und einen negativen Testfall schreiben
+5. `tools/generate_docs.py` ausfuehren und `docs/` neu erzeugen
 ''',
 }
 
@@ -944,6 +888,14 @@ def excluded(path: Path) -> bool:
     r = rel(path)
     parts = set(path.relative_to(ROOT).parts)
     if '.pytest_cache' in parts or '__pycache__' in parts:
+        return True
+    if 'output' in parts or 'state' in parts:
+        return True
+    if path.name == '.env':
+        return True
+    if path.suffix in {'.zip', '.exe', '.db', '.pdf'}:
+        return True
+    if r.endswith('.tsbuildinfo') or r.endswith('.xnnpack_cache') or r.endswith('.litertlm'):
         return True
     return any(r == item or r.startswith(item + '/') for item in EXCLUDED)
 
@@ -974,6 +926,8 @@ def doc_link(doc: Path, source: Path) -> str:
 def category(r: str) -> str:
     if r.startswith('src/nova_synesis/'):
         return 'Backend'
+    if r.startswith('Use_Cases/'):
+        return 'Use Cases'
     if r.startswith('frontend/src/'):
         return 'Frontend'
     if r.startswith('frontend/'):
@@ -1267,6 +1221,7 @@ def write_guides(files: list[Path]) -> None:
         '- `data/`, `debug_tmp/`, `planner_live_check*/`, `ws_debug/`: Laufzeit- und Debug-Artefakte',
         '- `frontend/node_modules/`, `frontend/dist/`: Fremd- und Buildartefakte',
         '- `__pycache__/`, `.pytest_cache/`: Cache-Verzeichnisse',
+        '- `.git/`, `release/`, lokale `.env`, `Use_Cases/**/output`, `Use_Cases/**/state`, `*.zip`, `*.exe`, `*.db`, `*.pdf`, `*.litertlm`, `*.xnnpack_cache`, `*.tsbuildinfo`: Artefakte, Binaries oder maschinenlokale Dateien',
         '',
         '## Dokumentierte Dateien',
         '',

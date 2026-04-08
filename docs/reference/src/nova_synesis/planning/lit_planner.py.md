@@ -5,11 +5,11 @@
 
 ## Aufgabe der Datei
 
-Lokaler LLM-Planer ueber LiteRT-LM inklusive Prompting, Parsing und Normalisierung.
+Lokaler LLM-Planer ueber LiteRT-LM inklusive Prompting, Parsing, Katalognutzung und Graph-Normalisierung.
 
 ## Wann du diese Datei bearbeitest
 
-Wenn Planner-Qualitaet, Modellaufruf oder Validierung verbessert werden soll.
+Wenn Planner-Qualitaet, Modellaufruf, Katalogfilterung oder Vorvalidierung verbessert werden soll.
 
 ## Klassen
 

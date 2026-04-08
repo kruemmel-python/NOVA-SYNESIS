@@ -23,6 +23,8 @@
 - [src/nova_synesis/runtime/__init__.py](src/nova_synesis/runtime/__init__.py.md)
 - [src/nova_synesis/runtime/engine.py](src/nova_synesis/runtime/engine.py.md)
 - [src/nova_synesis/runtime/handlers.py](src/nova_synesis/runtime/handlers.py.md)
+- [src/nova_synesis/security/__init__.py](src/nova_synesis/security/__init__.py.md)
+- [src/nova_synesis/security/policy.py](src/nova_synesis/security/policy.py.md)
 - [src/nova_synesis/services/__init__.py](src/nova_synesis/services/__init__.py.md)
 - [src/nova_synesis/services/orchestrator.py](src/nova_synesis/services/orchestrator.py.md)
 
@@ -51,16 +53,13 @@
 
 ## Frontend-Konfiguration
 
-- [frontend/.env](frontend/.env.md)
 - [frontend/.env.example](frontend/.env.example.md)
 - [frontend/index.html](frontend/index.html.md)
 - [frontend/package-lock.json](frontend/package-lock.json.md)
 - [frontend/package.json](frontend/package.json.md)
 - [frontend/tsconfig.app.json](frontend/tsconfig.app.json.md)
-- [frontend/tsconfig.app.tsbuildinfo](frontend/tsconfig.app.tsbuildinfo.md)
 - [frontend/tsconfig.json](frontend/tsconfig.json.md)
 - [frontend/tsconfig.node.json](frontend/tsconfig.node.json.md)
-- [frontend/tsconfig.node.tsbuildinfo](frontend/tsconfig.node.tsbuildinfo.md)
 - [frontend/vite.config.d.ts](frontend/vite.config.d.ts.md)
 - [frontend/vite.config.js](frontend/vite.config.js.md)
 - [frontend/vite.config.ts](frontend/vite.config.ts.md)
@@ -68,17 +67,15 @@
 ## LLM-Runtime
 
 - [LIT/README.md](LIT/README.md.md)
-- [LIT/gemma-4-E2B-it.litertlm](LIT/gemma-4-E2B-it.litertlm.md)
-- [LIT/gemma-4-E2B-it.litertlm.xnnpack_cache](LIT/gemma-4-E2B-it.litertlm.xnnpack_cache.md)
-- [LIT/lit.windows_x86_64.exe](LIT/lit.windows_x86_64.exe.md)
 - [LIT/planner_test_prompt.txt](LIT/planner_test_prompt.txt.md)
 
 ## Projektdatei
 
 - [.env.example](.env.example.md)
-- [Agenten_UML.zip](Agenten_UML.zip.md)
+- [.gitignore](.gitignore.md)
 - [Anweisung.md](Anweisung.md.md)
 - [Dockerfile](Dockerfile.md)
+- [LICENSE](LICENSE.md)
 - [README.md](README.md.md)
 - [pyproject.toml](pyproject.toml.md)
 - [run-backend.cmd](run-backend.cmd.md)
@@ -90,6 +87,19 @@
 
 - [tests/test_orchestrator.py](tests/test_orchestrator.py.md)
 
+## Use Cases
+
+- [Use_Cases/README.md](Use_Cases/README.md.md)
+- [Use_Cases/platform_health_snapshot/README.md](Use_Cases/platform_health_snapshot/README.md.md)
+- [Use_Cases/platform_health_snapshot/flow.json](Use_Cases/platform_health_snapshot/flow.json.md)
+- [Use_Cases/platform_health_snapshot/run.ps1](Use_Cases/platform_health_snapshot/run.ps1.md)
+- [Use_Cases/platform_health_snapshot/setup.ps1](Use_Cases/platform_health_snapshot/setup.ps1.md)
+- [Use_Cases/semantic_ticket_triage/README.md](Use_Cases/semantic_ticket_triage/README.md.md)
+- [Use_Cases/semantic_ticket_triage/flow.json](Use_Cases/semantic_ticket_triage/flow.json.md)
+- [Use_Cases/semantic_ticket_triage/run.ps1](Use_Cases/semantic_ticket_triage/run.ps1.md)
+- [Use_Cases/semantic_ticket_triage/setup.ps1](Use_Cases/semantic_ticket_triage/setup.ps1.md)
+
 ## Werkzeug
 
+- [tools/build_code_release.ps1](tools/build_code_release.ps1.md)
 - [tools/generate_docs.py](tools/generate_docs.py.md)

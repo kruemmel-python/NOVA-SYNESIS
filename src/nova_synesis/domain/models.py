@@ -448,7 +448,6 @@ class Task:
             expression,
             {
                 "result": result,
-                "task": self,
                 "metadata": self.metadata,
             },
         ):

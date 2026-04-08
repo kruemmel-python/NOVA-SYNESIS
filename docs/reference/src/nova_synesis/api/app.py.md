@@ -5,11 +5,11 @@
 
 ## Aufgabe der Datei
 
-FastAPI- und WebSocket-Schicht des Backends inklusive Request-Modelle.
+FastAPI- und WebSocket-Schicht des Backends inklusive Request-Modelle, Flow-Validierung und Live-Streaming.
 
 ## Wann du diese Datei bearbeitest
 
-Wenn API-Endpunkte, Schemafelder oder Live-Streaming erweitert werden.
+Wenn API-Endpunkte, Schemafelder, Sicherheitspruefung oder Live-Streaming erweitert werden.
 
 ## Klassen
 

@@ -1,15 +1,15 @@
-# `frontend/tsconfig.node.tsbuildinfo`
+# `LICENSE`
 
-- Quellpfad: [frontend/tsconfig.node.tsbuildinfo](../../../frontend/tsconfig.node.tsbuildinfo)
-- Kategorie: `Frontend-Konfiguration`
+- Quellpfad: [LICENSE](../../LICENSE)
+- Kategorie: `Projektdatei`
 
 ## Aufgabe der Datei
 
-Generiertes Cache-Artefakt, das Builds oder Inferenz beschleunigt.
+Projektdatei mit eigener Rolle im Repository.
 
 ## Wann du diese Datei bearbeitest
 
-Normalerweise nie direkt. Bei Bedarf loeschen und neu erzeugen lassen.
+Wenn sich die fachliche oder technische Verantwortung dieser Datei aendert.
 
 ## Inhalt
 

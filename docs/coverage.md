@@ -1,27 +1,34 @@
 # Abdeckung
 
-- Dokumentierte Projektdateien: `73`
-- Referenzdateien: `74`
+- Dokumentierte Projektdateien: `80`
+- Referenzdateien: `81`
 
 ## Ausgeschlossene Bereiche
 
 - `data/`, `debug_tmp/`, `planner_live_check*/`, `ws_debug/`: Laufzeit- und Debug-Artefakte
 - `frontend/node_modules/`, `frontend/dist/`: Fremd- und Buildartefakte
 - `__pycache__/`, `.pytest_cache/`: Cache-Verzeichnisse
+- `.git/`, `release/`, lokale `.env`, `Use_Cases/**/output`, `Use_Cases/**/state`, `*.zip`, `*.exe`, `*.db`, `*.pdf`, `*.litertlm`, `*.xnnpack_cache`, `*.tsbuildinfo`: Artefakte, Binaries oder maschinenlokale Dateien
 
 ## Dokumentierte Dateien
 
 - `.env.example`
-- `Agenten_UML.zip`
+- `.gitignore`
 - `Anweisung.md`
 - `Dockerfile`
+- `LICENSE`
 - `LIT/README.md`
-- `LIT/gemma-4-E2B-it.litertlm`
-- `LIT/gemma-4-E2B-it.litertlm.xnnpack_cache`
-- `LIT/lit.windows_x86_64.exe`
 - `LIT/planner_test_prompt.txt`
 - `README.md`
-- `frontend/.env`
+- `Use_Cases/README.md`
+- `Use_Cases/platform_health_snapshot/README.md`
+- `Use_Cases/platform_health_snapshot/flow.json`
+- `Use_Cases/platform_health_snapshot/run.ps1`
+- `Use_Cases/platform_health_snapshot/setup.ps1`
+- `Use_Cases/semantic_ticket_triage/README.md`
+- `Use_Cases/semantic_ticket_triage/flow.json`
+- `Use_Cases/semantic_ticket_triage/run.ps1`
+- `Use_Cases/semantic_ticket_triage/setup.ps1`
 - `frontend/.env.example`
 - `frontend/index.html`
 - `frontend/package-lock.json`
@@ -47,10 +54,8 @@
 - `frontend/src/types/api.ts`
 - `frontend/src/vite-env.d.ts`
 - `frontend/tsconfig.app.json`
-- `frontend/tsconfig.app.tsbuildinfo`
 - `frontend/tsconfig.json`
 - `frontend/tsconfig.node.json`
-- `frontend/tsconfig.node.tsbuildinfo`
 - `frontend/vite.config.d.ts`
 - `frontend/vite.config.js`
 - `frontend/vite.config.ts`
@@ -78,9 +83,12 @@
 - `src/nova_synesis/runtime/__init__.py`
 - `src/nova_synesis/runtime/engine.py`
 - `src/nova_synesis/runtime/handlers.py`
+- `src/nova_synesis/security/__init__.py`
+- `src/nova_synesis/security/policy.py`
 - `src/nova_synesis/services/__init__.py`
 - `src/nova_synesis/services/orchestrator.py`
 - `tests/test_orchestrator.py`
+- `tools/build_code_release.ps1`
 - `tools/generate_docs.py`
 - `uml.html`
 - `uml_V3.mmd`

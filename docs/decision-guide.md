@@ -1,21 +1,14 @@
 # Decision Guide
 
-Diese Seite dokumentiert keine Syntax, sondern Entscheidungslogik. Genau dieses Wissen fehlt oft, wenn ein System zwar sauber gebaut, aber noch nicht betriebssicher uebergeben wurde.
+Diese Seite dokumentiert Entscheidungslogik. Genau dieses Wissen fehlt oft, wenn ein System zwar sauber gebaut, aber noch nicht betriebssicher uebergeben wurde.
 
-## 1. Warum dieser Planner der Standard ist
+## 1. Wann Planner, wann manuell?
 
-Der lokale LiteRT-Planer ist hier die richtige Standardwahl, weil er vier Anforderungen gleichzeitig erfuellt:
+Nutze den LiteRT-Planer, wenn:
 
-- lokal und ohne Cloud-Abhaengigkeit
-- auf den echten Handler-, Agenten- und Ressourcenkatalog begrenzt
-- normalisiert auf das reale `FlowRequest`-Schema
-- fuer manuelle Nachbearbeitung im visuellen Editor geeignet
-
-Nutze den Planner, wenn:
-
-- du einen Workflow schnell aus einer fachlichen Beschreibung ableiten willst
-- du eine erste Graph-Struktur brauchst
-- du vorhandene Flows mit neuen Ideen erweitern willst
+- du aus einer fachlichen Beschreibung schnell einen ersten Graphen ableiten willst
+- du eine komplexe Kette mit mehreren Handlern skizzieren musst
+- du anschliessend im visuellen Editor nacharbeiten willst
 
 Baue den Flow lieber manuell, wenn:
 
@@ -38,38 +31,13 @@ Baue einen neuen Handler, wenn:
 - der Inputvertrag fachlich anders ist
 - der Nutzer den Baustein im Editor als eigenstaendige Aktion verstehen soll
 
-Praktische Regel:
-
-- `http_request` mit neuen optionalen Headern: bestehenden Handler erweitern
-- Dateischreiben plus Upload zu einem Fremddienst: neuer Handler
-
-Vermeide absichtlich einen Mega-Handler, der viele unverbundene Modi mit einem einzigen Namen abdeckt. Solche Handler sind schwer zu testen, schwer zu dokumentieren und fuehren im Planner schnell zu unsauberen Flows.
-
 ## 3. Flow, einzelne Task oder Agent?
 
-### Verwende einen Flow, wenn
+- Verwende einen Flow, wenn Reihenfolge, Verzweigung oder Fehlerbehandlung sichtbar modelliert werden muessen.
+- Verwende nur eine einzelne Task, wenn genau ein isolierter Arbeitsschritt existiert.
+- Verwende einen Agenten, wenn Faehigkeiten, Kommunikationsadapter oder eine feste Verantwortlichkeit wichtig sind.
 
-- Reihenfolge wichtig ist
-- Verzweigungen oder Bedingungen existieren
-- mehrere Nebenwirkungen koordiniert werden muessen
-- Fehlerbehandlung ueber mehrere Schritte sichtbar sein soll
-
-### Verwende nur eine einzelne Task, wenn
-
-- genau ein Arbeitsschritt benoetigt wird
-- keine Verzweigung und keine nachgelagerten Schritte existieren
-
-### Verwende einen Agenten, wenn
-
-- eine Task bewusst an einen bestimmten Faehigkeitstraeger gebunden sein soll
-- Kommunikationsadapter benoetigt werden
-- Capability-Gating fachlich wichtig ist
-
-Wichtig:
-
-Ein Agent ersetzt keinen Flow. Der Flow modelliert den Prozess. Der Agent modelliert, wer eine Task uebernehmen darf oder wie eine Task in ein Kommunikationsnetz eingebettet ist.
-
-Viele sinnvolle Flows brauchen ueberhaupt keinen Agenten. Ein deterministischer `http_request -> memory_store`-Flow ist dafuer das beste Beispiel.
+Ein Agent ersetzt keinen Flow. Der Flow modelliert den Prozess. Der Agent modelliert, wer oder was eine Task ausfuehren darf.
 
 ## 4. Wann ist eine Resource wirklich notwendig?
 
@@ -89,31 +57,36 @@ Nutze keine Resource, wenn der Schritt rein lokal und transformativ ist:
 
 ## 5. Konkrete Resource-ID oder nur Resource-Type?
 
-Nutze `required_resource_ids`, wenn:
+- `required_resource_ids`: wenn exakt ein bestimmtes System getroffen werden muss
+- `required_resource_types`: wenn jeder passende Vertreter einer Kategorie ausreicht oder Fallback sinnvoll ist
 
-- exakt ein bestimmter Endpunkt oder ein bestimmtes System getroffen werden muss
-- Compliance, Umgebung oder Datenlokalitaet fest vorgegeben sind
-
-Nutze `required_resource_types`, wenn:
-
-- jeder passende Vertreter einer Kategorie ausreicht
-- Fallback zwischen Ressourcen gleicher Art sinnvoll ist
-
-Praxis:
-
-- produktive Kern-API mit fester URL: konkrete Resource-ID
-- beliebige freie GPU oder alternatives API-Replica: Resource-Type
+Faustregel: feste Kern-API per ID, austauschbare Replikate oder GPUs per Typ.
 
 ## 6. Welche Rollback-Strategie ist die richtige?
 
-- `FAIL_FAST`: bei irreversiblen Fehlern oder wenn Folgeschritte keinen Sinn mehr ergeben
+- `FAIL_FAST`: wenn Folgeschritte ohne Erfolg des Nodes keinen Sinn ergeben
 - `RETRY`: bei transienten Netz- oder Dienstfehlern
 - `FALLBACK_RESOURCE`: wenn mehrere Ressourcen gleicher Art vorhanden sind
 - `COMPENSATE`: wenn ein Fehler nach einer Nebenwirkung aktiv bereinigt werden muss
 
-Die Standardwahl fuer reine Infrastrukturprobleme ist meist `RETRY` oder `FALLBACK_RESOURCE`, nicht `COMPENSATE`.
+## 7. Wann musst du `POST /flows/validate` aktiv nutzen?
 
-## 7. Wann soll eine Condition auf eine Edge?
+Immer vor produktivem Speichern oder Ausfuehren, wenn:
+
+- ein Flow durch den Planner erzeugt wurde
+- neue Templates, Conditions oder Validator-Ausdruecke eingebaut wurden
+- neue Ressourcen, Agenten oder Memory-Systeme beteiligt sind
+- du Security-Grenzen geaendert hast
+
+## 8. Wie klassifizierst du Memory-Systeme?
+
+- `sensitive = true`: fuer vertrauliche Inhalte, die nicht in Planner oder externe Sinks gelangen sollen
+- `planner_visible = false`: wenn ein Memory manuell nutzbar, aber nicht planner-sichtbar sein soll
+- `allow_untrusted_ingest = true`: nur wenn bewusst Daten aus HTTP, Messaging oder Dateiquellen in planner-sichtbares Wissen einfliessen duerfen
+
+Wenn du unsicher bist, starte konservativ: `sensitive = true` oder `planner_visible = false`.
+
+## 9. Wann soll eine Condition auf eine Edge?
 
 Eine Edge-Condition ist richtig, wenn du einen fachlichen Branch modellierst:
 
@@ -121,4 +94,4 @@ Eine Edge-Condition ist richtig, wenn du einen fachlichen Branch modellierst:
 - weitere Verarbeitung nur bei gueltigem Ergebnis
 - optionale Folgeaktionen
 
-Eine Edge-Condition ist falsch, wenn du damit versuchst, Daten umzubauen oder fehlende Vorverarbeitung zu kompensieren. Dann fehlt meist ein eigener Node.
+Eine Edge-Condition ist falsch, wenn du damit Daten umbauen oder fehlende Vorverarbeitung verstecken willst. Dann fehlt meist ein eigener Node.

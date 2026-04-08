@@ -24,6 +24,7 @@ from nova_synesis.planning.planner import IntentPlanner
 from nova_synesis.resources.manager import ResourceManager
 from nova_synesis.runtime.engine import ExecutionContext, FlowExecutor, TaskExecutor
 from nova_synesis.runtime.handlers import TaskHandlerRegistry, register_default_handlers
+from nova_synesis.security import SemanticFirewall
 
 
 class OrchestratorService:
@@ -46,6 +47,7 @@ class OrchestratorService:
         self.flows: dict[int, ExecutionFlow] = {}
         self._flow_subscribers: dict[int, set[asyncio.Queue[dict[str, Any]]]] = {}
         self.lit_planner = LiteRTPlanner(settings)
+        self.semantic_firewall = SemanticFirewall(settings)
 
         register_default_handlers(self.handler_registry)
 
@@ -92,6 +94,14 @@ class OrchestratorService:
         communication: dict[str, Any] | None = None,
         memory_ids: list[str] | None = None,
     ) -> dict[str, Any]:
+        firewall_report = self.semantic_firewall.validate_agent_registration(
+            name=name,
+            capabilities=capabilities or [],
+            communication=communication,
+            existing_agents=self.list_agents(),
+        )
+        firewall_report.ensure_allowed()
+
         comms = None
         if communication is not None:
             comms = CommunicationAdapterFactory.create(
@@ -150,6 +160,7 @@ class OrchestratorService:
         edges: list[dict[str, Any]] | None = None,
         metadata: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
+        self.validate_flow_request(nodes=nodes, edges=edges or [], metadata=metadata or {}).ensure_allowed()
         intent = self.create_intent(
             goal="Direct flow creation",
             constraints={
@@ -184,10 +195,16 @@ class OrchestratorService:
             task_id_allocator=lambda: self.repository.next_id("task"),
             flow_id_allocator=lambda: self.repository.next_id("flow"),
         )
+        flow_snapshot = self._serialize_flow(flow)
+        self.validate_flow_request(
+            nodes=self._snapshot_nodes_to_specs(flow_snapshot),
+            edges=flow_snapshot["edges"],
+            metadata=flow_snapshot.get("metadata", {}),
+        ).ensure_allowed()
         self._persist_flow(flow)
         self.flows[flow.flow_id] = flow
-        self._schedule_publish(flow.flow_id, "flow.created", self._serialize_flow(flow))
-        return self._serialize_flow(flow)
+        self._schedule_publish(flow.flow_id, "flow.created", flow_snapshot)
+        return flow_snapshot
 
     async def execute_intent(
         self,
@@ -201,6 +218,12 @@ class OrchestratorService:
     async def run_flow(self, flow_id: int) -> dict[str, Any]:
         if flow_id not in self.flows:
             raise KeyError(f"Unknown flow '{flow_id}'")
+        flow_snapshot = self._serialize_flow(self.flows[flow_id])
+        self.validate_flow_request(
+            nodes=self._snapshot_nodes_to_specs(flow_snapshot),
+            edges=flow_snapshot.get("edges", []),
+            metadata=flow_snapshot.get("metadata", {}),
+        ).ensure_allowed()
         snapshot = await self.flow_executor.run_flow(self.flows[flow_id])
         self.repository.save_flow(self.flows[flow_id])
         return snapshot
@@ -248,10 +271,19 @@ class OrchestratorService:
             current_flow,
             max_nodes,
         )
+        security_report = self.validate_flow_request(
+            nodes=result.flow_request["nodes"],
+            edges=result.flow_request.get("edges", []),
+            metadata=result.flow_request.get("metadata", {}),
+            planner_generated=True,
+            phase="planner",
+        )
+        security_report.ensure_allowed()
         return {
             "flow_request": result.flow_request,
             "explanation": result.explanation,
-            "warnings": result.warnings,
+            "warnings": result.warnings + [finding.message for finding in security_report.warnings],
+            "security_report": security_report.as_dict(),
             "model_path": result.model_path,
             "backend": result.backend,
             "raw_response": result.raw_response,
@@ -315,9 +347,70 @@ class OrchestratorService:
         return PlannerCatalog(
             handlers=self.handler_registry.names(),
             agents=self.list_agents(),
+            resources=[
+                resource
+                for resource in self.list_resources()
+                if bool(resource.get("metadata", {}).get("planner_visible", True))
+                and not bool(resource.get("metadata", {}).get("sensitive", False))
+            ],
+            memory_systems=[
+                memory_system
+                for memory_system in self.list_memory_systems()
+                if bool(memory_system.get("config", {}).get("planner_visible", True))
+                and not bool(memory_system.get("config", {}).get("sensitive", False))
+            ],
+        )
+
+    def validate_flow_request(
+        self,
+        nodes: list[dict[str, Any]],
+        edges: list[dict[str, Any]] | None = None,
+        metadata: dict[str, Any] | None = None,
+        planner_generated: bool = False,
+        phase: str = "create",
+    ) -> Any:
+        return self.semantic_firewall.validate_flow_request(
+            nodes=nodes,
+            edges=edges or [],
+            metadata=metadata or {},
+            agents=self.list_agents(),
             resources=self.list_resources(),
             memory_systems=self.list_memory_systems(),
+            planner_generated=planner_generated,
+            phase=phase,
         )
+
+    @staticmethod
+    def _snapshot_nodes_to_specs(flow_snapshot: dict[str, Any]) -> list[dict[str, Any]]:
+        nodes = []
+        for node_id, node in flow_snapshot.get("nodes", {}).items():
+            nodes.append(
+                {
+                    "node_id": node_id,
+                    "handler_name": node.get("handler_name"),
+                    "input": node.get("input"),
+                    "required_capabilities": node.get("required_capabilities", []),
+                    "required_resource_ids": node.get("required_resource_ids", []),
+                    "required_resource_types": node.get("required_resource_types", []),
+                    "retry_policy": node.get("retry_policy", {}),
+                    "rollback_strategy": node.get("rollback_strategy", "FAIL_FAST"),
+                    "validator_rules": node.get("validator_rules", {}),
+                    "metadata": node.get("metadata", {}),
+                    "compensation_handler": node.get("compensation_handler"),
+                    "dependencies": [
+                        edge["from_node"]
+                        for edge in flow_snapshot.get("edges", [])
+                        if edge.get("to_node") == node_id
+                    ],
+                    "conditions": {
+                        edge["from_node"]: edge.get("condition", "True")
+                        for edge in flow_snapshot.get("edges", [])
+                        if edge.get("to_node") == node_id
+                    },
+                    "preferred_agent_id": node.get("assigned_agent_id"),
+                }
+            )
+        return nodes
 
     def _default_memory_backend(self, memory_type: MemoryType) -> str:
         if memory_type == MemoryType.SHORT_TERM:

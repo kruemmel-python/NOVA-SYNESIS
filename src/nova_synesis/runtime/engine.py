@@ -100,10 +100,11 @@ class TaskExecutor:
 
                 runtime_view = {
                     "results": flow_results,
-                    "task": task,
                     "node_id": node_id,
-                    "flow": flow.observe(),
-                    "agent": task.assigned_agent,
+                    "flow": {
+                        "flow_id": flow.flow_id,
+                        "state": flow.state.value,
+                    },
                 }
                 prepared_input = resolve_templates(task.input, runtime_view)
 

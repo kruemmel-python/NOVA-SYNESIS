@@ -5,11 +5,11 @@
 
 ## Aufgabe der Datei
 
-Zentrale Laufzeitkonfiguration des Backends.
+Zentrale Laufzeitkonfiguration des Backends inklusive LiteRT- und Semantic-Firewall-Settings.
 
 ## Wann du diese Datei bearbeitest
 
-Wenn neue Settings, Standardpfade oder Planner-Optionen benoetigt werden.
+Wenn neue Settings, Standardpfade, Planner-Optionen oder Policy-Grenzen benoetigt werden.
 
 ## Klassen
 

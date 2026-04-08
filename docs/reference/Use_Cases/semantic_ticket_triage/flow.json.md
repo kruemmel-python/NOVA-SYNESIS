@@ -1,15 +1,15 @@
-# `frontend/.env`
+# `Use_Cases/semantic_ticket_triage/flow.json`
 
-- Quellpfad: [frontend/.env](../../../frontend/.env)
-- Kategorie: `Frontend-Konfiguration`
+- Quellpfad: [Use_Cases/semantic_ticket_triage/flow.json](../../../../Use_Cases/semantic_ticket_triage/flow.json)
+- Kategorie: `Use Cases`
 
 ## Aufgabe der Datei
 
-Projektdatei mit eigener Rolle im Repository.
+Konfigurationsdatei des Projekts.
 
 ## Wann du diese Datei bearbeitest
 
-Wenn sich die fachliche oder technische Verantwortung dieser Datei aendert.
+Wenn Build-, Paket- oder Compilerkonfiguration angepasst werden muss.
 
 ## Inhalt
 

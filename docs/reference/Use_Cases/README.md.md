@@ -1,15 +1,15 @@
-# `.env.example`
+# `Use_Cases/README.md`
 
-- Quellpfad: [.env.example](../../.env.example)
-- Kategorie: `Projektdatei`
+- Quellpfad: [Use_Cases/README.md](../../../Use_Cases/README.md)
+- Kategorie: `Use Cases`
 
 ## Aufgabe der Datei
 
-Beispielkonfiguration fuer Backend, Planner, CORS und die semantische Sicherheitsrichtlinie.
+Markdown-Datei mit Projektwissen oder Anweisungen.
 
 ## Wann du diese Datei bearbeitest
 
-Wenn neue Umgebungsvariablen eingefuehrt, Security-Grenzen angepasst oder Standardwerte kommuniziert werden muessen.
+Wenn sich die fachliche oder technische Verantwortung dieser Datei aendert.
 
 ## Inhalt
 
@@ -24,8 +24,3 @@ Keine direkten Importzeilen oder fuer diese Dateiklasse nicht sinnvoll.
 - Aendere Vertrage nie isoliert, wenn dieselben Felder in API, UI und Persistenz verwendet werden.
 - Pruefe nach Veraenderungen immer die benachbarten Dateien derselben Verantwortungskette.
 - Bei Runtime- oder API-Aenderungen die Tests erneut ausfuehren.
-
-## Verwandte Dateien
-
-- [src/nova_synesis/config.py](src/nova_synesis/config.py.md)
-- [README.md](README.md.md)

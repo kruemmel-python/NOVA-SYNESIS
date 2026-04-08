@@ -1,15 +1,15 @@
-# `LIT/gemma-4-E2B-it.litertlm.xnnpack_cache`
+# `Use_Cases/semantic_ticket_triage/setup.ps1`
 
-- Quellpfad: [LIT/gemma-4-E2B-it.litertlm.xnnpack_cache](../../../LIT/gemma-4-E2B-it.litertlm.xnnpack_cache)
-- Kategorie: `LLM-Runtime`
+- Quellpfad: [Use_Cases/semantic_ticket_triage/setup.ps1](../../../../Use_Cases/semantic_ticket_triage/setup.ps1)
+- Kategorie: `Use Cases`
 
 ## Aufgabe der Datei
 
-Generiertes Cache-Artefakt, das Builds oder Inferenz beschleunigt.
+Skript fuer lokale Entwicklerablaeufe.
 
 ## Wann du diese Datei bearbeitest
 
-Normalerweise nie direkt. Bei Bedarf loeschen und neu erzeugen lassen.
+Wenn sich die fachliche oder technische Verantwortung dieser Datei aendert.
 
 ## Inhalt
 

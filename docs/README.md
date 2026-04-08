@@ -3,7 +3,7 @@
 Neural Orchestration Visual Autonomy  
 Stateful Yielding Node-based Execution Semantic Integrated Surface
 
-Diese Dokumentation erklaert das System so, dass auch ein Entwickler ohne Vorwissen NOVA-SYNESIS starten, verstehen und gezielt aendern kann.
+Diese Dokumentation erklaert das System so, dass auch ein Entwickler ohne Vorwissen NOVA-SYNESIS starten, verstehen, absichern und gezielt aendern kann.
 
 ## Einstieg
 
@@ -12,8 +12,16 @@ Diese Dokumentation erklaert das System so, dass auch ein Entwickler ohne Vorwis
 3. [Backend-Laufzeit](backend-runtime.md)
 4. [Frontend-Editor](frontend-editor.md)
 5. [LLM-Planer und LiteRT](planner-and-lit.md)
-6. [Failure Playbook](failure-playbook.md)
-7. [Decision Guide](decision-guide.md)
-8. [Real World Scenarios](real-world-scenarios.md)
-9. [Aenderungsleitfaden](change-workflows.md)
-10. [Referenzindex](reference/index.md)
+6. [Security und Policy](security-and-policy.md)
+7. [Failure Playbook](failure-playbook.md)
+8. [Decision Guide](decision-guide.md)
+9. [Real World Scenarios](real-world-scenarios.md)
+10. [Aenderungsleitfaden](change-workflows.md)
+11. [Referenzindex](reference/index.md)
+
+## Wie du diese Doku liest
+
+- Starte mit `getting-started.md`, wenn du das System lokal hochfahren willst.
+- Lies `system-overview.md` und `backend-runtime.md`, wenn du Architektur und Laufzeit verstehen willst.
+- Nutze `security-and-policy.md` und `failure-playbook.md`, bevor du produktive Flows oder neue Handler einsetzt.
+- Verwende `decision-guide.md` und `real-world-scenarios.md`, wenn du eigene Flows sicher entwerfen oder veraendern willst.

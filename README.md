@@ -89,6 +89,22 @@ Relevante Endpunkte:
 Die UI ruft den Planner über den Button `AI Plan` auf und ersetzt den Canvas mit dem generierten `FlowRequest`.
 Der Planner erzeugt ausschließlich Graphen gegen die real registrierten Handler, Agents, Resources und Memory-Backends.
 
+## Semantic Firewall
+
+Vor Flow-Erstellung, LLM-Planung und Ausführung prüft eine semantische Policy-Schicht den Graphen.
+Sie blockiert unter anderem:
+
+- zyklische oder übermäßig aggressive Retry-Topologien
+- externe `http_request` Ziele außerhalb der Host-Allowlist
+- `send_message` ohne explizites `target_agent_id` oder mit Endpoint-Override
+- Expressions mit nicht erlaubten Symbolen oder verdächtigen Token-Sequenzen
+- Exfiltration aus als `sensitive` markierten Memory-Systemen
+- untrusted Ingest in planner-sichtbare Memories ohne explizites Opt-in
+
+Relevanter API-Endpunkt:
+
+- `POST /flows/validate`
+
 ## Branding
 
 `NOVA-SYNESIS` steht in diesem Projekt für:

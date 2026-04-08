@@ -1,25 +1,35 @@
 # CodeDump for Project: `docs.zip`
 
-_Generated on 2026-04-08T20:30:28.005Z_
+_Generated on 2026-04-08T22:12:01.302991+00:00_
 
 ## File: `backend-runtime.md`  
 - Path: `backend-runtime.md`  
-- Size: 304 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Size: 975 Bytes  
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # Backend-Laufzeit
 
-Die Backend-Laufzeit wird durch `OrchestratorService` zusammengesetzt. Er besitzt Repository, Speicher, Ressourcenmanager, Planner, Handler-Registry und Execution-Engine.
+Die Backend-Laufzeit wird durch `OrchestratorService` zusammengesetzt. Er verdrahtet Repository, Speicher, Ressourcenmanager, Handler-Registry, Planner, Semantic Firewall und Execution-Engine.
 
-Wichtige Regel: Laufzeitveraenderungen betreffen fast immer gleichzeitig Domaene, Engine und API-Snapshot.
+## Reihenfolge eines normalen Flows
 
+1. API nimmt einen `FlowCreateRequest` oder eine Planner-Anfrage entgegen.
+2. `OrchestratorService.validate_flow_request()` laesst die semantische Firewall laufen.
+3. Der Flow wird in Domaenenobjekte ueberfuehrt und in SQLite gespeichert.
+4. `FlowExecutor.run_flow()` startet die DAG-Ausfuehrung.
+5. `TaskExecutor.execute_task()` loest Templates auf, reserviert Ressourcen, ruft Agent und Handler auf und persistiert Snapshots.
+6. WebSocket-Abonnenten erhalten Ereignisse wie `flow.started`, `node.completed` oder `flow.failed`.
+
+## Regel fuer Aenderungen
+
+Wenn du etwas an einem Runtime-Vertrag aenderst, pruefe fast immer gleichzeitig API, Domaenenmodell, Engine, Frontend-Typen, Serialisierung und Tests.
 ```
 
 ## File: `change-workflows.md`  
 - Path: `change-workflows.md`  
-- Size: 431 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Size: 1135 Bytes  
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # Aenderungsleitfaden
@@ -27,48 +37,68 @@ Wichtige Regel: Laufzeitveraenderungen betreffen fast immer gleichzeitig Domaene
 ## Neuer Handler
 
 1. Handler in `runtime/handlers.py` implementieren und registrieren
-2. Tests erweitern
-3. UI laedt den Handler automatisch ueber `/handlers`
+2. pruefen, ob der Handler im Planner sichtbar sein soll
+3. Security-Regeln fuer Egress, Templates oder Seiteneffekte in `security/policy.py` bewerten
+4. Tests in `tests/test_orchestrator.py` erweitern
+5. Frontend prueft den Handler automatisch ueber `/handlers`
+6. `tools/generate_docs.py` und danach `docs/` neu erzeugen
 
 ## Neues Node-Feld
 
 1. Backend-Schema in `api/app.py`
-2. TypeScript-Typen in `frontend/src/types/api.ts`
-3. Serialisierung in `frontend/src/lib/flowSerialization.ts`
-4. Inspector in `frontend/src/components/layout/InspectorPanel.tsx`
+2. Domaenenmodell und Snapshot in `domain/models.py`
+3. TypeScript-Typen in `frontend/src/types/api.ts`
+4. Serialisierung in `frontend/src/lib/flowSerialization.ts`
+5. Inspector in `frontend/src/components/layout/InspectorPanel.tsx`
+6. Validierung und Security-Auswirkungen pruefen
+7. Tests und Dokumentation nachziehen
 
+## Neue Security-Regel
+
+1. Policy in `security/policy.py` erweitern
+2. Settings in `config.py` und `.env.example` nachziehen
+3. API- und Planner-Auswirkungen pruefen
+4. mindestens einen positiven und einen negativen Testfall schreiben
+5. `tools/generate_docs.py` ausfuehren und `docs/` neu erzeugen
 ```
 
 ## File: `coverage.md`  
 - Path: `coverage.md`  
-- Size: 3077 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Size: 3486 Bytes  
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # Abdeckung
 
-- Dokumentierte Projektdateien: `73`
-- Referenzdateien: `74`
+- Dokumentierte Projektdateien: `80`
+- Referenzdateien: `81`
 
 ## Ausgeschlossene Bereiche
 
 - `data/`, `debug_tmp/`, `planner_live_check*/`, `ws_debug/`: Laufzeit- und Debug-Artefakte
 - `frontend/node_modules/`, `frontend/dist/`: Fremd- und Buildartefakte
 - `__pycache__/`, `.pytest_cache/`: Cache-Verzeichnisse
+- `.git/`, `release/`, lokale `.env`, `Use_Cases/**/output`, `Use_Cases/**/state`, `*.zip`, `*.exe`, `*.db`, `*.pdf`, `*.litertlm`, `*.xnnpack_cache`, `*.tsbuildinfo`: Artefakte, Binaries oder maschinenlokale Dateien
 
 ## Dokumentierte Dateien
 
 - `.env.example`
-- `Agenten_UML.zip`
+- `.gitignore`
 - `Anweisung.md`
 - `Dockerfile`
+- `LICENSE`
 - `LIT/README.md`
-- `LIT/gemma-4-E2B-it.litertlm`
-- `LIT/gemma-4-E2B-it.litertlm.xnnpack_cache`
-- `LIT/lit.windows_x86_64.exe`
 - `LIT/planner_test_prompt.txt`
 - `README.md`
-- `frontend/.env`
+- `Use_Cases/README.md`
+- `Use_Cases/platform_health_snapshot/README.md`
+- `Use_Cases/platform_health_snapshot/flow.json`
+- `Use_Cases/platform_health_snapshot/run.ps1`
+- `Use_Cases/platform_health_snapshot/setup.ps1`
+- `Use_Cases/semantic_ticket_triage/README.md`
+- `Use_Cases/semantic_ticket_triage/flow.json`
+- `Use_Cases/semantic_ticket_triage/run.ps1`
+- `Use_Cases/semantic_ticket_triage/setup.ps1`
 - `frontend/.env.example`
 - `frontend/index.html`
 - `frontend/package-lock.json`
@@ -94,10 +124,8 @@ Wichtige Regel: Laufzeitveraenderungen betreffen fast immer gleichzeitig Domaene
 - `frontend/src/types/api.ts`
 - `frontend/src/vite-env.d.ts`
 - `frontend/tsconfig.app.json`
-- `frontend/tsconfig.app.tsbuildinfo`
 - `frontend/tsconfig.json`
 - `frontend/tsconfig.node.json`
-- `frontend/tsconfig.node.tsbuildinfo`
 - `frontend/vite.config.d.ts`
 - `frontend/vite.config.js`
 - `frontend/vite.config.ts`
@@ -125,38 +153,335 @@ Wichtige Regel: Laufzeitveraenderungen betreffen fast immer gleichzeitig Domaene
 - `src/nova_synesis/runtime/__init__.py`
 - `src/nova_synesis/runtime/engine.py`
 - `src/nova_synesis/runtime/handlers.py`
+- `src/nova_synesis/security/__init__.py`
+- `src/nova_synesis/security/policy.py`
 - `src/nova_synesis/services/__init__.py`
 - `src/nova_synesis/services/orchestrator.py`
 - `tests/test_orchestrator.py`
+- `tools/build_code_release.ps1`
 - `tools/generate_docs.py`
 - `uml.html`
 - `uml_V3.mmd`
+```
 
+## File: `decision-guide.md`  
+- Path: `decision-guide.md`  
+- Size: 3908 Bytes  
+- Modified: 2026-04-08 22:11:47 UTC
+
+```markdown
+# Decision Guide
+
+Diese Seite dokumentiert Entscheidungslogik. Genau dieses Wissen fehlt oft, wenn ein System zwar sauber gebaut, aber noch nicht betriebssicher uebergeben wurde.
+
+## 1. Wann Planner, wann manuell?
+
+Nutze den LiteRT-Planer, wenn:
+
+- du aus einer fachlichen Beschreibung schnell einen ersten Graphen ableiten willst
+- du eine komplexe Kette mit mehreren Handlern skizzieren musst
+- du anschliessend im visuellen Editor nacharbeiten willst
+
+Baue den Flow lieber manuell, wenn:
+
+- die exakte Kantenlogik bereits feststeht
+- du einen Produktionsfehler analysierst
+- du ein sehr kleines, deterministisches Setup mit 1 bis 3 Nodes hast
+
+## 2. Neuer Handler oder bestehenden Handler erweitern?
+
+Erweitere einen bestehenden Handler, wenn:
+
+- dieselbe Grundoperation bleibt
+- Ein- und Ausgabeform nur optional waechst
+- Fehlerbild und Retry-Verhalten gleich bleiben
+
+Baue einen neuen Handler, wenn:
+
+- eine neue Nebenwirkung entsteht
+- eine andere externe Abhaengigkeit angebunden wird
+- der Inputvertrag fachlich anders ist
+- der Nutzer den Baustein im Editor als eigenstaendige Aktion verstehen soll
+
+## 3. Flow, einzelne Task oder Agent?
+
+- Verwende einen Flow, wenn Reihenfolge, Verzweigung oder Fehlerbehandlung sichtbar modelliert werden muessen.
+- Verwende nur eine einzelne Task, wenn genau ein isolierter Arbeitsschritt existiert.
+- Verwende einen Agenten, wenn Faehigkeiten, Kommunikationsadapter oder eine feste Verantwortlichkeit wichtig sind.
+
+Ein Agent ersetzt keinen Flow. Der Flow modelliert den Prozess. Der Agent modelliert, wer oder was eine Task ausfuehren darf.
+
+## 4. Wann ist eine Resource wirklich notwendig?
+
+Nutze eine Resource, wenn der Schritt an ein echtes externes Ziel oder eine limitierte Kapazitaet gebunden ist:
+
+- API-Endpunkt
+- Modellinstanz
+- Datenbank
+- Dateiablage
+- GPU
+
+Nutze keine Resource, wenn der Schritt rein lokal und transformativ ist:
+
+- `template_render`
+- `merge_payloads`
+- `json_serialize`
+
+## 5. Konkrete Resource-ID oder nur Resource-Type?
+
+- `required_resource_ids`: wenn exakt ein bestimmtes System getroffen werden muss
+- `required_resource_types`: wenn jeder passende Vertreter einer Kategorie ausreicht oder Fallback sinnvoll ist
+
+Faustregel: feste Kern-API per ID, austauschbare Replikate oder GPUs per Typ.
+
+## 6. Welche Rollback-Strategie ist die richtige?
+
+- `FAIL_FAST`: wenn Folgeschritte ohne Erfolg des Nodes keinen Sinn ergeben
+- `RETRY`: bei transienten Netz- oder Dienstfehlern
+- `FALLBACK_RESOURCE`: wenn mehrere Ressourcen gleicher Art vorhanden sind
+- `COMPENSATE`: wenn ein Fehler nach einer Nebenwirkung aktiv bereinigt werden muss
+
+## 7. Wann musst du `POST /flows/validate` aktiv nutzen?
+
+Immer vor produktivem Speichern oder Ausfuehren, wenn:
+
+- ein Flow durch den Planner erzeugt wurde
+- neue Templates, Conditions oder Validator-Ausdruecke eingebaut wurden
+- neue Ressourcen, Agenten oder Memory-Systeme beteiligt sind
+- du Security-Grenzen geaendert hast
+
+## 8. Wie klassifizierst du Memory-Systeme?
+
+- `sensitive = true`: fuer vertrauliche Inhalte, die nicht in Planner oder externe Sinks gelangen sollen
+- `planner_visible = false`: wenn ein Memory manuell nutzbar, aber nicht planner-sichtbar sein soll
+- `allow_untrusted_ingest = true`: nur wenn bewusst Daten aus HTTP, Messaging oder Dateiquellen in planner-sichtbares Wissen einfliessen duerfen
+
+Wenn du unsicher bist, starte konservativ: `sensitive = true` oder `planner_visible = false`.
+
+## 9. Wann soll eine Condition auf eine Edge?
+
+Eine Edge-Condition ist richtig, wenn du einen fachlichen Branch modellierst:
+
+- Erfolgspfad vs Fehlerpfad
+- weitere Verarbeitung nur bei gueltigem Ergebnis
+- optionale Folgeaktionen
+
+Eine Edge-Condition ist falsch, wenn du damit Daten umbauen oder fehlende Vorverarbeitung verstecken willst. Dann fehlt meist ein eigener Node.
+```
+
+## File: `failure-playbook.md`  
+- Path: `failure-playbook.md`  
+- Size: 6634 Bytes  
+- Modified: 2026-04-08 22:11:47 UTC
+
+```markdown
+# Failure Playbook
+
+Diese Seite beschreibt die realen Stoerungsbilder des Systems. Ziel ist nicht nur Fehler zu benennen, sondern eine belastbare Reihenfolge fuer Diagnose und Behebung zu geben.
+
+## Triage-Reihenfolge
+
+1. Zuerst unterscheiden: Planner-Problem, Policy-Rejektion, Live-Transportproblem oder echte Runtime-Stoerung.
+2. Immer den echten Snapshot ueber `GET /flows/{flow_id}` lesen.
+3. Bei Save-/Run-Fehlern zuerst `POST /flows/validate` auswerten.
+4. Erst danach UI, WebSocket oder Planner-Oberflaeche beurteilen.
+
+## 1. Planner liefert ungueltiges JSON
+
+### Woran du es erkennst
+
+- `POST /planner/generate-flow` antwortet mit Fehler
+- im Frontend erscheint keine neue Graphstruktur
+- typische Backend-Meldungen:
+  - `Planner returned invalid JSON`
+  - `Planner response does not contain a JSON object`
+  - `Planner response contains an incomplete JSON object`
+
+### Sofortmassnahmen
+
+1. `GET /planner/status` pruefen
+2. Prompt kuerzen und restriktiver machen
+3. `max_nodes` senken
+4. sicherstellen, dass benoetigte Handler, Agenten, Ressourcen und Memory-IDs wirklich registriert sind
+5. bei wiederholtem Fehler den Flow manuell im Editor bauen
+
+## 2. Semantic Firewall lehnt den Flow ab
+
+### Woran du es erkennst
+
+- `POST /flows/validate`, `POST /flows` oder `POST /planner/generate-flow` liefert einen Fehler
+- typische Fehlermeldungen:
+  - `Semantic firewall rejected flow`
+  - `Outbound host ... is outside the semantic firewall allowlist`
+  - `Flow contains a cycle`
+  - `Sensitive memory data may not flow into http_request nodes`
+
+### Typische Ursachen
+
+- zyklischer Graph
+- `http_request` auf einen nicht erlaubten Host
+- `send_message` ohne `target_agent_id` oder mit Endpoint-Override
+- Template oder Condition mit nicht erlaubten Symbolen
+- planner-sichtbare Memory-Store-Node hinter untrusted Ingest
+
+### Sofortmassnahmen
+
+1. denselben Payload gegen `POST /flows/validate` schicken
+2. `violations` und `warnings` getrennt lesen
+3. pruefen, ob das Problem fachlich oder rein policy-seitig ist
+4. bei legitimen Produktionsfaellen erst Settings oder Memory-/Resource-Metadaten anpassen, nicht die Regel blind entfernen
+
+## 3. WebSocket bricht waehrend der Execution ab
+
+### Woran du es erkennst
+
+- die Topbar zeigt `Offline`
+- Live-Status friert ein oder aktualisiert sich nur stoerend langsam
+- der Flow laeuft im Backend oft trotzdem weiter
+
+### Was das System bereits fuer dich macht
+
+`frontend/src/hooks/useFlowLiveUpdates.ts` faellt automatisch auf Polling gegen `GET /flows/{flow_id}` zurueck. Die UI bleibt dadurch nutzbar, auch wenn der Socket weg ist.
+
+### Sofortmassnahmen
+
+1. `GET /flows/{flow_id}` direkt pruefen
+2. `frontend/.env` gegen die echte Backend-Adresse pruefen
+3. unterscheiden: ist nur `/ws/flows/{flow_id}` defekt oder auch REST?
+4. wenn REST geht, die Ausfuehrung nicht abbrechen, sondern Snapshot weiter per Polling beobachten
+
+## 4. Resource haengt oder laeuft in Timeout / Sattlauf
+
+### Woran du es erkennst
+
+- eine oder mehrere Nodes bleiben lange auf `RUNNING`
+- der Flow macht keine sichtbaren Fortschritte, ohne sofort auf `FAILED` zu springen
+- einzelne Ressourcen stehen auf `BUSY` oder `DOWN`
+
+### Wichtige technische Besonderheit
+
+`ResourceManager.acquire_many()` hat keinen globalen Flow-Timeout. Handler-Timeouts wie `http_request.timeout_s` greifen erst nach erfolgreicher Ressourcenreservierung.
+
+### Sofortmassnahmen
+
+1. `GET /flows/{flow_id}` lesen und die `RUNNING`-Nodes identifizieren
+2. `GET /resources` und gegebenenfalls `resource_health_check` verwenden
+3. `max_concurrency`, Kapazitaet und `required_resource_ids` gegen die echte Infrastruktur pruefen
+4. bei HTTP-Aufrufen explizit `timeout_s` setzen
+5. wenn moeglich auf `required_resource_types` plus `FALLBACK_RESOURCE` umstellen
+
+## 5. Flow bleibt auf `RUNNING` stehen
+
+### Woran du es erkennst
+
+- `GET /flows/{flow_id}` zeigt dauerhaft `state = RUNNING`
+- dieselben Nodes bleiben ueber mehrere Snapshots hinweg `RUNNING`
+- `completed_nodes` waechst nicht mehr
+
+### Typische Ursachen
+
+- Handler wartet auf externen Dienst
+- Ressource wartet auf Freigabe
+- externer Endpunkt antwortet nie innerhalb eines sinnvollen Timeouts
+- ein lang laufender Seiteneffekt wurde nicht in kleinere Nodes zerlegt
+
+### Sofortmassnahmen
+
+1. mehrere Snapshots hintereinander vergleichen
+2. den oder die `RUNNING`-Nodes identifizieren
+3. Handlervertrag des betroffenen Nodes pruefen
+4. bei `http_request` ein sinnvolles `timeout_s` setzen
+5. pruefen, ob Ressource oder Kommunikationsziel erreichbar sind
+
+## 6. Graph-Deadlock oder logisch blockierter Flow
+
+Wichtig: Wenn keine Node mehr startbar ist und trotzdem noch `pending` existiert, setzt `FlowExecutor.run_flow()` den Flow auf `FAILED` und schreibt `deadlock_nodes` in die Metadaten.
+
+### Sofortmassnahmen
+
+1. `deadlock_nodes`, `blocked_nodes` und `failed_nodes` vergleichen
+2. alle eingehenden Kantenbedingungen des betroffenen Knotens lesen
+3. nur die von der Engine gelieferten Bedingungssymbole verwenden:
+   - `results`
+   - `source_result`
+   - `target_node`
+   - `completed`
+   - `blocked`
+   - `failed`
+4. pruefen, ob mindestens ein Node ohne eingehende Kante existiert
+
+## 7. Handler wirft Exception
+
+### Woran du es erkennst
+
+- eine Node springt auf `FAILED`
+- oft folgt `node.rolled_back`
+- der Flow endet mit `FAILED`, ausser `continue_on_error` ist aktiv
+- `failed_nodes` enthaelt die konkrete Fehlermeldung
+
+### Typische reale Ursachen in diesem Projekt
+
+- unbekannter Handlername in `TaskHandlerRegistry`
+- `http_request` ohne `url` und ohne API-Ressource
+- `send_message` ohne Kommunikationsadapter
+- `read_file` oder `write_file` greifen ausserhalb des erlaubten Arbeitsverzeichnisses zu
+- `merge_payloads` bekommt Werte, die keine Dictionaries sind
+- `validator_rules` schlagen fehl
+- eine Ressource kann nicht reserviert werden
+
+### Sofortmassnahmen
+
+1. `failed_nodes` im Snapshot lesen
+2. Input des Nodes mit dem echten Handlervertrag vergleichen
+3. Ressourcen, Agenten und Memory-Systeme pruefen
+4. `retry_policy` und `rollback_strategy` auf Infrastrukturrealitaet abstimmen
+
+## Welche Daten du vor tieferer Analyse sammeln solltest
+
+- `flow_id`
+- kompletter Snapshot aus `GET /flows/{flow_id}`
+- Ergebnis von `POST /flows/validate`, falls Save oder Run scheitert
+- alle aktuell `RUNNING`, `FAILED` und `blocked` Nodes
+- Handlername und Input der auffaelligen Node
+- verwendete Ressourcen, Agenten und Memory-IDs
+- bei Planner-Problemen: Prompt, `max_nodes` und `security_report`
 ```
 
 ## File: `frontend-editor.md`  
 - Path: `frontend-editor.md`  
-- Size: 369 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Size: 966 Bytes  
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # Frontend-Editor
 
-Die UI besteht aus `App.tsx`, dem Zustand-Store `useFlowStore.ts`, der Zeichenflaeche `FlowCanvas.tsx`, der linken `Sidebar.tsx`, dem `InspectorPanel.tsx` und der `TopBar.tsx`.
+Die UI besteht aus `App.tsx`, dem Zustand-Store `useFlowStore.ts`, der Zeichenflaeche `FlowCanvas.tsx`, der linken `Sidebar.tsx`, dem `InspectorPanel.tsx`, dem Planner-Dialog und der `TopBar.tsx`.
 
-Die kritischste Integrationsdatei ist `frontend/src/lib/flowSerialization.ts`. Wenn dort Felder falsch gemappt werden, speichert die UI keinen korrekten Backend-Flow.
+## Was der Editor wirklich tut
 
+- laedt Handler, Agenten und Ressourcen aus dem echten Backend
+- baut daraus React-Flow-Nodes und -Edges
+- serialisiert den Editorzustand ueber `toFlowRequest()`
+- speichert und startet echte Flows
+- uebernimmt Live-Snapshots ueber WebSocket oder Polling
+
+## Kritische Integrationsstellen
+
+- `frontend/src/lib/flowSerialization.ts`: muss exakt zum FastAPI-Schema passen
+- `frontend/src/lib/apiClient.ts`: enthaelt die echten REST- und WebSocket-Aufrufe inklusive `POST /flows/validate`
+- `frontend/src/store/useFlowStore.ts`: haelt den kanonischen UI-Zustand fuer Nodes, Edges, Auswahl und Laufzeitstatus
+- `frontend/src/hooks/useFlowLiveUpdates.ts`: faellt bei Socket-Problemen auf Polling zurueck
 ```
 
 ## File: `getting-started.md`  
 - Path: `getting-started.md`  
-- Size: 556 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Size: 1647 Bytes  
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # Schnellstart
 
-## Backend
+## 1. Backend starten
 
 ```powershell
 ./run-backend.ps1 -BindHost 127.0.0.1 -Port 8552
@@ -164,11 +489,12 @@ Die kritischste Integrationsdatei ist `frontend/src/lib/flowSerialization.ts`. W
 
 Wichtige URLs:
 
-- `/docs`
-- `/health`
-- `/planner/status`
+- `GET /docs`
+- `GET /health`
+- `GET /planner/status`
+- `POST /flows/validate`
 
-## Frontend
+## 2. Frontend starten
 
 `frontend/.env`:
 
@@ -183,38 +509,70 @@ cd frontend
 npm run dev
 ```
 
-## Mentales Modell
+## 3. Minimaler Arbeitsablauf
 
-- Das Frontend baut einen gerichteten Graphen.
-- Das Backend speichert ihn als `FlowRequest`.
-- Die Runtime fuehrt Knoten gemaess ihren Abhaengigkeiten aus.
-- Live-Snapshots fliessen per WebSocket zur UI zurueck.
+1. Handler, Agenten und Ressourcen im Frontend laden.
+2. Einen Graphen im Canvas zeichnen oder ueber den Planner erzeugen.
+3. Vor dem Speichern `POST /flows/validate` verwenden oder die UI-Validierung ausloesen.
+4. Den Flow ueber `POST /flows` speichern.
+5. Den Flow ueber `POST /flows/{flow_id}/run` ausfuehren.
+6. Laufzeit und Status ueber `GET /flows/{flow_id}` oder `/ws/flows/{flow_id}` beobachten.
 
+## 4. Wichtige Umgebungsvariablen
+
+- `NS_API_HOST`, `NS_API_PORT`: FastAPI-Bindung
+- `NS_LIT_BINARY_PATH`, `NS_LIT_MODEL_PATH`, `NS_LIT_TIMEOUT_S`: lokaler Planner
+- `NS_SECURITY_ENABLED`: Semantic Firewall global ein- oder ausschalten
+- `NS_SECURITY_HTTP_ALLOWED_HOSTS`: erlaubte HTTP-Zielhosts
+- `NS_SECURITY_SEND_PROTOCOLS`: erlaubte Kommunikationsprotokolle fuer `send_message`
+- `NS_CORS_ORIGINS`: erlaubte Frontend-Urspruenge
+
+## 5. Mentales Modell
+
+- Das Frontend bearbeitet einen gerichteten Graphen aus Nodes und Edges.
+- `toFlowRequest()` wandelt den Editorgraphen in das Backend-Schema.
+- Das Backend validiert Struktur, Expressions und Sicherheitsregeln.
+- Erst danach wird gespeichert oder ausgefuehrt.
+- Die Runtime fuehrt nur DAGs aus und meldet Snapshots laufend an UI und Persistenz zurueck.
 ```
 
 ## File: `planner-and-lit.md`  
 - Path: `planner-and-lit.md`  
-- Size: 328 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Size: 1075 Bytes  
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # LLM-Planer und LiteRT
 
-Der Planner erzeugt keine Mock-Graphen. Er nutzt die lokale `lit`-Binary und das Gemma-Modell im `LIT/`-Ordner, extrahiert JSON und validiert das Resultat gegen den echten Backend-Katalog.
+Der Planner erzeugt keine Mock-Graphen. Er nutzt die lokale `lit`-Binary und das Gemma-Modell im `LIT/`-Ordner, extrahiert JSON und normalisiert das Resultat auf das echte `FlowRequest`-Schema.
 
-Wenn du Planner-Qualitaet verbesserst, arbeite primär in `src/nova_synesis/planning/lit_planner.py`.
+## Ablauf
 
+1. `LiteRTPlanner._build_prompt()` baut den Prompt aus Benutzerziel und echtem Katalog.
+2. `_invoke_model()` ruft `lit.windows_x86_64.exe` mit `gemma-4-E2B-it.litertlm` auf.
+3. `_parse_model_output()` extrahiert genau ein JSON-Objekt.
+4. `_normalize_flow_request()` korrigiert IDs, Defaults, Abhaengigkeiten und Handler-Inputs.
+5. `OrchestratorService.generate_flow_with_llm()` laesst den Graphen anschliessend noch durch die Semantic Firewall laufen.
+
+## Wichtige Sicherheitsgrenzen
+
+- Ressourcen und Memories mit `sensitive = true` oder `planner_visible = false` werden aus dem Planner-Katalog herausgefiltert.
+- Die Antwort enthaelt `security_report`, damit UI und Betreiber sehen, ob der generierte Graph policy-konform war.
+- Planner-Warnungen bedeuten: der Graph wurde normalisiert, aber nicht stillschweigend erweitert.
 ```
 
 ## File: `README.md`  
 - Path: `README.md`  
-- Size: 480 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Size: 1261 Bytes  
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
-# Dokumentation
+# NOVA-SYNESIS Dokumentation
 
-Diese Dokumentation erklaert das System so, dass auch ein Entwickler ohne Vorwissen das Projekt starten, verstehen und gezielt aendern kann.
+Neural Orchestration Visual Autonomy  
+Stateful Yielding Node-based Execution Semantic Integrated Surface
+
+Diese Dokumentation erklaert das System so, dass auch ein Entwickler ohne Vorwissen NOVA-SYNESIS starten, verstehen, absichern und gezielt aendern kann.
 
 ## Einstieg
 
@@ -223,29 +581,153 @@ Diese Dokumentation erklaert das System so, dass auch ein Entwickler ohne Vorwis
 3. [Backend-Laufzeit](backend-runtime.md)
 4. [Frontend-Editor](frontend-editor.md)
 5. [LLM-Planer und LiteRT](planner-and-lit.md)
-6. [Aenderungsleitfaden](change-workflows.md)
-7. [Referenzindex](reference/index.md)
+6. [Security und Policy](security-and-policy.md)
+7. [Failure Playbook](failure-playbook.md)
+8. [Decision Guide](decision-guide.md)
+9. [Real World Scenarios](real-world-scenarios.md)
+10. [Aenderungsleitfaden](change-workflows.md)
+11. [Referenzindex](reference/index.md)
 
+## Wie du diese Doku liest
+
+- Starte mit `getting-started.md`, wenn du das System lokal hochfahren willst.
+- Lies `system-overview.md` und `backend-runtime.md`, wenn du Architektur und Laufzeit verstehen willst.
+- Nutze `security-and-policy.md` und `failure-playbook.md`, bevor du produktive Flows oder neue Handler einsetzt.
+- Verwende `decision-guide.md` und `real-world-scenarios.md`, wenn du eigene Flows sicher entwerfen oder veraendern willst.
 ```
 
-## File: `reference/Agenten_UML.zip.md`  
-- Path: `reference/Agenten_UML.zip.md`  
-- Size: 803 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+## File: `real-world-scenarios.md`  
+- Path: `real-world-scenarios.md`  
+- Size: 3437 Bytes  
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
-# `Agenten_UML.zip`
+# Real World Scenarios
 
-- Quellpfad: [Agenten_UML.zip](../../Agenten_UML.zip)
+Diese Seite enthaelt bewusst nur drei End-to-End-Beispiele. Ziel ist nicht Vollstaendigkeit, sondern sichere Anwendbarkeit mit dem echten Backend und der aktiven Security-Policy.
+
+## Szenario 1: Einfacher Betriebsflow "Platform Health Snapshot"
+
+Referenz: `Use_Cases/platform_health_snapshot/`
+
+### Ziel
+
+Die lokale Plattform pruefen, einen Snapshot speichern und daraus eine Textzusammenfassung schreiben.
+
+### Warum dieser Flow produktionsnah ist
+
+- nutzt nur echte Built-in-Handler
+- benoetigt keinen Mock-Service
+- zeigt HTTP, Memory, Serialisierung und Dateiablage in einer kleinen, gut kontrollierbaren Kette
+
+### Typischer Ablauf
+
+1. `http_request` gegen einen lokalen oder allowlist-konformen Health-Endpunkt
+2. `json_serialize` fuer den Snapshot
+3. `write_file` fuer Rohdaten
+4. `template_render` fuer die Zusammenfassung
+5. `write_file` fuer den lesbaren Report
+6. optional `memory_store` fuer den letzten Snapshot-Key
+
+## Szenario 2: Komplexer Flow mit Branching "Semantic Ticket Triage"
+
+Referenz: `Use_Cases/semantic_ticket_triage/`
+
+### Ziel
+
+Tickets semantisch bewerten, Wissen aus Memory laden und je nach Ergebnis an unterschiedliche interne Queue-Agenten dispatchen.
+
+### Warum dieser Flow produktionsnah ist
+
+- kombiniert Vector Memory, Planner-verwertbares Wissen und Messaging
+- nutzt Branching ueber Edge-Conditions
+- bleibt policy-konform, weil `send_message` auf interne Message Queues begrenzt bleibt
+
+### Typischer Ablauf
+
+1. Ticketdaten laden oder als Input entgegennehmen
+2. `memory_search` in einem Vector-Memory
+3. `template_render` fuer die Triage-Zusammenfassung
+4. Branching auf `dispatch-support` oder `dispatch-sales`
+5. `send_message` an registrierte Queue-Agenten
+
+## Szenario 3: Fehlerfall mit Retry und Fallback "API-Replica uebernimmt"
+
+### Ziel
+
+Ein fragiler Infrastrukturzugriff soll auch dann stabil laufen, wenn die bevorzugte Ressource kurzzeitig ausfaellt.
+
+### Beispielstruktur
+
+```json
+{
+  "nodes": [
+    {
+      "node_id": "fetch-primary-or-fallback",
+      "handler_name": "http_request",
+      "input": { "method": "GET", "timeout_s": 8 },
+      "required_resource_types": ["API"],
+      "retry_policy": {
+        "max_retries": 3,
+        "backoff_ms": 500,
+        "exponential": true,
+        "max_backoff_ms": 5000,
+        "jitter_ratio": 0.1
+      },
+      "rollback_strategy": "FALLBACK_RESOURCE",
+      "validator_rules": {
+        "required_keys": ["status_code", "body"],
+        "expression": "result['status_code'] < 500"
+      }
+    },
+    {
+      "node_id": "store-result",
+      "handler_name": "memory_store",
+      "input": {
+        "memory_id": "working-memory",
+        "key": "resilient-fetch-result",
+        "value": "{{ results['fetch-primary-or-fallback']['body'] }}"
+      },
+      "dependencies": ["fetch-primary-or-fallback"],
+      "conditions": { "fetch-primary-or-fallback": "source_result['status_code'] < 400" }
+    }
+  ],
+  "edges": [
+    {
+      "from_node": "fetch-primary-or-fallback",
+      "to_node": "store-result",
+      "condition": "source_result['status_code'] < 400"
+    }
+  ]
+}
+```
+
+### Sichere Betriebsreihenfolge
+
+1. zuerst `POST /flows/validate`
+2. danach speichern
+3. Laufzeit ueber `GET /flows/{flow_id}` beobachten
+4. bei Auffaelligkeiten pruefen, ob wirklich Retry oder bereits Resource-Fallback greift
+```
+
+## File: `reference/.env.example.md`  
+- Path: `reference/.env.example.md`  
+- Size: 1047 Bytes  
+- Modified: 2026-04-08 22:11:47 UTC
+
+```markdown
+# `.env.example`
+
+- Quellpfad: [.env.example](../../.env.example)
 - Kategorie: `Projektdatei`
 
 ## Aufgabe der Datei
 
-Binaeres Artefakt des Projekts.
+Beispielkonfiguration fuer Backend, Planner, CORS und die semantische Sicherheitsrichtlinie.
 
 ## Wann du diese Datei bearbeitest
 
-Nur bei gezieltem Austausch des Artefakts.
+Wenn neue Umgebungsvariablen eingefuehrt, Security-Grenzen angepasst oder Standardwerte kommuniziert werden muessen.
 
 ## Inhalt
 
@@ -261,12 +743,50 @@ Keine direkten Importzeilen oder fuer diese Dateiklasse nicht sinnvoll.
 - Pruefe nach Veraenderungen immer die benachbarten Dateien derselben Verantwortungskette.
 - Bei Runtime- oder API-Aenderungen die Tests erneut ausfuehren.
 
+## Verwandte Dateien
+
+- [src/nova_synesis/config.py](src/nova_synesis/config.py.md)
+- [README.md](README.md.md)
+```
+
+## File: `reference/.gitignore.md`  
+- Path: `reference/.gitignore.md`  
+- Size: 835 Bytes  
+- Modified: 2026-04-08 22:11:47 UTC
+
+```markdown
+# `.gitignore`
+
+- Quellpfad: [.gitignore](../../.gitignore)
+- Kategorie: `Projektdatei`
+
+## Aufgabe der Datei
+
+Projektdatei mit eigener Rolle im Repository.
+
+## Wann du diese Datei bearbeitest
+
+Wenn sich die fachliche oder technische Verantwortung dieser Datei aendert.
+
+## Inhalt
+
+Diese Datei ist keine klassische Code-Datei mit Klassen und Funktionen. Relevant ist vor allem ihre Rolle im Build-, Laufzeit- oder Dokumentationsprozess.
+
+## Abhaengigkeiten
+
+Keine direkten Importzeilen oder fuer diese Dateiklasse nicht sinnvoll.
+
+## Aenderungshinweise
+
+- Aendere Vertrage nie isoliert, wenn dieselben Felder in API, UI und Persistenz verwendet werden.
+- Pruefe nach Veraenderungen immer die benachbarten Dateien derselben Verantwortungskette.
+- Bei Runtime- oder API-Aenderungen die Tests erneut ausfuehren.
 ```
 
 ## File: `reference/Anweisung.md.md`  
 - Path: `reference/Anweisung.md.md`  
 - Size: 932 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # `Anweisung.md`
@@ -300,13 +820,12 @@ Keine direkten Importzeilen oder fuer diese Dateiklasse nicht sinnvoll.
 
 - [uml_V3.mmd](uml_V3.mmd.md)
 - [README.md](README.md.md)
-
 ```
 
 ## File: `reference/Dockerfile.md`  
 - Path: `reference/Dockerfile.md`  
-- Size: 957 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Size: 945 Bytes  
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # `Dockerfile`
@@ -340,13 +859,46 @@ Keine direkten Importzeilen oder fuer diese Dateiklasse nicht sinnvoll.
 
 - [pyproject.toml](pyproject.toml.md)
 - [src/nova_synesis/cli.py](src/nova_synesis/cli.py.md)
+```
 
+## File: `reference/frontend/.env.example.md`  
+- Path: `reference/frontend/.env.example.md`  
+- Size: 881 Bytes  
+- Modified: 2026-04-08 22:11:47 UTC
+
+```markdown
+# `frontend/.env.example`
+
+- Quellpfad: [frontend/.env.example](../../../frontend/.env.example)
+- Kategorie: `Frontend-Konfiguration`
+
+## Aufgabe der Datei
+
+Projektdatei mit eigener Rolle im Repository.
+
+## Wann du diese Datei bearbeitest
+
+Wenn sich die fachliche oder technische Verantwortung dieser Datei aendert.
+
+## Inhalt
+
+Diese Datei ist keine klassische Code-Datei mit Klassen und Funktionen. Relevant ist vor allem ihre Rolle im Build-, Laufzeit- oder Dokumentationsprozess.
+
+## Abhaengigkeiten
+
+Keine direkten Importzeilen oder fuer diese Dateiklasse nicht sinnvoll.
+
+## Aenderungshinweise
+
+- Aendere Vertrage nie isoliert, wenn dieselben Felder in API, UI und Persistenz verwendet werden.
+- Pruefe nach Veraenderungen immer die benachbarten Dateien derselben Verantwortungskette.
+- Bei Runtime- oder API-Aenderungen die Tests erneut ausfuehren.
 ```
 
 ## File: `reference/frontend/index.html.md`  
 - Path: `reference/frontend/index.html.md`  
 - Size: 883 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # `frontend/index.html`
@@ -375,13 +927,12 @@ Keine direkten Importzeilen oder fuer diese Dateiklasse nicht sinnvoll.
 - Aendere Vertrage nie isoliert, wenn dieselben Felder in API, UI und Persistenz verwendet werden.
 - Pruefe nach Veraenderungen immer die benachbarten Dateien derselben Verantwortungskette.
 - Bei Runtime- oder API-Aenderungen die Tests erneut ausfuehren.
-
 ```
 
 ## File: `reference/frontend/package-lock.json.md`  
 - Path: `reference/frontend/package-lock.json.md`  
 - Size: 878 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # `frontend/package-lock.json`
@@ -410,13 +961,12 @@ Keine direkten Importzeilen oder fuer diese Dateiklasse nicht sinnvoll.
 - Aendere Vertrage nie isoliert, wenn dieselben Felder in API, UI und Persistenz verwendet werden.
 - Pruefe nach Veraenderungen immer die benachbarten Dateien derselben Verantwortungskette.
 - Bei Runtime- oder API-Aenderungen die Tests erneut ausfuehren.
-
 ```
 
 ## File: `reference/frontend/package.json.md`  
 - Path: `reference/frontend/package.json.md`  
 - Size: 863 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # `frontend/package.json`
@@ -445,13 +995,12 @@ Keine direkten Importzeilen oder fuer diese Dateiklasse nicht sinnvoll.
 - Aendere Vertrage nie isoliert, wenn dieselben Felder in API, UI und Persistenz verwendet werden.
 - Pruefe nach Veraenderungen immer die benachbarten Dateien derselben Verantwortungskette.
 - Bei Runtime- oder API-Aenderungen die Tests erneut ausfuehren.
-
 ```
 
 ## File: `reference/frontend/src/app.css.md`  
 - Path: `reference/frontend/src/app.css.md`  
 - Size: 843 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # `frontend/src/app.css`
@@ -480,13 +1029,12 @@ Keine direkten Importzeilen oder fuer diese Dateiklasse nicht sinnvoll.
 - Aendere Vertrage nie isoliert, wenn dieselben Felder in API, UI und Persistenz verwendet werden.
 - Pruefe nach Veraenderungen immer die benachbarten Dateien derselben Verantwortungskette.
 - Bei Runtime- oder API-Aenderungen die Tests erneut ausfuehren.
-
 ```
 
 ## File: `reference/frontend/src/App.tsx.md`  
 - Path: `reference/frontend/src/App.tsx.md`  
 - Size: 2199 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # `frontend/src/App.tsx`
@@ -541,13 +1089,12 @@ Wenn globale Frontend-Aktionen oder das Seitenlayout geaendert werden.
 
 - [frontend/src/store/useFlowStore.ts](store/useFlowStore.ts.md)
 - [frontend/src/components/layout/TopBar.tsx](components/layout/TopBar.tsx.md)
-
 ```
 
 ## File: `reference/frontend/src/components/common/JsonEditor.tsx.md`  
 - Path: `reference/frontend/src/components/common/JsonEditor.tsx.md`  
 - Size: 921 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # `frontend/src/components/common/JsonEditor.tsx`
@@ -577,13 +1124,12 @@ Wenn Verhalten, API, UI oder Architektur angepasst werden muessen.
 - Aendere Vertrage nie isoliert, wenn dieselben Felder in API, UI und Persistenz verwendet werden.
 - Pruefe nach Veraenderungen immer die benachbarten Dateien derselben Verantwortungskette.
 - Bei Runtime- oder API-Aenderungen die Tests erneut ausfuehren.
-
 ```
 
 ## File: `reference/frontend/src/components/common/StatusBadge.tsx.md`  
 - Path: `reference/frontend/src/components/common/StatusBadge.tsx.md`  
 - Size: 875 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # `frontend/src/components/common/StatusBadge.tsx`
@@ -612,13 +1158,12 @@ Keine direkten Importzeilen oder fuer diese Dateiklasse nicht sinnvoll.
 - Aendere Vertrage nie isoliert, wenn dieselben Felder in API, UI und Persistenz verwendet werden.
 - Pruefe nach Veraenderungen immer die benachbarten Dateien derselben Verantwortungskette.
 - Bei Runtime- oder API-Aenderungen die Tests erneut ausfuehren.
-
 ```
 
 ## File: `reference/frontend/src/components/flow/FlowCanvas.tsx.md`  
 - Path: `reference/frontend/src/components/flow/FlowCanvas.tsx.md`  
 - Size: 1013 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # `frontend/src/components/flow/FlowCanvas.tsx`
@@ -651,13 +1196,12 @@ Wenn Verhalten, API, UI oder Architektur angepasst werden muessen.
 - Aendere Vertrage nie isoliert, wenn dieselben Felder in API, UI und Persistenz verwendet werden.
 - Pruefe nach Veraenderungen immer die benachbarten Dateien derselben Verantwortungskette.
 - Bei Runtime- oder API-Aenderungen die Tests erneut ausfuehren.
-
 ```
 
 ## File: `reference/frontend/src/components/flow/TaskNode.tsx.md`  
 - Path: `reference/frontend/src/components/flow/TaskNode.tsx.md`  
 - Size: 964 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # `frontend/src/components/flow/TaskNode.tsx`
@@ -688,13 +1232,12 @@ Wenn Verhalten, API, UI oder Architektur angepasst werden muessen.
 - Aendere Vertrage nie isoliert, wenn dieselben Felder in API, UI und Persistenz verwendet werden.
 - Pruefe nach Veraenderungen immer die benachbarten Dateien derselben Verantwortungskette.
 - Bei Runtime- oder API-Aenderungen die Tests erneut ausfuehren.
-
 ```
 
 ## File: `reference/frontend/src/components/layout/InspectorPanel.tsx.md`  
 - Path: `reference/frontend/src/components/layout/InspectorPanel.tsx.md`  
 - Size: 1714 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # `frontend/src/components/layout/InspectorPanel.tsx`
@@ -740,13 +1283,12 @@ Wenn weitere konfigurierbare Felder in der UI auftauchen sollen.
 
 - [frontend/src/store/useFlowStore.ts](../../store/useFlowStore.ts.md)
 - [frontend/src/components/common/JsonEditor.tsx](../common/JsonEditor.tsx.md)
-
 ```
 
 ## File: `reference/frontend/src/components/layout/PlannerComposer.tsx.md`  
 - Path: `reference/frontend/src/components/layout/PlannerComposer.tsx.md`  
-- Size: 1212 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Size: 1200 Bytes  
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # `frontend/src/components/layout/PlannerComposer.tsx`
@@ -782,13 +1324,12 @@ Wenn Prompting-UX oder Planner-Rueckmeldungen im Frontend erweitert werden.
 
 - [frontend/src/App.tsx](../../App.tsx.md)
 - [src/nova_synesis/planning/lit_planner.py](../../../../src/nova_synesis/planning/lit_planner.py.md)
-
 ```
 
 ## File: `reference/frontend/src/components/layout/Sidebar.tsx.md`  
 - Path: `reference/frontend/src/components/layout/Sidebar.tsx.md`  
 - Size: 1142 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # `frontend/src/components/layout/Sidebar.tsx`
@@ -824,13 +1365,12 @@ Wenn Drag-and-Drop oder Katalogdarstellung geaendert wird.
 
 - [frontend/src/components/flow/FlowCanvas.tsx](../flow/FlowCanvas.tsx.md)
 - [frontend/src/store/useFlowStore.ts](../../store/useFlowStore.ts.md)
-
 ```
 
 ## File: `reference/frontend/src/components/layout/TopBar.tsx.md`  
 - Path: `reference/frontend/src/components/layout/TopBar.tsx.md`  
 - Size: 1225 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # `frontend/src/components/layout/TopBar.tsx`
@@ -870,13 +1410,12 @@ Wenn globale Bedienaktionen oder Statusanzeigen geaendert werden.
 
 - [frontend/src/App.tsx](../../App.tsx.md)
 - [frontend/src/components/common/StatusBadge.tsx](../common/StatusBadge.tsx.md)
-
 ```
 
 ## File: `reference/frontend/src/hooks/useCatalogBootstrap.ts.md`  
 - Path: `reference/frontend/src/hooks/useCatalogBootstrap.ts.md`  
 - Size: 983 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # `frontend/src/hooks/useCatalogBootstrap.ts`
@@ -907,13 +1446,12 @@ Wenn Verhalten, API, UI oder Architektur angepasst werden muessen.
 - Aendere Vertrage nie isoliert, wenn dieselben Felder in API, UI und Persistenz verwendet werden.
 - Pruefe nach Veraenderungen immer die benachbarten Dateien derselben Verantwortungskette.
 - Bei Runtime- oder API-Aenderungen die Tests erneut ausfuehren.
-
 ```
 
 ## File: `reference/frontend/src/hooks/useFlowLiveUpdates.ts.md`  
 - Path: `reference/frontend/src/hooks/useFlowLiveUpdates.ts.md`  
 - Size: 1025 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # `frontend/src/hooks/useFlowLiveUpdates.ts`
@@ -945,13 +1483,12 @@ Wenn Verhalten, API, UI oder Architektur angepasst werden muessen.
 - Aendere Vertrage nie isoliert, wenn dieselben Felder in API, UI und Persistenz verwendet werden.
 - Pruefe nach Veraenderungen immer die benachbarten Dateien derselben Verantwortungskette.
 - Bei Runtime- oder API-Aenderungen die Tests erneut ausfuehren.
-
 ```
 
 ## File: `reference/frontend/src/lib/apiClient.ts.md`  
 - Path: `reference/frontend/src/lib/apiClient.ts.md`  
-- Size: 1554 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Size: 1569 Bytes  
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # `frontend/src/lib/apiClient.ts`
@@ -961,7 +1498,7 @@ Wenn Verhalten, API, UI oder Architektur angepasst werden muessen.
 
 ## Aufgabe der Datei
 
-Echter API-Client fuer REST und WebSocket-Basis-URLs.
+Echter API-Client fuer REST, Flow-Validierung, Planner und WebSocket-Basis-URLs.
 
 ## Wann du diese Datei bearbeitest
 
@@ -993,13 +1530,12 @@ Wenn neue Backend-Endpunkte im Frontend angebunden werden.
 
 - [src/nova_synesis/api/app.py](../../../src/nova_synesis/api/app.py.md)
 - [frontend/src/types/api.ts](../types/api.ts.md)
-
 ```
 
 ## File: `reference/frontend/src/lib/autoLayout.ts.md`  
 - Path: `reference/frontend/src/lib/autoLayout.ts.md`  
 - Size: 828 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # `frontend/src/lib/autoLayout.ts`
@@ -1028,13 +1564,12 @@ Wenn Verhalten, API, UI oder Architektur angepasst werden muessen.
 - Aendere Vertrage nie isoliert, wenn dieselben Felder in API, UI und Persistenz verwendet werden.
 - Pruefe nach Veraenderungen immer die benachbarten Dateien derselben Verantwortungskette.
 - Bei Runtime- oder API-Aenderungen die Tests erneut ausfuehren.
-
 ```
 
 ## File: `reference/frontend/src/lib/flowSerialization.ts.md`  
 - Path: `reference/frontend/src/lib/flowSerialization.ts.md`  
-- Size: 2050 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Size: 2038 Bytes  
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # `frontend/src/lib/flowSerialization.ts`
@@ -1084,13 +1619,12 @@ Wenn Node-Felder oder Flow-Schema geaendert werden.
 
 - [frontend/src/types/api.ts](../types/api.ts.md)
 - [src/nova_synesis/api/app.py](../../../src/nova_synesis/api/app.py.md)
-
 ```
 
 ## File: `reference/frontend/src/lib/json.ts.md`  
 - Path: `reference/frontend/src/lib/json.ts.md`  
 - Size: 880 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # `frontend/src/lib/json.ts`
@@ -1120,13 +1654,12 @@ Keine direkten Importzeilen oder fuer diese Dateiklasse nicht sinnvoll.
 - Aendere Vertrage nie isoliert, wenn dieselben Felder in API, UI und Persistenz verwendet werden.
 - Pruefe nach Veraenderungen immer die benachbarten Dateien derselben Verantwortungskette.
 - Bei Runtime- oder API-Aenderungen die Tests erneut ausfuehren.
-
 ```
 
 ## File: `reference/frontend/src/main.tsx.md`  
 - Path: `reference/frontend/src/main.tsx.md`  
 - Size: 870 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # `frontend/src/main.tsx`
@@ -1159,13 +1692,12 @@ Diese Datei dient als Bootstrap-, Deklarations- oder Konfigurationsmodul.
 - Aendere Vertrage nie isoliert, wenn dieselben Felder in API, UI und Persistenz verwendet werden.
 - Pruefe nach Veraenderungen immer die benachbarten Dateien derselben Verantwortungskette.
 - Bei Runtime- oder API-Aenderungen die Tests erneut ausfuehren.
-
 ```
 
 ## File: `reference/frontend/src/store/useFlowStore.ts.md`  
 - Path: `reference/frontend/src/store/useFlowStore.ts.md`  
 - Size: 1379 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # `frontend/src/store/useFlowStore.ts`
@@ -1209,13 +1741,12 @@ Wenn Editorverhalten oder Snapshot-Uebernahme angepasst werden.
 
 - [frontend/src/App.tsx](../App.tsx.md)
 - [frontend/src/hooks/useFlowLiveUpdates.ts](../hooks/useFlowLiveUpdates.ts.md)
-
 ```
 
 ## File: `reference/frontend/src/types/api.ts.md`  
 - Path: `reference/frontend/src/types/api.ts.md`  
-- Size: 2554 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Size: 2542 Bytes  
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # `frontend/src/types/api.ts`
@@ -1269,13 +1800,12 @@ Wenn Backend-Vertraege oder UI-Datentypen erweitert werden.
 
 - [src/nova_synesis/api/app.py](../../../src/nova_synesis/api/app.py.md)
 - [frontend/src/lib/flowSerialization.ts](../lib/flowSerialization.ts.md)
-
 ```
 
 ## File: `reference/frontend/src/vite-env.d.ts.md`  
 - Path: `reference/frontend/src/vite-env.d.ts.md`  
 - Size: 781 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # `frontend/src/vite-env.d.ts`
@@ -1304,13 +1834,12 @@ Keine direkten Importzeilen oder fuer diese Dateiklasse nicht sinnvoll.
 - Aendere Vertrage nie isoliert, wenn dieselben Felder in API, UI und Persistenz verwendet werden.
 - Pruefe nach Veraenderungen immer die benachbarten Dateien derselben Verantwortungskette.
 - Bei Runtime- oder API-Aenderungen die Tests erneut ausfuehren.
-
 ```
 
 ## File: `reference/frontend/tsconfig.app.json.md`  
 - Path: `reference/frontend/tsconfig.app.json.md`  
 - Size: 878 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # `frontend/tsconfig.app.json`
@@ -1339,48 +1868,12 @@ Keine direkten Importzeilen oder fuer diese Dateiklasse nicht sinnvoll.
 - Aendere Vertrage nie isoliert, wenn dieselben Felder in API, UI und Persistenz verwendet werden.
 - Pruefe nach Veraenderungen immer die benachbarten Dateien derselben Verantwortungskette.
 - Bei Runtime- oder API-Aenderungen die Tests erneut ausfuehren.
-
-```
-
-## File: `reference/frontend/tsconfig.app.tsbuildinfo.md`  
-- Path: `reference/frontend/tsconfig.app.tsbuildinfo.md`  
-- Size: 933 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
-
-```markdown
-# `frontend/tsconfig.app.tsbuildinfo`
-
-- Quellpfad: [frontend/tsconfig.app.tsbuildinfo](../../../frontend/tsconfig.app.tsbuildinfo)
-- Kategorie: `Frontend-Konfiguration`
-
-## Aufgabe der Datei
-
-Generiertes Cache-Artefakt, das Builds oder Inferenz beschleunigt.
-
-## Wann du diese Datei bearbeitest
-
-Normalerweise nie direkt. Bei Bedarf loeschen und neu erzeugen lassen.
-
-## Inhalt
-
-Diese Datei ist keine klassische Code-Datei mit Klassen und Funktionen. Relevant ist vor allem ihre Rolle im Build-, Laufzeit- oder Dokumentationsprozess.
-
-## Abhaengigkeiten
-
-Keine direkten Importzeilen oder fuer diese Dateiklasse nicht sinnvoll.
-
-## Aenderungshinweise
-
-- Aendere Vertrage nie isoliert, wenn dieselben Felder in API, UI und Persistenz verwendet werden.
-- Pruefe nach Veraenderungen immer die benachbarten Dateien derselben Verantwortungskette.
-- Bei Runtime- oder API-Aenderungen die Tests erneut ausfuehren.
-
 ```
 
 ## File: `reference/frontend/tsconfig.json.md`  
 - Path: `reference/frontend/tsconfig.json.md`  
 - Size: 866 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # `frontend/tsconfig.json`
@@ -1409,13 +1902,12 @@ Keine direkten Importzeilen oder fuer diese Dateiklasse nicht sinnvoll.
 - Aendere Vertrage nie isoliert, wenn dieselben Felder in API, UI und Persistenz verwendet werden.
 - Pruefe nach Veraenderungen immer die benachbarten Dateien derselben Verantwortungskette.
 - Bei Runtime- oder API-Aenderungen die Tests erneut ausfuehren.
-
 ```
 
 ## File: `reference/frontend/tsconfig.node.json.md`  
 - Path: `reference/frontend/tsconfig.node.json.md`  
 - Size: 881 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # `frontend/tsconfig.node.json`
@@ -1444,48 +1936,12 @@ Keine direkten Importzeilen oder fuer diese Dateiklasse nicht sinnvoll.
 - Aendere Vertrage nie isoliert, wenn dieselben Felder in API, UI und Persistenz verwendet werden.
 - Pruefe nach Veraenderungen immer die benachbarten Dateien derselben Verantwortungskette.
 - Bei Runtime- oder API-Aenderungen die Tests erneut ausfuehren.
-
-```
-
-## File: `reference/frontend/tsconfig.node.tsbuildinfo.md`  
-- Path: `reference/frontend/tsconfig.node.tsbuildinfo.md`  
-- Size: 936 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
-
-```markdown
-# `frontend/tsconfig.node.tsbuildinfo`
-
-- Quellpfad: [frontend/tsconfig.node.tsbuildinfo](../../../frontend/tsconfig.node.tsbuildinfo)
-- Kategorie: `Frontend-Konfiguration`
-
-## Aufgabe der Datei
-
-Generiertes Cache-Artefakt, das Builds oder Inferenz beschleunigt.
-
-## Wann du diese Datei bearbeitest
-
-Normalerweise nie direkt. Bei Bedarf loeschen und neu erzeugen lassen.
-
-## Inhalt
-
-Diese Datei ist keine klassische Code-Datei mit Klassen und Funktionen. Relevant ist vor allem ihre Rolle im Build-, Laufzeit- oder Dokumentationsprozess.
-
-## Abhaengigkeiten
-
-Keine direkten Importzeilen oder fuer diese Dateiklasse nicht sinnvoll.
-
-## Aenderungshinweise
-
-- Aendere Vertrage nie isoliert, wenn dieselben Felder in API, UI und Persistenz verwendet werden.
-- Pruefe nach Veraenderungen immer die benachbarten Dateien derselben Verantwortungskette.
-- Bei Runtime- oder API-Aenderungen die Tests erneut ausfuehren.
-
 ```
 
 ## File: `reference/frontend/vite.config.d.ts.md`  
 - Path: `reference/frontend/vite.config.d.ts.md`  
 - Size: 789 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # `frontend/vite.config.d.ts`
@@ -1514,13 +1970,12 @@ Keine direkten Importzeilen oder fuer diese Dateiklasse nicht sinnvoll.
 - Aendere Vertrage nie isoliert, wenn dieselben Felder in API, UI und Persistenz verwendet werden.
 - Pruefe nach Veraenderungen immer die benachbarten Dateien derselben Verantwortungskette.
 - Bei Runtime- oder API-Aenderungen die Tests erneut ausfuehren.
-
 ```
 
 ## File: `reference/frontend/vite.config.js.md`  
 - Path: `reference/frontend/vite.config.js.md`  
 - Size: 822 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # `frontend/vite.config.js`
@@ -1550,13 +2005,12 @@ Diese Datei dient als Bootstrap-, Deklarations- oder Konfigurationsmodul.
 - Aendere Vertrage nie isoliert, wenn dieselben Felder in API, UI und Persistenz verwendet werden.
 - Pruefe nach Veraenderungen immer die benachbarten Dateien derselben Verantwortungskette.
 - Bei Runtime- oder API-Aenderungen die Tests erneut ausfuehren.
-
 ```
 
 ## File: `reference/frontend/vite.config.ts.md`  
 - Path: `reference/frontend/vite.config.ts.md`  
 - Size: 799 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # `frontend/vite.config.ts`
@@ -1586,13 +2040,12 @@ Diese Datei dient als Bootstrap-, Deklarations- oder Konfigurationsmodul.
 - Aendere Vertrage nie isoliert, wenn dieselben Felder in API, UI und Persistenz verwendet werden.
 - Pruefe nach Veraenderungen immer die benachbarten Dateien derselben Verantwortungskette.
 - Bei Runtime- oder API-Aenderungen die Tests erneut ausfuehren.
-
 ```
 
 ## File: `reference/index.md`  
 - Path: `reference/index.md`  
-- Size: 5506 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Size: 5899 Bytes  
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # Referenzindex
@@ -1620,6 +2073,8 @@ Diese Datei dient als Bootstrap-, Deklarations- oder Konfigurationsmodul.
 - [src/nova_synesis/runtime/__init__.py](src/nova_synesis/runtime/__init__.py.md)
 - [src/nova_synesis/runtime/engine.py](src/nova_synesis/runtime/engine.py.md)
 - [src/nova_synesis/runtime/handlers.py](src/nova_synesis/runtime/handlers.py.md)
+- [src/nova_synesis/security/__init__.py](src/nova_synesis/security/__init__.py.md)
+- [src/nova_synesis/security/policy.py](src/nova_synesis/security/policy.py.md)
 - [src/nova_synesis/services/__init__.py](src/nova_synesis/services/__init__.py.md)
 - [src/nova_synesis/services/orchestrator.py](src/nova_synesis/services/orchestrator.py.md)
 
@@ -1648,16 +2103,13 @@ Diese Datei dient als Bootstrap-, Deklarations- oder Konfigurationsmodul.
 
 ## Frontend-Konfiguration
 
-- [frontend/.env](frontend/.env.md)
 - [frontend/.env.example](frontend/.env.example.md)
 - [frontend/index.html](frontend/index.html.md)
 - [frontend/package-lock.json](frontend/package-lock.json.md)
 - [frontend/package.json](frontend/package.json.md)
 - [frontend/tsconfig.app.json](frontend/tsconfig.app.json.md)
-- [frontend/tsconfig.app.tsbuildinfo](frontend/tsconfig.app.tsbuildinfo.md)
 - [frontend/tsconfig.json](frontend/tsconfig.json.md)
 - [frontend/tsconfig.node.json](frontend/tsconfig.node.json.md)
-- [frontend/tsconfig.node.tsbuildinfo](frontend/tsconfig.node.tsbuildinfo.md)
 - [frontend/vite.config.d.ts](frontend/vite.config.d.ts.md)
 - [frontend/vite.config.js](frontend/vite.config.js.md)
 - [frontend/vite.config.ts](frontend/vite.config.ts.md)
@@ -1665,17 +2117,15 @@ Diese Datei dient als Bootstrap-, Deklarations- oder Konfigurationsmodul.
 ## LLM-Runtime
 
 - [LIT/README.md](LIT/README.md.md)
-- [LIT/gemma-4-E2B-it.litertlm](LIT/gemma-4-E2B-it.litertlm.md)
-- [LIT/gemma-4-E2B-it.litertlm.xnnpack_cache](LIT/gemma-4-E2B-it.litertlm.xnnpack_cache.md)
-- [LIT/lit.windows_x86_64.exe](LIT/lit.windows_x86_64.exe.md)
 - [LIT/planner_test_prompt.txt](LIT/planner_test_prompt.txt.md)
 
 ## Projektdatei
 
 - [.env.example](.env.example.md)
-- [Agenten_UML.zip](Agenten_UML.zip.md)
+- [.gitignore](.gitignore.md)
 - [Anweisung.md](Anweisung.md.md)
 - [Dockerfile](Dockerfile.md)
+- [LICENSE](LICENSE.md)
 - [README.md](README.md.md)
 - [pyproject.toml](pyproject.toml.md)
 - [run-backend.cmd](run-backend.cmd.md)
@@ -1687,30 +2137,42 @@ Diese Datei dient als Bootstrap-, Deklarations- oder Konfigurationsmodul.
 
 - [tests/test_orchestrator.py](tests/test_orchestrator.py.md)
 
+## Use Cases
+
+- [Use_Cases/README.md](Use_Cases/README.md.md)
+- [Use_Cases/platform_health_snapshot/README.md](Use_Cases/platform_health_snapshot/README.md.md)
+- [Use_Cases/platform_health_snapshot/flow.json](Use_Cases/platform_health_snapshot/flow.json.md)
+- [Use_Cases/platform_health_snapshot/run.ps1](Use_Cases/platform_health_snapshot/run.ps1.md)
+- [Use_Cases/platform_health_snapshot/setup.ps1](Use_Cases/platform_health_snapshot/setup.ps1.md)
+- [Use_Cases/semantic_ticket_triage/README.md](Use_Cases/semantic_ticket_triage/README.md.md)
+- [Use_Cases/semantic_ticket_triage/flow.json](Use_Cases/semantic_ticket_triage/flow.json.md)
+- [Use_Cases/semantic_ticket_triage/run.ps1](Use_Cases/semantic_ticket_triage/run.ps1.md)
+- [Use_Cases/semantic_ticket_triage/setup.ps1](Use_Cases/semantic_ticket_triage/setup.ps1.md)
+
 ## Werkzeug
 
+- [tools/build_code_release.ps1](tools/build_code_release.ps1.md)
 - [tools/generate_docs.py](tools/generate_docs.py.md)
-
 ```
 
-## File: `reference/LIT/gemma-4-E2B-it.litertlm.md`  
-- Path: `reference/LIT/gemma-4-E2B-it.litertlm.md`  
-- Size: 1057 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+## File: `reference/LICENSE.md`  
+- Path: `reference/LICENSE.md`  
+- Size: 826 Bytes  
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
-# `LIT/gemma-4-E2B-it.litertlm`
+# `LICENSE`
 
-- Quellpfad: [LIT/gemma-4-E2B-it.litertlm](../../../LIT/gemma-4-E2B-it.litertlm)
-- Kategorie: `LLM-Runtime`
+- Quellpfad: [LICENSE](../../LICENSE)
+- Kategorie: `Projektdatei`
 
 ## Aufgabe der Datei
 
-Lokales Modell fuer den autonomen Flow-Planer.
+Projektdatei mit eigener Rolle im Repository.
 
 ## Wann du diese Datei bearbeitest
 
-Nur wenn ein anderes Planner-Modell eingesetzt wird.
+Wenn sich die fachliche oder technische Verantwortung dieser Datei aendert.
 
 ## Inhalt
 
@@ -1725,93 +2187,12 @@ Keine direkten Importzeilen oder fuer diese Dateiklasse nicht sinnvoll.
 - Aendere Vertrage nie isoliert, wenn dieselben Felder in API, UI und Persistenz verwendet werden.
 - Pruefe nach Veraenderungen immer die benachbarten Dateien derselben Verantwortungskette.
 - Bei Runtime- oder API-Aenderungen die Tests erneut ausfuehren.
-
-## Verwandte Dateien
-
-- [LIT/lit.windows_x86_64.exe](lit.windows_x86_64.exe.md)
-- [src/nova_synesis/planning/lit_planner.py](../src/nova_synesis/planning/lit_planner.py.md)
-
-```
-
-## File: `reference/LIT/gemma-4-E2B-it.litertlm.xnnpack_cache.md`  
-- Path: `reference/LIT/gemma-4-E2B-it.litertlm.xnnpack_cache.md`  
-- Size: 946 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
-
-```markdown
-# `LIT/gemma-4-E2B-it.litertlm.xnnpack_cache`
-
-- Quellpfad: [LIT/gemma-4-E2B-it.litertlm.xnnpack_cache](../../../LIT/gemma-4-E2B-it.litertlm.xnnpack_cache)
-- Kategorie: `LLM-Runtime`
-
-## Aufgabe der Datei
-
-Generiertes Cache-Artefakt, das Builds oder Inferenz beschleunigt.
-
-## Wann du diese Datei bearbeitest
-
-Normalerweise nie direkt. Bei Bedarf loeschen und neu erzeugen lassen.
-
-## Inhalt
-
-Diese Datei ist keine klassische Code-Datei mit Klassen und Funktionen. Relevant ist vor allem ihre Rolle im Build-, Laufzeit- oder Dokumentationsprozess.
-
-## Abhaengigkeiten
-
-Keine direkten Importzeilen oder fuer diese Dateiklasse nicht sinnvoll.
-
-## Aenderungshinweise
-
-- Aendere Vertrage nie isoliert, wenn dieselben Felder in API, UI und Persistenz verwendet werden.
-- Pruefe nach Veraenderungen immer die benachbarten Dateien derselben Verantwortungskette.
-- Bei Runtime- oder API-Aenderungen die Tests erneut ausfuehren.
-
-```
-
-## File: `reference/LIT/lit.windows_x86_64.exe.md`  
-- Path: `reference/LIT/lit.windows_x86_64.exe.md`  
-- Size: 1054 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
-
-```markdown
-# `LIT/lit.windows_x86_64.exe`
-
-- Quellpfad: [LIT/lit.windows_x86_64.exe](../../../LIT/lit.windows_x86_64.exe)
-- Kategorie: `LLM-Runtime`
-
-## Aufgabe der Datei
-
-Windows-Binary fuer die lokale LiteRT-LM-Inferenz.
-
-## Wann du diese Datei bearbeitest
-
-Nur beim gezielten Update der lokalen Runtime.
-
-## Inhalt
-
-Diese Datei ist keine klassische Code-Datei mit Klassen und Funktionen. Relevant ist vor allem ihre Rolle im Build-, Laufzeit- oder Dokumentationsprozess.
-
-## Abhaengigkeiten
-
-Keine direkten Importzeilen oder fuer diese Dateiklasse nicht sinnvoll.
-
-## Aenderungshinweise
-
-- Aendere Vertrage nie isoliert, wenn dieselben Felder in API, UI und Persistenz verwendet werden.
-- Pruefe nach Veraenderungen immer die benachbarten Dateien derselben Verantwortungskette.
-- Bei Runtime- oder API-Aenderungen die Tests erneut ausfuehren.
-
-## Verwandte Dateien
-
-- [LIT/gemma-4-E2B-it.litertlm](gemma-4-E2B-it.litertlm.md)
-- [src/nova_synesis/planning/lit_planner.py](../src/nova_synesis/planning/lit_planner.py.md)
-
 ```
 
 ## File: `reference/LIT/planner_test_prompt.txt.md`  
 - Path: `reference/LIT/planner_test_prompt.txt.md`  
 - Size: 888 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # `LIT/planner_test_prompt.txt`
@@ -1840,13 +2221,12 @@ Keine direkten Importzeilen oder fuer diese Dateiklasse nicht sinnvoll.
 - Aendere Vertrage nie isoliert, wenn dieselben Felder in API, UI und Persistenz verwendet werden.
 - Pruefe nach Veraenderungen immer die benachbarten Dateien derselben Verantwortungskette.
 - Bei Runtime- oder API-Aenderungen die Tests erneut ausfuehren.
-
 ```
 
 ## File: `reference/LIT/README.md.md`  
 - Path: `reference/LIT/README.md.md`  
-- Size: 1005 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Size: 993 Bytes  
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # `LIT/README.md`
@@ -1880,13 +2260,12 @@ Keine direkten Importzeilen oder fuer diese Dateiklasse nicht sinnvoll.
 
 - [src/nova_synesis/planning/lit_planner.py](../src/nova_synesis/planning/lit_planner.py.md)
 - [.env.example](../.env.example.md)
-
 ```
 
 ## File: `reference/pyproject.toml.md`  
 - Path: `reference/pyproject.toml.md`  
-- Size: 1024 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Size: 1012 Bytes  
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # `pyproject.toml`
@@ -1920,13 +2299,12 @@ Keine direkten Importzeilen oder fuer diese Dateiklasse nicht sinnvoll.
 
 - [src/nova_synesis/cli.py](src/nova_synesis/cli.py.md)
 - [tests/test_orchestrator.py](tests/test_orchestrator.py.md)
-
 ```
 
 ## File: `reference/README.md.md`  
 - Path: `reference/README.md.md`  
-- Size: 979 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Size: 1000 Bytes  
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # `README.md`
@@ -1958,16 +2336,15 @@ Keine direkten Importzeilen oder fuer diese Dateiklasse nicht sinnvoll.
 
 ## Verwandte Dateien
 
-- docs/README.md
+- [docs/README.md](docs/README.md.md)
 - [run-backend.ps1](run-backend.ps1.md)
 - [frontend/package.json](frontend/package.json.md)
-
 ```
 
 ## File: `reference/run-backend.cmd.md`  
 - Path: `reference/run-backend.cmd.md`  
 - Size: 843 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # `run-backend.cmd`
@@ -1996,13 +2373,12 @@ Keine direkten Importzeilen oder fuer diese Dateiklasse nicht sinnvoll.
 - Aendere Vertrage nie isoliert, wenn dieselben Felder in API, UI und Persistenz verwendet werden.
 - Pruefe nach Veraenderungen immer die benachbarten Dateien derselben Verantwortungskette.
 - Bei Runtime- oder API-Aenderungen die Tests erneut ausfuehren.
-
 ```
 
 ## File: `reference/run-backend.ps1.md`  
 - Path: `reference/run-backend.ps1.md`  
-- Size: 983 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Size: 971 Bytes  
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # `run-backend.ps1`
@@ -2036,13 +2412,12 @@ Keine direkten Importzeilen oder fuer diese Dateiklasse nicht sinnvoll.
 
 - [src/nova_synesis/cli.py](src/nova_synesis/cli.py.md)
 - [run-backend.cmd](run-backend.cmd.md)
-
 ```
 
 ## File: `reference/src/nova_synesis/__init__.py.md`  
 - Path: `reference/src/nova_synesis/__init__.py.md`  
-- Size: 953 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Size: 917 Bytes  
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # `src/nova_synesis/__init__.py`
@@ -2073,13 +2448,12 @@ Diese Datei enthaelt keine eigenen Klassen oder Funktionen, sondern primar Paket
 - Aendere Vertrage nie isoliert, wenn dieselben Felder in API, UI und Persistenz verwendet werden.
 - Pruefe nach Veraenderungen immer die benachbarten Dateien derselben Verantwortungskette.
 - Bei Runtime- oder API-Aenderungen die Tests erneut ausfuehren.
-
 ```
 
 ## File: `reference/src/nova_synesis/api/__init__.py.md`  
 - Path: `reference/src/nova_synesis/api/__init__.py.md`  
-- Size: 817 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Size: 793 Bytes  
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # `src/nova_synesis/api/__init__.py`
@@ -2108,13 +2482,12 @@ Diese Datei enthaelt keine eigenen Klassen oder Funktionen, sondern primar Paket
 - Aendere Vertrage nie isoliert, wenn dieselben Felder in API, UI und Persistenz verwendet werden.
 - Pruefe nach Veraenderungen immer die benachbarten Dateien derselben Verantwortungskette.
 - Bei Runtime- oder API-Aenderungen die Tests erneut ausfuehren.
-
 ```
 
 ## File: `reference/src/nova_synesis/api/app.py.md`  
 - Path: `reference/src/nova_synesis/api/app.py.md`  
-- Size: 2676 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Size: 2692 Bytes  
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # `src/nova_synesis/api/app.py`
@@ -2124,11 +2497,11 @@ Diese Datei enthaelt keine eigenen Klassen oder Funktionen, sondern primar Paket
 
 ## Aufgabe der Datei
 
-FastAPI- und WebSocket-Schicht des Backends inklusive Request-Modelle.
+FastAPI- und WebSocket-Schicht des Backends inklusive Request-Modelle, Flow-Validierung und Live-Streaming.
 
 ## Wann du diese Datei bearbeitest
 
-Wenn API-Endpunkte, Schemafelder oder Live-Streaming erweitert werden.
+Wenn API-Endpunkte, Schemafelder, Sicherheitspruefung oder Live-Streaming erweitert werden.
 
 ## Klassen
 
@@ -2204,13 +2577,12 @@ Datenmodell `LLMPlannerRequest` fuer validierte Schichtgrenzen.
 - [src/nova_synesis/services/orchestrator.py](../services/orchestrator.py.md)
 - [frontend/src/lib/apiClient.ts](../../../frontend/src/lib/apiClient.ts.md)
 - [frontend/src/types/api.ts](../../../frontend/src/types/api.ts.md)
-
 ```
 
 ## File: `reference/src/nova_synesis/cli.py.md`  
 - Path: `reference/src/nova_synesis/cli.py.md`  
-- Size: 1621 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Size: 1585 Bytes  
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # `src/nova_synesis/cli.py`
@@ -2257,13 +2629,12 @@ Wenn neue CLI-Kommandos oder Startoptionen hinzukommen.
 
 - [run-backend.ps1](../../run-backend.ps1.md)
 - [pyproject.toml](../../pyproject.toml.md)
-
 ```
 
 ## File: `reference/src/nova_synesis/communication/__init__.py.md`  
 - Path: `reference/src/nova_synesis/communication/__init__.py.md`  
-- Size: 879 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Size: 855 Bytes  
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # `src/nova_synesis/communication/__init__.py`
@@ -2292,13 +2663,12 @@ Diese Datei enthaelt keine eigenen Klassen oder Funktionen, sondern primar Paket
 - Aendere Vertrage nie isoliert, wenn dieselben Felder in API, UI und Persistenz verwendet werden.
 - Pruefe nach Veraenderungen immer die benachbarten Dateien derselben Verantwortungskette.
 - Bei Runtime- oder API-Aenderungen die Tests erneut ausfuehren.
-
 ```
 
 ## File: `reference/src/nova_synesis/communication/adapters.py.md`  
 - Path: `reference/src/nova_synesis/communication/adapters.py.md`  
-- Size: 2998 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Size: 2974 Bytes  
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # `src/nova_synesis/communication/adapters.py`
@@ -2385,13 +2755,12 @@ Methoden:
 - Aendere Vertrage nie isoliert, wenn dieselben Felder in API, UI und Persistenz verwendet werden.
 - Pruefe nach Veraenderungen immer die benachbarten Dateien derselben Verantwortungskette.
 - Bei Runtime- oder API-Aenderungen die Tests erneut ausfuehren.
-
 ```
 
 ## File: `reference/src/nova_synesis/config.py.md`  
 - Path: `reference/src/nova_synesis/config.py.md`  
-- Size: 1157 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Size: 1301 Bytes  
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # `src/nova_synesis/config.py`
@@ -2401,11 +2770,11 @@ Methoden:
 
 ## Aufgabe der Datei
 
-Zentrale Laufzeitkonfiguration des Backends.
+Zentrale Laufzeitkonfiguration des Backends inklusive LiteRT- und Semantic-Firewall-Settings.
 
 ## Wann du diese Datei bearbeitest
 
-Wenn neue Settings, Standardpfade oder Planner-Optionen benoetigt werden.
+Wenn neue Settings, Standardpfade, Planner-Optionen oder Policy-Grenzen benoetigt werden.
 
 ## Klassen
 
@@ -2417,6 +2786,10 @@ Methoden:
 
 - `from_env(cls)`: Laedt Settings aus Umgebungsvariablen mit sicheren Defaults.
 - `ensure_directories(self)`: Erzeugt benoetigte Daten- und Arbeitsverzeichnisse.
+
+## Funktionen
+
+- `_env(primary, legacy, default)`: Funktion oder Definition `_env` dieses Moduls.
 
 ## Abhaengigkeiten
 
@@ -2435,13 +2808,12 @@ Methoden:
 
 - [.env.example](../../.env.example.md)
 - [src/nova_synesis/cli.py](cli.py.md)
-
 ```
 
 ## File: `reference/src/nova_synesis/domain/__init__.py.md`  
 - Path: `reference/src/nova_synesis/domain/__init__.py.md`  
-- Size: 823 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Size: 799 Bytes  
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # `src/nova_synesis/domain/__init__.py`
@@ -2470,13 +2842,12 @@ Diese Datei enthaelt keine eigenen Klassen oder Funktionen, sondern primar Paket
 - Aendere Vertrage nie isoliert, wenn dieselben Felder in API, UI und Persistenz verwendet werden.
 - Pruefe nach Veraenderungen immer die benachbarten Dateien derselben Verantwortungskette.
 - Bei Runtime- oder API-Aenderungen die Tests erneut ausfuehren.
-
 ```
 
 ## File: `reference/src/nova_synesis/domain/models.py.md`  
 - Path: `reference/src/nova_synesis/domain/models.py.md`  
-- Size: 6721 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Size: 6691 Bytes  
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # `src/nova_synesis/domain/models.py`
@@ -2689,13 +3060,12 @@ Methoden:
 
 - [src/nova_synesis/runtime/engine.py](../runtime/engine.py.md)
 - [src/nova_synesis/services/orchestrator.py](../services/orchestrator.py.md)
-
 ```
 
 ## File: `reference/src/nova_synesis/memory/__init__.py.md`  
 - Path: `reference/src/nova_synesis/memory/__init__.py.md`  
-- Size: 857 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Size: 833 Bytes  
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # `src/nova_synesis/memory/__init__.py`
@@ -2724,13 +3094,12 @@ Diese Datei enthaelt keine eigenen Klassen oder Funktionen, sondern primar Paket
 - Aendere Vertrage nie isoliert, wenn dieselben Felder in API, UI und Persistenz verwendet werden.
 - Pruefe nach Veraenderungen immer die benachbarten Dateien derselben Verantwortungskette.
 - Bei Runtime- oder API-Aenderungen die Tests erneut ausfuehren.
-
 ```
 
 ## File: `reference/src/nova_synesis/memory/systems.py.md`  
 - Path: `reference/src/nova_synesis/memory/systems.py.md`  
-- Size: 4981 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Size: 4945 Bytes  
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # `src/nova_synesis/memory/systems.py`
@@ -2860,13 +3229,12 @@ Methoden:
 
 - [src/nova_synesis/runtime/handlers.py](../runtime/handlers.py.md)
 - [src/nova_synesis/services/orchestrator.py](../services/orchestrator.py.md)
-
 ```
 
 ## File: `reference/src/nova_synesis/persistence/__init__.py.md`  
 - Path: `reference/src/nova_synesis/persistence/__init__.py.md`  
-- Size: 869 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Size: 845 Bytes  
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # `src/nova_synesis/persistence/__init__.py`
@@ -2895,13 +3263,12 @@ Diese Datei enthaelt keine eigenen Klassen oder Funktionen, sondern primar Paket
 - Aendere Vertrage nie isoliert, wenn dieselben Felder in API, UI und Persistenz verwendet werden.
 - Pruefe nach Veraenderungen immer die benachbarten Dateien derselben Verantwortungskette.
 - Bei Runtime- oder API-Aenderungen die Tests erneut ausfuehren.
-
 ```
 
 ## File: `reference/src/nova_synesis/persistence/sqlite_repository.py.md`  
 - Path: `reference/src/nova_synesis/persistence/sqlite_repository.py.md`  
-- Size: 2524 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Size: 2488 Bytes  
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # `src/nova_synesis/persistence/sqlite_repository.py`
@@ -2960,13 +3327,12 @@ Methoden:
 ## Verwandte Dateien
 
 - [src/nova_synesis/services/orchestrator.py](../services/orchestrator.py.md)
-
 ```
 
 ## File: `reference/src/nova_synesis/planning/__init__.py.md`  
 - Path: `reference/src/nova_synesis/planning/__init__.py.md`  
-- Size: 951 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Size: 921 Bytes  
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # `src/nova_synesis/planning/__init__.py`
@@ -2996,13 +3362,12 @@ Diese Datei enthaelt keine eigenen Klassen oder Funktionen, sondern primar Paket
 - Aendere Vertrage nie isoliert, wenn dieselben Felder in API, UI und Persistenz verwendet werden.
 - Pruefe nach Veraenderungen immer die benachbarten Dateien derselben Verantwortungskette.
 - Bei Runtime- oder API-Aenderungen die Tests erneut ausfuehren.
-
 ```
 
 ## File: `reference/src/nova_synesis/planning/lit_planner.py.md`  
 - Path: `reference/src/nova_synesis/planning/lit_planner.py.md`  
-- Size: 3853 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Size: 3866 Bytes  
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # `src/nova_synesis/planning/lit_planner.py`
@@ -3012,11 +3377,11 @@ Diese Datei enthaelt keine eigenen Klassen oder Funktionen, sondern primar Paket
 
 ## Aufgabe der Datei
 
-Lokaler LLM-Planer ueber LiteRT-LM inklusive Prompting, Parsing und Normalisierung.
+Lokaler LLM-Planer ueber LiteRT-LM inklusive Prompting, Parsing, Katalognutzung und Graph-Normalisierung.
 
 ## Wann du diese Datei bearbeitest
 
-Wenn Planner-Qualitaet, Modellaufruf oder Validierung verbessert werden soll.
+Wenn Planner-Qualitaet, Modellaufruf, Katalogfilterung oder Vorvalidierung verbessert werden soll.
 
 ## Klassen
 
@@ -3079,13 +3444,12 @@ Methoden:
 - [LIT/lit.windows_x86_64.exe](../../../LIT/lit.windows_x86_64.exe.md)
 - [LIT/gemma-4-E2B-it.litertlm](../../../LIT/gemma-4-E2B-it.litertlm.md)
 - [frontend/src/components/layout/PlannerComposer.tsx](../../../frontend/src/components/layout/PlannerComposer.tsx.md)
-
 ```
 
 ## File: `reference/src/nova_synesis/planning/planner.py.md`  
 - Path: `reference/src/nova_synesis/planning/planner.py.md`  
-- Size: 2128 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Size: 2092 Bytes  
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # `src/nova_synesis/planning/planner.py`
@@ -3139,13 +3503,12 @@ Methoden:
 
 - [src/nova_synesis/domain/models.py](../domain/models.py.md)
 - [src/nova_synesis/services/orchestrator.py](../services/orchestrator.py.md)
-
 ```
 
 ## File: `reference/src/nova_synesis/resources/__init__.py.md`  
 - Path: `reference/src/nova_synesis/resources/__init__.py.md`  
-- Size: 850 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Size: 826 Bytes  
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # `src/nova_synesis/resources/__init__.py`
@@ -3174,13 +3537,12 @@ Diese Datei enthaelt keine eigenen Klassen oder Funktionen, sondern primar Paket
 - Aendere Vertrage nie isoliert, wenn dieselben Felder in API, UI und Persistenz verwendet werden.
 - Pruefe nach Veraenderungen immer die benachbarten Dateien derselben Verantwortungskette.
 - Bei Runtime- oder API-Aenderungen die Tests erneut ausfuehren.
-
 ```
 
 ## File: `reference/src/nova_synesis/resources/manager.py.md`  
 - Path: `reference/src/nova_synesis/resources/manager.py.md`  
-- Size: 1946 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Size: 1916 Bytes  
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # `src/nova_synesis/resources/manager.py`
@@ -3230,13 +3592,12 @@ Methoden:
 ## Verwandte Dateien
 
 - [src/nova_synesis/runtime/engine.py](../runtime/engine.py.md)
-
 ```
 
 ## File: `reference/src/nova_synesis/runtime/__init__.py.md`  
 - Path: `reference/src/nova_synesis/runtime/__init__.py.md`  
-- Size: 970 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Size: 940 Bytes  
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # `src/nova_synesis/runtime/__init__.py`
@@ -3266,13 +3627,12 @@ Diese Datei enthaelt keine eigenen Klassen oder Funktionen, sondern primar Paket
 - Aendere Vertrage nie isoliert, wenn dieselben Felder in API, UI und Persistenz verwendet werden.
 - Pruefe nach Veraenderungen immer die benachbarten Dateien derselben Verantwortungskette.
 - Bei Runtime- oder API-Aenderungen die Tests erneut ausfuehren.
-
 ```
 
 ## File: `reference/src/nova_synesis/runtime/engine.py.md`  
 - Path: `reference/src/nova_synesis/runtime/engine.py.md`  
-- Size: 2894 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Size: 2901 Bytes  
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # `src/nova_synesis/runtime/engine.py`
@@ -3282,11 +3642,11 @@ Diese Datei enthaelt keine eigenen Klassen oder Funktionen, sondern primar Paket
 
 ## Aufgabe der Datei
 
-Graph-Ausfuehrungsengine fuer Task- und Flow-Lifecycle.
+Graph-Ausfuehrungsengine fuer Task- und Flow-Lifecycle inklusive Template-Aufloesung und Live-Snapshots.
 
 ## Wann du diese Datei bearbeitest
 
-Wenn Ablaufsteuerung, Parallelitaet oder Snapshot-Logik geaendert wird.
+Wenn Ablaufsteuerung, Parallelitaet, Template-Kontext oder Snapshot-Logik geaendert wird.
 
 ## Klassen
 
@@ -3347,13 +3707,12 @@ Methoden:
 
 - [src/nova_synesis/domain/models.py](../domain/models.py.md)
 - [src/nova_synesis/runtime/handlers.py](handlers.py.md)
-
 ```
 
 ## File: `reference/src/nova_synesis/runtime/handlers.py.md`  
 - Path: `reference/src/nova_synesis/runtime/handlers.py.md`  
-- Size: 3179 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Size: 3149 Bytes  
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # `src/nova_synesis/runtime/handlers.py`
@@ -3421,13 +3780,139 @@ Methoden:
 
 - [src/nova_synesis/runtime/engine.py](engine.py.md)
 - [frontend/src/components/layout/Sidebar.tsx](../../../frontend/src/components/layout/Sidebar.tsx.md)
+```
 
+## File: `reference/src/nova_synesis/security/__init__.py.md`  
+- Path: `reference/src/nova_synesis/security/__init__.py.md`  
+- Size: 1048 Bytes  
+- Modified: 2026-04-08 22:11:47 UTC
+
+```markdown
+# `src/nova_synesis/security/__init__.py`
+
+- Quellpfad: [src/nova_synesis/security/__init__.py](../../../../../src/nova_synesis/security/__init__.py)
+- Kategorie: `Backend`
+
+## Aufgabe der Datei
+
+Paketexporte fuer die semantische Sicherheitspruefung.
+
+## Wann du diese Datei bearbeitest
+
+Wenn Security-Klassen neu exportiert oder das Security-Paket umstrukturiert werden soll.
+
+## Code-Inhalt
+
+Diese Datei enthaelt keine eigenen Klassen oder Funktionen, sondern primar Paket-Exporte.
+
+## Abhaengigkeiten
+
+- `from .policy import FlowSecurityReport, SecurityFinding, SemanticFirewall`
+
+## Aenderungshinweise
+
+- Aendere Vertrage nie isoliert, wenn dieselben Felder in API, UI und Persistenz verwendet werden.
+- Pruefe nach Veraenderungen immer die benachbarten Dateien derselben Verantwortungskette.
+- Bei Runtime- oder API-Aenderungen die Tests erneut ausfuehren.
+
+## Verwandte Dateien
+
+- [src/nova_synesis/security/policy.py](policy.py.md)
+- [src/nova_synesis/services/orchestrator.py](../services/orchestrator.py.md)
+```
+
+## File: `reference/src/nova_synesis/security/policy.py.md`  
+- Path: `reference/src/nova_synesis/security/policy.py.md`  
+- Size: 4412 Bytes  
+- Modified: 2026-04-08 22:11:47 UTC
+
+```markdown
+# `src/nova_synesis/security/policy.py`
+
+- Quellpfad: [src/nova_synesis/security/policy.py](../../../../../src/nova_synesis/security/policy.py)
+- Kategorie: `Backend`
+
+## Aufgabe der Datei
+
+Semantische Firewall fuer Flow- und Agent-Validierung vor Planung, Speicherung und Ausfuehrung.
+
+## Wann du diese Datei bearbeitest
+
+Wenn Sicherheitsregeln, Allowlists oder die Graph-Absichtspruefung veraendert werden muessen.
+
+## Klassen
+
+### `SecurityFinding`
+
+Klasse `SecurityFinding` dieses Moduls.
+
+Methoden:
+
+- `as_dict(self)`: Funktion oder Definition `as_dict` dieses Moduls.
+
+### `FlowSecurityReport`
+
+Strukturiertes Ergebnis einer Policy-Pruefung mit Fehlern und Warnungen.
+
+Methoden:
+
+- `add_violation(self, code, message, node_id, field)`: Funktion oder Definition `add_violation` dieses Moduls.
+- `add_warning(self, code, message, node_id, field)`: Funktion oder Definition `add_warning` dieses Moduls.
+- `as_dict(self)`: Funktion oder Definition `as_dict` dieses Moduls.
+- `ensure_allowed(self)`: Bricht den aktuellen Vorgang ab, wenn Regelverletzungen gefunden wurden.
+
+### `SemanticFirewall`
+
+Semantische Sicherheitspruefung fuer Flows, Agenten und aus Planner-Graphen abgeleitete Absichten.
+
+Methoden:
+
+- `__init__(self, settings)`: Konstruktor, der Abhaengigkeiten und Ausgangszustand vorbereitet.
+- `validate_agent_registration(self, name, capabilities, communication, existing_agents)`: Prueft Agent-Registrierung auf riskante Capabilities und unerlaubte Endpunkte.
+- `validate_flow_request(self, nodes, edges, metadata, agents, resources, memory_systems, planner_generated, phase)`: Prueft Graph-Struktur, Expressions, Egress und Memory-Fluesse vor der Ausfuehrung.
+- `_collect_edges(self, node_index, edges, report)`: Funktion oder Definition `_collect_edges` dieses Moduls.
+- `_validate_acyclic(self, node_index, edges, report)`: Funktion oder Definition `_validate_acyclic` dieses Moduls.
+- `_validate_http_request(self, node_id, node, input_payload, resource_index, report)`: Funktion oder Definition `_validate_http_request` dieses Moduls.
+- `_validate_send_message(self, node_id, input_payload, agent_index, report)`: Funktion oder Definition `_validate_send_message` dieses Moduls.
+- `_validate_file_handler(self, node_id, input_payload, report)`: Funktion oder Definition `_validate_file_handler` dieses Moduls.
+- `_validate_expression_container(self, node_id, field, value, allowed_names, report)`: Funktion oder Definition `_validate_expression_container` dieses Moduls.
+- `_validate_expression_map(self, node_id, field, expressions, allowed_names, report)`: Funktion oder Definition `_validate_expression_map` dieses Moduls.
+- `_validate_template_string(self, node_id, field, template, allowed_names, report)`: Funktion oder Definition `_validate_template_string` dieses Moduls.
+- `_validate_expression(self, node_id, field, expression, allowed_names, report)`: Funktion oder Definition `_validate_expression` dieses Moduls.
+- `_detect_sensitive_exfiltration(self, node_index, edges, agent_index, memory_index, report)`: Funktion oder Definition `_detect_sensitive_exfiltration` dieses Moduls.
+- `_detect_memory_poisoning(self, node_index, edges, memory_index, report)`: Funktion oder Definition `_detect_memory_poisoning` dieses Moduls.
+- `_build_upstream_map(node_index, edges)`: Funktion oder Definition `_build_upstream_map` dieses Moduls.
+- `_is_allowed_host(self, host)`: Funktion oder Definition `_is_allowed_host` dieses Moduls.
+- `_is_loopback_host(host)`: Funktion oder Definition `_is_loopback_host` dieses Moduls.
+
+## Abhaengigkeiten
+
+- `from __future__ import annotations`
+- `import ast`
+- `import ipaddress`
+- `from collections import deque`
+- `from dataclasses import dataclass, field`
+- `from typing import Any`
+- `from urllib.parse import urlparse`
+- `from nova_synesis.config import Settings`
+
+## Aenderungshinweise
+
+- Aendere Vertrage nie isoliert, wenn dieselben Felder in API, UI und Persistenz verwendet werden.
+- Pruefe nach Veraenderungen immer die benachbarten Dateien derselben Verantwortungskette.
+- Bei Runtime- oder API-Aenderungen die Tests erneut ausfuehren.
+
+## Verwandte Dateien
+
+- [src/nova_synesis/services/orchestrator.py](../services/orchestrator.py.md)
+- [src/nova_synesis/config.py](../config.py.md)
+- [tests/test_orchestrator.py](../../../tests/test_orchestrator.py.md)
 ```
 
 ## File: `reference/src/nova_synesis/services/__init__.py.md`  
 - Path: `reference/src/nova_synesis/services/__init__.py.md`  
-- Size: 876 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Size: 852 Bytes  
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # `src/nova_synesis/services/__init__.py`
@@ -3456,13 +3941,12 @@ Diese Datei enthaelt keine eigenen Klassen oder Funktionen, sondern primar Paket
 - Aendere Vertrage nie isoliert, wenn dieselben Felder in API, UI und Persistenz verwendet werden.
 - Pruefe nach Veraenderungen immer die benachbarten Dateien derselben Verantwortungskette.
 - Bei Runtime- oder API-Aenderungen die Tests erneut ausfuehren.
-
 ```
 
 ## File: `reference/src/nova_synesis/services/orchestrator.py.md`  
 - Path: `reference/src/nova_synesis/services/orchestrator.py.md`  
-- Size: 5201 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Size: 5516 Bytes  
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # `src/nova_synesis/services/orchestrator.py`
@@ -3472,11 +3956,11 @@ Diese Datei enthaelt keine eigenen Klassen oder Funktionen, sondern primar Paket
 
 ## Aufgabe der Datei
 
-Zentrale Service-Fassade des Backends.
+Zentrale Service-Fassade des Backends inklusive Security-Gates, Planner-Katalog und Lifecycle-Management.
 
 ## Wann du diese Datei bearbeitest
 
-Wenn Systemkomposition, Registrierungen oder Lifecycle-Management geaendert werden.
+Wenn Systemkomposition, Registrierungen, Policy-Durchsetzung oder Lifecycle-Management geaendert werden.
 
 ## Klassen
 
@@ -3511,6 +3995,8 @@ Methoden:
 - `_persist_flow(self, flow)`: Funktion oder Definition `_persist_flow` dieses Moduls.
 - `_schedule_publish(self, flow_id, event_type, snapshot)`: Funktion oder Definition `_schedule_publish` dieses Moduls.
 - `_build_planner_catalog(self)`: Funktion oder Definition `_build_planner_catalog` dieses Moduls.
+- `validate_flow_request(self, nodes, edges, metadata, planner_generated, phase)`: Funktion oder Definition `validate_flow_request` dieses Moduls.
+- `_snapshot_nodes_to_specs(flow_snapshot)`: Funktion oder Definition `_snapshot_nodes_to_specs` dieses Moduls.
 - `_default_memory_backend(self, memory_type)`: Funktion oder Definition `_default_memory_backend` dieses Moduls.
 - `_serialize_agent(agent)`: Funktion oder Definition `_serialize_agent` dieses Moduls.
 - `_serialize_resource(resource)`: Funktion oder Definition `_serialize_resource` dieses Moduls.
@@ -3538,6 +4024,7 @@ Methoden:
 - `from nova_synesis.resources.manager import ResourceManager`
 - `from nova_synesis.runtime.engine import ExecutionContext, FlowExecutor, TaskExecutor`
 - `from nova_synesis.runtime.handlers import TaskHandlerRegistry, register_default_handlers`
+- `from nova_synesis.security import SemanticFirewall`
 
 ## Aenderungshinweise
 
@@ -3549,13 +4036,12 @@ Methoden:
 
 - [src/nova_synesis/api/app.py](../api/app.py.md)
 - [src/nova_synesis/runtime/engine.py](../runtime/engine.py.md)
-
 ```
 
 ## File: `reference/tests/test_orchestrator.py.md`  
 - Path: `reference/tests/test_orchestrator.py.md`  
-- Size: 2422 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Size: 3466 Bytes  
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # `tests/test_orchestrator.py`
@@ -3565,11 +4051,11 @@ Methoden:
 
 ## Aufgabe der Datei
 
-Regressionstests fuer Kernfunktionen des Backends.
+Regressionstests fuer Backend, Planner, WebSocket-Livebetrieb und Semantic-Firewall.
 
 ## Wann du diese Datei bearbeitest
 
-Wenn neue Features abgesichert oder Fehler reproduzierbar getestet werden.
+Wenn neue Features abgesichert, Sicherheitsregeln erweitert oder Fehler reproduzierbar getestet werden.
 
 ## Funktionen
 
@@ -3579,6 +4065,12 @@ Wenn neue Features abgesichert oder Fehler reproduzierbar getestet werden.
 - `test_fastapi_flow_execution_endpoint(tmp_path)`: Funktion oder Definition `test_fastapi_flow_execution_endpoint` dieses Moduls.
 - `test_websocket_flow_updates_stream_runtime_events(tmp_path)`: Funktion oder Definition `test_websocket_flow_updates_stream_runtime_events` dieses Moduls.
 - `test_lit_planner_normalizes_graph_output(tmp_path)`: Funktion oder Definition `test_lit_planner_normalizes_graph_output` dieses Moduls.
+- `test_semantic_firewall_rejects_cyclic_flow(tmp_path)`: Funktion oder Definition `test_semantic_firewall_rejects_cyclic_flow` dieses Moduls.
+- `test_semantic_firewall_rejects_external_http_request(tmp_path)`: Funktion oder Definition `test_semantic_firewall_rejects_external_http_request` dieses Moduls.
+- `test_semantic_firewall_blocks_send_message_endpoint_override(tmp_path)`: Funktion oder Definition `test_semantic_firewall_blocks_send_message_endpoint_override` dieses Moduls.
+- `test_semantic_firewall_blocks_external_rest_agent_registration(tmp_path)`: Funktion oder Definition `test_semantic_firewall_blocks_external_rest_agent_registration` dieses Moduls.
+- `test_semantic_firewall_blocks_sensitive_memory_exfiltration(tmp_path)`: Funktion oder Definition `test_semantic_firewall_blocks_sensitive_memory_exfiltration` dieses Moduls.
+- `test_semantic_firewall_blocks_template_context_escape(tmp_path)`: Funktion oder Definition `test_semantic_firewall_blocks_template_context_escape` dieses Moduls.
 - `test_planner_status_endpoint_exposes_lit_configuration(tmp_path)`: Funktion oder Definition `test_planner_status_endpoint_exposes_lit_configuration` dieses Moduls.
 
 ## Abhaengigkeiten
@@ -3587,6 +4079,7 @@ Wenn neue Features abgesichert oder Fehler reproduzierbar getestet werden.
 - `import asyncio`
 - `import threading`
 - `from pathlib import Path`
+- `import pytest`
 - `from fastapi.testclient import TestClient`
 - `from nova_synesis.api.app import create_app`
 - `from nova_synesis.config import Settings`
@@ -3604,13 +4097,46 @@ Wenn neue Features abgesichert oder Fehler reproduzierbar getestet werden.
 
 - [src/nova_synesis/services/orchestrator.py](../src/nova_synesis/services/orchestrator.py.md)
 - [src/nova_synesis/api/app.py](../src/nova_synesis/api/app.py.md)
+```
 
+## File: `reference/tools/build_code_release.ps1.md`  
+- Path: `reference/tools/build_code_release.ps1.md`  
+- Size: 881 Bytes  
+- Modified: 2026-04-08 22:11:47 UTC
+
+```markdown
+# `tools/build_code_release.ps1`
+
+- Quellpfad: [tools/build_code_release.ps1](../../../tools/build_code_release.ps1)
+- Kategorie: `Werkzeug`
+
+## Aufgabe der Datei
+
+Skript fuer lokale Entwicklerablaeufe.
+
+## Wann du diese Datei bearbeitest
+
+Wenn sich die fachliche oder technische Verantwortung dieser Datei aendert.
+
+## Inhalt
+
+Diese Datei ist keine klassische Code-Datei mit Klassen und Funktionen. Relevant ist vor allem ihre Rolle im Build-, Laufzeit- oder Dokumentationsprozess.
+
+## Abhaengigkeiten
+
+Keine direkten Importzeilen oder fuer diese Dateiklasse nicht sinnvoll.
+
+## Aenderungshinweise
+
+- Aendere Vertrage nie isoliert, wenn dieselben Felder in API, UI und Persistenz verwendet werden.
+- Pruefe nach Veraenderungen immer die benachbarten Dateien derselben Verantwortungskette.
+- Bei Runtime- oder API-Aenderungen die Tests erneut ausfuehren.
 ```
 
 ## File: `reference/tools/generate_docs.py.md`  
 - Path: `reference/tools/generate_docs.py.md`  
 - Size: 2233 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # `tools/generate_docs.py`
@@ -3662,13 +4188,46 @@ Wenn Verhalten, API, UI oder Architektur angepasst werden muessen.
 - Aendere Vertrage nie isoliert, wenn dieselben Felder in API, UI und Persistenz verwendet werden.
 - Pruefe nach Veraenderungen immer die benachbarten Dateien derselben Verantwortungskette.
 - Bei Runtime- oder API-Aenderungen die Tests erneut ausfuehren.
+```
 
+## File: `reference/uml.html.md`  
+- Path: `reference/uml.html.md`  
+- Size: 837 Bytes  
+- Modified: 2026-04-08 22:11:47 UTC
+
+```markdown
+# `uml.html`
+
+- Quellpfad: [uml.html](../../uml.html)
+- Kategorie: `Projektdatei`
+
+## Aufgabe der Datei
+
+HTML-Datei fuer Visualisierung oder Browser-Einstieg.
+
+## Wann du diese Datei bearbeitest
+
+Wenn sich die fachliche oder technische Verantwortung dieser Datei aendert.
+
+## Inhalt
+
+Diese Datei ist keine klassische Code-Datei mit Klassen und Funktionen. Relevant ist vor allem ihre Rolle im Build-, Laufzeit- oder Dokumentationsprozess.
+
+## Abhaengigkeiten
+
+Keine direkten Importzeilen oder fuer diese Dateiklasse nicht sinnvoll.
+
+## Aenderungshinweise
+
+- Aendere Vertrage nie isoliert, wenn dieselben Felder in API, UI und Persistenz verwendet werden.
+- Pruefe nach Veraenderungen immer die benachbarten Dateien derselben Verantwortungskette.
+- Bei Runtime- oder API-Aenderungen die Tests erneut ausfuehren.
 ```
 
 ## File: `reference/uml_V3.mmd.md`  
 - Path: `reference/uml_V3.mmd.md`  
 - Size: 904 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # `uml_V3.mmd`
@@ -3702,23 +4261,56 @@ Keine direkten Importzeilen oder fuer diese Dateiklasse nicht sinnvoll.
 
 - [uml.html](uml.html.md)
 - [Anweisung.md](Anweisung.md.md)
-
 ```
 
-## File: `reference/uml.html.md`  
-- Path: `reference/uml.html.md`  
-- Size: 837 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+## File: `reference/Use_Cases/platform_health_snapshot/flow.json.md`  
+- Path: `reference/Use_Cases/platform_health_snapshot/flow.json.md`  
+- Size: 922 Bytes  
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
-# `uml.html`
+# `Use_Cases/platform_health_snapshot/flow.json`
 
-- Quellpfad: [uml.html](../../uml.html)
-- Kategorie: `Projektdatei`
+- Quellpfad: [Use_Cases/platform_health_snapshot/flow.json](../../../../Use_Cases/platform_health_snapshot/flow.json)
+- Kategorie: `Use Cases`
 
 ## Aufgabe der Datei
 
-HTML-Datei fuer Visualisierung oder Browser-Einstieg.
+Konfigurationsdatei des Projekts.
+
+## Wann du diese Datei bearbeitest
+
+Wenn Build-, Paket- oder Compilerkonfiguration angepasst werden muss.
+
+## Inhalt
+
+Diese Datei ist keine klassische Code-Datei mit Klassen und Funktionen. Relevant ist vor allem ihre Rolle im Build-, Laufzeit- oder Dokumentationsprozess.
+
+## Abhaengigkeiten
+
+Keine direkten Importzeilen oder fuer diese Dateiklasse nicht sinnvoll.
+
+## Aenderungshinweise
+
+- Aendere Vertrage nie isoliert, wenn dieselben Felder in API, UI und Persistenz verwendet werden.
+- Pruefe nach Veraenderungen immer die benachbarten Dateien derselben Verantwortungskette.
+- Bei Runtime- oder API-Aenderungen die Tests erneut ausfuehren.
+```
+
+## File: `reference/Use_Cases/platform_health_snapshot/README.md.md`  
+- Path: `reference/Use_Cases/platform_health_snapshot/README.md.md`  
+- Size: 945 Bytes  
+- Modified: 2026-04-08 22:11:47 UTC
+
+```markdown
+# `Use_Cases/platform_health_snapshot/README.md`
+
+- Quellpfad: [Use_Cases/platform_health_snapshot/README.md](../../../../Use_Cases/platform_health_snapshot/README.md)
+- Kategorie: `Use Cases`
+
+## Aufgabe der Datei
+
+Markdown-Datei mit Projektwissen oder Anweisungen.
 
 ## Wann du diese Datei bearbeitest
 
@@ -3737,13 +4329,298 @@ Keine direkten Importzeilen oder fuer diese Dateiklasse nicht sinnvoll.
 - Aendere Vertrage nie isoliert, wenn dieselben Felder in API, UI und Persistenz verwendet werden.
 - Pruefe nach Veraenderungen immer die benachbarten Dateien derselben Verantwortungskette.
 - Bei Runtime- oder API-Aenderungen die Tests erneut ausfuehren.
+```
 
+## File: `reference/Use_Cases/platform_health_snapshot/run.ps1.md`  
+- Path: `reference/Use_Cases/platform_health_snapshot/run.ps1.md`  
+- Size: 927 Bytes  
+- Modified: 2026-04-08 22:11:47 UTC
+
+```markdown
+# `Use_Cases/platform_health_snapshot/run.ps1`
+
+- Quellpfad: [Use_Cases/platform_health_snapshot/run.ps1](../../../../Use_Cases/platform_health_snapshot/run.ps1)
+- Kategorie: `Use Cases`
+
+## Aufgabe der Datei
+
+Skript fuer lokale Entwicklerablaeufe.
+
+## Wann du diese Datei bearbeitest
+
+Wenn sich die fachliche oder technische Verantwortung dieser Datei aendert.
+
+## Inhalt
+
+Diese Datei ist keine klassische Code-Datei mit Klassen und Funktionen. Relevant ist vor allem ihre Rolle im Build-, Laufzeit- oder Dokumentationsprozess.
+
+## Abhaengigkeiten
+
+Keine direkten Importzeilen oder fuer diese Dateiklasse nicht sinnvoll.
+
+## Aenderungshinweise
+
+- Aendere Vertrage nie isoliert, wenn dieselben Felder in API, UI und Persistenz verwendet werden.
+- Pruefe nach Veraenderungen immer die benachbarten Dateien derselben Verantwortungskette.
+- Bei Runtime- oder API-Aenderungen die Tests erneut ausfuehren.
+```
+
+## File: `reference/Use_Cases/platform_health_snapshot/setup.ps1.md`  
+- Path: `reference/Use_Cases/platform_health_snapshot/setup.ps1.md`  
+- Size: 933 Bytes  
+- Modified: 2026-04-08 22:11:47 UTC
+
+```markdown
+# `Use_Cases/platform_health_snapshot/setup.ps1`
+
+- Quellpfad: [Use_Cases/platform_health_snapshot/setup.ps1](../../../../Use_Cases/platform_health_snapshot/setup.ps1)
+- Kategorie: `Use Cases`
+
+## Aufgabe der Datei
+
+Skript fuer lokale Entwicklerablaeufe.
+
+## Wann du diese Datei bearbeitest
+
+Wenn sich die fachliche oder technische Verantwortung dieser Datei aendert.
+
+## Inhalt
+
+Diese Datei ist keine klassische Code-Datei mit Klassen und Funktionen. Relevant ist vor allem ihre Rolle im Build-, Laufzeit- oder Dokumentationsprozess.
+
+## Abhaengigkeiten
+
+Keine direkten Importzeilen oder fuer diese Dateiklasse nicht sinnvoll.
+
+## Aenderungshinweise
+
+- Aendere Vertrage nie isoliert, wenn dieselben Felder in API, UI und Persistenz verwendet werden.
+- Pruefe nach Veraenderungen immer die benachbarten Dateien derselben Verantwortungskette.
+- Bei Runtime- oder API-Aenderungen die Tests erneut ausfuehren.
+```
+
+## File: `reference/Use_Cases/README.md.md`  
+- Path: `reference/Use_Cases/README.md.md`  
+- Size: 867 Bytes  
+- Modified: 2026-04-08 22:11:47 UTC
+
+```markdown
+# `Use_Cases/README.md`
+
+- Quellpfad: [Use_Cases/README.md](../../../Use_Cases/README.md)
+- Kategorie: `Use Cases`
+
+## Aufgabe der Datei
+
+Markdown-Datei mit Projektwissen oder Anweisungen.
+
+## Wann du diese Datei bearbeitest
+
+Wenn sich die fachliche oder technische Verantwortung dieser Datei aendert.
+
+## Inhalt
+
+Diese Datei ist keine klassische Code-Datei mit Klassen und Funktionen. Relevant ist vor allem ihre Rolle im Build-, Laufzeit- oder Dokumentationsprozess.
+
+## Abhaengigkeiten
+
+Keine direkten Importzeilen oder fuer diese Dateiklasse nicht sinnvoll.
+
+## Aenderungshinweise
+
+- Aendere Vertrage nie isoliert, wenn dieselben Felder in API, UI und Persistenz verwendet werden.
+- Pruefe nach Veraenderungen immer die benachbarten Dateien derselben Verantwortungskette.
+- Bei Runtime- oder API-Aenderungen die Tests erneut ausfuehren.
+```
+
+## File: `reference/Use_Cases/semantic_ticket_triage/flow.json.md`  
+- Path: `reference/Use_Cases/semantic_ticket_triage/flow.json.md`  
+- Size: 916 Bytes  
+- Modified: 2026-04-08 22:11:47 UTC
+
+```markdown
+# `Use_Cases/semantic_ticket_triage/flow.json`
+
+- Quellpfad: [Use_Cases/semantic_ticket_triage/flow.json](../../../../Use_Cases/semantic_ticket_triage/flow.json)
+- Kategorie: `Use Cases`
+
+## Aufgabe der Datei
+
+Konfigurationsdatei des Projekts.
+
+## Wann du diese Datei bearbeitest
+
+Wenn Build-, Paket- oder Compilerkonfiguration angepasst werden muss.
+
+## Inhalt
+
+Diese Datei ist keine klassische Code-Datei mit Klassen und Funktionen. Relevant ist vor allem ihre Rolle im Build-, Laufzeit- oder Dokumentationsprozess.
+
+## Abhaengigkeiten
+
+Keine direkten Importzeilen oder fuer diese Dateiklasse nicht sinnvoll.
+
+## Aenderungshinweise
+
+- Aendere Vertrage nie isoliert, wenn dieselben Felder in API, UI und Persistenz verwendet werden.
+- Pruefe nach Veraenderungen immer die benachbarten Dateien derselben Verantwortungskette.
+- Bei Runtime- oder API-Aenderungen die Tests erneut ausfuehren.
+```
+
+## File: `reference/Use_Cases/semantic_ticket_triage/README.md.md`  
+- Path: `reference/Use_Cases/semantic_ticket_triage/README.md.md`  
+- Size: 939 Bytes  
+- Modified: 2026-04-08 22:11:47 UTC
+
+```markdown
+# `Use_Cases/semantic_ticket_triage/README.md`
+
+- Quellpfad: [Use_Cases/semantic_ticket_triage/README.md](../../../../Use_Cases/semantic_ticket_triage/README.md)
+- Kategorie: `Use Cases`
+
+## Aufgabe der Datei
+
+Markdown-Datei mit Projektwissen oder Anweisungen.
+
+## Wann du diese Datei bearbeitest
+
+Wenn sich die fachliche oder technische Verantwortung dieser Datei aendert.
+
+## Inhalt
+
+Diese Datei ist keine klassische Code-Datei mit Klassen und Funktionen. Relevant ist vor allem ihre Rolle im Build-, Laufzeit- oder Dokumentationsprozess.
+
+## Abhaengigkeiten
+
+Keine direkten Importzeilen oder fuer diese Dateiklasse nicht sinnvoll.
+
+## Aenderungshinweise
+
+- Aendere Vertrage nie isoliert, wenn dieselben Felder in API, UI und Persistenz verwendet werden.
+- Pruefe nach Veraenderungen immer die benachbarten Dateien derselben Verantwortungskette.
+- Bei Runtime- oder API-Aenderungen die Tests erneut ausfuehren.
+```
+
+## File: `reference/Use_Cases/semantic_ticket_triage/run.ps1.md`  
+- Path: `reference/Use_Cases/semantic_ticket_triage/run.ps1.md`  
+- Size: 921 Bytes  
+- Modified: 2026-04-08 22:11:47 UTC
+
+```markdown
+# `Use_Cases/semantic_ticket_triage/run.ps1`
+
+- Quellpfad: [Use_Cases/semantic_ticket_triage/run.ps1](../../../../Use_Cases/semantic_ticket_triage/run.ps1)
+- Kategorie: `Use Cases`
+
+## Aufgabe der Datei
+
+Skript fuer lokale Entwicklerablaeufe.
+
+## Wann du diese Datei bearbeitest
+
+Wenn sich die fachliche oder technische Verantwortung dieser Datei aendert.
+
+## Inhalt
+
+Diese Datei ist keine klassische Code-Datei mit Klassen und Funktionen. Relevant ist vor allem ihre Rolle im Build-, Laufzeit- oder Dokumentationsprozess.
+
+## Abhaengigkeiten
+
+Keine direkten Importzeilen oder fuer diese Dateiklasse nicht sinnvoll.
+
+## Aenderungshinweise
+
+- Aendere Vertrage nie isoliert, wenn dieselben Felder in API, UI und Persistenz verwendet werden.
+- Pruefe nach Veraenderungen immer die benachbarten Dateien derselben Verantwortungskette.
+- Bei Runtime- oder API-Aenderungen die Tests erneut ausfuehren.
+```
+
+## File: `reference/Use_Cases/semantic_ticket_triage/setup.ps1.md`  
+- Path: `reference/Use_Cases/semantic_ticket_triage/setup.ps1.md`  
+- Size: 927 Bytes  
+- Modified: 2026-04-08 22:11:47 UTC
+
+```markdown
+# `Use_Cases/semantic_ticket_triage/setup.ps1`
+
+- Quellpfad: [Use_Cases/semantic_ticket_triage/setup.ps1](../../../../Use_Cases/semantic_ticket_triage/setup.ps1)
+- Kategorie: `Use Cases`
+
+## Aufgabe der Datei
+
+Skript fuer lokale Entwicklerablaeufe.
+
+## Wann du diese Datei bearbeitest
+
+Wenn sich die fachliche oder technische Verantwortung dieser Datei aendert.
+
+## Inhalt
+
+Diese Datei ist keine klassische Code-Datei mit Klassen und Funktionen. Relevant ist vor allem ihre Rolle im Build-, Laufzeit- oder Dokumentationsprozess.
+
+## Abhaengigkeiten
+
+Keine direkten Importzeilen oder fuer diese Dateiklasse nicht sinnvoll.
+
+## Aenderungshinweise
+
+- Aendere Vertrage nie isoliert, wenn dieselben Felder in API, UI und Persistenz verwendet werden.
+- Pruefe nach Veraenderungen immer die benachbarten Dateien derselben Verantwortungskette.
+- Bei Runtime- oder API-Aenderungen die Tests erneut ausfuehren.
+```
+
+## File: `security-and-policy.md`  
+- Path: `security-and-policy.md`  
+- Size: 1454 Bytes  
+- Modified: 2026-04-08 22:11:47 UTC
+
+```markdown
+# Security und Policy
+
+NOVA-SYNESIS sichert nicht nur Code, sondern die Absicht eines Graphen. Diese Aufgabe uebernimmt die Semantic Firewall in `src/nova_synesis/security/policy.py`.
+
+## Wann die Policy greift
+
+- bei Agent-Registrierung
+- bei `POST /flows/validate`
+- bei `POST /flows`
+- vor `POST /flows/{flow_id}/run`
+- nach einer Planner-Generierung, bevor der Graph an die UI zurueckgeht
+
+## Was geprueft wird
+
+- Graph-Struktur: keine Zyklen, keine Selbstkanten, keine unbekannten Nodes
+- Retry-Budget und maximale Graphgroesse
+- Expressions und Templates: nur erlaubte Symbole und AST-Knoten
+- HTTP-Egress: nur erlaubte Hosts oder Loopback
+- Messaging: nur erlaubte Protokolle und kein Endpoint-Override im Payload
+- Dateioperationen: kein `allow_outside_workdir`
+- Sensitive Memories: kein Abfluss in `http_request` oder externe Nachrichtenziele
+- Planner-visible Memories: kein untrusted Ingest ohne explizites Opt-in
+- Agent-Registrierung: keine unerlaubten REST/WebSocket-Endpunkte und keine blockierten Capability-Profile
+
+## Bedeutende Felder
+
+- `sensitive = true`
+- `planner_visible = false`
+- `allow_untrusted_ingest = true`
+
+## Wichtige Settings
+
+- `NS_SECURITY_ENABLED`
+- `NS_SECURITY_MAX_NODES`
+- `NS_SECURITY_MAX_EDGES`
+- `NS_SECURITY_MAX_TOTAL_ATTEMPTS`
+- `NS_SECURITY_MAX_EXPRESSION_LENGTH`
+- `NS_SECURITY_MAX_EXPRESSION_NODES`
+- `NS_SECURITY_HTTP_ALLOWED_HOSTS`
+- `NS_SECURITY_SEND_PROTOCOLS`
 ```
 
 ## File: `system-overview.md`  
 - Path: `system-overview.md`  
-- Size: 621 Bytes  
-- Modified: 2026-04-08 11:23:56 UTC
+- Size: 1086 Bytes  
+- Modified: 2026-04-08 22:11:47 UTC
 
 ```markdown
 # Systemueberblick
@@ -3752,6 +4629,7 @@ Keine direkten Importzeilen oder fuer diese Dateiklasse nicht sinnvoll.
 
 - Domaene: `src/nova_synesis/domain/models.py`
 - Planung: `planning/planner.py` und `planning/lit_planner.py`
+- Sicherheitspruefung: `security/policy.py`
 - Runtime: `runtime/engine.py` und `runtime/handlers.py`
 - Persistenz: `persistence/sqlite_repository.py`
 - API: `api/app.py`
@@ -3759,12 +4637,19 @@ Keine direkten Importzeilen oder fuer diese Dateiklasse nicht sinnvoll.
 
 ## Hauptdatenfluss
 
-1. Graph im Frontend erstellen oder generieren
+1. Graph im Frontend erstellen oder ueber den LiteRT-Planer generieren
 2. `toFlowRequest()` erzeugt das Backend-Schema
-3. `POST /flows` speichert den Graphen
-4. `POST /flows/{id}/run` startet die Ausfuehrung
-5. `FlowExecutor` verarbeitet den Graphen
-6. `/ws/flows/{flow_id}` uebertraegt Snapshots an die UI
+3. `POST /flows/validate` prueft Graph, Expressions, Egress und Memory-Fluesse
+4. `POST /flows` speichert den Graphen
+5. `POST /flows/{id}/run` startet die Ausfuehrung
+6. `FlowExecutor` verarbeitet den Graphen Node fuer Node
+7. `/ws/flows/{flow_id}` uebertraegt Snapshots an die UI
+8. `GET /flows/{flow_id}` bleibt die kanonische Wahrheit fuer den Laufzeitstand
 
+## Was dieses System bewusst ist
+
+- graphbasiert statt chatbasiert
+- zustandsbehaftet statt nur requestbasiert
+- planner-unterstuetzt, aber nicht planner-abhaengig
+- sicherheitsgefiltert, bevor Seiteneffekte entstehen
 ```
-

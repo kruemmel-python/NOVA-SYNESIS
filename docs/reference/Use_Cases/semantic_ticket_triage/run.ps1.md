@@ -1,15 +1,15 @@
-# `frontend/tsconfig.app.tsbuildinfo`
+# `Use_Cases/semantic_ticket_triage/run.ps1`
 
-- Quellpfad: [frontend/tsconfig.app.tsbuildinfo](../../../frontend/tsconfig.app.tsbuildinfo)
-- Kategorie: `Frontend-Konfiguration`
+- Quellpfad: [Use_Cases/semantic_ticket_triage/run.ps1](../../../../Use_Cases/semantic_ticket_triage/run.ps1)
+- Kategorie: `Use Cases`
 
 ## Aufgabe der Datei
 
-Generiertes Cache-Artefakt, das Builds oder Inferenz beschleunigt.
+Skript fuer lokale Entwicklerablaeufe.
 
 ## Wann du diese Datei bearbeitest
 
-Normalerweise nie direkt. Bei Bedarf loeschen und neu erzeugen lassen.
+Wenn sich die fachliche oder technische Verantwortung dieser Datei aendert.
 
 ## Inhalt
 

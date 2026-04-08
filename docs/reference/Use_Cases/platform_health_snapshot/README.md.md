@@ -1,15 +1,15 @@
-# `LIT/lit.windows_x86_64.exe`
+# `Use_Cases/platform_health_snapshot/README.md`
 
-- Quellpfad: [LIT/lit.windows_x86_64.exe](../../../LIT/lit.windows_x86_64.exe)
-- Kategorie: `LLM-Runtime`
+- Quellpfad: [Use_Cases/platform_health_snapshot/README.md](../../../../Use_Cases/platform_health_snapshot/README.md)
+- Kategorie: `Use Cases`
 
 ## Aufgabe der Datei
 
-Windows-Binary fuer die lokale LiteRT-LM-Inferenz.
+Markdown-Datei mit Projektwissen oder Anweisungen.
 
 ## Wann du diese Datei bearbeitest
 
-Nur beim gezielten Update der lokalen Runtime.
+Wenn sich die fachliche oder technische Verantwortung dieser Datei aendert.
 
 ## Inhalt
 
@@ -24,8 +24,3 @@ Keine direkten Importzeilen oder fuer diese Dateiklasse nicht sinnvoll.
 - Aendere Vertrage nie isoliert, wenn dieselben Felder in API, UI und Persistenz verwendet werden.
 - Pruefe nach Veraenderungen immer die benachbarten Dateien derselben Verantwortungskette.
 - Bei Runtime- oder API-Aenderungen die Tests erneut ausfuehren.
-
-## Verwandte Dateien
-
-- [LIT/gemma-4-E2B-it.litertlm](gemma-4-E2B-it.litertlm.md)
-- [src/nova_synesis/planning/lit_planner.py](../src/nova_synesis/planning/lit_planner.py.md)

@@ -5,11 +5,11 @@
 
 ## Aufgabe der Datei
 
-Regressionstests fuer Kernfunktionen des Backends.
+Regressionstests fuer Backend, Planner, WebSocket-Livebetrieb und Semantic-Firewall.
 
 ## Wann du diese Datei bearbeitest
 
-Wenn neue Features abgesichert oder Fehler reproduzierbar getestet werden.
+Wenn neue Features abgesichert, Sicherheitsregeln erweitert oder Fehler reproduzierbar getestet werden.
 
 ## Funktionen
 
@@ -19,6 +19,12 @@ Wenn neue Features abgesichert oder Fehler reproduzierbar getestet werden.
 - `test_fastapi_flow_execution_endpoint(tmp_path)`: Funktion oder Definition `test_fastapi_flow_execution_endpoint` dieses Moduls.
 - `test_websocket_flow_updates_stream_runtime_events(tmp_path)`: Funktion oder Definition `test_websocket_flow_updates_stream_runtime_events` dieses Moduls.
 - `test_lit_planner_normalizes_graph_output(tmp_path)`: Funktion oder Definition `test_lit_planner_normalizes_graph_output` dieses Moduls.
+- `test_semantic_firewall_rejects_cyclic_flow(tmp_path)`: Funktion oder Definition `test_semantic_firewall_rejects_cyclic_flow` dieses Moduls.
+- `test_semantic_firewall_rejects_external_http_request(tmp_path)`: Funktion oder Definition `test_semantic_firewall_rejects_external_http_request` dieses Moduls.
+- `test_semantic_firewall_blocks_send_message_endpoint_override(tmp_path)`: Funktion oder Definition `test_semantic_firewall_blocks_send_message_endpoint_override` dieses Moduls.
+- `test_semantic_firewall_blocks_external_rest_agent_registration(tmp_path)`: Funktion oder Definition `test_semantic_firewall_blocks_external_rest_agent_registration` dieses Moduls.
+- `test_semantic_firewall_blocks_sensitive_memory_exfiltration(tmp_path)`: Funktion oder Definition `test_semantic_firewall_blocks_sensitive_memory_exfiltration` dieses Moduls.
+- `test_semantic_firewall_blocks_template_context_escape(tmp_path)`: Funktion oder Definition `test_semantic_firewall_blocks_template_context_escape` dieses Moduls.
 - `test_planner_status_endpoint_exposes_lit_configuration(tmp_path)`: Funktion oder Definition `test_planner_status_endpoint_exposes_lit_configuration` dieses Moduls.
 
 ## Abhaengigkeiten
@@ -27,6 +33,7 @@ Wenn neue Features abgesichert oder Fehler reproduzierbar getestet werden.
 - `import asyncio`
 - `import threading`
 - `from pathlib import Path`
+- `import pytest`
 - `from fastapi.testclient import TestClient`
 - `from nova_synesis.api.app import create_app`
 - `from nova_synesis.config import Settings`

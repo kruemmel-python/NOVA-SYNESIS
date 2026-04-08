@@ -4,9 +4,10 @@ Diese Seite beschreibt die realen Stoerungsbilder des Systems. Ziel ist nicht nu
 
 ## Triage-Reihenfolge
 
-1. Zuerst unterscheiden: Planner-Problem, Live-Transportproblem oder echte Runtime-Stoerung.
+1. Zuerst unterscheiden: Planner-Problem, Policy-Rejektion, Live-Transportproblem oder echte Runtime-Stoerung.
 2. Immer den echten Snapshot ueber `GET /flows/{flow_id}` lesen.
-3. Erst danach UI, WebSocket oder Planner-Oberflaeche beurteilen.
+3. Bei Save-/Run-Fehlern zuerst `POST /flows/validate` auswerten.
+4. Erst danach UI, WebSocket oder Planner-Oberflaeche beurteilen.
 
 ## 1. Planner liefert ungueltiges JSON
 
@@ -19,35 +20,41 @@ Diese Seite beschreibt die realen Stoerungsbilder des Systems. Ziel ist nicht nu
   - `Planner response does not contain a JSON object`
   - `Planner response contains an incomplete JSON object`
 
-### Was im Code passiert
-
-- `LiteRTPlanner._invoke_model()` ruft die lokale `lit`-Binary auf
-- `LiteRTPlanner._parse_model_output()` extrahiert den JSON-Anteil
-- `LiteRTPlanner._normalize_flow_request()` validiert das Resultat gegen echte Handler, Ressourcen, Agenten und Memory-Systeme
-
-### Typische Ursachen
-
-- das Modell schreibt Text ausserhalb des JSON
-- das JSON ist syntaktisch unvollstaendig
-- das Modell erfindet Handler oder Ressourcen
-- `max_nodes` ist zu hoch und das Modell driftet
-- Binary- oder Modellpfad sind falsch
-
 ### Sofortmassnahmen
 
 1. `GET /planner/status` pruefen
-2. den Prompt kuerzer und restriktiver formulieren
+2. Prompt kuerzen und restriktiver machen
 3. `max_nodes` senken
-4. sicherstellen, dass benoetigte Memory-IDs, Agenten und Ressourcen wirklich registriert sind
+4. sicherstellen, dass benoetigte Handler, Agenten, Ressourcen und Memory-IDs wirklich registriert sind
 5. bei wiederholtem Fehler den Flow manuell im Editor bauen
 
-### Dauerhafte Korrektur
+## 2. Semantic Firewall lehnt den Flow ab
 
-- Prompt-Kontrakt in `src/nova_synesis/planning/lit_planner.py` schaerfen
-- Normalisierung erweitern, wenn das Modell wiederholt denselben plausiblen, aber falschen Vertrag produziert
-- nur echte Handler in den Planner-Katalog aufnehmen
+### Woran du es erkennst
 
-## 2. WebSocket bricht waehrend der Execution ab
+- `POST /flows/validate`, `POST /flows` oder `POST /planner/generate-flow` liefert einen Fehler
+- typische Fehlermeldungen:
+  - `Semantic firewall rejected flow`
+  - `Outbound host ... is outside the semantic firewall allowlist`
+  - `Flow contains a cycle`
+  - `Sensitive memory data may not flow into http_request nodes`
+
+### Typische Ursachen
+
+- zyklischer Graph
+- `http_request` auf einen nicht erlaubten Host
+- `send_message` ohne `target_agent_id` oder mit Endpoint-Override
+- Template oder Condition mit nicht erlaubten Symbolen
+- planner-sichtbare Memory-Store-Node hinter untrusted Ingest
+
+### Sofortmassnahmen
+
+1. denselben Payload gegen `POST /flows/validate` schicken
+2. `violations` und `warnings` getrennt lesen
+3. pruefen, ob das Problem fachlich oder rein policy-seitig ist
+4. bei legitimen Produktionsfaellen erst Settings oder Memory-/Resource-Metadaten anpassen, nicht die Regel blind entfernen
+
+## 3. WebSocket bricht waehrend der Execution ab
 
 ### Woran du es erkennst
 
@@ -57,14 +64,7 @@ Diese Seite beschreibt die realen Stoerungsbilder des Systems. Ziel ist nicht nu
 
 ### Was das System bereits fuer dich macht
 
-`frontend/src/hooks/useFlowLiveUpdates.ts` faellt automatisch auf Polling gegen `GET /flows/{flow_id}` zurueck. Das bedeutet: Die UI bleibt nutzbar, auch wenn der Socket weg ist.
-
-### Typische Ursachen
-
-- Backend wurde neu gestartet
-- Port oder Host in `frontend/.env` stimmen nicht
-- Proxy oder Netzwerkumgebung blockieren WebSocket-Upgrades
-- der Benutzer ist noch auf einem alten `flow_id`
+`frontend/src/hooks/useFlowLiveUpdates.ts` faellt automatisch auf Polling gegen `GET /flows/{flow_id}` zurueck. Die UI bleibt dadurch nutzbar, auch wenn der Socket weg ist.
 
 ### Sofortmassnahmen
 
@@ -73,13 +73,7 @@ Diese Seite beschreibt die realen Stoerungsbilder des Systems. Ziel ist nicht nu
 3. unterscheiden: ist nur `/ws/flows/{flow_id}` defekt oder auch REST?
 4. wenn REST geht, die Ausfuehrung nicht abbrechen, sondern Snapshot weiter per Polling beobachten
 
-### Dauerhafte Korrektur
-
-- gleiche Host-/Port-Konfiguration fuer REST und WebSocket erzwingen
-- bei Reverse Proxy WebSocket-Support explizit konfigurieren
-- Polling-Fallback als Sicherheitsnetz beibehalten
-
-## 3. Resource haengt oder laeuft in Timeout / Sattlauf
+## 4. Resource haengt oder laeuft in Timeout / Sattlauf
 
 ### Woran du es erkennst
 
@@ -87,37 +81,19 @@ Diese Seite beschreibt die realen Stoerungsbilder des Systems. Ziel ist nicht nu
 - der Flow macht keine sichtbaren Fortschritte, ohne sofort auf `FAILED` zu springen
 - einzelne Ressourcen stehen auf `BUSY` oder `DOWN`
 
-### Wichtige technische Besonderheit dieses Projekts
+### Wichtige technische Besonderheit
 
-Die Engine ruft `ResourceManager.acquire_many()` ohne globalen Timeout auf. Das heisst:
-
-- ist eine Ressource `DOWN`, scheitert die Reservierung schnell
-- ist eine Ressource nur voll ausgelastet, kann eine Task auf Freigabe warten
-- handler-spezifische Timeouts, etwa `http_request.timeout_s`, greifen nur innerhalb des Handlers, nicht waehrend der Ressourcenreservierung selbst
-
-### Typische Ursachen
-
-- Resource-Kapazitaet (`metadata.capacity`) ist zu klein fuer die Flow-Konkurrenz
-- externe API oder Dateiressource blockiert
-- eine vorherige Task haelt die Ressource laenger als erwartet
-- der Flow nutzt feste `required_resource_ids`, obwohl eigentlich ein Typ-Fallback sinnvoll waere
+`ResourceManager.acquire_many()` hat keinen globalen Flow-Timeout. Handler-Timeouts wie `http_request.timeout_s` greifen erst nach erfolgreicher Ressourcenreservierung.
 
 ### Sofortmassnahmen
 
-1. `GET /flows/{flow_id}` lesen und die auf `RUNNING` stehenden Nodes identifizieren
+1. `GET /flows/{flow_id}` lesen und die `RUNNING`-Nodes identifizieren
 2. `GET /resources` und gegebenenfalls `resource_health_check` verwenden
-3. pruefen, ob `max_concurrency` oder die Ressourcenkapazitaet zu aggressiv eingestellt sind
+3. `max_concurrency`, Kapazitaet und `required_resource_ids` gegen die echte Infrastruktur pruefen
 4. bei HTTP-Aufrufen explizit `timeout_s` setzen
 5. wenn moeglich auf `required_resource_types` plus `FALLBACK_RESOURCE` umstellen
 
-### Dauerhafte Korrektur
-
-- Kapazitaet der Ressource realistisch modellieren
-- konkurrierende Flows oder Node-Level-Konkurrenz reduzieren
-- fuer fragilen Infrastrukturzugriff `RETRY` oder `FALLBACK_RESOURCE` statt `FAIL_FAST` nutzen
-- lang laufende Seiteneffekte in kleinere, kontrollierbare Nodes zerlegen
-
-## 4. Flow bleibt auf `RUNNING` stehen
+## 5. Flow bleibt auf `RUNNING` stehen
 
 ### Woran du es erkennst
 
@@ -125,14 +101,12 @@ Die Engine ruft `ResourceManager.acquire_many()` ohne globalen Timeout auf. Das 
 - dieselben Nodes bleiben ueber mehrere Snapshots hinweg `RUNNING`
 - `completed_nodes` waechst nicht mehr
 
-### Was das in diesem System meist bedeutet
-
-Das ist haeufig kein Graph-Deadlock, sondern eine laufende Task, die nie sauber zurueckkehrt:
+### Typische Ursachen
 
 - Handler wartet auf externen Dienst
 - Ressource wartet auf Freigabe
 - externer Endpunkt antwortet nie innerhalb eines sinnvollen Timeouts
-- die UI hat den letzten erfolgreichen Zustand gezeigt und der Nutzer verwechselt das mit einem eigentlichen Engine-Stall
+- ein lang laufender Seiteneffekt wurde nicht in kleinere Nodes zerlegt
 
 ### Sofortmassnahmen
 
@@ -142,28 +116,9 @@ Das ist haeufig kein Graph-Deadlock, sondern eine laufende Task, die nie sauber 
 4. bei `http_request` ein sinnvolles `timeout_s` setzen
 5. pruefen, ob Ressource oder Kommunikationsziel erreichbar sind
 
-### Dauerhafte Korrektur
-
-- fuer externe I/O immer explizite Timeouts und Retries modellieren
-- Flows nicht mit ungebremster Parallelitaet gegen knappe Ressourcen fahren
-- problematische Langlaeufer erst manuell als Einzel-Flow testen
-
-## 5. Graph-Deadlock oder logisch blockierter Flow
+## 6. Graph-Deadlock oder logisch blockierter Flow
 
 Wichtig: Wenn keine Node mehr startbar ist und trotzdem noch `pending` existiert, setzt `FlowExecutor.run_flow()` den Flow auf `FAILED` und schreibt `deadlock_nodes` in die Metadaten.
-
-### Woran du es erkennst
-
-- `GET /flows/{flow_id}` zeigt `state = FAILED`
-- `metadata.deadlock_nodes` ist gesetzt
-- `blocked_nodes` enthaelt Knoten, deren Bedingungen nie wahr wurden
-
-### Typische Ursachen
-
-- zyklische Abhaengigkeiten
-- alle Kantenbedingungen sind formal ausgewertet, aber keine fuehrt zu einem startbaren Node
-- ein Bedingungsausdruck referenziert unbekannte Symbole
-- es existiert kein echter Startknoten
 
 ### Sofortmassnahmen
 
@@ -178,13 +133,7 @@ Wichtig: Wenn keine Node mehr startbar ist und trotzdem noch `pending` existiert
    - `failed`
 4. pruefen, ob mindestens ein Node ohne eingehende Kante existiert
 
-### Dauerhafte Korrektur
-
-- Graph strikt als DAG modellieren
-- Branching nur fuer fachliche Entscheidungen verwenden
-- komplexe Vorbedingungen lieber als eigenen vorbereitenden Node modellieren
-
-## 6. Handler wirft Exception
+## 7. Handler wirft Exception
 
 ### Woran du es erkennst
 
@@ -203,16 +152,6 @@ Wichtig: Wenn keine Node mehr startbar ist und trotzdem noch `pending` existiert
 - `validator_rules` schlagen fehl
 - eine Ressource kann nicht reserviert werden
 
-### Was die Engine dann macht
-
-- sie erzeugt ein `ErrorEvent`
-- je nach `rollback_strategy` folgt:
-  - `FAIL_FAST`
-  - `RETRY`
-  - `COMPENSATE`
-  - `FALLBACK_RESOURCE`
-- bei `FALLBACK_RESOURCE` versucht `ResourceManager.find_fallback_resources()` einen Ersatz gleicher Art
-
 ### Sofortmassnahmen
 
 1. `failed_nodes` im Snapshot lesen
@@ -220,17 +159,12 @@ Wichtig: Wenn keine Node mehr startbar ist und trotzdem noch `pending` existiert
 3. Ressourcen, Agenten und Memory-Systeme pruefen
 4. `retry_policy` und `rollback_strategy` auf Infrastrukturrealitaet abstimmen
 
-### Dauerhafte Korrektur
-
-- Handler klein und vertragsscharf halten
-- `validator_rules` bewusst einsetzen
-- bei externen Diensten eher `RETRY` oder `FALLBACK_RESOURCE` als `FAIL_FAST` verwenden
-
 ## Welche Daten du vor tieferer Analyse sammeln solltest
 
 - `flow_id`
 - kompletter Snapshot aus `GET /flows/{flow_id}`
+- Ergebnis von `POST /flows/validate`, falls Save oder Run scheitert
 - alle aktuell `RUNNING`, `FAILED` und `blocked` Nodes
 - Handlername und Input der auffaelligen Node
 - verwendete Ressourcen, Agenten und Memory-IDs
-- bei Planner-Problemen: Prompt und `max_nodes`
+- bei Planner-Problemen: Prompt, `max_nodes` und `security_report`

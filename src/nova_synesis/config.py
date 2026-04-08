@@ -26,6 +26,36 @@ class Settings:
     lit_model_path: str = "LIT/gemma-4-E2B-it.litertlm"
     lit_backend: str = "cpu"
     lit_timeout_s: int = 240
+    security_enabled: bool = True
+    security_max_nodes: int = 40
+    security_max_edges: int = 160
+    security_max_total_attempts: int = 120
+    security_max_expression_length: int = 512
+    security_max_expression_nodes: int = 64
+    security_allow_loopback_hosts: bool = True
+    security_http_allowed_hosts: tuple[str, ...] = (
+        "127.0.0.1",
+        "localhost",
+    )
+    security_send_message_allowed_protocols: tuple[str, ...] = ("MESSAGE_QUEUE",)
+    security_blocked_handler_keywords: tuple[str, ...] = (
+        "exploit",
+        "phish",
+        "credential",
+        "scan",
+        "bruteforce",
+        "exfil",
+        "social",
+    )
+    security_blocked_capability_keywords: tuple[str, ...] = (
+        "exploit",
+        "phish",
+        "credential",
+        "scan",
+        "bruteforce",
+        "exfil",
+        "social",
+    )
     cors_origins: tuple[str, ...] = (
         "http://127.0.0.1:5173",
         "http://localhost:5173",
@@ -35,6 +65,22 @@ class Settings:
     def from_env(cls) -> "Settings":
         defaults = cls()
         cors_origins = _env("NS_CORS_ORIGINS", "AO_CORS_ORIGINS")
+        security_http_allowed_hosts = _env(
+            "NS_SECURITY_HTTP_ALLOWED_HOSTS",
+            "AO_SECURITY_HTTP_ALLOWED_HOSTS",
+        )
+        security_send_protocols = _env(
+            "NS_SECURITY_SEND_PROTOCOLS",
+            "AO_SECURITY_SEND_PROTOCOLS",
+        )
+        blocked_handler_keywords = _env(
+            "NS_SECURITY_BLOCKED_HANDLER_KEYWORDS",
+            "AO_SECURITY_BLOCKED_HANDLER_KEYWORDS",
+        )
+        blocked_capability_keywords = _env(
+            "NS_SECURITY_BLOCKED_CAPABILITY_KEYWORDS",
+            "AO_SECURITY_BLOCKED_CAPABILITY_KEYWORDS",
+        )
         return cls(
             app_name=_env("NS_APP_NAME", "AO_APP_NAME", defaults.app_name) or defaults.app_name,
             environment=_env("NS_ENVIRONMENT", "AO_ENVIRONMENT", defaults.environment)
@@ -85,6 +131,72 @@ class Settings:
             lit_timeout_s=int(
                 _env("NS_LIT_TIMEOUT_S", "AO_LIT_TIMEOUT_S", str(defaults.lit_timeout_s))
                 or defaults.lit_timeout_s
+            ),
+            security_enabled=(
+                _env("NS_SECURITY_ENABLED", "AO_SECURITY_ENABLED", str(defaults.security_enabled))
+                or str(defaults.security_enabled)
+            ).strip().lower()
+            in {"1", "true", "yes", "on"},
+            security_max_nodes=int(
+                _env("NS_SECURITY_MAX_NODES", "AO_SECURITY_MAX_NODES", str(defaults.security_max_nodes))
+                or defaults.security_max_nodes
+            ),
+            security_max_edges=int(
+                _env("NS_SECURITY_MAX_EDGES", "AO_SECURITY_MAX_EDGES", str(defaults.security_max_edges))
+                or defaults.security_max_edges
+            ),
+            security_max_total_attempts=int(
+                _env(
+                    "NS_SECURITY_MAX_TOTAL_ATTEMPTS",
+                    "AO_SECURITY_MAX_TOTAL_ATTEMPTS",
+                    str(defaults.security_max_total_attempts),
+                )
+                or defaults.security_max_total_attempts
+            ),
+            security_max_expression_length=int(
+                _env(
+                    "NS_SECURITY_MAX_EXPRESSION_LENGTH",
+                    "AO_SECURITY_MAX_EXPRESSION_LENGTH",
+                    str(defaults.security_max_expression_length),
+                )
+                or defaults.security_max_expression_length
+            ),
+            security_max_expression_nodes=int(
+                _env(
+                    "NS_SECURITY_MAX_EXPRESSION_NODES",
+                    "AO_SECURITY_MAX_EXPRESSION_NODES",
+                    str(defaults.security_max_expression_nodes),
+                )
+                or defaults.security_max_expression_nodes
+            ),
+            security_allow_loopback_hosts=(
+                _env(
+                    "NS_SECURITY_ALLOW_LOOPBACK_HOSTS",
+                    "AO_SECURITY_ALLOW_LOOPBACK_HOSTS",
+                    str(defaults.security_allow_loopback_hosts),
+                )
+                or str(defaults.security_allow_loopback_hosts)
+            ).strip().lower()
+            in {"1", "true", "yes", "on"},
+            security_http_allowed_hosts=(
+                tuple(host.strip() for host in security_http_allowed_hosts.split(",") if host.strip())
+                if security_http_allowed_hosts
+                else defaults.security_http_allowed_hosts
+            ),
+            security_send_message_allowed_protocols=(
+                tuple(protocol.strip() for protocol in security_send_protocols.split(",") if protocol.strip())
+                if security_send_protocols
+                else defaults.security_send_message_allowed_protocols
+            ),
+            security_blocked_handler_keywords=(
+                tuple(keyword.strip() for keyword in blocked_handler_keywords.split(",") if keyword.strip())
+                if blocked_handler_keywords
+                else defaults.security_blocked_handler_keywords
+            ),
+            security_blocked_capability_keywords=(
+                tuple(keyword.strip() for keyword in blocked_capability_keywords.split(",") if keyword.strip())
+                if blocked_capability_keywords
+                else defaults.security_blocked_capability_keywords
             ),
             cors_origins=(
                 tuple(origin.strip() for origin in cors_origins.split(",") if origin.strip())

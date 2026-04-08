@@ -5,11 +5,11 @@
 
 ## Aufgabe der Datei
 
-Zentrale Service-Fassade des Backends.
+Zentrale Service-Fassade des Backends inklusive Security-Gates, Planner-Katalog und Lifecycle-Management.
 
 ## Wann du diese Datei bearbeitest
 
-Wenn Systemkomposition, Registrierungen oder Lifecycle-Management geaendert werden.
+Wenn Systemkomposition, Registrierungen, Policy-Durchsetzung oder Lifecycle-Management geaendert werden.
 
 ## Klassen
 
@@ -44,6 +44,8 @@ Methoden:
 - `_persist_flow(self, flow)`: Funktion oder Definition `_persist_flow` dieses Moduls.
 - `_schedule_publish(self, flow_id, event_type, snapshot)`: Funktion oder Definition `_schedule_publish` dieses Moduls.
 - `_build_planner_catalog(self)`: Funktion oder Definition `_build_planner_catalog` dieses Moduls.
+- `validate_flow_request(self, nodes, edges, metadata, planner_generated, phase)`: Funktion oder Definition `validate_flow_request` dieses Moduls.
+- `_snapshot_nodes_to_specs(flow_snapshot)`: Funktion oder Definition `_snapshot_nodes_to_specs` dieses Moduls.
 - `_default_memory_backend(self, memory_type)`: Funktion oder Definition `_default_memory_backend` dieses Moduls.
 - `_serialize_agent(agent)`: Funktion oder Definition `_serialize_agent` dieses Moduls.
 - `_serialize_resource(resource)`: Funktion oder Definition `_serialize_resource` dieses Moduls.
@@ -71,6 +73,7 @@ Methoden:
 - `from nova_synesis.resources.manager import ResourceManager`
 - `from nova_synesis.runtime.engine import ExecutionContext, FlowExecutor, TaskExecutor`
 - `from nova_synesis.runtime.handlers import TaskHandlerRegistry, register_default_handlers`
+- `from nova_synesis.security import SemanticFirewall`
 
 ## Aenderungshinweise
 
