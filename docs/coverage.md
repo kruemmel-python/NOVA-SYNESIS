@@ -1,0 +1,86 @@
+# Abdeckung
+
+- Dokumentierte Projektdateien: `73`
+- Referenzdateien: `74`
+
+## Ausgeschlossene Bereiche
+
+- `data/`, `debug_tmp/`, `planner_live_check*/`, `ws_debug/`: Laufzeit- und Debug-Artefakte
+- `frontend/node_modules/`, `frontend/dist/`: Fremd- und Buildartefakte
+- `__pycache__/`, `.pytest_cache/`: Cache-Verzeichnisse
+
+## Dokumentierte Dateien
+
+- `.env.example`
+- `Agenten_UML.zip`
+- `Anweisung.md`
+- `Dockerfile`
+- `LIT/README.md`
+- `LIT/gemma-4-E2B-it.litertlm`
+- `LIT/gemma-4-E2B-it.litertlm.xnnpack_cache`
+- `LIT/lit.windows_x86_64.exe`
+- `LIT/planner_test_prompt.txt`
+- `README.md`
+- `frontend/.env`
+- `frontend/.env.example`
+- `frontend/index.html`
+- `frontend/package-lock.json`
+- `frontend/package.json`
+- `frontend/src/App.tsx`
+- `frontend/src/app.css`
+- `frontend/src/components/common/JsonEditor.tsx`
+- `frontend/src/components/common/StatusBadge.tsx`
+- `frontend/src/components/flow/FlowCanvas.tsx`
+- `frontend/src/components/flow/TaskNode.tsx`
+- `frontend/src/components/layout/InspectorPanel.tsx`
+- `frontend/src/components/layout/PlannerComposer.tsx`
+- `frontend/src/components/layout/Sidebar.tsx`
+- `frontend/src/components/layout/TopBar.tsx`
+- `frontend/src/hooks/useCatalogBootstrap.ts`
+- `frontend/src/hooks/useFlowLiveUpdates.ts`
+- `frontend/src/lib/apiClient.ts`
+- `frontend/src/lib/autoLayout.ts`
+- `frontend/src/lib/flowSerialization.ts`
+- `frontend/src/lib/json.ts`
+- `frontend/src/main.tsx`
+- `frontend/src/store/useFlowStore.ts`
+- `frontend/src/types/api.ts`
+- `frontend/src/vite-env.d.ts`
+- `frontend/tsconfig.app.json`
+- `frontend/tsconfig.app.tsbuildinfo`
+- `frontend/tsconfig.json`
+- `frontend/tsconfig.node.json`
+- `frontend/tsconfig.node.tsbuildinfo`
+- `frontend/vite.config.d.ts`
+- `frontend/vite.config.js`
+- `frontend/vite.config.ts`
+- `pyproject.toml`
+- `run-backend.cmd`
+- `run-backend.ps1`
+- `src/nova_synesis/__init__.py`
+- `src/nova_synesis/api/__init__.py`
+- `src/nova_synesis/api/app.py`
+- `src/nova_synesis/cli.py`
+- `src/nova_synesis/communication/__init__.py`
+- `src/nova_synesis/communication/adapters.py`
+- `src/nova_synesis/config.py`
+- `src/nova_synesis/domain/__init__.py`
+- `src/nova_synesis/domain/models.py`
+- `src/nova_synesis/memory/__init__.py`
+- `src/nova_synesis/memory/systems.py`
+- `src/nova_synesis/persistence/__init__.py`
+- `src/nova_synesis/persistence/sqlite_repository.py`
+- `src/nova_synesis/planning/__init__.py`
+- `src/nova_synesis/planning/lit_planner.py`
+- `src/nova_synesis/planning/planner.py`
+- `src/nova_synesis/resources/__init__.py`
+- `src/nova_synesis/resources/manager.py`
+- `src/nova_synesis/runtime/__init__.py`
+- `src/nova_synesis/runtime/engine.py`
+- `src/nova_synesis/runtime/handlers.py`
+- `src/nova_synesis/services/__init__.py`
+- `src/nova_synesis/services/orchestrator.py`
+- `tests/test_orchestrator.py`
+- `tools/generate_docs.py`
+- `uml.html`
+- `uml_V3.mmd`

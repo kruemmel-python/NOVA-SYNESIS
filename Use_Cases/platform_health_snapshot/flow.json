@@ -1,0 +1,143 @@
+{
+  "nodes": [
+    {
+      "node_id": "fetch_health",
+      "handler_name": "http_request",
+      "input": {
+        "url": "http://127.0.0.1:8552/health",
+        "method": "GET",
+        "timeout_s": 10
+      },
+      "required_capabilities": [
+        "ops_fetch"
+      ],
+      "retry_policy": {
+        "max_retries": 2,
+        "backoff_ms": 500,
+        "exponential": true,
+        "max_backoff_ms": 5000,
+        "jitter_ratio": 0.1
+      },
+      "rollback_strategy": "RETRY",
+      "validator_rules": {
+        "required_keys": [
+          "status_code",
+          "body"
+        ]
+      }
+    },
+    {
+      "node_id": "store_health_snapshot",
+      "handler_name": "memory_store",
+      "input": {
+        "memory_id": "ops-long-term",
+        "key": "latest-health-snapshot",
+        "value": {
+          "value": {
+            "$ref": "results['fetch_health']"
+          },
+          "metadata": {
+            "source": "platform_health_snapshot",
+            "kind": "health_snapshot"
+          }
+        }
+      },
+      "required_capabilities": [
+        "ops_archive"
+      ],
+      "retry_policy": {
+        "max_retries": 1,
+        "backoff_ms": 250,
+        "exponential": false,
+        "max_backoff_ms": 250,
+        "jitter_ratio": 0.0
+      },
+      "rollback_strategy": "RETRY"
+    },
+    {
+      "node_id": "serialize_health",
+      "handler_name": "json_serialize",
+      "input": {
+        "value": {
+          "$ref": "results['fetch_health']"
+        },
+        "indent": 2
+      },
+      "required_capabilities": [
+        "ops_archive"
+      ]
+    },
+    {
+      "node_id": "write_health_report",
+      "handler_name": "write_file",
+      "input": {
+        "path": "Use_Cases/platform_health_snapshot/output/latest-health.json",
+        "content": "{{ results['serialize_health']['json'] }}",
+        "encoding": "utf-8"
+      },
+      "required_capabilities": [
+        "ops_archive"
+      ]
+    },
+    {
+      "node_id": "render_health_summary",
+      "handler_name": "template_render",
+      "input": {
+        "template": "NOVA-SYNESIS health status: {status}\nAgents: {agents}\nResources: {resources}\nMemory systems: {memory_systems}\nHandlers: {handler_count}\n",
+        "values": {
+          "status": "{{ results['fetch_health']['body']['status'] }}",
+          "agents": "{{ results['fetch_health']['body']['agents'] }}",
+          "resources": "{{ results['fetch_health']['body']['resources'] }}",
+          "memory_systems": "{{ results['fetch_health']['body']['memory_systems'] }}",
+          "handler_count": "{{ len(results['fetch_health']['body']['handlers']) }}"
+        }
+      },
+      "required_capabilities": [
+        "ops_archive"
+      ]
+    },
+    {
+      "node_id": "persist_summary",
+      "handler_name": "write_file",
+      "input": {
+        "path": "Use_Cases/platform_health_snapshot/output/latest-health-summary.txt",
+        "content": "{{ results['render_health_summary']['rendered'] }}",
+        "encoding": "utf-8"
+      },
+      "required_capabilities": [
+        "ops_archive"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "from_node": "fetch_health",
+      "to_node": "store_health_snapshot",
+      "condition": "results['fetch_health']['status_code'] == 200"
+    },
+    {
+      "from_node": "fetch_health",
+      "to_node": "serialize_health",
+      "condition": "results['fetch_health']['status_code'] == 200"
+    },
+    {
+      "from_node": "serialize_health",
+      "to_node": "write_health_report",
+      "condition": "True"
+    },
+    {
+      "from_node": "fetch_health",
+      "to_node": "render_health_summary",
+      "condition": "results['fetch_health']['status_code'] == 200"
+    },
+    {
+      "from_node": "render_health_summary",
+      "to_node": "persist_summary",
+      "condition": "True"
+    }
+  ],
+  "metadata": {
+    "use_case": "platform_health_snapshot",
+    "max_concurrency": 2
+  }
+}

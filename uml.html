@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>KI-Agenten UML V3</title>
+
+
+<!-- Mermaid -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+
+<style>
+    body {
+        margin: 0;
+        background: #0f172a;
+        color: #e2e8f0;
+        font-family: Arial, sans-serif;
+    }
+
+    h1 {
+        text-align: center;
+        padding: 20px;
+    }
+
+    .container {
+        padding: 20px;
+        overflow: auto;
+    }
+
+    .mermaid {
+        background: #020617;
+        padding: 20px;
+        border-radius: 10px;
+    }
+</style>
+
+
+</head>
+<body>
+
+<h1>🧠 KI-Agenten Orchestrierungs UML (V3)</h1>
+
+<div class="container">
+<div class="mermaid">
+
+classDiagram
+
+class Agent {
+-int agent_id
+-string name
+-string role
+-list~Capability~ capabilities
+-AgentState state
+-CommunicationAdapter comms
+-list~MemorySystem~ memory_refs
++perceive(input)
++decide(context)
++act(task)
++communicate(message, target, protocol)
+}
+
+class Capability {
+-string name
+-string type
+-dict constraints
+}
+
+class AgentState {
+<>
+IDLE
+RUNNING
+ERROR
+WAITING
+}
+
+class CommunicationAdapter {
+-ProtocolType protocol
+-string endpoint
+-dict config
++send(message)
++receive()
+}
+
+class ProtocolType {
+<>
+REST
+WEBSOCKET
+MESSAGE_QUEUE
+}
+
+Agent --> CommunicationAdapter
+
+class MemorySystem {
+-MemoryType type
+-string backend
+-dict config
++store(key, value)
++retrieve(key)
++search(vector_query)
++persist()
+}
+
+class MemoryType {
+<>
+SHORT_TERM
+LONG_TERM
+VECTOR
+}
+
+Agent "" --> "" MemorySystem
+
+class Task {
+-int task_id
+-string input
+-string output
+-TaskStatus status
+-Agent assigned_agent
+-list~Resource~ required_resources
+-RetryPolicy retry_policy
++execute()
++validate()
++complete()
+}
+
+class TaskStatus {
+<>
+PENDING
+RUNNING
+SUCCESS
+FAILED
+}
+
+class RetryPolicy {
+-int max_retries
+-int backoff_ms
+-bool exponential
+}
+
+class TaskExecution {
+-int execution_id
+-Task task_ref
+-timestamp start_time
+-timestamp end_time
+-string result
+-ExecutionStatus status
+-list~ErrorEvent~ errors
++start()
++finish()
++rollback(strategy)
++retry()
+}
+
+class ExecutionStatus {
+<>
+STARTED
+COMPLETED
+FAILED
+ROLLED_BACK
+}
+
+class ErrorEvent {
+-string type
+-string message
+-timestamp timestamp
+-dict context
+}
+
+Task "1" --> "*" TaskExecution
+TaskExecution --> Task
+
+class RollbackStrategy {
+<>
+RETRY
+COMPENSATE
+FAIL_FAST
+FALLBACK_RESOURCE
+}
+
+TaskExecution --> RollbackStrategy
+
+class Resource {
+-int resource_id
+-ResourceType type
+-string endpoint
+-dict metadata
+-ResourceState state
++acquire()
++release()
++health_check()
+}
+
+class ResourceType {
+<>
+API
+MODEL
+DATABASE
+FILE
+GPU
+}
+
+class ResourceState {
+<>
+AVAILABLE
+BUSY
+DOWN
+}
+
+Task --> Resource
+
+class Intent {
+-int intent_id
+-string goal
+-dict constraints
+-int priority
+-timestamp timestamp
++plan()
++refine()
++promote_to_task()
+}
+
+class ExecutionFlow {
+-int flow_id
+-FlowState state
++run()
++pause()
++observe()
+}
+
+class FlowState {
+<>
+CREATED
+RUNNING
+PAUSED
+COMPLETED
+}
+
+class FlowNode {
+-Task task
+-Agent agent
+}
+
+class FlowEdge {
+-FlowNode from
+-FlowNode to
+-Condition condition
+}
+
+class Condition {
+-string expression
+}
+
+ExecutionFlow --> FlowNode
+ExecutionFlow --> FlowEdge
+FlowNode --> Task
+FlowNode --> Agent
+</div>
+</div>
+
+<script>
+    mermaid.initialize({
+        startOnLoad: true,
+        theme: "dark",
+        securityLevel: "loose"
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,231 @@
+{
+  "nodes": [
+    {
+      "node_id": "store_support_reference",
+      "handler_name": "memory_store",
+      "input": {
+        "memory_id": "triage-vector",
+        "key": "support-password-reset",
+        "value": {
+          "value": {
+            "title": "Password reset incident",
+            "team": "support",
+            "recommended_action": "route-to-support"
+          },
+          "embedding": [
+            1.0,
+            0.0
+          ],
+          "metadata": {
+            "route": "support",
+            "priority": "high"
+          }
+        }
+      },
+      "required_capabilities": [
+        "semantic_triage"
+      ]
+    },
+    {
+      "node_id": "store_sales_reference",
+      "handler_name": "memory_store",
+      "input": {
+        "memory_id": "triage-vector",
+        "key": "sales-enterprise-upgrade",
+        "value": {
+          "value": {
+            "title": "Enterprise upgrade opportunity",
+            "team": "sales",
+            "recommended_action": "route-to-sales"
+          },
+          "embedding": [
+            0.0,
+            1.0
+          ],
+          "metadata": {
+            "route": "sales",
+            "priority": "medium"
+          }
+        }
+      },
+      "required_capabilities": [
+        "semantic_triage"
+      ]
+    },
+    {
+      "node_id": "search_ticket",
+      "handler_name": "memory_search",
+      "input": {
+        "memory_id": "triage-vector",
+        "query": [
+          0.94,
+          0.06
+        ],
+        "limit": 1
+      },
+      "required_capabilities": [
+        "semantic_triage"
+      ],
+      "validator_rules": {
+        "required_keys": [
+          "matches"
+        ]
+      }
+    },
+    {
+      "node_id": "render_triage_summary",
+      "handler_name": "template_render",
+      "input": {
+        "template": "Top routing decision: {route}\nMatched reference: {match_key}\nMatched title: {title}\nSimilarity score: {score}\nPriority: {priority}\n",
+        "values": {
+          "route": "{{ results['search_ticket']['matches'][0]['metadata']['route'] }}",
+          "match_key": "{{ results['search_ticket']['matches'][0]['key'] }}",
+          "title": "{{ results['search_ticket']['matches'][0]['value']['title'] }}",
+          "score": "{{ results['search_ticket']['matches'][0]['score'] }}",
+          "priority": "{{ results['search_ticket']['matches'][0]['metadata']['priority'] }}"
+        }
+      },
+      "required_capabilities": [
+        "semantic_triage"
+      ]
+    },
+    {
+      "node_id": "write_triage_summary",
+      "handler_name": "write_file",
+      "input": {
+        "path": "Use_Cases/semantic_ticket_triage/output/latest-triage-summary.txt",
+        "content": "{{ results['render_triage_summary']['rendered'] }}",
+        "encoding": "utf-8"
+      },
+      "required_capabilities": [
+        "triage_reporting"
+      ]
+    },
+    {
+      "node_id": "route_to_support",
+      "handler_name": "send_message",
+      "input": {
+        "target_agent_id": 0,
+        "message": {
+          "route": "support",
+          "match_key": "{{ results['search_ticket']['matches'][0]['key'] }}",
+          "summary": "{{ results['render_triage_summary']['rendered'] }}"
+        }
+      },
+      "required_capabilities": [
+        "message_dispatch"
+      ],
+      "retry_policy": {
+        "max_retries": 2,
+        "backoff_ms": 250,
+        "exponential": true,
+        "max_backoff_ms": 2000,
+        "jitter_ratio": 0.0
+      },
+      "rollback_strategy": "RETRY"
+    },
+    {
+      "node_id": "write_support_dispatch",
+      "handler_name": "write_file",
+      "input": {
+        "path": "Use_Cases/semantic_ticket_triage/output/dispatch-support.txt",
+        "content": "Support dispatch completed for {{ results['search_ticket']['matches'][0]['key'] }} via {{ results['route_to_support']['receipt']['endpoint'] }}\n",
+        "encoding": "utf-8"
+      },
+      "required_capabilities": [
+        "triage_reporting"
+      ]
+    },
+    {
+      "node_id": "route_to_sales",
+      "handler_name": "send_message",
+      "input": {
+        "target_agent_id": 0,
+        "message": {
+          "route": "sales",
+          "match_key": "{{ results['search_ticket']['matches'][0]['key'] }}",
+          "summary": "{{ results['render_triage_summary']['rendered'] }}"
+        }
+      },
+      "required_capabilities": [
+        "message_dispatch"
+      ],
+      "retry_policy": {
+        "max_retries": 2,
+        "backoff_ms": 250,
+        "exponential": true,
+        "max_backoff_ms": 2000,
+        "jitter_ratio": 0.0
+      },
+      "rollback_strategy": "RETRY"
+    },
+    {
+      "node_id": "write_sales_dispatch",
+      "handler_name": "write_file",
+      "input": {
+        "path": "Use_Cases/semantic_ticket_triage/output/dispatch-sales.txt",
+        "content": "Sales dispatch completed for {{ results['search_ticket']['matches'][0]['key'] }} via {{ results['route_to_sales']['receipt']['endpoint'] }}\n",
+        "encoding": "utf-8"
+      },
+      "required_capabilities": [
+        "triage_reporting"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "from_node": "store_support_reference",
+      "to_node": "search_ticket",
+      "condition": "True"
+    },
+    {
+      "from_node": "store_sales_reference",
+      "to_node": "search_ticket",
+      "condition": "True"
+    },
+    {
+      "from_node": "search_ticket",
+      "to_node": "render_triage_summary",
+      "condition": "len(results['search_ticket']['matches']) > 0"
+    },
+    {
+      "from_node": "render_triage_summary",
+      "to_node": "write_triage_summary",
+      "condition": "True"
+    },
+    {
+      "from_node": "search_ticket",
+      "to_node": "route_to_support",
+      "condition": "results['search_ticket']['matches'][0]['metadata']['route'] == 'support'"
+    },
+    {
+      "from_node": "render_triage_summary",
+      "to_node": "route_to_support",
+      "condition": "True"
+    },
+    {
+      "from_node": "route_to_support",
+      "to_node": "write_support_dispatch",
+      "condition": "True"
+    },
+    {
+      "from_node": "search_ticket",
+      "to_node": "route_to_sales",
+      "condition": "results['search_ticket']['matches'][0]['metadata']['route'] == 'sales'"
+    },
+    {
+      "from_node": "render_triage_summary",
+      "to_node": "route_to_sales",
+      "condition": "True"
+    },
+    {
+      "from_node": "route_to_sales",
+      "to_node": "write_sales_dispatch",
+      "condition": "True"
+    }
+  ],
+  "metadata": {
+    "use_case": "semantic_ticket_triage",
+    "max_concurrency": 3
+  }
+}
