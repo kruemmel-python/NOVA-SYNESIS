@@ -1,7 +1,7 @@
 # Abdeckung
 
-- Dokumentierte Projektdateien: `93`
-- Referenzdateien: `94`
+- Dokumentierte Projektdateien: `92`
+- Referenzdateien: `93`
 
 ## Ausgeschlossene Bereiche
 
@@ -14,7 +14,6 @@
 
 - `.env.example`
 - `.gitignore`
-- `Anweisung.md`
 - `Dockerfile`
 - `Fachartikel_NOVA-SYNESIS.md`
 - `LICENSE`

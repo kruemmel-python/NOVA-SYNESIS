@@ -28,4 +28,4 @@ Keine direkten Importzeilen oder fuer diese Dateiklasse nicht sinnvoll.
 ## Verwandte Dateien
 
 - [uml.html](uml.html.md)
-- [Anweisung.md](Anweisung.md.md)
+- [README.md](README.md.md)

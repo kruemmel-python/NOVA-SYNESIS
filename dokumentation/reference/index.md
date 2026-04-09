@@ -74,7 +74,6 @@
 
 - [.env.example](.env.example.md)
 - [.gitignore](.gitignore.md)
-- [Anweisung.md](Anweisung.md.md)
 - [Dockerfile](Dockerfile.md)
 - [Fachartikel_NOVA-SYNESIS.md](Fachartikel_NOVA-SYNESIS.md.md)
 - [LICENSE](LICENSE.md)

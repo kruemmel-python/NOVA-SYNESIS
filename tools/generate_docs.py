@@ -3,6 +3,7 @@ from __future__ import annotations
 import ast
 import os
 import re
+import shutil
 from collections import defaultdict
 from pathlib import Path
 
@@ -31,11 +32,6 @@ FILE_NOTES = {
         'purpose': 'Beispielkonfiguration fuer Backend, Planner, CORS und die semantische Sicherheitsrichtlinie.',
         'edit': 'Wenn neue Umgebungsvariablen eingefuehrt, Security-Grenzen angepasst oder Standardwerte kommuniziert werden muessen.',
         'related': ['src/nova_synesis/config.py', 'README.md'],
-    },
-    'Anweisung.md': {
-        'purpose': 'Fachliche Ursprungsspezifikation des Systems.',
-        'edit': 'Wenn Anforderungen nachgezogen oder gegen die Implementierung gespiegelt werden.',
-        'related': ['uml_V3.mmd', 'README.md'],
     },
     'Dockerfile': {
         'purpose': 'Container-Build fuer das Python-Backend.',
@@ -75,7 +71,7 @@ FILE_NOTES = {
     'uml_V3.mmd': {
         'purpose': 'Mermaid-Quelle des Architekturdiagramms.',
         'edit': 'Wenn die dokumentierte Zielarchitektur angepasst werden soll.',
-        'related': ['uml.html', 'Anweisung.md'],
+        'related': ['uml.html', 'README.md'],
     },
     'LIT/README.md': {
         'purpose': 'Hinweise zur lokalen LiteRT-LM-Laufzeit und zu Modelldateien.',
@@ -1471,6 +1467,8 @@ def symbol_block(path: Path) -> str:
 
 
 def write_reference(files: list[Path]) -> None:
+    if REF.exists():
+        shutil.rmtree(REF)
     for source in files:
         r = rel(source)
         meta = FILE_NOTES.get(r, {})

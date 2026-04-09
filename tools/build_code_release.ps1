@@ -1,5 +1,5 @@
 param(
-    [string]$Version = "v1.0.6",
+    [string]$Version = "v1.0.7",
     [string]$OutputDirectory = "release"
 )
 
@@ -30,7 +30,6 @@ $includePaths = @(
     "Fachartikel_NOVA-SYNESIS.md",
     "run-backend.cmd",
     "run-backend.ps1",
-    "Anweisung.md",
     "uml_V3.mmd",
     "dokumentation",
     "src",
