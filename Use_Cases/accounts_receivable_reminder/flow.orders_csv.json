@@ -1,0 +1,86 @@
+{
+  "nodes": [
+    {
+      "node_id": "extract_open_receivables",
+      "handler_name": "accounts_receivable_extract",
+      "input": {
+        "path": "data/orders.csv",
+        "source_type": "csv"
+      }
+    },
+    {
+      "node_id": "serialize_receivables",
+      "handler_name": "json_serialize",
+      "input": {
+        "value": {
+          "$ref": "results['extract_open_receivables']"
+        },
+        "indent": 2
+      }
+    },
+    {
+      "node_id": "write_receivables_report",
+      "handler_name": "write_file",
+      "input": {
+        "path": "Use_Cases/accounts_receivable_reminder/output/csv/open-receivables.json",
+        "content": "{{ results['serialize_receivables']['json'] }}",
+        "encoding": "utf-8"
+      }
+    },
+    {
+      "node_id": "generate_reminder_letters",
+      "handler_name": "accounts_receivable_generate_letters",
+      "input": {
+        "receivables": {
+          "$ref": "results['extract_open_receivables']"
+        },
+        "sender_company": "NOVA-SYNESIS Finance Desk",
+        "sender_email": "buchhaltung@nova-synesis.local",
+        "sender_phone": "+49 30 000000",
+        "sender_address": "NOVA-SYNESIS Finance Desk, Musterstrasse 1, 10115 Berlin",
+        "payment_deadline_days": 7
+      }
+    },
+    {
+      "node_id": "persist_reminder_letters",
+      "handler_name": "accounts_receivable_write_letters",
+      "input": {
+        "letters": {
+          "$ref": "results['generate_reminder_letters']['letters']"
+        },
+        "output_directory": "billing/csv",
+        "manifest_path": "Use_Cases/accounts_receivable_reminder/output/csv/letters-manifest.json",
+        "summary_path": "Use_Cases/accounts_receivable_reminder/output/csv/letters-summary.txt",
+        "encoding": "utf-8",
+        "output_format": "docx"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from_node": "extract_open_receivables",
+      "to_node": "serialize_receivables",
+      "condition": "True"
+    },
+    {
+      "from_node": "serialize_receivables",
+      "to_node": "write_receivables_report",
+      "condition": "True"
+    },
+    {
+      "from_node": "extract_open_receivables",
+      "to_node": "generate_reminder_letters",
+      "condition": "results['extract_open_receivables']['customer_count'] > 0"
+    },
+    {
+      "from_node": "generate_reminder_letters",
+      "to_node": "persist_reminder_letters",
+      "condition": "results['generate_reminder_letters']['letter_count'] > 0"
+    }
+  ],
+  "metadata": {
+    "use_case": "accounts_receivable_reminder",
+    "source_variant": "csv",
+    "max_concurrency": 2
+  }
+}

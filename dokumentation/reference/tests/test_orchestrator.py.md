@@ -36,13 +36,17 @@ Wenn neue Features abgesichert, Sicherheitsregeln erweitert oder Fehler reproduz
 - `test_semantic_firewall_blocks_template_context_escape(tmp_path)`: Funktion oder Definition `test_semantic_firewall_blocks_template_context_escape` dieses Moduls.
 - `test_untrusted_handler_requires_manual_approval_override(tmp_path)`: Funktion oder Definition `test_untrusted_handler_requires_manual_approval_override` dieses Moduls.
 - `test_planner_status_endpoint_exposes_lit_configuration(tmp_path)`: Funktion oder Definition `test_planner_status_endpoint_exposes_lit_configuration` dieses Moduls.
+- `test_accounts_receivable_workflow_from_csv_generates_letters(tmp_path)`: Funktion oder Definition `test_accounts_receivable_workflow_from_csv_generates_letters` dieses Moduls.
+- `test_accounts_receivable_workflow_from_sqlite_generates_letters(tmp_path)`: Funktion oder Definition `test_accounts_receivable_workflow_from_sqlite_generates_letters` dieses Moduls.
 
 ## Abhaengigkeiten
 
 - `from __future__ import annotations`
 - `import asyncio`
 - `import json`
+- `import sqlite3`
 - `import threading`
+- `import zipfile`
 - `from pathlib import Path`
 - `import pytest`
 - `from fastapi.testclient import TestClient`

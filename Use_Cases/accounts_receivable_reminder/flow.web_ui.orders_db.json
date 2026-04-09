@@ -1,0 +1,162 @@
+{
+  "nodes": [
+    {
+      "node_id": "extract_open_receivables",
+      "handler_name": "accounts_receivable_extract",
+      "input": {
+        "path": "data/orders.db",
+        "source_type": "sqlite",
+        "table": "orders"
+      },
+      "metadata": {
+        "ui": {
+          "title": "Extract Open Receivables",
+          "summary": "Liest orders.db und gruppiert alle unbezahlten Rechnungen pro Kunde.",
+          "description": "Dieser Node ist die SQLite-Variante des Forderungseinstiegs. Er liest die Tabelle orders, filtert unbezahlte Rechnungen und bereitet die Kundenaggregation vor.",
+          "notes": [
+            "Die Quelldatei ist data/orders.db.",
+            "Die Standardtabelle heisst orders und kann bei Bedarf angepasst werden.",
+            "Nur offene Rechnungen werden weitergegeben."
+          ],
+          "position": {
+            "x": 60,
+            "y": 100
+          }
+        }
+      }
+    },
+    {
+      "node_id": "serialize_receivables",
+      "handler_name": "json_serialize",
+      "input": {
+        "value": {
+          "$ref": "results['extract_open_receivables']"
+        },
+        "indent": 2
+      },
+      "metadata": {
+        "ui": {
+          "title": "Serialize Receivables",
+          "summary": "Formatiert die aggregierten Forderungsdaten als JSON-Report.",
+          "description": "Der Serialisierungsschritt erzeugt ein lesbares Artefakt fuer Revision, Kontrolle und Weitergabe ausserhalb des Flows.",
+          "notes": [
+            "Der Report bildet die technische Grundlage fuer die spaetere Dokumentation des Laufs."
+          ],
+          "position": {
+            "x": 430,
+            "y": 70
+          }
+        }
+      }
+    },
+    {
+      "node_id": "write_receivables_report",
+      "handler_name": "write_file",
+      "input": {
+        "path": "Use_Cases/accounts_receivable_reminder/output/db/open-receivables.json",
+        "content": "{{ results['serialize_receivables']['json'] }}",
+        "encoding": "utf-8"
+      },
+      "metadata": {
+        "ui": {
+          "title": "Write Receivables Report",
+          "summary": "Persistiert den JSON-Bericht fuer die DB-Variante.",
+          "description": "Diese Datei dokumentiert, welche offenen Forderungen aus der Datenbank gelesen und fuer die Briefserie verarbeitet wurden.",
+          "notes": [
+            "Der Bericht ist getrennt vom eigentlichen Billing-Ausgabeordner."
+          ],
+          "position": {
+            "x": 810,
+            "y": 70
+          }
+        }
+      }
+    },
+    {
+      "node_id": "generate_reminder_letters",
+      "handler_name": "accounts_receivable_generate_letters",
+      "input": {
+        "receivables": {
+          "$ref": "results['extract_open_receivables']"
+        },
+        "sender_company": "NOVA-SYNESIS Finance Desk",
+        "sender_email": "buchhaltung@nova-synesis.local",
+        "sender_phone": "+49 30 000000",
+        "sender_address": "NOVA-SYNESIS Finance Desk, Musterstrasse 1, 10115 Berlin",
+        "payment_deadline_days": 7
+      },
+      "metadata": {
+        "ui": {
+          "title": "Generate Reminder Letters",
+          "summary": "Erzeugt pro Kunde ein Anschreiben mit allen offenen Rechnungen.",
+          "description": "Dieser Node formuliert die Schreiben aus den DB-basierten Forderungsdaten und bildet die Bruecke zwischen Fachlogik und Dokumentausgabe.",
+          "notes": [
+            "Passe hier Absender und Zahlungsfrist an.",
+            "Die Inhalte werden erst im naechsten Schritt als DOCX persistiert."
+          ],
+          "position": {
+            "x": 430,
+            "y": 300
+          }
+        }
+      }
+    },
+    {
+      "node_id": "persist_reminder_letters",
+      "handler_name": "accounts_receivable_write_letters",
+      "input": {
+        "letters": {
+          "$ref": "results['generate_reminder_letters']['letters']"
+        },
+        "output_directory": "billing/db",
+        "manifest_path": "Use_Cases/accounts_receivable_reminder/output/db/letters-manifest.json",
+        "summary_path": "Use_Cases/accounts_receivable_reminder/output/db/letters-summary.txt",
+        "encoding": "utf-8",
+        "output_format": "docx"
+      },
+      "metadata": {
+        "ui": {
+          "title": "Write Billing DOCX",
+          "summary": "Schreibt die Serienanschreiben als .docx in billing/db.",
+          "description": "Der Node erzeugt die operativen Word-Dokumente fuer die aus SQLite gelesenen Forderungen und hinterlegt zusaetzlich Laufzeitnachweise.",
+          "notes": [
+            "billing/db ist die Zielstruktur fuer die Word-Dokumente.",
+            "Manifest und Summary dienen der Kontrolle und Auditierbarkeit."
+          ],
+          "position": {
+            "x": 810,
+            "y": 300
+          }
+        }
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from_node": "extract_open_receivables",
+      "to_node": "serialize_receivables",
+      "condition": "True"
+    },
+    {
+      "from_node": "serialize_receivables",
+      "to_node": "write_receivables_report",
+      "condition": "True"
+    },
+    {
+      "from_node": "extract_open_receivables",
+      "to_node": "generate_reminder_letters",
+      "condition": "results['extract_open_receivables']['customer_count'] > 0"
+    },
+    {
+      "from_node": "generate_reminder_letters",
+      "to_node": "persist_reminder_letters",
+      "condition": "results['generate_reminder_letters']['letter_count'] > 0"
+    }
+  ],
+  "metadata": {
+    "use_case": "accounts_receivable_reminder",
+    "source_variant": "db",
+    "ui_variant": "web_ui_import",
+    "max_concurrency": 2
+  }
+}

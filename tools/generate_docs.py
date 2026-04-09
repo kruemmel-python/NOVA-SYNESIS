@@ -13,6 +13,7 @@ REF = DOCS / 'reference'
 
 EXCLUDED = {
     '.git',
+    'billing',
     'dokumentation',
     'docs',
     'data',
@@ -1191,6 +1192,7 @@ Ein fragiler Infrastrukturzugriff soll auch dann stabil laufen, wenn die bevorzu
 }
 
 ROOT_GUIDE_SOURCES = {
+    'getting-started.md': ROOT / 'Schnellstart.md',
     'fazit-und-einordnung.md': ROOT / 'fazit.md',
     'fachartikel-nova-synesis.md': ROOT / 'Fachartikel_NOVA-SYNESIS.md',
 }
@@ -1548,7 +1550,7 @@ def write_guides(files: list[Path]) -> None:
         '',
         '## Ausgeschlossene Bereiche',
         '',
-        '- `data/`, `debug_tmp/`, `planner_live_check*/`, `ws_debug/`: Laufzeit- und Debug-Artefakte',
+        '- `data/`, `billing/`, `debug_tmp/`, `planner_live_check*/`, `ws_debug/`: Laufzeit- und Debug-Artefakte',
         '- `frontend/node_modules/`, `frontend/dist/`: Fremd- und Buildartefakte',
         '- `__pycache__/`, `.pytest_cache/`: Cache-Verzeichnisse',
         '- `.git/`, `release/`, lokale `.env`, `Use_Cases/**/output`, `Use_Cases/**/state`, `*.zip`, `*.exe`, `*.db`, `*.pdf`, `*.litertlm`, `*.xnnpack_cache`, `*.tsbuildinfo`: Artefakte, Binaries oder maschinenlokale Dateien',

@@ -32,6 +32,18 @@ Methoden:
 
 - `_resolve_working_path(working_directory, raw_path, allow_outside_workdir)`: Funktion oder Definition `_resolve_working_path` dieses Moduls.
 - `_primary_resource_endpoint(context, resource_type)`: Funktion oder Definition `_primary_resource_endpoint` dieses Moduls.
+- `_parse_iso_datetime(value)`: Funktion oder Definition `_parse_iso_datetime` dieses Moduls.
+- `_parse_bool(value)`: Funktion oder Definition `_parse_bool` dieses Moduls.
+- `_parse_float(value)`: Funktion oder Definition `_parse_float` dieses Moduls.
+- `_format_currency(amount)`: Funktion oder Definition `_format_currency` dieses Moduls.
+- `_ascii_slug(value)`: Funktion oder Definition `_ascii_slug` dieses Moduls.
+- `_with_extension(file_name, extension)`: Funktion oder Definition `_with_extension` dieses Moduls.
+- `_build_docx_document_xml(content)`: Funktion oder Definition `_build_docx_document_xml` dieses Moduls.
+- `_write_simple_docx(path, *, content, title)`: Funktion oder Definition `_write_simple_docx` dieses Moduls.
+- `_serialize_invoice_record(record, *, index, as_of)`: Funktion oder Definition `_serialize_invoice_record` dieses Moduls.
+- `_load_orders_from_csv(path, *, as_of)`: Funktion oder Definition `_load_orders_from_csv` dieses Moduls.
+- `_load_orders_from_sqlite(path, *, table, as_of)`: Funktion oder Definition `_load_orders_from_sqlite` dieses Moduls.
+- `_group_receivables(invoices, *, as_of)`: Funktion oder Definition `_group_receivables` dieses Moduls.
 - `http_request_handler(context)`: Funktion oder Definition `http_request_handler` dieses Moduls.
 - `memory_store_handler(context)`: Funktion oder Definition `memory_store_handler` dieses Moduls.
 - `memory_retrieve_handler(context)`: Funktion oder Definition `memory_retrieve_handler` dieses Moduls.
@@ -39,6 +51,9 @@ Methoden:
 - `send_message_handler(context)`: Funktion oder Definition `send_message_handler` dieses Moduls.
 - `resource_health_check_handler(context)`: Funktion oder Definition `resource_health_check_handler` dieses Moduls.
 - `template_render_handler(context)`: Funktion oder Definition `template_render_handler` dieses Moduls.
+- `accounts_receivable_extract_handler(context)`: Funktion oder Definition `accounts_receivable_extract_handler` dieses Moduls.
+- `accounts_receivable_generate_letters_handler(context)`: Funktion oder Definition `accounts_receivable_generate_letters_handler` dieses Moduls.
+- `accounts_receivable_write_letters_handler(context)`: Funktion oder Definition `accounts_receivable_write_letters_handler` dieses Moduls.
 - `merge_payloads_handler(context)`: Funktion oder Definition `merge_payloads_handler` dieses Moduls.
 - `read_file_handler(context)`: Funktion oder Definition `read_file_handler` dieses Moduls.
 - `write_file_handler(context)`: Funktion oder Definition `write_file_handler` dieses Moduls.
@@ -48,11 +63,18 @@ Methoden:
 ## Abhaengigkeiten
 
 - `from __future__ import annotations`
+- `import csv`
 - `import inspect`
 - `import json`
-- `from datetime import datetime, timezone`
+- `import re`
+- `import sqlite3`
+- `import unicodedata`
+- `import zipfile`
+- `from collections import defaultdict`
+- `from datetime import datetime, timedelta, timezone`
 - `from pathlib import Path`
 - `from typing import Any, Awaitable, Callable`
+- `from xml.sax.saxutils import escape as xml_escape`
 - `import httpx`
 - `from nova_synesis.config import Settings`
 - `from nova_synesis.domain.models import ResourceType`

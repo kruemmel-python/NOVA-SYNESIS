@@ -394,6 +394,13 @@ pre {
   color: var(--muted);
 }
 
+.task-node__summary {
+  margin: 0.8rem 0 0;
+  color: #d7e6f5;
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
 .task-node__status {
   border-radius: 999px;
   padding: 0.22rem 0.55rem;
@@ -538,10 +545,40 @@ pre {
   background: rgba(255, 255, 255, 0.04);
 }
 
+.inspector__docs-card {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
 .inspector__trust-card p {
   margin: 0 0 0.75rem;
   color: var(--muted);
   font-size: 0.84rem;
+}
+
+.inspector__docs-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+
+.inspector__docs-summary {
+  margin-bottom: 0.75rem !important;
+  color: var(--text) !important;
+  font-weight: 600;
+}
+
+.inspector__docs-list {
+  margin: 0.85rem 0 0;
+  padding-left: 1.1rem;
+  color: var(--muted);
+}
+
+.inspector__docs-list li + li {
+  margin-top: 0.4rem;
 }
 
 .inspector__trust-meta {

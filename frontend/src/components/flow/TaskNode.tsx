@@ -17,6 +17,13 @@ export function TaskNode({ id, data, selected }: NodeProps<TaskFlowNode>) {
   );
   const statusClass = statusClassMap[data.task_status] ?? "pending";
   const approvalPending = data.requires_manual_approval && !data.manual_approval.approved;
+  const uiMetadata = readUiMetadata(data.metadata);
+  const summary =
+    typeof uiMetadata.summary === "string"
+      ? uiMetadata.summary
+      : typeof uiMetadata.description === "string"
+        ? uiMetadata.description
+        : null;
 
   return (
     <div className={`task-node task-node--${statusClass} ${selected ? "task-node--selected" : ""}`}>
@@ -46,10 +53,19 @@ export function TaskNode({ id, data, selected }: NodeProps<TaskFlowNode>) {
         <span>{data.required_capabilities.length} caps</span>
         <span>{data.required_resource_types.length} resource types</span>
       </div>
+      {summary ? <p className="task-node__summary">{summary}</p> : null}
       <div className="task-node__body">
         <code>{typeof data.input === "object" ? JSON.stringify(data.input) : String(data.input ?? "{}")}</code>
       </div>
       <Handle type="source" position={Position.Right} className="task-node__handle" />
     </div>
   );
+}
+
+function readUiMetadata(metadata: Record<string, unknown> | undefined): Record<string, unknown> {
+  if (!metadata || typeof metadata !== "object") {
+    return {};
+  }
+  const ui = metadata.ui;
+  return ui && typeof ui === "object" ? (ui as Record<string, unknown>) : {};
 }

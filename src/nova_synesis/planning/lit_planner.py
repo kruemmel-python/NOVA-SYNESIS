@@ -255,6 +255,18 @@ class LiteRTPlanner:
             "read_file": "read_file: input key path",
             "write_file": "write_file: input keys path, content, optional append",
             "json_serialize": "json_serialize: input key value, optional indent",
+            "accounts_receivable_extract": (
+                "accounts_receivable_extract: input keys path, optional source_type csv|sqlite, "
+                "optional table, optional as_of"
+            ),
+            "accounts_receivable_generate_letters": (
+                "accounts_receivable_generate_letters: input keys receivables, optional sender_company, "
+                "sender_email, sender_phone, sender_address, payment_deadline_days"
+            ),
+            "accounts_receivable_write_letters": (
+                "accounts_receivable_write_letters: input keys letters, output_directory, optional manifest_path, "
+                "summary_path, encoding, output_format txt|docx"
+            ),
         }
         lines = [contract_map.get(handler, handler) for handler in handlers]
         if detail_level == "minimal":

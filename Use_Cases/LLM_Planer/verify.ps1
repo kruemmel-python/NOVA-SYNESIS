@@ -31,6 +31,20 @@ $cases = @(
         OutputPath = $null
         MaxNodes = 2
         Expectation = "queue_delivery"
+    },
+    @{
+        Name = "prompt_05_accounts_receivable_csv"
+        PromptPath = Join-Path $PSScriptRoot "prompt_05_accounts_receivable_csv.txt"
+        OutputPath = Join-Path $root "accounts_receivable_reminder/output/csv/letters-manifest.json"
+        MaxNodes = 5
+        Expectation = "file"
+    },
+    @{
+        Name = "prompt_06_accounts_receivable_db"
+        PromptPath = Join-Path $PSScriptRoot "prompt_06_accounts_receivable_db.txt"
+        OutputPath = Join-Path $root "accounts_receivable_reminder/output/db/letters-manifest.json"
+        MaxNodes = 5
+        Expectation = "file"
     }
 )
 

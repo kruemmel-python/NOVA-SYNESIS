@@ -24,6 +24,7 @@ Zusaetzlich gibt es jetzt zwei Prompts mit echten Katalogobjekten:
 
 - ein Prompt mit `memory_store` und `memory_retrieve`
 - ein Prompt mit `resource_health_check` und `send_message`
+- zwei Prompts fuer den Forderungsprozess mit `accounts_receivable_*`, `json_serialize` und `write_file`
 
 Dafuer muss vorher das lokale Setup ausgefuehrt werden:
 
@@ -52,6 +53,8 @@ Nicht enthalten sind deshalb absichtlich keine Prompts mit:
 
 Solche Prompts koennen erst dann stabil funktionieren, wenn das Backend vorher passende API-Ressourcen, Memory-Systeme und Kommunikations-Agenten registriert hat.
 
+Die beiden Forderungs-Prompts sind davon ausgenommen, weil sie ausschliesslich mit lokalen Built-in-Handlern und Projektdateien arbeiten.
+
 ## Enthaltene Prompts
 
 1. [prompt_01_smoke_message.txt](prompt_01_smoke_message.txt)
@@ -62,6 +65,12 @@ Solche Prompts koennen erst dann stabil funktionieren, wenn das Backend vorher p
 
 3. [prompt_04_resource_notify.txt](prompt_04_resource_notify.txt)
    Ergebnis: nutzt die echte API-Resource `http://127.0.0.1:8552/health` und den Queue-Agenten `llm-planner-notify`
+
+4. [prompt_05_accounts_receivable_csv.txt](prompt_05_accounts_receivable_csv.txt)
+   Ergebnis: plant den Forderungsprozess fuer `data/orders.csv` und erzeugt `.docx`-Anschreiben unter `billing/csv`
+
+5. [prompt_06_accounts_receivable_db.txt](prompt_06_accounts_receivable_db.txt)
+   Ergebnis: plant den Forderungsprozess fuer `data/orders.db` und erzeugt `.docx`-Anschreiben unter `billing/db`
 
 ## Erneut verifizieren
 

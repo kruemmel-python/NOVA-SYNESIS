@@ -1,11 +1,11 @@
 # Abdeckung
 
-- Dokumentierte Projektdateien: `92`
-- Referenzdateien: `93`
+- Dokumentierte Projektdateien: `101`
+- Referenzdateien: `102`
 
 ## Ausgeschlossene Bereiche
 
-- `data/`, `debug_tmp/`, `planner_live_check*/`, `ws_debug/`: Laufzeit- und Debug-Artefakte
+- `data/`, `billing/`, `debug_tmp/`, `planner_live_check*/`, `ws_debug/`: Laufzeit- und Debug-Artefakte
 - `frontend/node_modules/`, `frontend/dist/`: Fremd- und Buildartefakte
 - `__pycache__/`, `.pytest_cache/`: Cache-Verzeichnisse
 - `.git/`, `release/`, lokale `.env`, `Use_Cases/**/output`, `Use_Cases/**/state`, `*.zip`, `*.exe`, `*.db`, `*.pdf`, `*.litertlm`, `*.xnnpack_cache`, `*.tsbuildinfo`: Artefakte, Binaries oder maschinenlokale Dateien
@@ -25,9 +25,18 @@
 - `Use_Cases/LLM_Planer/prompt_01_smoke_message.txt`
 - `Use_Cases/LLM_Planer/prompt_03_memory_roundtrip.txt`
 - `Use_Cases/LLM_Planer/prompt_04_resource_notify.txt`
+- `Use_Cases/LLM_Planer/prompt_05_accounts_receivable_csv.txt`
+- `Use_Cases/LLM_Planer/prompt_06_accounts_receivable_db.txt`
 - `Use_Cases/LLM_Planer/setup.ps1`
 - `Use_Cases/LLM_Planer/verify.ps1`
 - `Use_Cases/README.md`
+- `Use_Cases/accounts_receivable_reminder/README.md`
+- `Use_Cases/accounts_receivable_reminder/flow.orders_csv.json`
+- `Use_Cases/accounts_receivable_reminder/flow.orders_db.json`
+- `Use_Cases/accounts_receivable_reminder/flow.web_ui.orders_csv.json`
+- `Use_Cases/accounts_receivable_reminder/flow.web_ui.orders_db.json`
+- `Use_Cases/accounts_receivable_reminder/run.ps1`
+- `Use_Cases/accounts_receivable_reminder/setup.ps1`
 - `Use_Cases/platform_health_snapshot/README.md`
 - `Use_Cases/platform_health_snapshot/flow.json`
 - `Use_Cases/platform_health_snapshot/platform_health_snapshot.png`

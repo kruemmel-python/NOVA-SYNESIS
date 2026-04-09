@@ -32,6 +32,7 @@ export function InspectorPanel() {
   const selectedEdge = edges.find((edge) => edge.id === selectedEdgeId) ?? null;
   const selectedHandler =
     selectedNode ? handlers.find((handler) => handler.name === selectedNode.data.handler_name) ?? null : null;
+  const selectedNodeUiMetadata = selectedNode ? readUiMetadata(selectedNode.data.metadata) : {};
 
   const handleApproveNode = async () => {
     if (!selectedNode) {
@@ -151,6 +152,27 @@ export function InspectorPanel() {
             </div>
           ) : null}
         </section>
+
+        {hasNodeDocumentation(selectedNodeUiMetadata) ? (
+          <section className="inspector__docs-card">
+            <div className="sidebar__section-header">
+              <h3>Node guide</h3>
+            </div>
+            {typeof selectedNodeUiMetadata.summary === "string" ? (
+              <p className="inspector__docs-summary">{selectedNodeUiMetadata.summary}</p>
+            ) : null}
+            {typeof selectedNodeUiMetadata.description === "string" ? (
+              <p>{selectedNodeUiMetadata.description}</p>
+            ) : null}
+            {Array.isArray(selectedNodeUiMetadata.notes) && selectedNodeUiMetadata.notes.length > 0 ? (
+              <ul className="inspector__docs-list">
+                {selectedNodeUiMetadata.notes.map((note, index) =>
+                  typeof note === "string" && note.trim() ? <li key={`${selectedNode.id}-note-${index}`}>{note}</li> : null,
+                )}
+              </ul>
+            ) : null}
+          </section>
+        ) : null}
 
         <JsonEditor
           label="Input"
@@ -499,6 +521,22 @@ function asObject(value: unknown): Record<string, unknown> {
   return value && typeof value === "object" && !Array.isArray(value)
     ? (value as Record<string, unknown>)
     : {};
+}
+
+function readUiMetadata(metadata: Record<string, unknown> | undefined): Record<string, unknown> {
+  if (!metadata || typeof metadata !== "object") {
+    return {};
+  }
+  const ui = metadata.ui;
+  return ui && typeof ui === "object" ? (ui as Record<string, unknown>) : {};
+}
+
+function hasNodeDocumentation(uiMetadata: Record<string, unknown>): boolean {
+  return (
+    typeof uiMetadata.summary === "string" ||
+    typeof uiMetadata.description === "string" ||
+    (Array.isArray(uiMetadata.notes) && uiMetadata.notes.some((note) => typeof note === "string" && note.trim()))
+  );
 }
 
 function statusTone(status: string): "neutral" | "running" | "success" | "failed" | "paused" {

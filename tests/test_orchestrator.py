@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import asyncio
 import json
+import sqlite3
 import threading
+import zipfile
 from pathlib import Path
 
 import pytest
@@ -854,3 +856,249 @@ def test_planner_status_endpoint_exposes_lit_configuration(tmp_path: Path) -> No
         assert body["backend"] == "cpu"
         assert "binary_path" in body
         assert "model_path" in body
+
+
+def test_accounts_receivable_workflow_from_csv_generates_letters(tmp_path: Path) -> None:
+    orders_csv = tmp_path / "orders.csv"
+    orders_csv.write_text(
+        "\n".join(
+            [
+                "customer_name,email,address,product,quantity,price_per_unit,total_price,order_date,delivery_date,invoice_due_date,invoice_paid",
+                "Alice Example,alice@example.org,Alpha Strasse 1 10115 Berlin,Laptop,1,1200.0,1200.0,2026-03-01T08:00:00,2026-03-02T08:00:00,2026-03-10T08:00:00,0",
+                "Alice Example,alice@example.org,Alpha Strasse 1 10115 Berlin,Monitor,2,300.0,600.0,2026-03-05T08:00:00,2026-03-06T08:00:00,2026-03-15T08:00:00,0",
+                "Bob Example,bob@example.org,Beta Weg 2 80331 Muenchen,Mouse,4,40.0,160.0,2026-03-09T08:00:00,2026-03-10T08:00:00,2026-03-20T08:00:00,1",
+                "Cara Example,cara@example.org,Gamma Platz 3 50667 Koeln,Keyboard,2,80.0,160.0,2026-03-11T08:00:00,2026-03-12T08:00:00,2026-03-22T08:00:00,0",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    async def run() -> None:
+        orchestrator = create_orchestrator(build_settings(tmp_path))
+        try:
+            flow = orchestrator.create_flow(
+                nodes=[
+                    {
+                        "node_id": "extract_open_receivables",
+                        "handler_name": "accounts_receivable_extract",
+                        "input": {
+                            "path": "orders.csv",
+                            "source_type": "csv",
+                            "as_of": "2026-04-09T00:00:00+00:00",
+                        },
+                    },
+                    {
+                        "node_id": "serialize_receivables",
+                        "handler_name": "json_serialize",
+                        "input": {
+                            "value": {"$ref": "results['extract_open_receivables']"},
+                            "indent": 2,
+                        },
+                    },
+                    {
+                        "node_id": "write_receivables_report",
+                        "handler_name": "write_file",
+                        "input": {
+                            "path": "output/open-receivables.json",
+                            "content": "{{ results['serialize_receivables']['json'] }}",
+                            "encoding": "utf-8",
+                        },
+                    },
+                    {
+                        "node_id": "generate_letters",
+                        "handler_name": "accounts_receivable_generate_letters",
+                        "input": {
+                            "receivables": {"$ref": "results['extract_open_receivables']"},
+                            "sender_company": "Example Finance",
+                            "sender_email": "finance@example.org",
+                            "sender_phone": "+49 30 000000",
+                            "sender_address": "Finance Street 1, 10115 Berlin",
+                            "payment_deadline_days": 10,
+                        },
+                    },
+                    {
+                        "node_id": "write_letters",
+                        "handler_name": "accounts_receivable_write_letters",
+                        "input": {
+                            "letters": {"$ref": "results['generate_letters']['letters']"},
+                            "output_directory": "billing",
+                            "manifest_path": "output/letters-manifest.json",
+                            "summary_path": "output/letters-summary.txt",
+                            "output_format": "docx",
+                        },
+                    },
+                ],
+                edges=[
+                    {"from_node": "extract_open_receivables", "to_node": "serialize_receivables", "condition": "True"},
+                    {"from_node": "serialize_receivables", "to_node": "write_receivables_report", "condition": "True"},
+                    {
+                        "from_node": "extract_open_receivables",
+                        "to_node": "generate_letters",
+                        "condition": "results['extract_open_receivables']['customer_count'] > 0",
+                    },
+                    {"from_node": "generate_letters", "to_node": "write_letters", "condition": "True"},
+                ],
+            )
+
+            snapshot = await orchestrator.run_flow(int(flow["flow_id"]))
+            assert snapshot["state"] == "COMPLETED"
+            assert snapshot["results"]["extract_open_receivables"]["customer_count"] == 2
+            assert snapshot["results"]["extract_open_receivables"]["invoice_count"] == 3
+            assert snapshot["results"]["extract_open_receivables"]["total_outstanding"] == 1960.0
+            assert snapshot["results"]["generate_letters"]["letter_count"] == 2
+            assert snapshot["results"]["write_letters"]["letter_count"] == 2
+
+            report = json.loads((tmp_path / "output" / "open-receivables.json").read_text(encoding="utf-8"))
+            assert report["customer_count"] == 2
+
+            letters = sorted((tmp_path / "billing").glob("*.docx"))
+            assert len(letters) == 2
+            with zipfile.ZipFile(letters[0]) as archive:
+                document_xml = archive.read("word/document.xml").decode("utf-8")
+            assert "Alice Example" in document_xml
+            assert "Example Finance" in document_xml
+
+            summary_text = (tmp_path / "output" / "letters-summary.txt").read_text(encoding="utf-8")
+            assert "Anzahl Schreiben: 2" in summary_text
+            assert ".docx" in summary_text
+        finally:
+            await orchestrator.shutdown()
+
+    asyncio.run(run())
+
+
+def test_accounts_receivable_workflow_from_sqlite_generates_letters(tmp_path: Path) -> None:
+    orders_db = tmp_path / "orders.db"
+    with sqlite3.connect(orders_db) as connection:
+        connection.execute(
+            """
+            CREATE TABLE orders (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                customer_name TEXT,
+                email TEXT,
+                address TEXT,
+                product TEXT,
+                quantity INTEGER,
+                price_per_unit REAL,
+                total_price REAL,
+                order_date TEXT,
+                delivery_date TEXT,
+                invoice_due_date TEXT,
+                invoice_paid INTEGER
+            )
+            """
+        )
+        connection.executemany(
+            """
+            INSERT INTO orders (
+                customer_name, email, address, product, quantity, price_per_unit, total_price,
+                order_date, delivery_date, invoice_due_date, invoice_paid
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            [
+                (
+                    "Delta Example",
+                    "delta@example.org",
+                    "Delta Allee 4 20095 Hamburg",
+                    "Server",
+                    1,
+                    2400.0,
+                    2400.0,
+                    "2026-03-01T08:00:00",
+                    "2026-03-03T08:00:00",
+                    "2026-03-20T08:00:00",
+                    0,
+                ),
+                (
+                    "Echo Example",
+                    "echo@example.org",
+                    "Echo Ring 5 04109 Leipzig",
+                    "Monitor",
+                    2,
+                    300.0,
+                    600.0,
+                    "2026-03-10T08:00:00",
+                    "2026-03-11T08:00:00",
+                    "2026-04-10T08:00:00",
+                    0,
+                ),
+                (
+                    "Foxtrot Example",
+                    "foxtrot@example.org",
+                    "Foxtrot Weg 6 01067 Dresden",
+                    "Keyboard",
+                    2,
+                    80.0,
+                    160.0,
+                    "2026-03-11T08:00:00",
+                    "2026-03-12T08:00:00",
+                    "2026-04-12T08:00:00",
+                    1,
+                ),
+            ],
+        )
+        connection.commit()
+
+    async def run() -> None:
+        orchestrator = create_orchestrator(build_settings(tmp_path))
+        try:
+            flow = orchestrator.create_flow(
+                nodes=[
+                    {
+                        "node_id": "extract_open_receivables",
+                        "handler_name": "accounts_receivable_extract",
+                        "input": {
+                            "path": "orders.db",
+                            "source_type": "sqlite",
+                            "table": "orders",
+                            "as_of": "2026-04-09T00:00:00+00:00",
+                        },
+                    },
+                    {
+                        "node_id": "generate_letters",
+                        "handler_name": "accounts_receivable_generate_letters",
+                        "input": {
+                            "receivables": {"$ref": "results['extract_open_receivables']"},
+                            "sender_company": "Example Finance",
+                            "payment_deadline_days": 5,
+                        },
+                    },
+                    {
+                        "node_id": "write_letters",
+                        "handler_name": "accounts_receivable_write_letters",
+                        "input": {
+                            "letters": {"$ref": "results['generate_letters']['letters']"},
+                            "output_directory": "billing/db",
+                            "manifest_path": "db-output/letters-manifest.json",
+                            "summary_path": "db-output/letters-summary.txt",
+                            "output_format": "docx",
+                        },
+                    },
+                ],
+                edges=[
+                    {
+                        "from_node": "extract_open_receivables",
+                        "to_node": "generate_letters",
+                        "condition": "results['extract_open_receivables']['customer_count'] > 0",
+                    },
+                    {"from_node": "generate_letters", "to_node": "write_letters", "condition": "True"},
+                ],
+            )
+
+            snapshot = await orchestrator.run_flow(int(flow["flow_id"]))
+            assert snapshot["state"] == "COMPLETED"
+            extract_result = snapshot["results"]["extract_open_receivables"]
+            assert extract_result["source_type"] == "sqlite"
+            assert extract_result["customer_count"] == 2
+            assert extract_result["invoice_count"] == 2
+            assert extract_result["overdue_count"] == 1
+
+            manifest = json.loads((tmp_path / "db-output" / "letters-manifest.json").read_text(encoding="utf-8"))
+            assert manifest["letter_count"] == 2
+            assert any(item["customer_name"] == "Delta Example" for item in manifest["letters"])
+            assert all(str(item["path"]).endswith(".docx") for item in manifest["letters"])
+        finally:
+            await orchestrator.shutdown()
+
+    asyncio.run(run())

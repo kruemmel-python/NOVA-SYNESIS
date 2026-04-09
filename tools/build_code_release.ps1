@@ -1,5 +1,5 @@
 param(
-    [string]$Version = "v1.0.7",
+    [string]$Version = "v1.0.8",
     [string]$OutputDirectory = "release"
 )
 
@@ -31,7 +31,9 @@ $includePaths = @(
     "run-backend.cmd",
     "run-backend.ps1",
     "uml_V3.mmd",
+    "docs",
     "dokumentation",
+    "billing",
     "src",
     "tests",
     "tools",
