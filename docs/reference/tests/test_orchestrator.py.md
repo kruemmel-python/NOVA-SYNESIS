@@ -21,6 +21,11 @@ Wenn neue Features abgesichert, Sicherheitsregeln erweitert oder Fehler reproduz
 - `test_manual_approval_endpoint_enables_execution(tmp_path)`: Funktion oder Definition `test_manual_approval_endpoint_enables_execution` dieses Moduls.
 - `test_websocket_flow_updates_stream_runtime_events(tmp_path)`: Funktion oder Definition `test_websocket_flow_updates_stream_runtime_events` dieses Moduls.
 - `test_lit_planner_normalizes_graph_output(tmp_path)`: Funktion oder Definition `test_lit_planner_normalizes_graph_output` dieses Moduls.
+- `test_lit_planner_repairs_common_malformed_json_patterns(tmp_path)`: Funktion oder Definition `test_lit_planner_repairs_common_malformed_json_patterns` dieses Moduls.
+- `test_lit_planner_repairs_incomplete_json_object(tmp_path)`: Funktion oder Definition `test_lit_planner_repairs_incomplete_json_object` dieses Moduls.
+- `test_lit_planner_retries_with_compact_prompt_on_context_overflow(tmp_path)`: Funktion oder Definition `test_lit_planner_retries_with_compact_prompt_on_context_overflow` dieses Moduls.
+- `test_lit_planner_normalizes_send_message_target_agent_name(tmp_path)`: Funktion oder Definition `test_lit_planner_normalizes_send_message_target_agent_name` dieses Moduls.
+- `test_lit_planner_falls_back_to_only_message_target_for_unknown_name(tmp_path)`: Funktion oder Definition `test_lit_planner_falls_back_to_only_message_target_for_unknown_name` dieses Moduls.
 - `test_semantic_firewall_rejects_cyclic_flow(tmp_path)`: Funktion oder Definition `test_semantic_firewall_rejects_cyclic_flow` dieses Moduls.
 - `test_semantic_firewall_rejects_external_http_request(tmp_path)`: Funktion oder Definition `test_semantic_firewall_rejects_external_http_request` dieses Moduls.
 - `test_semantic_firewall_blocks_send_message_endpoint_override(tmp_path)`: Funktion oder Definition `test_semantic_firewall_blocks_send_message_endpoint_override` dieses Moduls.
@@ -35,6 +40,7 @@ Wenn neue Features abgesichert, Sicherheitsregeln erweitert oder Fehler reproduz
 
 - `from __future__ import annotations`
 - `import asyncio`
+- `import json`
 - `import threading`
 - `from pathlib import Path`
 - `import pytest`

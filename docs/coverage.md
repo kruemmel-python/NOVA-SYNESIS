@@ -1,7 +1,7 @@
 # Abdeckung
 
-- Dokumentierte Projektdateien: `81`
-- Referenzdateien: `82`
+- Dokumentierte Projektdateien: `84`
+- Referenzdateien: `85`
 
 ## Ausgeschlossene Bereiche
 
@@ -23,11 +23,13 @@
 - `Use_Cases/README.md`
 - `Use_Cases/platform_health_snapshot/README.md`
 - `Use_Cases/platform_health_snapshot/flow.json`
+- `Use_Cases/platform_health_snapshot/platform_health_snapshot.png`
 - `Use_Cases/platform_health_snapshot/run.ps1`
 - `Use_Cases/platform_health_snapshot/setup.ps1`
 - `Use_Cases/semantic_ticket_triage/README.md`
 - `Use_Cases/semantic_ticket_triage/flow.json`
 - `Use_Cases/semantic_ticket_triage/run.ps1`
+- `Use_Cases/semantic_ticket_triage/semantic_ticket_triage.png`
 - `Use_Cases/semantic_ticket_triage/setup.ps1`
 - `frontend/.env.example`
 - `frontend/index.html`
@@ -90,6 +92,7 @@
 - `src/nova_synesis/services/orchestrator.py`
 - `tests/test_orchestrator.py`
 - `tools/build_code_release.ps1`
+- `tools/build_web_docs.py`
 - `tools/generate_docs.py`
 - `uml.html`
 - `uml_V3.mmd`

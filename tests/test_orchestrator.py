@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import json
 import threading
 from pathlib import Path
 
@@ -393,6 +394,202 @@ def test_lit_planner_normalizes_graph_output(tmp_path: Path) -> None:
         }
     ]
     assert warnings
+
+
+def test_lit_planner_repairs_common_malformed_json_patterns(tmp_path: Path) -> None:
+    planner = LiteRTPlanner(build_settings(tmp_path))
+    parsed, warnings = planner._parse_model_output_with_warnings(
+        """
+        Here is the plan:
+        {
+          nodes: [
+            {
+              'node_id': 'fetch',
+              'handler_name': 'http_request',
+              'input': {
+                'url': 'http://127.0.0.1:8552/health',
+                'method': 'GET',
+              },
+              'required_resource_types': ['API',],
+              'metadata': {'draft': True,},
+            },
+          ],
+          'edges': [],
+          'explanation': 'Fetch the health endpoint',
+        }
+        """
+    )
+
+    assert parsed["nodes"][0]["node_id"] == "fetch"
+    assert parsed["nodes"][0]["input"]["url"] == "http://127.0.0.1:8552/health"
+    assert parsed["nodes"][0]["required_resource_types"] == ["API"]
+    assert parsed["nodes"][0]["metadata"]["draft"] is True
+    assert parsed["explanation"] == "Fetch the health endpoint"
+    assert warnings
+
+
+def test_lit_planner_repairs_incomplete_json_object(tmp_path: Path) -> None:
+    planner = LiteRTPlanner(build_settings(tmp_path))
+    parsed, warnings = planner._parse_model_output_with_warnings(
+        '{"nodes":[{"node_id":"notify","handler_name":"template_render","input":{"template":"Done","values":{}}}],"edges":[],"explanation":"ok"'
+    )
+
+    assert parsed["nodes"][0]["handler_name"] == "template_render"
+    assert parsed["edges"] == []
+    assert parsed["explanation"] == "ok"
+    assert warnings
+
+
+def test_lit_planner_retries_with_compact_prompt_on_context_overflow(tmp_path: Path) -> None:
+    planner = LiteRTPlanner(build_settings(tmp_path))
+    prompt_lengths: list[int] = []
+
+    def fake_invoke_model(planner_prompt: str) -> str:
+        prompt_lengths.append(len(planner_prompt))
+        if len(prompt_lengths) == 1:
+            raise RuntimeError(
+                "stream error: INVALID_ARGUMENT: Input token ids are too long. "
+                "Exceeding the maximum number of tokens allowed: 4549 >= 4096"
+            )
+        return json.dumps(
+            {
+                "nodes": [
+                    {
+                        "node_id": "notify",
+                        "handler_name": "send_message",
+                        "input": {
+                            "target_agent_name": "observer",
+                            "message": {"text": "done"},
+                        },
+                    }
+                ],
+                "edges": [],
+                "explanation": "Send a completion message.",
+            }
+        )
+
+    planner._invoke_model = fake_invoke_model  # type: ignore[method-assign]
+
+    result = planner.generate_flow_request(
+        prompt="Send a completion message when work is done.",
+        catalog=PlannerCatalog(
+            handlers=["send_message"],
+            agents=[
+                {
+                    "agent_id": 1,
+                    "name": "observer",
+                    "role": "worker",
+                    "capabilities": [],
+                    "communication": {
+                        "protocol": "MESSAGE_QUEUE",
+                        "endpoint": "queue://observer",
+                        "config": {},
+                    },
+                }
+            ],
+            resources=[],
+            memory_systems=[],
+        ),
+        max_nodes=3,
+    )
+
+    assert len(prompt_lengths) == 2
+    assert prompt_lengths[1] < prompt_lengths[0]
+    assert any("compacted automatically" in warning for warning in result.warnings)
+    assert result.flow_request["nodes"][0]["input"]["target_agent_id"] == 1
+
+
+def test_lit_planner_normalizes_send_message_target_agent_name(tmp_path: Path) -> None:
+    planner = LiteRTPlanner(build_settings(tmp_path))
+    normalized, warnings = planner._normalize_flow_request(
+        parsed={
+            "nodes": [
+                {
+                    "node_id": "notify",
+                    "handler_name": "send_message",
+                    "input": {
+                        "target_agent_name": "observer",
+                        "message": {"text": "done"},
+                    },
+                }
+            ],
+            "edges": [],
+        },
+        catalog=PlannerCatalog(
+            handlers=["send_message"],
+            agents=[
+                {
+                    "agent_id": 1,
+                    "name": "observer",
+                    "role": "worker",
+                    "capabilities": [],
+                    "communication": {
+                        "protocol": "MESSAGE_QUEUE",
+                        "endpoint": "queue://observer",
+                        "config": {},
+                    },
+                },
+                {
+                    "agent_id": 2,
+                    "name": "audit",
+                    "role": "worker",
+                    "capabilities": [],
+                    "communication": {
+                        "protocol": "MESSAGE_QUEUE",
+                        "endpoint": "queue://audit",
+                        "config": {},
+                    },
+                },
+            ],
+            resources=[],
+            memory_systems=[],
+        ),
+        max_nodes=4,
+    )
+
+    assert normalized["nodes"][0]["input"]["target_agent_id"] == 1
+    assert any("resolved target_agent_name 'observer'" in warning for warning in warnings)
+
+
+def test_lit_planner_falls_back_to_only_message_target_for_unknown_name(tmp_path: Path) -> None:
+    planner = LiteRTPlanner(build_settings(tmp_path))
+    normalized, warnings = planner._normalize_flow_request(
+        parsed={
+            "nodes": [
+                {
+                    "node_id": "notify",
+                    "handler_name": "send_message",
+                    "input": {
+                        "target_agent_name": "ops-archiver",
+                        "message": {"text": "done"},
+                    },
+                }
+            ],
+            "edges": [],
+        },
+        catalog=PlannerCatalog(
+            handlers=["send_message"],
+            agents=[
+                {
+                    "agent_id": 7,
+                    "name": "observer",
+                    "role": "worker",
+                    "capabilities": [],
+                    "communication": {
+                        "protocol": "MESSAGE_QUEUE",
+                        "endpoint": "queue://observer",
+                        "config": {},
+                    },
+                }
+            ],
+            resources=[],
+            memory_systems=[],
+        ),
+        max_nodes=4,
+    )
+
+    assert normalized["nodes"][0]["input"]["target_agent_id"] == 7
+    assert any("referenced unknown agent 'ops-archiver'; defaulted to the only communication-enabled agent" in warning for warning in warnings)
 
 
 def test_semantic_firewall_rejects_cyclic_flow(tmp_path: Path) -> None:

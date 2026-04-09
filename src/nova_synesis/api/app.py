@@ -127,7 +127,7 @@ def create_app(
         yield
         await runtime.shutdown()
 
-    app = FastAPI(title=runtime.settings.app_name, version="1.0.4", lifespan=lifespan)
+    app = FastAPI(title=runtime.settings.app_name, version="1.0.5", lifespan=lifespan)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=list(runtime.settings.cors_origins),

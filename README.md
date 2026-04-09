@@ -88,6 +88,7 @@ Relevante Endpunkte:
 
 Die UI ruft den Planner über den Button `AI Plan` auf und ersetzt den Canvas mit dem generierten `FlowRequest`.
 Der Planner erzeugt ausschließlich Graphen gegen die real registrierten Handler, Agents, Resources und Memory-Backends.
+Seit `1.0.5` kompaktisiert der Planner LiteRT-Prompts bei Token-Overflow automatisch und repariert typische LLM-JSON-Formfehler vor der Normalisierung.
 
 ## Semantic Firewall
 
@@ -205,3 +206,13 @@ pytest
 cd frontend
 npm run build
 ```
+
+## HTML-Dokumentation
+
+Aus dem Ordner `docs` kann eine statische HTML-Dokumentationsseite mit Side-Menue, Suche und Source-Ansichten erzeugt werden:
+
+```bash
+python tools/build_web_docs.py
+```
+
+Danach liegt die fertige Seite unter `web/index.html`.

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Decision Guide | NOVA-SYNESIS Docs</title>
+  <meta name="description" content="Diese Seite dokumentiert Entscheidungslogik. Genau dieses Wissen fehlt oft, wenn ein System zwar sauber gebaut, aber noch nicht betriebssicher uebergeben wurde.">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="stylesheet" href="assets/site.css">
+</head>
+<body data-page-url="decision-guide.html">
+  <div class="site-shell">
+    <aside class="site-sidebar" id="site-sidebar">
+      <div class="brand">
+        <p class="brand__eyebrow">Neural Orchestration Visual Autonomy</p>
+        <h1>NOVA-SYNESIS</h1>
+        <p class="brand__subtitle">Stateful Yielding Node-based Execution Semantic Integrated Surface</p>
+      </div>
+      <label class="search-box">
+        <span class="search-box__label">Search docs</span>
+        <input id="docs-search" type="search" placeholder="Search guides, files, handlers, policies">
+      </label>
+      <div class="search-results" id="search-results" hidden></div>
+      <div class="sidebar-scroll">
+        <a class="brand__home" href="index.html">Documentation Home</a><section class="sidebar__group"><h2>Guides</h2><ul class="nav-list"><li><a class="nav-list__link" href="index.html">NOVA-SYNESIS Dokumentation</a></li><li><a class="nav-list__link" href="getting-started.html">Schnellstart</a></li><li><a class="nav-list__link" href="system-overview.html">Systemueberblick</a></li><li><a class="nav-list__link" href="backend-runtime.html">Backend-Laufzeit</a></li><li><a class="nav-list__link" href="frontend-editor.html">Frontend-Editor</a></li><li><a class="nav-list__link" href="planner-and-lit.html">LLM-Planer und LiteRT</a></li><li><a class="nav-list__link" href="security-and-policy.html">Security und Policy</a></li><li><a class="nav-list__link" href="handler-trust-and-approval.html">Handler Trust und Freigaben</a></li><li><a class="nav-list__link" href="failure-playbook.html">Failure Playbook</a></li><li><a class="nav-list__link nav-list__link--active" href="decision-guide.html">Decision Guide</a></li><li><a class="nav-list__link" href="real-world-scenarios.html">Real World Scenarios</a></li><li><a class="nav-list__link" href="change-workflows.html">Aenderungsleitfaden</a></li></ul></section><section class="sidebar__group"><h2>Reference</h2><ul class="nav-list"><li><a class="nav-list__link" href="reference/index.html">Referenzindex</a></li><li><a class="nav-list__link" href="reference/.env.example.html">.env.example</a></li><li><a class="nav-list__link" href="reference/.gitignore.html">.gitignore</a></li><li><a class="nav-list__link" href="reference/Anweisung.md.html">Anweisung.md</a></li><li><a class="nav-list__link" href="reference/Dockerfile.html">Dockerfile</a></li><li class="nav-list__branch"><details ><summary>Frontend</summary><ul class="nav-list"><li><a class="nav-list__link" href="reference/frontend/.env.example.html">.env.example</a></li><li><a class="nav-list__link" href="reference/frontend/index.html.html">index.html</a></li><li><a class="nav-list__link" href="reference/frontend/package-lock.json.html">package-lock.json</a></li><li><a class="nav-list__link" href="reference/frontend/package.json.html">package.json</a></li><li class="nav-list__branch"><details ><summary>Source</summary><ul class="nav-list"><li><a class="nav-list__link" href="reference/frontend/src/app.css.html">app.css</a></li><li><a class="nav-list__link" href="reference/frontend/src/App.tsx.html">App.tsx</a></li><li class="nav-list__branch"><details ><summary>Components</summary><ul class="nav-list"><li class="nav-list__branch"><details ><summary>Common</summary><ul class="nav-list"><li><a class="nav-list__link" href="reference/frontend/src/components/common/JsonEditor.tsx.html">JsonEditor.tsx</a></li><li><a class="nav-list__link" href="reference/frontend/src/components/common/StatusBadge.tsx.html">StatusBadge.tsx</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Flow</summary><ul class="nav-list"><li><a class="nav-list__link" href="reference/frontend/src/components/flow/FlowCanvas.tsx.html">FlowCanvas.tsx</a></li><li><a class="nav-list__link" href="reference/frontend/src/components/flow/TaskNode.tsx.html">TaskNode.tsx</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Layout</summary><ul class="nav-list"><li><a class="nav-list__link" href="reference/frontend/src/components/layout/InspectorPanel.tsx.html">InspectorPanel.tsx</a></li><li><a class="nav-list__link" href="reference/frontend/src/components/layout/PlannerComposer.tsx.html">PlannerComposer.tsx</a></li><li><a class="nav-list__link" href="reference/frontend/src/components/layout/Sidebar.tsx.html">Sidebar.tsx</a></li><li><a class="nav-list__link" href="reference/frontend/src/components/layout/TopBar.tsx.html">TopBar.tsx</a></li></ul></details></li></ul></details></li><li class="nav-list__branch"><details ><summary>Hooks</summary><ul class="nav-list"><li><a class="nav-list__link" href="reference/frontend/src/hooks/useCatalogBootstrap.ts.html">useCatalogBootstrap.ts</a></li><li><a class="nav-list__link" href="reference/frontend/src/hooks/useFlowLiveUpdates.ts.html">useFlowLiveUpdates.ts</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Lib</summary><ul class="nav-list"><li><a class="nav-list__link" href="reference/frontend/src/lib/apiClient.ts.html">apiClient.ts</a></li><li><a class="nav-list__link" href="reference/frontend/src/lib/autoLayout.ts.html">autoLayout.ts</a></li><li><a class="nav-list__link" href="reference/frontend/src/lib/flowSerialization.ts.html">flowSerialization.ts</a></li><li><a class="nav-list__link" href="reference/frontend/src/lib/json.ts.html">json.ts</a></li></ul></details></li><li><a class="nav-list__link" href="reference/frontend/src/main.tsx.html">main.tsx</a></li><li class="nav-list__branch"><details ><summary>Store</summary><ul class="nav-list"><li><a class="nav-list__link" href="reference/frontend/src/store/useFlowStore.ts.html">useFlowStore.ts</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Types</summary><ul class="nav-list"><li><a class="nav-list__link" href="reference/frontend/src/types/api.ts.html">api.ts</a></li></ul></details></li><li><a class="nav-list__link" href="reference/frontend/src/vite-env.d.ts.html">vite-env.d.ts</a></li></ul></details></li><li><a class="nav-list__link" href="reference/frontend/tsconfig.app.json.html">tsconfig.app.json</a></li><li><a class="nav-list__link" href="reference/frontend/tsconfig.json.html">tsconfig.json</a></li><li><a class="nav-list__link" href="reference/frontend/tsconfig.node.json.html">tsconfig.node.json</a></li><li><a class="nav-list__link" href="reference/frontend/vite.config.d.ts.html">vite.config.d.ts</a></li><li><a class="nav-list__link" href="reference/frontend/vite.config.js.html">vite.config.js</a></li><li><a class="nav-list__link" href="reference/frontend/vite.config.ts.html">vite.config.ts</a></li></ul></details></li><li><a class="nav-list__link" href="reference/LICENSE.html">LICENSE</a></li><li class="nav-list__branch"><details ><summary>LIT</summary><ul class="nav-list"><li><a class="nav-list__link" href="reference/LIT/planner_test_prompt.txt.html">planner_test_prompt.txt</a></li><li><a class="nav-list__link" href="reference/LIT/README.md.html">README.md</a></li></ul></details></li><li><a class="nav-list__link" href="reference/pyproject.toml.html">pyproject.toml</a></li><li><a class="nav-list__link" href="reference/README.md.html">README.md</a></li><li><a class="nav-list__link" href="reference/run-backend.cmd.html">run-backend.cmd</a></li><li><a class="nav-list__link" href="reference/run-backend.ps1.html">run-backend.ps1</a></li><li class="nav-list__branch"><details ><summary>Source</summary><ul class="nav-list"><li class="nav-list__branch"><details ><summary>NOVA-SYNESIS</summary><ul class="nav-list"><li><a class="nav-list__link" href="reference/src/nova_synesis/__init__.py.html">__init__.py</a></li><li class="nav-list__branch"><details ><summary>API</summary><ul class="nav-list"><li><a class="nav-list__link" href="reference/src/nova_synesis/api/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="reference/src/nova_synesis/api/app.py.html">app.py</a></li></ul></details></li><li><a class="nav-list__link" href="reference/src/nova_synesis/cli.py.html">cli.py</a></li><li class="nav-list__branch"><details ><summary>Communication</summary><ul class="nav-list"><li><a class="nav-list__link" href="reference/src/nova_synesis/communication/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="reference/src/nova_synesis/communication/adapters.py.html">adapters.py</a></li></ul></details></li><li><a class="nav-list__link" href="reference/src/nova_synesis/config.py.html">config.py</a></li><li class="nav-list__branch"><details ><summary>Domain</summary><ul class="nav-list"><li><a class="nav-list__link" href="reference/src/nova_synesis/domain/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="reference/src/nova_synesis/domain/models.py.html">models.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Memory</summary><ul class="nav-list"><li><a class="nav-list__link" href="reference/src/nova_synesis/memory/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="reference/src/nova_synesis/memory/systems.py.html">systems.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Persistence</summary><ul class="nav-list"><li><a class="nav-list__link" href="reference/src/nova_synesis/persistence/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="reference/src/nova_synesis/persistence/sqlite_repository.py.html">sqlite_repository.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Planning</summary><ul class="nav-list"><li><a class="nav-list__link" href="reference/src/nova_synesis/planning/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="reference/src/nova_synesis/planning/lit_planner.py.html">lit_planner.py</a></li><li><a class="nav-list__link" href="reference/src/nova_synesis/planning/planner.py.html">planner.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Resources</summary><ul class="nav-list"><li><a class="nav-list__link" href="reference/src/nova_synesis/resources/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="reference/src/nova_synesis/resources/manager.py.html">manager.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Runtime</summary><ul class="nav-list"><li><a class="nav-list__link" href="reference/src/nova_synesis/runtime/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="reference/src/nova_synesis/runtime/engine.py.html">engine.py</a></li><li><a class="nav-list__link" href="reference/src/nova_synesis/runtime/handlers.py.html">handlers.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Security</summary><ul class="nav-list"><li><a class="nav-list__link" href="reference/src/nova_synesis/security/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="reference/src/nova_synesis/security/policy.py.html">policy.py</a></li><li><a class="nav-list__link" href="reference/src/nova_synesis/security/trust.py.html">trust.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Services</summary><ul class="nav-list"><li><a class="nav-list__link" href="reference/src/nova_synesis/services/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="reference/src/nova_synesis/services/orchestrator.py.html">orchestrator.py</a></li></ul></details></li></ul></details></li></ul></details></li><li class="nav-list__branch"><details ><summary>Tests</summary><ul class="nav-list"><li><a class="nav-list__link" href="reference/tests/test_orchestrator.py.html">test_orchestrator.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Tools</summary><ul class="nav-list"><li><a class="nav-list__link" href="reference/tools/build_code_release.ps1.html">build_code_release.ps1</a></li><li><a class="nav-list__link" href="reference/tools/build_web_docs.py.html">build_web_docs.py</a></li><li><a class="nav-list__link" href="reference/tools/generate_docs.py.html">generate_docs.py</a></li></ul></details></li><li><a class="nav-list__link" href="reference/uml.html.html">uml.html</a></li><li><a class="nav-list__link" href="reference/uml_V3.mmd.html">uml_V3.mmd</a></li><li class="nav-list__branch"><details ><summary>Use Cases</summary><ul class="nav-list"><li class="nav-list__branch"><details ><summary>Platform Health Snapshot</summary><ul class="nav-list"><li><a class="nav-list__link" href="reference/Use_Cases/platform_health_snapshot/flow.json.html">flow.json</a></li><li><a class="nav-list__link" href="reference/Use_Cases/platform_health_snapshot/platform_health_snapshot.png.html">platform_health_snapshot.png</a></li><li><a class="nav-list__link" href="reference/Use_Cases/platform_health_snapshot/README.md.html">README.md</a></li><li><a class="nav-list__link" href="reference/Use_Cases/platform_health_snapshot/run.ps1.html">run.ps1</a></li><li><a class="nav-list__link" href="reference/Use_Cases/platform_health_snapshot/setup.ps1.html">setup.ps1</a></li></ul></details></li><li><a class="nav-list__link" href="reference/Use_Cases/README.md.html">README.md</a></li><li class="nav-list__branch"><details ><summary>Semantic Ticket Triage</summary><ul class="nav-list"><li><a class="nav-list__link" href="reference/Use_Cases/semantic_ticket_triage/flow.json.html">flow.json</a></li><li><a class="nav-list__link" href="reference/Use_Cases/semantic_ticket_triage/README.md.html">README.md</a></li><li><a class="nav-list__link" href="reference/Use_Cases/semantic_ticket_triage/run.ps1.html">run.ps1</a></li><li><a class="nav-list__link" href="reference/Use_Cases/semantic_ticket_triage/semantic_ticket_triage.png.html">semantic_ticket_triage.png</a></li><li><a class="nav-list__link" href="reference/Use_Cases/semantic_ticket_triage/setup.ps1.html">setup.ps1</a></li></ul></details></li></ul></details></li></ul></section><section class="sidebar__group"><h2>Appendix</h2><ul class="nav-list"><li><a class="nav-list__link" href="coverage.html">Abdeckung</a></li><li><a class="nav-list__link" href="Whitepaper.html">Whitepaper: Die Genesis von NOVA-SYNESIS</a></li></ul></section><section class="sidebar__group sidebar__group--meta"><h2>Search</h2><p>Use <kbd>/</kbd> to focus the search field and jump across guides, references and scenarios.</p></section>
+      </div>
+    </aside>
+
+    <div class="site-main">
+      <header class="site-header">
+        <button class="site-header__toggle" type="button" id="sidebar-toggle" aria-controls="site-sidebar" aria-expanded="false">
+          Menu
+        </button>
+        <div class="site-header__meta">
+          <p class="site-header__eyebrow">Generated documentation surface</p>
+          <h2>Decision Guide</h2>
+        </div>
+        <div class="site-header__status">
+          <span class="status-chip">HTML docs</span>
+          <span class="status-chip status-chip--accent">2026-04-09 00:10 UTC</span>
+        </div>
+      </header>
+
+      <main class="content-shell">
+        <article class="doc-article">
+          <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="index.html">Docs</a><span aria-current="page">Decision Guide</span></nav>
+          <section class="doc-hero">
+            <p class="doc-hero__eyebrow">Documentation</p>
+            <h1>Decision Guide</h1>
+            <p>Diese Seite dokumentiert Entscheidungslogik. Genau dieses Wissen fehlt oft, wenn ein System zwar sauber gebaut, aber noch nicht betriebssicher uebergeben wurde.</p>
+          </section>
+          <section class="doc-content">
+            <h1 id="decision-guide"><a class="heading-anchor" href="#decision-guide">Decision Guide</a></h1>
+<p>Diese Seite dokumentiert Entscheidungslogik. Genau dieses Wissen fehlt oft, wenn ein System zwar sauber gebaut, aber noch nicht betriebssicher uebergeben wurde.</p>
+<h2 id="1-wann-planner-wann-manuell"><a class="heading-anchor" href="#1-wann-planner-wann-manuell">1. Wann Planner, wann manuell?</a></h2>
+<p>Nutze den LiteRT-Planer, wenn:</p>
+<ul>
+<li>du aus einer fachlichen Beschreibung schnell einen ersten Graphen ableiten willst</li>
+<li>du eine komplexe Kette mit mehreren Handlern skizzieren musst</li>
+<li>du anschliessend im visuellen Editor nacharbeiten willst</li>
+</ul>
+<p>Baue den Flow lieber manuell, wenn:</p>
+<ul>
+<li>die exakte Kantenlogik bereits feststeht</li>
+<li>du einen Produktionsfehler analysierst</li>
+<li>du ein sehr kleines, deterministisches Setup mit 1 bis 3 Nodes hast</li>
+</ul>
+<h2 id="2-neuer-handler-oder-bestehenden-handler-erweitern"><a class="heading-anchor" href="#2-neuer-handler-oder-bestehenden-handler-erweitern">2. Neuer Handler oder bestehenden Handler erweitern?</a></h2>
+<p>Erweitere einen bestehenden Handler, wenn:</p>
+<ul>
+<li>dieselbe Grundoperation bleibt</li>
+<li>Ein- und Ausgabeform nur optional waechst</li>
+<li>Fehlerbild und Retry-Verhalten gleich bleiben</li>
+</ul>
+<p>Baue einen neuen Handler, wenn:</p>
+<ul>
+<li>eine neue Nebenwirkung entsteht</li>
+<li>eine andere externe Abhaengigkeit angebunden wird</li>
+<li>der Inputvertrag fachlich anders ist</li>
+<li>der Nutzer den Baustein im Editor als eigenstaendige Aktion verstehen soll</li>
+</ul>
+<h2 id="3-flow-einzelne-task-oder-agent"><a class="heading-anchor" href="#3-flow-einzelne-task-oder-agent">3. Flow, einzelne Task oder Agent?</a></h2>
+<ul>
+<li>Verwende einen Flow, wenn Reihenfolge, Verzweigung oder Fehlerbehandlung sichtbar modelliert werden muessen.</li>
+<li>Verwende nur eine einzelne Task, wenn genau ein isolierter Arbeitsschritt existiert.</li>
+<li>Verwende einen Agenten, wenn Faehigkeiten, Kommunikationsadapter oder eine feste Verantwortlichkeit wichtig sind.</li>
+</ul>
+<p>Ein Agent ersetzt keinen Flow. Der Flow modelliert den Prozess. Der Agent modelliert, wer oder was eine Task ausfuehren darf.</p>
+<h2 id="4-wann-ist-eine-resource-wirklich-notwendig"><a class="heading-anchor" href="#4-wann-ist-eine-resource-wirklich-notwendig">4. Wann ist eine Resource wirklich notwendig?</a></h2>
+<p>Nutze eine Resource, wenn der Schritt an ein echtes externes Ziel oder eine limitierte Kapazitaet gebunden ist:</p>
+<ul>
+<li>API-Endpunkt</li>
+<li>Modellinstanz</li>
+<li>Datenbank</li>
+<li>Dateiablage</li>
+<li>GPU</li>
+</ul>
+<p>Nutze keine Resource, wenn der Schritt rein lokal und transformativ ist:</p>
+<ul>
+<li><code>template_render</code></li>
+<li><code>merge_payloads</code></li>
+<li><code>json_serialize</code></li>
+</ul>
+<h2 id="5-konkrete-resource-id-oder-nur-resource-type"><a class="heading-anchor" href="#5-konkrete-resource-id-oder-nur-resource-type">5. Konkrete Resource-ID oder nur Resource-Type?</a></h2>
+<ul>
+<li><code>required_resource_ids</code>: wenn exakt ein bestimmtes System getroffen werden muss</li>
+<li><code>required_resource_types</code>: wenn jeder passende Vertreter einer Kategorie ausreicht oder Fallback sinnvoll ist</li>
+</ul>
+<p>Faustregel: feste Kern-API per ID, austauschbare Replikate oder GPUs per Typ.</p>
+<h2 id="6-welche-rollback-strategie-ist-die-richtige"><a class="heading-anchor" href="#6-welche-rollback-strategie-ist-die-richtige">6. Welche Rollback-Strategie ist die richtige?</a></h2>
+<ul>
+<li><code>FAIL_FAST</code>: wenn Folgeschritte ohne Erfolg des Nodes keinen Sinn ergeben</li>
+<li><code>RETRY</code>: bei transienten Netz- oder Dienstfehlern</li>
+<li><code>FALLBACK_RESOURCE</code>: wenn mehrere Ressourcen gleicher Art vorhanden sind</li>
+<li><code>COMPENSATE</code>: wenn ein Fehler nach einer Nebenwirkung aktiv bereinigt werden muss</li>
+</ul>
+<h2 id="7-wann-musst-du-post-flowsvalidate-aktiv-nutzen"><a class="heading-anchor" href="#7-wann-musst-du-post-flowsvalidate-aktiv-nutzen">7. Wann musst du <code>POST /flows/validate</code> aktiv nutzen?</a></h2>
+<p>Immer vor produktivem Speichern oder Ausfuehren, wenn:</p>
+<ul>
+<li>ein Flow durch den Planner erzeugt wurde</li>
+<li>neue Templates, Conditions oder Validator-Ausdruecke eingebaut wurden</li>
+<li>neue Ressourcen, Agenten oder Memory-Systeme beteiligt sind</li>
+<li>du Security-Grenzen geaendert hast</li>
+</ul>
+<h2 id="8-wie-klassifizierst-du-memory-systeme"><a class="heading-anchor" href="#8-wie-klassifizierst-du-memory-systeme">8. Wie klassifizierst du Memory-Systeme?</a></h2>
+<ul>
+<li><code>sensitive = true</code>: fuer vertrauliche Inhalte, die nicht in Planner oder externe Sinks gelangen sollen</li>
+<li><code>planner_visible = false</code>: wenn ein Memory manuell nutzbar, aber nicht planner-sichtbar sein soll</li>
+<li><code>allow_untrusted_ingest = true</code>: nur wenn bewusst Daten aus HTTP, Messaging oder Dateiquellen in planner-sichtbares Wissen einfliessen duerfen</li>
+</ul>
+<p>Wenn du unsicher bist, starte konservativ: <code>sensitive = true</code> oder <code>planner_visible = false</code>.</p>
+<h2 id="9-wann-soll-eine-condition-auf-eine-edge"><a class="heading-anchor" href="#9-wann-soll-eine-condition-auf-eine-edge">9. Wann soll eine Condition auf eine Edge?</a></h2>
+<p>Eine Edge-Condition ist richtig, wenn du einen fachlichen Branch modellierst:</p>
+<ul>
+<li>Erfolgspfad vs Fehlerpfad</li>
+<li>weitere Verarbeitung nur bei gueltigem Ergebnis</li>
+<li>optionale Folgeaktionen</li>
+</ul>
+<p>Eine Edge-Condition ist falsch, wenn du damit Daten umbauen oder fehlende Vorverarbeitung verstecken willst. Dann fehlt meist ein eigener Node.</p>
+          </section>
+        </article>
+        <aside class="doc-toc">
+          <div class="doc-toc__card">
+            <p class="doc-toc__eyebrow">On this page</p>
+            <ul class="toc-list"><li class="toc-list__item toc-list__item--level-1"><a href="#decision-guide">Decision Guide</a></li><li class="toc-list__item toc-list__item--level-2"><a href="#1-wann-planner-wann-manuell">1. Wann Planner, wann manuell?</a></li><li class="toc-list__item toc-list__item--level-2"><a href="#2-neuer-handler-oder-bestehenden-handler-erweitern">2. Neuer Handler oder bestehenden Handler erweitern?</a></li><li class="toc-list__item toc-list__item--level-2"><a href="#3-flow-einzelne-task-oder-agent">3. Flow, einzelne Task oder Agent?</a></li><li class="toc-list__item toc-list__item--level-2"><a href="#4-wann-ist-eine-resource-wirklich-notwendig">4. Wann ist eine Resource wirklich notwendig?</a></li><li class="toc-list__item toc-list__item--level-2"><a href="#5-konkrete-resource-id-oder-nur-resource-type">5. Konkrete Resource-ID oder nur Resource-Type?</a></li><li class="toc-list__item toc-list__item--level-2"><a href="#6-welche-rollback-strategie-ist-die-richtige">6. Welche Rollback-Strategie ist die richtige?</a></li><li class="toc-list__item toc-list__item--level-2"><a href="#7-wann-musst-du-post-flowsvalidate-aktiv-nutzen">7. Wann musst du POST /flows/validate aktiv nutzen?</a></li><li class="toc-list__item toc-list__item--level-2"><a href="#8-wie-klassifizierst-du-memory-systeme">8. Wie klassifizierst du Memory-Systeme?</a></li><li class="toc-list__item toc-list__item--level-2"><a href="#9-wann-soll-eine-condition-auf-eine-edge">9. Wann soll eine Condition auf eine Edge?</a></li></ul>
+          </div>
+        </aside>
+      </main>
+    </div>
+  </div>
+  <script src="assets/site-data.js"></script>
+  <script src="assets/site.js"></script>
+</body>
+</html>

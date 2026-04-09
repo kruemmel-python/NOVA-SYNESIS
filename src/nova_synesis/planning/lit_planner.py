@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import ast
 import json
 import re
 import subprocess
@@ -39,6 +40,10 @@ class PlannerGraphResult:
 
 
 class LiteRTPlanner:
+    _STANDARD_PROMPT_MAX_CHARS = 12_000
+    _COMPACT_PROMPT_MAX_CHARS = 9_000
+    _MINIMAL_PROMPT_MAX_CHARS = 6_500
+
     def __init__(self, settings: Settings) -> None:
         self.settings = settings
         self.binary_path = Path(settings.lit_binary_path).resolve()
@@ -67,14 +72,35 @@ class LiteRTPlanner:
         max_nodes: int = 12,
     ) -> PlannerGraphResult:
         self.ensure_available()
-        planner_prompt = self._build_prompt(
+        planner_warnings: list[str] = []
+        raw_response = ""
+        prompt_variants = self._build_prompt_variants(
             prompt=prompt,
             catalog=catalog,
             current_flow=current_flow,
             max_nodes=max_nodes,
         )
-        raw_response = self._invoke_model(planner_prompt)
-        parsed = self._parse_model_output(raw_response)
+        last_error: RuntimeError | None = None
+        for attempt_index, planner_prompt in enumerate(prompt_variants):
+            try:
+                raw_response = self._invoke_model(planner_prompt)
+                if attempt_index > 0:
+                    planner_warnings.append(
+                        "Planner prompt was compacted automatically to fit the local model context window."
+                    )
+                break
+            except RuntimeError as exc:
+                last_error = exc
+                if attempt_index < len(prompt_variants) - 1 and self._looks_like_context_overflow(
+                    str(exc)
+                ):
+                    continue
+                raise
+
+        if not raw_response and last_error is not None:
+            raise last_error
+
+        parsed, parse_warnings = self._parse_model_output_with_warnings(raw_response)
         normalized, warnings = self._normalize_flow_request(
             parsed=parsed,
             catalog=catalog,
@@ -83,7 +109,7 @@ class LiteRTPlanner:
         return PlannerGraphResult(
             flow_request=normalized,
             explanation=self._extract_explanation(parsed),
-            warnings=warnings,
+            warnings=parse_warnings + planner_warnings + warnings,
             raw_response=raw_response,
             model_path=str(self.model_path),
             backend=self.settings.lit_backend,
@@ -136,155 +162,217 @@ class LiteRTPlanner:
         catalog: PlannerCatalog,
         current_flow: dict[str, Any] | None,
         max_nodes: int,
+        *,
+        detail_level: str,
+        max_chars: int,
     ) -> str:
-        resource_types = [resource_type.value for resource_type in ResourceType]
-        current_flow_text = (
-            json.dumps(current_flow, ensure_ascii=False, indent=2)
-            if current_flow is not None
-            else "null"
+        schema = (
+            '{"nodes":[{"node_id":"task-id","title":"Short title","handler_name":"allowed-handler",'
+            '"input":{},"dependencies":[],"conditions":{},"required_capabilities":[],'
+            '"required_resource_ids":[],"required_resource_types":[],"retry_policy":'
+            '{"max_retries":3,"backoff_ms":250,"exponential":true,"max_backoff_ms":10000,'
+            '"jitter_ratio":0.0},"rollback_strategy":"FAIL_FAST","preferred_agent_name":null}],'
+            '"edges":[{"from_node":"node-a","to_node":"node-b","condition":"True"}],'
+            '"explanation":"Brief rationale"}'
         )
-        agent_catalog = [
-            {
-                "name": agent["name"],
-                "agent_id": agent["agent_id"],
-                "role": agent["role"],
-                "capabilities": [capability["name"] for capability in agent.get("capabilities", [])],
-            }
-            for agent in catalog.agents
+        sections = [
+            "You plan executable DAG workflows for NOVA-SYNESIS.",
+            "Return exactly one JSON object. No markdown fences and no prose outside JSON.",
+            f"Use this schema: {schema}",
+            "\n".join(
+                [
+                    "Hard rules:",
+                    f"- Maximum {max_nodes} nodes.",
+                    "- DAG only. Do not create start, end or placeholder nodes.",
+                    "- Every edge source and target must reference an existing node_id.",
+                    '- Use "True" for unconditional edges.',
+                    "- Use only listed handlers, agents, resources and memories.",
+                    "- Build executable inputs for the chosen handler.",
+                    "- Do not output TODO, placeholder, dummy, fake or sample values.",
+                    "- Prefer preferred_agent_name over preferred_agent_id when selecting an agent.",
+                    "- send_message may use target_agent_name or target_agent_id, but only for listed communication-enabled agents.",
+                    "- Unless explicitly required, omit approval fields and keep rollback_strategy at FAIL_FAST.",
+                ]
+            ),
+            self._build_handler_section(catalog.handlers, detail_level),
+            self._build_agent_section(catalog.agents, detail_level),
+            self._build_send_target_section(catalog.agents, detail_level),
+            self._build_resource_section(catalog.resources, detail_level),
+            self._build_memory_section(catalog.memory_systems, detail_level),
+            self._build_current_flow_section(current_flow, detail_level),
+            f"User goal:\n{self._truncate_text(prompt.strip(), 2_000)}",
         ]
-        resource_catalog = [
-            {
-                "resource_id": resource["resource_id"],
-                "type": resource["type"],
-                "endpoint": resource["endpoint"],
-            }
-            for resource in catalog.resources
-        ]
-        memory_catalog = catalog.memory_systems
-        handler_contracts = {
-            "http_request": {
-                "required_input": ["url", "method"],
-                "example_shape": {
-                    "url": "https://...",
-                    "method": "GET",
-                    "headers": {},
-                    "params": {},
-                    "json": {},
-                    "data": None,
-                },
-            },
-            "memory_store": {
-                "required_input": ["memory_id", "key", "value"],
-                "example_shape": {
-                    "memory_id": "existing-memory-id",
-                    "key": "descriptive-key",
-                    "value": "{{ results['previous-node'] }}",
-                },
-            },
-            "memory_retrieve": {
-                "required_input": ["memory_id", "key"],
-                "example_shape": {"memory_id": "existing-memory-id", "key": "descriptive-key"},
-            },
-            "memory_search": {
-                "required_input": ["memory_id", "query"],
-                "example_shape": {"memory_id": "existing-memory-id", "query": "keyword", "limit": 5},
-            },
-            "send_message": {
-                "required_input": ["target_agent_id", "message"],
-                "example_shape": {"target_agent_id": 1, "message": {"text": "done"}},
-            },
-            "resource_health_check": {
-                "required_input": [],
-                "example_shape": {"resource_ids": [1]},
-            },
-            "template_render": {
-                "required_input": ["template", "values"],
-                "example_shape": {"template": "Done for {name}", "values": {"name": "world"}},
-            },
-            "merge_payloads": {
-                "required_input": ["base", "updates"],
-                "example_shape": {"base": {}, "updates": [{}]},
-            },
-            "read_file": {
-                "required_input": ["path"],
-                "example_shape": {"path": "relative/file.txt"},
-            },
-            "write_file": {
-                "required_input": ["path", "content"],
-                "example_shape": {"path": "relative/file.txt", "content": "text", "append": False},
-            },
-            "json_serialize": {
-                "required_input": ["value"],
-                "example_shape": {"value": {"done": True}, "indent": 2},
-            },
+        prompt_text = "\n\n".join(section for section in sections if section.strip())
+        return self._truncate_text(prompt_text, max_chars)
+
+    def _build_prompt_variants(
+        self,
+        prompt: str,
+        catalog: PlannerCatalog,
+        current_flow: dict[str, Any] | None,
+        max_nodes: int,
+    ) -> list[str]:
+        variants: list[str] = []
+        seen: set[str] = set()
+        for detail_level, max_chars in (
+            ("standard", self._STANDARD_PROMPT_MAX_CHARS),
+            ("compact", self._COMPACT_PROMPT_MAX_CHARS),
+            ("minimal", self._MINIMAL_PROMPT_MAX_CHARS),
+        ):
+            candidate = self._build_prompt(
+                prompt=prompt,
+                catalog=catalog,
+                current_flow=current_flow,
+                max_nodes=max_nodes,
+                detail_level=detail_level,
+                max_chars=max_chars,
+            )
+            if candidate not in seen:
+                seen.add(candidate)
+                variants.append(candidate)
+        return variants
+
+    @staticmethod
+    def _looks_like_context_overflow(message: str) -> bool:
+        normalized = message.casefold()
+        return (
+            "input token ids are too long" in normalized
+            or "maximum number of tokens allowed" in normalized
+            or "context length" in normalized
+            or "prompt is too long" in normalized
+        )
+
+    def _build_handler_section(self, handlers: list[str], detail_level: str) -> str:
+        contract_map = {
+            "http_request": "http_request: input keys url, method, optional headers/params/json/data",
+            "memory_store": "memory_store: input keys memory_id, key, value",
+            "memory_retrieve": "memory_retrieve: input keys memory_id, key",
+            "memory_search": "memory_search: input keys memory_id, query, optional limit",
+            "send_message": "send_message: input keys target_agent_name or target_agent_id, message",
+            "resource_health_check": "resource_health_check: optional resource_ids list",
+            "template_render": "template_render: input keys template, values",
+            "merge_payloads": "merge_payloads: input keys base, updates",
+            "read_file": "read_file: input key path",
+            "write_file": "write_file: input keys path, content, optional append",
+            "json_serialize": "json_serialize: input key value, optional indent",
         }
-        return f"""
-You are an expert AI workflow planner for a graph execution engine.
-Return exactly one JSON object and nothing else outside the JSON.
+        lines = [contract_map.get(handler, handler) for handler in handlers]
+        if detail_level == "minimal":
+            lines = [f"- {handler}" for handler in handlers]
+        else:
+            lines = [f"- {line}" for line in lines]
+        return "Allowed handlers:\n" + "\n".join(lines)
 
-The JSON schema must be:
-{{
-  "nodes": [
-    {{
-      "node_id": "unique-id",
-      "title": "Short human title",
-      "handler_name": "one allowed handler",
-      "input": {{}},
-      "required_capabilities": [],
-      "required_resource_ids": [],
-      "required_resource_types": [],
-      "retry_policy": {{
-        "max_retries": 3,
-        "backoff_ms": 250,
-        "exponential": true,
-        "max_backoff_ms": 10000,
-        "jitter_ratio": 0.0
-      }},
-      "rollback_strategy": "FAIL_FAST",
-      "validator_rules": {{}},
-      "metadata": {{}},
-      "requires_manual_approval": false,
-      "manual_approval": {{}},
-      "compensation_handler": null,
-      "dependencies": [],
-      "conditions": {{}},
-      "preferred_agent_name": null
-    }}
-  ],
-  "edges": [
-    {{
-      "from_node": "node-a",
-      "to_node": "node-b",
-      "condition": "True"
-    }}
-  ],
-  "explanation": "Brief rationale"
-}}
+    def _build_agent_section(self, agents: list[dict[str, Any]], detail_level: str) -> str:
+        if not agents:
+            return "Known agents:\n- none"
+        max_items = 24 if detail_level == "standard" else 14 if detail_level == "compact" else 8
+        lines: list[str] = []
+        for agent in agents[:max_items]:
+            capabilities = [
+                str(capability.get("name")).strip()
+                for capability in agent.get("capabilities", [])
+                if str(capability.get("name", "")).strip()
+            ]
+            capability_text = ", ".join(capabilities[:5]) if capabilities else "none"
+            receiver = "yes" if isinstance(agent.get("communication"), dict) else "no"
+            lines.append(
+                f"- {agent['name']} (id={agent['agent_id']}, role={agent['role']}, caps={capability_text}, can_receive={receiver})"
+            )
+        if len(agents) > max_items:
+            lines.append(f"- ... {len(agents) - max_items} more agents omitted")
+        return "Known agents:\n" + "\n".join(lines)
 
-Rules:
-- Maximum {max_nodes} nodes.
-- Do not create fake start/end nodes.
-- Every edge source and target must reference an existing node_id.
-- Use only these handlers: {json.dumps(catalog.handlers, ensure_ascii=False)}.
-- Handler contracts: {json.dumps(handler_contracts, ensure_ascii=False)}.
-- Use only these resource types: {json.dumps(resource_types, ensure_ascii=False)}.
-- If you reference concrete resources, use only these known resources: {json.dumps(resource_catalog, ensure_ascii=False)}.
-- If you use memory handlers, use only these known memory systems: {json.dumps(memory_catalog, ensure_ascii=False)}.
-- If you pick an agent, use preferred_agent_name from this catalog only: {json.dumps(agent_catalog, ensure_ascii=False)}.
-- Only use send_message when a target agent with a communication config is available.
-- Do not output TODO, placeholder, example, dummy, sample, or fake values.
-- Build executable node inputs that match the chosen handler.
-- Prefer explicit dependencies and matching edges.
-- If a condition is unconditional, use "True".
-- Default requires_manual_approval to false and manual_approval to an empty object unless gated execution is explicitly required.
-- metadata may include domain assumptions, but no prose outside the explanation field.
+    def _build_send_target_section(self, agents: list[dict[str, Any]], detail_level: str) -> str:
+        communication_agents = [
+            agent for agent in agents if isinstance(agent.get("communication"), dict)
+        ]
+        if not communication_agents:
+            return (
+                "Allowed send_message targets:\n"
+                "- none\n"
+                "If no communication-enabled agent is listed, do not create a send_message node."
+            )
+        max_items = 16 if detail_level == "standard" else 10 if detail_level == "compact" else 6
+        lines = [
+            f"- {agent['name']} (id={agent['agent_id']}, protocol={agent['communication'].get('protocol')})"
+            for agent in communication_agents[:max_items]
+        ]
+        if len(communication_agents) > max_items:
+            lines.append(f"- ... {len(communication_agents) - max_items} more message targets omitted")
+        return "Allowed send_message targets:\n" + "\n".join(lines)
 
-Current flow for context:
-{current_flow_text}
+    def _build_resource_section(self, resources: list[dict[str, Any]], detail_level: str) -> str:
+        if not resources:
+            return "Known resources:\n- none"
+        max_items = 28 if detail_level == "standard" else 16 if detail_level == "compact" else 8
+        lines = [
+            f"- id={resource['resource_id']} type={resource['type']} endpoint={self._shorten_endpoint(resource.get('endpoint'))}"
+            for resource in resources[:max_items]
+        ]
+        if len(resources) > max_items:
+            lines.append(f"- ... {len(resources) - max_items} more resources omitted")
+        resource_types = ", ".join(resource_type.value for resource_type in ResourceType)
+        return f"Allowed resource types: {resource_types}\nKnown resources:\n" + "\n".join(lines)
 
-User goal:
-{prompt}
-""".strip()
+    def _build_memory_section(self, memory_systems: list[dict[str, Any]], detail_level: str) -> str:
+        if not memory_systems:
+            return "Known memory systems:\n- none"
+        max_items = 24 if detail_level == "standard" else 14 if detail_level == "compact" else 8
+        lines = [
+            f"- {memory_system['memory_id']} ({memory_system['type']})"
+            for memory_system in memory_systems[:max_items]
+        ]
+        if len(memory_systems) > max_items:
+            lines.append(f"- ... {len(memory_systems) - max_items} more memory systems omitted")
+        return "Known memory systems:\n" + "\n".join(lines)
+
+    def _build_current_flow_section(
+        self,
+        current_flow: dict[str, Any] | None,
+        detail_level: str,
+    ) -> str:
+        if current_flow is None:
+            return "Current flow context:\n- none"
+        nodes = current_flow.get("nodes", []) if isinstance(current_flow, dict) else []
+        edges = current_flow.get("edges", []) if isinstance(current_flow, dict) else []
+        summary_lines = [
+            f"- existing nodes: {len(nodes) if isinstance(nodes, list) else 0}",
+            f"- existing edges: {len(edges) if isinstance(edges, list) else 0}",
+        ]
+        if isinstance(nodes, list) and nodes:
+            listed_ids = [
+                str(node.get("node_id") or node.get("id") or "").strip()
+                for node in nodes[:10]
+                if isinstance(node, dict)
+            ]
+            listed_ids = [node_id for node_id in listed_ids if node_id]
+            if listed_ids:
+                summary_lines.append(f"- node ids: {', '.join(listed_ids)}")
+            if len(nodes) > 10:
+                summary_lines.append(f"- ... {len(nodes) - 10} more existing nodes omitted")
+        if detail_level == "standard":
+            preview = self._truncate_text(
+                json.dumps(current_flow, ensure_ascii=False, separators=(",", ":")),
+                1_200,
+            )
+            summary_lines.append(f"- preview: {preview}")
+        return "Current flow context:\n" + "\n".join(summary_lines)
+
+    @staticmethod
+    def _shorten_endpoint(raw_value: Any) -> str:
+        endpoint = str(raw_value or "").strip()
+        if len(endpoint) <= 72:
+            return endpoint or "n/a"
+        return endpoint[:69] + "..."
+
+    @staticmethod
+    def _truncate_text(value: str, max_chars: int) -> str:
+        if len(value) <= max_chars:
+            return value
+        if max_chars <= 3:
+            return value[:max_chars]
+        return value[: max_chars - 3].rstrip() + "..."
 
     @staticmethod
     def _extract_explanation(parsed: dict[str, Any]) -> str | None:
@@ -292,18 +380,88 @@ User goal:
         return explanation if isinstance(explanation, str) and explanation.strip() else None
 
     def _parse_model_output(self, raw_response: str) -> dict[str, Any]:
-        fenced_match = re.search(r"```json\s*(\{.*?\})\s*```", raw_response, flags=re.DOTALL)
-        candidate = fenced_match.group(1) if fenced_match else self._extract_json_object(raw_response)
-        try:
-            parsed = json.loads(candidate)
-        except json.JSONDecodeError as exc:
-            raise ValueError(f"Planner returned invalid JSON: {exc}") from exc
-        if not isinstance(parsed, dict):
-            raise ValueError("Planner output must be a JSON object")
+        parsed, _ = self._parse_model_output_with_warnings(raw_response)
         return parsed
 
+    def _parse_model_output_with_warnings(self, raw_response: str) -> tuple[dict[str, Any], list[str]]:
+        warnings: list[str] = []
+        candidates = self._extract_json_candidates(raw_response)
+        parse_errors: list[str] = []
+        for candidate in candidates:
+            parsed, parse_warning = self._try_parse_candidate(candidate)
+            if parsed is None:
+                parse_errors.append(parse_warning)
+                continue
+            if parse_warning:
+                warnings.append(parse_warning)
+            return parsed, warnings
+
+        detail = parse_errors[0] if parse_errors else "unknown parse failure"
+        raise ValueError(f"Planner returned invalid JSON: {detail}")
+
+    def _extract_json_candidates(self, raw_response: str) -> list[str]:
+        candidates: list[str] = []
+        seen: set[str] = set()
+
+        def add_candidate(value: str | None) -> None:
+            if value is None:
+                return
+            normalized = value.strip()
+            if not normalized or normalized in seen:
+                return
+            seen.add(normalized)
+            candidates.append(normalized)
+
+        fenced_matches = re.findall(r"```(?:json)?\s*(.*?)```", raw_response, flags=re.DOTALL | re.IGNORECASE)
+        for match in fenced_matches:
+            add_candidate(match)
+
+        try:
+            add_candidate(self._extract_json_object(raw_response))
+        except ValueError:
+            try:
+                add_candidate(self._extract_json_object(raw_response, allow_incomplete=True))
+            except ValueError:
+                pass
+
+        add_candidate(raw_response)
+        return candidates
+
+    def _try_parse_candidate(self, candidate: str) -> tuple[dict[str, Any] | None, str]:
+        prepared = self._prepare_json_candidate(candidate)
+        direct_error = ""
+        try:
+            parsed = json.loads(prepared)
+        except json.JSONDecodeError as exc:
+            direct_error = str(exc)
+        else:
+            if isinstance(parsed, dict):
+                return parsed, ""
+            return None, "Planner output must be a JSON object"
+
+        repaired = self._repair_json_text(prepared)
+        if repaired != prepared:
+            try:
+                parsed = json.loads(repaired)
+            except json.JSONDecodeError:
+                pass
+            else:
+                if isinstance(parsed, dict):
+                    return parsed, "Planner JSON was auto-repaired before normalization."
+                return None, "Planner output must be a JSON object"
+
+        python_like = self._repair_python_literal_text(prepared)
+        try:
+            parsed_literal = ast.literal_eval(python_like)
+        except (SyntaxError, ValueError) as exc:
+            return None, direct_error or str(exc)
+        if not isinstance(parsed_literal, dict):
+            return None, "Planner output must be a JSON object"
+        repaired_payload = json.loads(json.dumps(parsed_literal, ensure_ascii=False))
+        return repaired_payload, "Planner JSON used a tolerant literal-repair path before normalization."
+
     @staticmethod
-    def _extract_json_object(text: str) -> str:
+    def _extract_json_object(text: str, allow_incomplete: bool = False) -> str:
         start = text.find("{")
         if start < 0:
             raise ValueError("Planner response does not contain a JSON object")
@@ -329,7 +487,154 @@ User goal:
                 depth -= 1
                 if depth == 0:
                     return text[start : index + 1]
+        if allow_incomplete:
+            return text[start:]
         raise ValueError("Planner response contains an incomplete JSON object")
+
+    @staticmethod
+    def _prepare_json_candidate(candidate: str) -> str:
+        cleaned = candidate.strip()
+        cleaned = re.sub(r"^```(?:json)?\s*", "", cleaned, flags=re.IGNORECASE)
+        cleaned = re.sub(r"\s*```$", "", cleaned)
+        cleaned = cleaned.replace("\ufeff", "")
+        quote_map = str.maketrans(
+            {
+                "“": '"',
+                "”": '"',
+                "„": '"',
+                "‟": '"',
+                "’": "'",
+                "‘": "'",
+                "‚": "'",
+                "‛": "'",
+            }
+        )
+        cleaned = cleaned.translate(quote_map)
+        cleaned = "".join(character for character in cleaned if character >= " " or character in "\n\r\t")
+        return cleaned.strip()
+
+    def _repair_json_text(self, candidate: str) -> str:
+        repaired = candidate
+        repaired = self._remove_json_comments(repaired)
+        repaired = self._quote_bare_object_keys(repaired)
+        repaired = self._replace_keyword_literals(
+            repaired,
+            {
+                "True": "true",
+                "False": "false",
+                "None": "null",
+            },
+        )
+        repaired = re.sub(r",(\s*[}\]])", r"\1", repaired)
+        repaired = self._balance_json_structure(repaired)
+        return repaired
+
+    def _repair_python_literal_text(self, candidate: str) -> str:
+        repaired = candidate
+        repaired = self._remove_json_comments(repaired)
+        repaired = self._quote_bare_object_keys(repaired)
+        repaired = self._replace_keyword_literals(
+            repaired,
+            {
+                "true": "True",
+                "false": "False",
+                "null": "None",
+            },
+        )
+        repaired = self._balance_json_structure(repaired)
+        return repaired
+
+    @staticmethod
+    def _remove_json_comments(candidate: str) -> str:
+        without_block_comments = re.sub(r"/\*.*?\*/", "", candidate, flags=re.DOTALL)
+        return re.sub(r"(^|[ \t])//.*?$", r"\1", without_block_comments, flags=re.MULTILINE)
+
+    @staticmethod
+    def _quote_bare_object_keys(candidate: str) -> str:
+        key_pattern = re.compile(r'([{\[,]\s*)([A-Za-z_][A-Za-z0-9_\-]*)(\s*:)')
+        previous = None
+        current = candidate
+        while current != previous:
+            previous = current
+            current = key_pattern.sub(r'\1"\2"\3', current)
+        return current
+
+    @staticmethod
+    def _replace_keyword_literals(candidate: str, replacements: dict[str, str]) -> str:
+        result: list[str] = []
+        token: list[str] = []
+        in_string = False
+        escaped = False
+        quote_char = ""
+
+        def flush_token() -> None:
+            if not token:
+                return
+            value = "".join(token)
+            result.append(replacements.get(value, value))
+            token.clear()
+
+        for character in candidate:
+            if in_string:
+                result.append(character)
+                if escaped:
+                    escaped = False
+                elif character == "\\":
+                    escaped = True
+                elif character == quote_char:
+                    in_string = False
+                continue
+
+            if character in {'"', "'"}:
+                flush_token()
+                in_string = True
+                quote_char = character
+                result.append(character)
+                continue
+
+            if character.isalnum() or character == "_":
+                token.append(character)
+                continue
+
+            flush_token()
+            result.append(character)
+
+        flush_token()
+        return "".join(result)
+
+    @staticmethod
+    def _balance_json_structure(candidate: str) -> str:
+        closers: list[str] = []
+        result = candidate.rstrip()
+        in_string = False
+        escaped = False
+        quote_char = ""
+
+        for character in result:
+            if in_string:
+                if escaped:
+                    escaped = False
+                elif character == "\\":
+                    escaped = True
+                elif character == quote_char:
+                    in_string = False
+                continue
+
+            if character in {'"', "'"}:
+                in_string = True
+                quote_char = character
+            elif character == "{":
+                closers.append("}")
+            elif character == "[":
+                closers.append("]")
+            elif character in {"}", "]"} and closers and closers[-1] == character:
+                closers.pop()
+
+        if in_string:
+            result += quote_char
+        if closers:
+            result += "".join(reversed(closers))
+        return result
 
     def _normalize_flow_request(
         self,
@@ -351,6 +656,11 @@ User goal:
         memory_ids = [str(system["memory_id"]) for system in catalog.memory_systems]
         comm_agent_ids = {
             int(agent["agent_id"])
+            for agent in catalog.agents
+            if isinstance(agent.get("communication"), dict)
+        }
+        communication_agents = {
+            str(agent["name"]).casefold(): int(agent["agent_id"])
             for agent in catalog.agents
             if isinstance(agent.get("communication"), dict)
         }
@@ -431,6 +741,7 @@ User goal:
                 dependencies=self._normalize_string_list(raw_node.get("dependencies")),
                 memory_ids=memory_ids,
                 comm_agent_ids=comm_agent_ids,
+                communication_agents=communication_agents,
                 warnings=warnings,
             )
 
@@ -617,6 +928,7 @@ User goal:
         dependencies: list[str],
         memory_ids: list[str],
         comm_agent_ids: set[int],
+        communication_agents: dict[str, int],
         warnings: list[str],
     ) -> dict[str, Any]:
         upstream_reference = (
@@ -671,6 +983,34 @@ User goal:
                     f"send_message node '{node_id}' had no message; inserted default completion message"
                 )
             if "target_agent_id" not in input_payload:
+                raw_target_name = input_payload.get("target_agent_name")
+                if isinstance(raw_target_name, str) and raw_target_name.strip():
+                    resolved_agent_id = communication_agents.get(raw_target_name.casefold())
+                    if resolved_agent_id is None:
+                        if len(communication_agents) == 1:
+                            sole_name, sole_id = next(iter(communication_agents.items()))
+                            input_payload["target_agent_id"] = sole_id
+                            warnings.append(
+                                f"send_message node '{node_id}' referenced unknown agent '{raw_target_name}'; defaulted to the only communication-enabled agent '{sole_name}' ({sole_id})"
+                            )
+                            return input_payload
+                        if not communication_agents:
+                            raise ValueError(
+                                f"send_message node '{node_id}' cannot be planned because no communication-enabled target agent is registered"
+                            )
+                        allowed_targets = ", ".join(
+                            sorted(
+                                agent_name for agent_name in communication_agents.keys()
+                            )
+                        )
+                        raise ValueError(
+                            f"send_message node '{node_id}' references unknown agent '{raw_target_name}'. Allowed target_agent_name values: {allowed_targets}"
+                        )
+                    input_payload["target_agent_id"] = resolved_agent_id
+                    warnings.append(
+                        f"send_message node '{node_id}' resolved target_agent_name '{raw_target_name}' to target_agent_id '{resolved_agent_id}'"
+                    )
+                    return input_payload
                 if len(comm_agent_ids) == 1:
                     input_payload["target_agent_id"] = next(iter(comm_agent_ids))
                     warnings.append(

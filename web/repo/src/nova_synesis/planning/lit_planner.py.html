@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Repository: src/nova_synesis/planning/lit_planner.py | NOVA-SYNESIS Docs</title>
+  <meta name="description" content="Repository file view for src/nova_synesis/planning/lit_planner.py">
+  <link rel="icon" type="image/svg+xml" href="../../../../assets/favicon.svg">
+  <link rel="stylesheet" href="../../../../assets/site.css">
+</head>
+<body data-page-url="repo/src/nova_synesis/planning/lit_planner.py.html">
+  <div class="site-shell">
+    <aside class="site-sidebar" id="site-sidebar">
+      <div class="brand">
+        <p class="brand__eyebrow">Neural Orchestration Visual Autonomy</p>
+        <h1>NOVA-SYNESIS</h1>
+        <p class="brand__subtitle">Stateful Yielding Node-based Execution Semantic Integrated Surface</p>
+      </div>
+      <label class="search-box">
+        <span class="search-box__label">Search docs</span>
+        <input id="docs-search" type="search" placeholder="Search guides, files, handlers, policies">
+      </label>
+      <div class="search-results" id="search-results" hidden></div>
+      <div class="sidebar-scroll">
+        <a class="brand__home" href="../../../../index.html">Documentation Home</a><section class="sidebar__group"><h2>Guides</h2><ul class="nav-list"><li><a class="nav-list__link" href="../../../../index.html">NOVA-SYNESIS Dokumentation</a></li><li><a class="nav-list__link" href="../../../../getting-started.html">Schnellstart</a></li><li><a class="nav-list__link" href="../../../../system-overview.html">Systemueberblick</a></li><li><a class="nav-list__link" href="../../../../backend-runtime.html">Backend-Laufzeit</a></li><li><a class="nav-list__link" href="../../../../frontend-editor.html">Frontend-Editor</a></li><li><a class="nav-list__link" href="../../../../planner-and-lit.html">LLM-Planer und LiteRT</a></li><li><a class="nav-list__link" href="../../../../security-and-policy.html">Security und Policy</a></li><li><a class="nav-list__link" href="../../../../handler-trust-and-approval.html">Handler Trust und Freigaben</a></li><li><a class="nav-list__link" href="../../../../failure-playbook.html">Failure Playbook</a></li><li><a class="nav-list__link" href="../../../../decision-guide.html">Decision Guide</a></li><li><a class="nav-list__link" href="../../../../real-world-scenarios.html">Real World Scenarios</a></li><li><a class="nav-list__link" href="../../../../change-workflows.html">Aenderungsleitfaden</a></li></ul></section><section class="sidebar__group"><h2>Reference</h2><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/index.html">Referenzindex</a></li><li><a class="nav-list__link" href="../../../../reference/.env.example.html">.env.example</a></li><li><a class="nav-list__link" href="../../../../reference/.gitignore.html">.gitignore</a></li><li><a class="nav-list__link" href="../../../../reference/Anweisung.md.html">Anweisung.md</a></li><li><a class="nav-list__link" href="../../../../reference/Dockerfile.html">Dockerfile</a></li><li class="nav-list__branch"><details ><summary>Frontend</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/frontend/.env.example.html">.env.example</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/index.html.html">index.html</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/package-lock.json.html">package-lock.json</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/package.json.html">package.json</a></li><li class="nav-list__branch"><details ><summary>Source</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/frontend/src/app.css.html">app.css</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/src/App.tsx.html">App.tsx</a></li><li class="nav-list__branch"><details ><summary>Components</summary><ul class="nav-list"><li class="nav-list__branch"><details ><summary>Common</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/frontend/src/components/common/JsonEditor.tsx.html">JsonEditor.tsx</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/src/components/common/StatusBadge.tsx.html">StatusBadge.tsx</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Flow</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/frontend/src/components/flow/FlowCanvas.tsx.html">FlowCanvas.tsx</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/src/components/flow/TaskNode.tsx.html">TaskNode.tsx</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Layout</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/frontend/src/components/layout/InspectorPanel.tsx.html">InspectorPanel.tsx</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/src/components/layout/PlannerComposer.tsx.html">PlannerComposer.tsx</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/src/components/layout/Sidebar.tsx.html">Sidebar.tsx</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/src/components/layout/TopBar.tsx.html">TopBar.tsx</a></li></ul></details></li></ul></details></li><li class="nav-list__branch"><details ><summary>Hooks</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/frontend/src/hooks/useCatalogBootstrap.ts.html">useCatalogBootstrap.ts</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/src/hooks/useFlowLiveUpdates.ts.html">useFlowLiveUpdates.ts</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Lib</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/frontend/src/lib/apiClient.ts.html">apiClient.ts</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/src/lib/autoLayout.ts.html">autoLayout.ts</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/src/lib/flowSerialization.ts.html">flowSerialization.ts</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/src/lib/json.ts.html">json.ts</a></li></ul></details></li><li><a class="nav-list__link" href="../../../../reference/frontend/src/main.tsx.html">main.tsx</a></li><li class="nav-list__branch"><details ><summary>Store</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/frontend/src/store/useFlowStore.ts.html">useFlowStore.ts</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Types</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/frontend/src/types/api.ts.html">api.ts</a></li></ul></details></li><li><a class="nav-list__link" href="../../../../reference/frontend/src/vite-env.d.ts.html">vite-env.d.ts</a></li></ul></details></li><li><a class="nav-list__link" href="../../../../reference/frontend/tsconfig.app.json.html">tsconfig.app.json</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/tsconfig.json.html">tsconfig.json</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/tsconfig.node.json.html">tsconfig.node.json</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/vite.config.d.ts.html">vite.config.d.ts</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/vite.config.js.html">vite.config.js</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/vite.config.ts.html">vite.config.ts</a></li></ul></details></li><li><a class="nav-list__link" href="../../../../reference/LICENSE.html">LICENSE</a></li><li class="nav-list__branch"><details ><summary>LIT</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/LIT/planner_test_prompt.txt.html">planner_test_prompt.txt</a></li><li><a class="nav-list__link" href="../../../../reference/LIT/README.md.html">README.md</a></li></ul></details></li><li><a class="nav-list__link" href="../../../../reference/pyproject.toml.html">pyproject.toml</a></li><li><a class="nav-list__link" href="../../../../reference/README.md.html">README.md</a></li><li><a class="nav-list__link" href="../../../../reference/run-backend.cmd.html">run-backend.cmd</a></li><li><a class="nav-list__link" href="../../../../reference/run-backend.ps1.html">run-backend.ps1</a></li><li class="nav-list__branch"><details ><summary>Source</summary><ul class="nav-list"><li class="nav-list__branch"><details ><summary>NOVA-SYNESIS</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/__init__.py.html">__init__.py</a></li><li class="nav-list__branch"><details ><summary>API</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/api/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/api/app.py.html">app.py</a></li></ul></details></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/cli.py.html">cli.py</a></li><li class="nav-list__branch"><details ><summary>Communication</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/communication/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/communication/adapters.py.html">adapters.py</a></li></ul></details></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/config.py.html">config.py</a></li><li class="nav-list__branch"><details ><summary>Domain</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/domain/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/domain/models.py.html">models.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Memory</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/memory/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/memory/systems.py.html">systems.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Persistence</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/persistence/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/persistence/sqlite_repository.py.html">sqlite_repository.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Planning</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/planning/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/planning/lit_planner.py.html">lit_planner.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/planning/planner.py.html">planner.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Resources</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/resources/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/resources/manager.py.html">manager.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Runtime</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/runtime/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/runtime/engine.py.html">engine.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/runtime/handlers.py.html">handlers.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Security</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/security/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/security/policy.py.html">policy.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/security/trust.py.html">trust.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Services</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/services/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/services/orchestrator.py.html">orchestrator.py</a></li></ul></details></li></ul></details></li></ul></details></li><li class="nav-list__branch"><details ><summary>Tests</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/tests/test_orchestrator.py.html">test_orchestrator.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Tools</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/tools/build_code_release.ps1.html">build_code_release.ps1</a></li><li><a class="nav-list__link" href="../../../../reference/tools/build_web_docs.py.html">build_web_docs.py</a></li><li><a class="nav-list__link" href="../../../../reference/tools/generate_docs.py.html">generate_docs.py</a></li></ul></details></li><li><a class="nav-list__link" href="../../../../reference/uml.html.html">uml.html</a></li><li><a class="nav-list__link" href="../../../../reference/uml_V3.mmd.html">uml_V3.mmd</a></li><li class="nav-list__branch"><details ><summary>Use Cases</summary><ul class="nav-list"><li class="nav-list__branch"><details ><summary>Platform Health Snapshot</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/Use_Cases/platform_health_snapshot/flow.json.html">flow.json</a></li><li><a class="nav-list__link" href="../../../../reference/Use_Cases/platform_health_snapshot/platform_health_snapshot.png.html">platform_health_snapshot.png</a></li><li><a class="nav-list__link" href="../../../../reference/Use_Cases/platform_health_snapshot/README.md.html">README.md</a></li><li><a class="nav-list__link" href="../../../../reference/Use_Cases/platform_health_snapshot/run.ps1.html">run.ps1</a></li><li><a class="nav-list__link" href="../../../../reference/Use_Cases/platform_health_snapshot/setup.ps1.html">setup.ps1</a></li></ul></details></li><li><a class="nav-list__link" href="../../../../reference/Use_Cases/README.md.html">README.md</a></li><li class="nav-list__branch"><details ><summary>Semantic Ticket Triage</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/Use_Cases/semantic_ticket_triage/flow.json.html">flow.json</a></li><li><a class="nav-list__link" href="../../../../reference/Use_Cases/semantic_ticket_triage/README.md.html">README.md</a></li><li><a class="nav-list__link" href="../../../../reference/Use_Cases/semantic_ticket_triage/run.ps1.html">run.ps1</a></li><li><a class="nav-list__link" href="../../../../reference/Use_Cases/semantic_ticket_triage/semantic_ticket_triage.png.html">semantic_ticket_triage.png</a></li><li><a class="nav-list__link" href="../../../../reference/Use_Cases/semantic_ticket_triage/setup.ps1.html">setup.ps1</a></li></ul></details></li></ul></details></li></ul></section><section class="sidebar__group"><h2>Appendix</h2><ul class="nav-list"><li><a class="nav-list__link" href="../../../../coverage.html">Abdeckung</a></li><li><a class="nav-list__link" href="../../../../Whitepaper.html">Whitepaper: Die Genesis von NOVA-SYNESIS</a></li></ul></section><section class="sidebar__group sidebar__group--meta"><h2>Search</h2><p>Use <kbd>/</kbd> to focus the search field and jump across guides, references and scenarios.</p></section>
+      </div>
+    </aside>
+
+    <div class="site-main">
+      <header class="site-header">
+        <button class="site-header__toggle" type="button" id="sidebar-toggle" aria-controls="site-sidebar" aria-expanded="false">
+          Menu
+        </button>
+        <div class="site-header__meta">
+          <p class="site-header__eyebrow">Generated documentation surface</p>
+          <h2>Repository: src/nova_synesis/planning/lit_planner.py</h2>
+        </div>
+        <div class="site-header__status">
+          <span class="status-chip">HTML docs</span>
+          <span class="status-chip status-chip--accent">2026-04-09 00:10 UTC</span>
+        </div>
+      </header>
+
+      <main class="content-shell">
+        <article class="doc-article">
+          <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="../../../../index.html">Docs</a><span aria-current="page">reference</span></nav>
+          <section class="doc-hero">
+            <p class="doc-hero__eyebrow">Documentation</p>
+            <h1>Repository: src/nova_synesis/planning/lit_planner.py</h1>
+            <p>Repository file view for src/nova_synesis/planning/lit_planner.py</p>
+          </section>
+          <section class="doc-content">
+            <section class="source-meta"><p class="doc-hero__eyebrow">Repository file</p><h1>src/nova_synesis/planning/lit_planner.py</h1><p>Rendered source view for the repository file. 1040 lines.</p></section><pre class="source-block"><code class="language-python">from __future__ import annotations
+
+import ast
+import json
+import re
+import subprocess
+import tempfile
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Any
+
+from nova_synesis.config import Settings
+from nova_synesis.domain.models import ResourceType, RollbackStrategy
+
+DEFAULT_RETRY_POLICY: dict[str, Any] = {
+    &quot;max_retries&quot;: 3,
+    &quot;backoff_ms&quot;: 250,
+    &quot;exponential&quot;: True,
+    &quot;max_backoff_ms&quot;: 10_000,
+    &quot;jitter_ratio&quot;: 0.0,
+}
+
+
+@dataclass(slots=True)
+class PlannerCatalog:
+    handlers: list[str]
+    agents: list[dict[str, Any]]
+    resources: list[dict[str, Any]]
+    memory_systems: list[dict[str, Any]]
+
+
+@dataclass(slots=True)
+class PlannerGraphResult:
+    flow_request: dict[str, Any]
+    explanation: str | None
+    warnings: list[str]
+    raw_response: str
+    model_path: str
+    backend: str
+
+
+class LiteRTPlanner:
+    _STANDARD_PROMPT_MAX_CHARS = 12_000
+    _COMPACT_PROMPT_MAX_CHARS = 9_000
+    _MINIMAL_PROMPT_MAX_CHARS = 6_500
+
+    def __init__(self, settings: Settings) -&gt; None:
+        self.settings = settings
+        self.binary_path = Path(settings.lit_binary_path).resolve()
+        self.model_path = Path(settings.lit_model_path).resolve()
+
+    def status(self) -&gt; dict[str, Any]:
+        return {
+            &quot;available&quot;: self.binary_path.exists() and self.model_path.exists(),
+            &quot;binary_path&quot;: str(self.binary_path),
+            &quot;model_path&quot;: str(self.model_path),
+            &quot;backend&quot;: self.settings.lit_backend,
+            &quot;timeout_s&quot;: self.settings.lit_timeout_s,
+        }
+
+    def ensure_available(self) -&gt; None:
+        if not self.binary_path.exists():
+            raise FileNotFoundError(f&quot;LiteRT binary not found: {self.binary_path}&quot;)
+        if not self.model_path.exists():
+            raise FileNotFoundError(f&quot;LiteRT model not found: {self.model_path}&quot;)
+
+    def generate_flow_request(
+        self,
+        prompt: str,
+        catalog: PlannerCatalog,
+        current_flow: dict[str, Any] | None = None,
+        max_nodes: int = 12,
+    ) -&gt; PlannerGraphResult:
+        self.ensure_available()
+        planner_warnings: list[str] = []
+        raw_response = &quot;&quot;
+        prompt_variants = self._build_prompt_variants(
+            prompt=prompt,
+            catalog=catalog,
+            current_flow=current_flow,
+            max_nodes=max_nodes,
+        )
+        last_error: RuntimeError | None = None
+        for attempt_index, planner_prompt in enumerate(prompt_variants):
+            try:
+                raw_response = self._invoke_model(planner_prompt)
+                if attempt_index &gt; 0:
+                    planner_warnings.append(
+                        &quot;Planner prompt was compacted automatically to fit the local model context window.&quot;
+                    )
+                break
+            except RuntimeError as exc:
+                last_error = exc
+                if attempt_index &lt; len(prompt_variants) - 1 and self._looks_like_context_overflow(
+                    str(exc)
+                ):
+                    continue
+                raise
+
+        if not raw_response and last_error is not None:
+            raise last_error
+
+        parsed, parse_warnings = self._parse_model_output_with_warnings(raw_response)
+        normalized, warnings = self._normalize_flow_request(
+            parsed=parsed,
+            catalog=catalog,
+            max_nodes=max_nodes,
+        )
+        return PlannerGraphResult(
+            flow_request=normalized,
+            explanation=self._extract_explanation(parsed),
+            warnings=parse_warnings + planner_warnings + warnings,
+            raw_response=raw_response,
+            model_path=str(self.model_path),
+            backend=self.settings.lit_backend,
+        )
+
+    def _invoke_model(self, planner_prompt: str) -&gt; str:
+        with tempfile.NamedTemporaryFile(
+            mode=&quot;w&quot;,
+            encoding=&quot;utf-8&quot;,
+            suffix=&quot;.txt&quot;,
+            prefix=&quot;nova_synesis_lit_prompt_&quot;,
+            delete=False,
+        ) as prompt_file:
+            prompt_file.write(planner_prompt)
+            prompt_path = Path(prompt_file.name)
+
+        try:
+            command = [
+                str(self.binary_path),
+                &quot;run&quot;,
+                str(self.model_path),
+                &quot;-f&quot;,
+                str(prompt_path),
+                &quot;--backend&quot;,
+                self.settings.lit_backend,
+                &quot;--min_log_level&quot;,
+                &quot;4&quot;,
+            ]
+            completed = subprocess.run(
+                command,
+                capture_output=True,
+                text=True,
+                timeout=self.settings.lit_timeout_s,
+                cwd=Path(self.settings.working_directory).resolve(),
+            )
+            stdout = completed.stdout.strip()
+            stderr = completed.stderr.strip()
+            if completed.returncode != 0:
+                detail = stderr or stdout or &quot;LiteRT planner execution failed&quot;
+                raise RuntimeError(detail)
+            if not stdout:
+                raise RuntimeError(&quot;LiteRT planner returned no output&quot;)
+            return stdout
+        finally:
+            prompt_path.unlink(missing_ok=True)
+
+    def _build_prompt(
+        self,
+        prompt: str,
+        catalog: PlannerCatalog,
+        current_flow: dict[str, Any] | None,
+        max_nodes: int,
+        *,
+        detail_level: str,
+        max_chars: int,
+    ) -&gt; str:
+        schema = (
+            &#x27;{&quot;nodes&quot;:[{&quot;node_id&quot;:&quot;task-id&quot;,&quot;title&quot;:&quot;Short title&quot;,&quot;handler_name&quot;:&quot;allowed-handler&quot;,&#x27;
+            &#x27;&quot;input&quot;:{},&quot;dependencies&quot;:[],&quot;conditions&quot;:{},&quot;required_capabilities&quot;:[],&#x27;
+            &#x27;&quot;required_resource_ids&quot;:[],&quot;required_resource_types&quot;:[],&quot;retry_policy&quot;:&#x27;
+            &#x27;{&quot;max_retries&quot;:3,&quot;backoff_ms&quot;:250,&quot;exponential&quot;:true,&quot;max_backoff_ms&quot;:10000,&#x27;
+            &#x27;&quot;jitter_ratio&quot;:0.0},&quot;rollback_strategy&quot;:&quot;FAIL_FAST&quot;,&quot;preferred_agent_name&quot;:null}],&#x27;
+            &#x27;&quot;edges&quot;:[{&quot;from_node&quot;:&quot;node-a&quot;,&quot;to_node&quot;:&quot;node-b&quot;,&quot;condition&quot;:&quot;True&quot;}],&#x27;
+            &#x27;&quot;explanation&quot;:&quot;Brief rationale&quot;}&#x27;
+        )
+        sections = [
+            &quot;You plan executable DAG workflows for NOVA-SYNESIS.&quot;,
+            &quot;Return exactly one JSON object. No markdown fences and no prose outside JSON.&quot;,
+            f&quot;Use this schema: {schema}&quot;,
+            &quot;\n&quot;.join(
+                [
+                    &quot;Hard rules:&quot;,
+                    f&quot;- Maximum {max_nodes} nodes.&quot;,
+                    &quot;- DAG only. Do not create start, end or placeholder nodes.&quot;,
+                    &quot;- Every edge source and target must reference an existing node_id.&quot;,
+                    &#x27;- Use &quot;True&quot; for unconditional edges.&#x27;,
+                    &quot;- Use only listed handlers, agents, resources and memories.&quot;,
+                    &quot;- Build executable inputs for the chosen handler.&quot;,
+                    &quot;- Do not output TODO, placeholder, dummy, fake or sample values.&quot;,
+                    &quot;- Prefer preferred_agent_name over preferred_agent_id when selecting an agent.&quot;,
+                    &quot;- send_message may use target_agent_name or target_agent_id, but only for listed communication-enabled agents.&quot;,
+                    &quot;- Unless explicitly required, omit approval fields and keep rollback_strategy at FAIL_FAST.&quot;,
+                ]
+            ),
+            self._build_handler_section(catalog.handlers, detail_level),
+            self._build_agent_section(catalog.agents, detail_level),
+            self._build_send_target_section(catalog.agents, detail_level),
+            self._build_resource_section(catalog.resources, detail_level),
+            self._build_memory_section(catalog.memory_systems, detail_level),
+            self._build_current_flow_section(current_flow, detail_level),
+            f&quot;User goal:\n{self._truncate_text(prompt.strip(), 2_000)}&quot;,
+        ]
+        prompt_text = &quot;\n\n&quot;.join(section for section in sections if section.strip())
+        return self._truncate_text(prompt_text, max_chars)
+
+    def _build_prompt_variants(
+        self,
+        prompt: str,
+        catalog: PlannerCatalog,
+        current_flow: dict[str, Any] | None,
+        max_nodes: int,
+    ) -&gt; list[str]:
+        variants: list[str] = []
+        seen: set[str] = set()
+        for detail_level, max_chars in (
+            (&quot;standard&quot;, self._STANDARD_PROMPT_MAX_CHARS),
+            (&quot;compact&quot;, self._COMPACT_PROMPT_MAX_CHARS),
+            (&quot;minimal&quot;, self._MINIMAL_PROMPT_MAX_CHARS),
+        ):
+            candidate = self._build_prompt(
+                prompt=prompt,
+                catalog=catalog,
+                current_flow=current_flow,
+                max_nodes=max_nodes,
+                detail_level=detail_level,
+                max_chars=max_chars,
+            )
+            if candidate not in seen:
+                seen.add(candidate)
+                variants.append(candidate)
+        return variants
+
+    @staticmethod
+    def _looks_like_context_overflow(message: str) -&gt; bool:
+        normalized = message.casefold()
+        return (
+            &quot;input token ids are too long&quot; in normalized
+            or &quot;maximum number of tokens allowed&quot; in normalized
+            or &quot;context length&quot; in normalized
+            or &quot;prompt is too long&quot; in normalized
+        )
+
+    def _build_handler_section(self, handlers: list[str], detail_level: str) -&gt; str:
+        contract_map = {
+            &quot;http_request&quot;: &quot;http_request: input keys url, method, optional headers/params/json/data&quot;,
+            &quot;memory_store&quot;: &quot;memory_store: input keys memory_id, key, value&quot;,
+            &quot;memory_retrieve&quot;: &quot;memory_retrieve: input keys memory_id, key&quot;,
+            &quot;memory_search&quot;: &quot;memory_search: input keys memory_id, query, optional limit&quot;,
+            &quot;send_message&quot;: &quot;send_message: input keys target_agent_name or target_agent_id, message&quot;,
+            &quot;resource_health_check&quot;: &quot;resource_health_check: optional resource_ids list&quot;,
+            &quot;template_render&quot;: &quot;template_render: input keys template, values&quot;,
+            &quot;merge_payloads&quot;: &quot;merge_payloads: input keys base, updates&quot;,
+            &quot;read_file&quot;: &quot;read_file: input key path&quot;,
+            &quot;write_file&quot;: &quot;write_file: input keys path, content, optional append&quot;,
+            &quot;json_serialize&quot;: &quot;json_serialize: input key value, optional indent&quot;,
+        }
+        lines = [contract_map.get(handler, handler) for handler in handlers]
+        if detail_level == &quot;minimal&quot;:
+            lines = [f&quot;- {handler}&quot; for handler in handlers]
+        else:
+            lines = [f&quot;- {line}&quot; for line in lines]
+        return &quot;Allowed handlers:\n&quot; + &quot;\n&quot;.join(lines)
+
+    def _build_agent_section(self, agents: list[dict[str, Any]], detail_level: str) -&gt; str:
+        if not agents:
+            return &quot;Known agents:\n- none&quot;
+        max_items = 24 if detail_level == &quot;standard&quot; else 14 if detail_level == &quot;compact&quot; else 8
+        lines: list[str] = []
+        for agent in agents[:max_items]:
+            capabilities = [
+                str(capability.get(&quot;name&quot;)).strip()
+                for capability in agent.get(&quot;capabilities&quot;, [])
+                if str(capability.get(&quot;name&quot;, &quot;&quot;)).strip()
+            ]
+            capability_text = &quot;, &quot;.join(capabilities[:5]) if capabilities else &quot;none&quot;
+            receiver = &quot;yes&quot; if isinstance(agent.get(&quot;communication&quot;), dict) else &quot;no&quot;
+            lines.append(
+                f&quot;- {agent[&#x27;name&#x27;]} (id={agent[&#x27;agent_id&#x27;]}, role={agent[&#x27;role&#x27;]}, caps={capability_text}, can_receive={receiver})&quot;
+            )
+        if len(agents) &gt; max_items:
+            lines.append(f&quot;- ... {len(agents) - max_items} more agents omitted&quot;)
+        return &quot;Known agents:\n&quot; + &quot;\n&quot;.join(lines)
+
+    def _build_send_target_section(self, agents: list[dict[str, Any]], detail_level: str) -&gt; str:
+        communication_agents = [
+            agent for agent in agents if isinstance(agent.get(&quot;communication&quot;), dict)
+        ]
+        if not communication_agents:
+            return (
+                &quot;Allowed send_message targets:\n&quot;
+                &quot;- none\n&quot;
+                &quot;If no communication-enabled agent is listed, do not create a send_message node.&quot;
+            )
+        max_items = 16 if detail_level == &quot;standard&quot; else 10 if detail_level == &quot;compact&quot; else 6
+        lines = [
+            f&quot;- {agent[&#x27;name&#x27;]} (id={agent[&#x27;agent_id&#x27;]}, protocol={agent[&#x27;communication&#x27;].get(&#x27;protocol&#x27;)})&quot;
+            for agent in communication_agents[:max_items]
+        ]
+        if len(communication_agents) &gt; max_items:
+            lines.append(f&quot;- ... {len(communication_agents) - max_items} more message targets omitted&quot;)
+        return &quot;Allowed send_message targets:\n&quot; + &quot;\n&quot;.join(lines)
+
+    def _build_resource_section(self, resources: list[dict[str, Any]], detail_level: str) -&gt; str:
+        if not resources:
+            return &quot;Known resources:\n- none&quot;
+        max_items = 28 if detail_level == &quot;standard&quot; else 16 if detail_level == &quot;compact&quot; else 8
+        lines = [
+            f&quot;- id={resource[&#x27;resource_id&#x27;]} type={resource[&#x27;type&#x27;]} endpoint={self._shorten_endpoint(resource.get(&#x27;endpoint&#x27;))}&quot;
+            for resource in resources[:max_items]
+        ]
+        if len(resources) &gt; max_items:
+            lines.append(f&quot;- ... {len(resources) - max_items} more resources omitted&quot;)
+        resource_types = &quot;, &quot;.join(resource_type.value for resource_type in ResourceType)
+        return f&quot;Allowed resource types: {resource_types}\nKnown resources:\n&quot; + &quot;\n&quot;.join(lines)
+
+    def _build_memory_section(self, memory_systems: list[dict[str, Any]], detail_level: str) -&gt; str:
+        if not memory_systems:
+            return &quot;Known memory systems:\n- none&quot;
+        max_items = 24 if detail_level == &quot;standard&quot; else 14 if detail_level == &quot;compact&quot; else 8
+        lines = [
+            f&quot;- {memory_system[&#x27;memory_id&#x27;]} ({memory_system[&#x27;type&#x27;]})&quot;
+            for memory_system in memory_systems[:max_items]
+        ]
+        if len(memory_systems) &gt; max_items:
+            lines.append(f&quot;- ... {len(memory_systems) - max_items} more memory systems omitted&quot;)
+        return &quot;Known memory systems:\n&quot; + &quot;\n&quot;.join(lines)
+
+    def _build_current_flow_section(
+        self,
+        current_flow: dict[str, Any] | None,
+        detail_level: str,
+    ) -&gt; str:
+        if current_flow is None:
+            return &quot;Current flow context:\n- none&quot;
+        nodes = current_flow.get(&quot;nodes&quot;, []) if isinstance(current_flow, dict) else []
+        edges = current_flow.get(&quot;edges&quot;, []) if isinstance(current_flow, dict) else []
+        summary_lines = [
+            f&quot;- existing nodes: {len(nodes) if isinstance(nodes, list) else 0}&quot;,
+            f&quot;- existing edges: {len(edges) if isinstance(edges, list) else 0}&quot;,
+        ]
+        if isinstance(nodes, list) and nodes:
+            listed_ids = [
+                str(node.get(&quot;node_id&quot;) or node.get(&quot;id&quot;) or &quot;&quot;).strip()
+                for node in nodes[:10]
+                if isinstance(node, dict)
+            ]
+            listed_ids = [node_id for node_id in listed_ids if node_id]
+            if listed_ids:
+                summary_lines.append(f&quot;- node ids: {&#x27;, &#x27;.join(listed_ids)}&quot;)
+            if len(nodes) &gt; 10:
+                summary_lines.append(f&quot;- ... {len(nodes) - 10} more existing nodes omitted&quot;)
+        if detail_level == &quot;standard&quot;:
+            preview = self._truncate_text(
+                json.dumps(current_flow, ensure_ascii=False, separators=(&quot;,&quot;, &quot;:&quot;)),
+                1_200,
+            )
+            summary_lines.append(f&quot;- preview: {preview}&quot;)
+        return &quot;Current flow context:\n&quot; + &quot;\n&quot;.join(summary_lines)
+
+    @staticmethod
+    def _shorten_endpoint(raw_value: Any) -&gt; str:
+        endpoint = str(raw_value or &quot;&quot;).strip()
+        if len(endpoint) &lt;= 72:
+            return endpoint or &quot;n/a&quot;
+        return endpoint[:69] + &quot;...&quot;
+
+    @staticmethod
+    def _truncate_text(value: str, max_chars: int) -&gt; str:
+        if len(value) &lt;= max_chars:
+            return value
+        if max_chars &lt;= 3:
+            return value[:max_chars]
+        return value[: max_chars - 3].rstrip() + &quot;...&quot;
+
+    @staticmethod
+    def _extract_explanation(parsed: dict[str, Any]) -&gt; str | None:
+        explanation = parsed.get(&quot;explanation&quot;)
+        return explanation if isinstance(explanation, str) and explanation.strip() else None
+
+    def _parse_model_output(self, raw_response: str) -&gt; dict[str, Any]:
+        parsed, _ = self._parse_model_output_with_warnings(raw_response)
+        return parsed
+
+    def _parse_model_output_with_warnings(self, raw_response: str) -&gt; tuple[dict[str, Any], list[str]]:
+        warnings: list[str] = []
+        candidates = self._extract_json_candidates(raw_response)
+        parse_errors: list[str] = []
+        for candidate in candidates:
+            parsed, parse_warning = self._try_parse_candidate(candidate)
+            if parsed is None:
+                parse_errors.append(parse_warning)
+                continue
+            if parse_warning:
+                warnings.append(parse_warning)
+            return parsed, warnings
+
+        detail = parse_errors[0] if parse_errors else &quot;unknown parse failure&quot;
+        raise ValueError(f&quot;Planner returned invalid JSON: {detail}&quot;)
+
+    def _extract_json_candidates(self, raw_response: str) -&gt; list[str]:
+        candidates: list[str] = []
+        seen: set[str] = set()
+
+        def add_candidate(value: str | None) -&gt; None:
+            if value is None:
+                return
+            normalized = value.strip()
+            if not normalized or normalized in seen:
+                return
+            seen.add(normalized)
+            candidates.append(normalized)
+
+        fenced_matches = re.findall(r&quot;```(?:json)?\s*(.*?)```&quot;, raw_response, flags=re.DOTALL | re.IGNORECASE)
+        for match in fenced_matches:
+            add_candidate(match)
+
+        try:
+            add_candidate(self._extract_json_object(raw_response))
+        except ValueError:
+            try:
+                add_candidate(self._extract_json_object(raw_response, allow_incomplete=True))
+            except ValueError:
+                pass
+
+        add_candidate(raw_response)
+        return candidates
+
+    def _try_parse_candidate(self, candidate: str) -&gt; tuple[dict[str, Any] | None, str]:
+        prepared = self._prepare_json_candidate(candidate)
+        direct_error = &quot;&quot;
+        try:
+            parsed = json.loads(prepared)
+        except json.JSONDecodeError as exc:
+            direct_error = str(exc)
+        else:
+            if isinstance(parsed, dict):
+                return parsed, &quot;&quot;
+            return None, &quot;Planner output must be a JSON object&quot;
+
+        repaired = self._repair_json_text(prepared)
+        if repaired != prepared:
+            try:
+                parsed = json.loads(repaired)
+            except json.JSONDecodeError:
+                pass
+            else:
+                if isinstance(parsed, dict):
+                    return parsed, &quot;Planner JSON was auto-repaired before normalization.&quot;
+                return None, &quot;Planner output must be a JSON object&quot;
+
+        python_like = self._repair_python_literal_text(prepared)
+        try:
+            parsed_literal = ast.literal_eval(python_like)
+        except (SyntaxError, ValueError) as exc:
+            return None, direct_error or str(exc)
+        if not isinstance(parsed_literal, dict):
+            return None, &quot;Planner output must be a JSON object&quot;
+        repaired_payload = json.loads(json.dumps(parsed_literal, ensure_ascii=False))
+        return repaired_payload, &quot;Planner JSON used a tolerant literal-repair path before normalization.&quot;
+
+    @staticmethod
+    def _extract_json_object(text: str, allow_incomplete: bool = False) -&gt; str:
+        start = text.find(&quot;{&quot;)
+        if start &lt; 0:
+            raise ValueError(&quot;Planner response does not contain a JSON object&quot;)
+
+        depth = 0
+        in_string = False
+        escaped = False
+        for index in range(start, len(text)):
+            character = text[index]
+            if in_string:
+                if escaped:
+                    escaped = False
+                elif character == &quot;\\&quot;:
+                    escaped = True
+                elif character == &#x27;&quot;&#x27;:
+                    in_string = False
+                continue
+            if character == &#x27;&quot;&#x27;:
+                in_string = True
+            elif character == &quot;{&quot;:
+                depth += 1
+            elif character == &quot;}&quot;:
+                depth -= 1
+                if depth == 0:
+                    return text[start : index + 1]
+        if allow_incomplete:
+            return text[start:]
+        raise ValueError(&quot;Planner response contains an incomplete JSON object&quot;)
+
+    @staticmethod
+    def _prepare_json_candidate(candidate: str) -&gt; str:
+        cleaned = candidate.strip()
+        cleaned = re.sub(r&quot;^```(?:json)?\s*&quot;, &quot;&quot;, cleaned, flags=re.IGNORECASE)
+        cleaned = re.sub(r&quot;\s*```$&quot;, &quot;&quot;, cleaned)
+        cleaned = cleaned.replace(&quot;\ufeff&quot;, &quot;&quot;)
+        quote_map = str.maketrans(
+            {
+                &quot;“&quot;: &#x27;&quot;&#x27;,
+                &quot;”&quot;: &#x27;&quot;&#x27;,
+                &quot;„&quot;: &#x27;&quot;&#x27;,
+                &quot;‟&quot;: &#x27;&quot;&#x27;,
+                &quot;’&quot;: &quot;&#x27;&quot;,
+                &quot;‘&quot;: &quot;&#x27;&quot;,
+                &quot;‚&quot;: &quot;&#x27;&quot;,
+                &quot;‛&quot;: &quot;&#x27;&quot;,
+            }
+        )
+        cleaned = cleaned.translate(quote_map)
+        cleaned = &quot;&quot;.join(character for character in cleaned if character &gt;= &quot; &quot; or character in &quot;\n\r\t&quot;)
+        return cleaned.strip()
+
+    def _repair_json_text(self, candidate: str) -&gt; str:
+        repaired = candidate
+        repaired = self._remove_json_comments(repaired)
+        repaired = self._quote_bare_object_keys(repaired)
+        repaired = self._replace_keyword_literals(
+            repaired,
+            {
+                &quot;True&quot;: &quot;true&quot;,
+                &quot;False&quot;: &quot;false&quot;,
+                &quot;None&quot;: &quot;null&quot;,
+            },
+        )
+        repaired = re.sub(r&quot;,(\s*[}\]])&quot;, r&quot;\1&quot;, repaired)
+        repaired = self._balance_json_structure(repaired)
+        return repaired
+
+    def _repair_python_literal_text(self, candidate: str) -&gt; str:
+        repaired = candidate
+        repaired = self._remove_json_comments(repaired)
+        repaired = self._quote_bare_object_keys(repaired)
+        repaired = self._replace_keyword_literals(
+            repaired,
+            {
+                &quot;true&quot;: &quot;True&quot;,
+                &quot;false&quot;: &quot;False&quot;,
+                &quot;null&quot;: &quot;None&quot;,
+            },
+        )
+        repaired = self._balance_json_structure(repaired)
+        return repaired
+
+    @staticmethod
+    def _remove_json_comments(candidate: str) -&gt; str:
+        without_block_comments = re.sub(r&quot;/\*.*?\*/&quot;, &quot;&quot;, candidate, flags=re.DOTALL)
+        return re.sub(r&quot;(^|[ \t])//.*?$&quot;, r&quot;\1&quot;, without_block_comments, flags=re.MULTILINE)
+
+    @staticmethod
+    def _quote_bare_object_keys(candidate: str) -&gt; str:
+        key_pattern = re.compile(r&#x27;([{\[,]\s*)([A-Za-z_][A-Za-z0-9_\-]*)(\s*:)&#x27;)
+        previous = None
+        current = candidate
+        while current != previous:
+            previous = current
+            current = key_pattern.sub(r&#x27;\1&quot;\2&quot;\3&#x27;, current)
+        return current
+
+    @staticmethod
+    def _replace_keyword_literals(candidate: str, replacements: dict[str, str]) -&gt; str:
+        result: list[str] = []
+        token: list[str] = []
+        in_string = False
+        escaped = False
+        quote_char = &quot;&quot;
+
+        def flush_token() -&gt; None:
+            if not token:
+                return
+            value = &quot;&quot;.join(token)
+            result.append(replacements.get(value, value))
+            token.clear()
+
+        for character in candidate:
+            if in_string:
+                result.append(character)
+                if escaped:
+                    escaped = False
+                elif character == &quot;\\&quot;:
+                    escaped = True
+                elif character == quote_char:
+                    in_string = False
+                continue
+
+            if character in {&#x27;&quot;&#x27;, &quot;&#x27;&quot;}:
+                flush_token()
+                in_string = True
+                quote_char = character
+                result.append(character)
+                continue
+
+            if character.isalnum() or character == &quot;_&quot;:
+                token.append(character)
+                continue
+
+            flush_token()
+            result.append(character)
+
+        flush_token()
+        return &quot;&quot;.join(result)
+
+    @staticmethod
+    def _balance_json_structure(candidate: str) -&gt; str:
+        closers: list[str] = []
+        result = candidate.rstrip()
+        in_string = False
+        escaped = False
+        quote_char = &quot;&quot;
+
+        for character in result:
+            if in_string:
+                if escaped:
+                    escaped = False
+                elif character == &quot;\\&quot;:
+                    escaped = True
+                elif character == quote_char:
+                    in_string = False
+                continue
+
+            if character in {&#x27;&quot;&#x27;, &quot;&#x27;&quot;}:
+                in_string = True
+                quote_char = character
+            elif character == &quot;{&quot;:
+                closers.append(&quot;}&quot;)
+            elif character == &quot;[&quot;:
+                closers.append(&quot;]&quot;)
+            elif character in {&quot;}&quot;, &quot;]&quot;} and closers and closers[-1] == character:
+                closers.pop()
+
+        if in_string:
+            result += quote_char
+        if closers:
+            result += &quot;&quot;.join(reversed(closers))
+        return result
+
+    def _normalize_flow_request(
+        self,
+        parsed: dict[str, Any],
+        catalog: PlannerCatalog,
+        max_nodes: int,
+    ) -&gt; tuple[dict[str, Any], list[str]]:
+        warnings: list[str] = []
+        raw_nodes = parsed.get(&quot;nodes&quot;)
+        raw_edges = parsed.get(&quot;edges&quot;, [])
+        if not isinstance(raw_nodes, list) or not raw_nodes:
+            raise ValueError(&quot;Planner response must contain a non-empty &#x27;nodes&#x27; array&quot;)
+
+        handler_set = set(catalog.handlers)
+        valid_resource_ids = {int(resource[&quot;resource_id&quot;]) for resource in catalog.resources}
+        agent_name_to_id = {
+            str(agent[&quot;name&quot;]).casefold(): int(agent[&quot;agent_id&quot;]) for agent in catalog.agents
+        }
+        memory_ids = [str(system[&quot;memory_id&quot;]) for system in catalog.memory_systems]
+        comm_agent_ids = {
+            int(agent[&quot;agent_id&quot;])
+            for agent in catalog.agents
+            if isinstance(agent.get(&quot;communication&quot;), dict)
+        }
+        communication_agents = {
+            str(agent[&quot;name&quot;]).casefold(): int(agent[&quot;agent_id&quot;])
+            for agent in catalog.agents
+            if isinstance(agent.get(&quot;communication&quot;), dict)
+        }
+
+        normalized_nodes: list[dict[str, Any]] = []
+        node_ids: set[str] = set()
+        for index, raw_node in enumerate(raw_nodes[:max_nodes], start=1):
+            if not isinstance(raw_node, dict):
+                raise ValueError(f&quot;Planner node at index {index} is not an object&quot;)
+            node_id = self._normalize_node_id(raw_node.get(&quot;node_id&quot;) or raw_node.get(&quot;id&quot;) or f&quot;task-{index}&quot;)
+            if node_id in node_ids:
+                node_id = f&quot;{node_id}-{index}&quot;
+            node_ids.add(node_id)
+
+            handler_name = str(raw_node.get(&quot;handler_name&quot;, &quot;&quot;)).strip()
+            if handler_name not in handler_set:
+                raise ValueError(
+                    f&quot;Planner selected unsupported handler &#x27;{handler_name}&#x27; for node &#x27;{node_id}&#x27;&quot;
+                )
+
+            preferred_agent_id = None
+            raw_agent_name = raw_node.get(&quot;preferred_agent_name&quot;)
+            if isinstance(raw_agent_name, str) and raw_agent_name.strip():
+                preferred_agent_id = agent_name_to_id.get(raw_agent_name.casefold())
+                if preferred_agent_id is None:
+                    warnings.append(
+                        f&quot;Unknown preferred_agent_name &#x27;{raw_agent_name}&#x27; ignored for node &#x27;{node_id}&#x27;&quot;
+                    )
+
+            raw_resource_ids = raw_node.get(&quot;required_resource_ids&quot;, [])
+            resource_ids = []
+            if isinstance(raw_resource_ids, list):
+                for resource_id in raw_resource_ids:
+                    try:
+                        numeric_id = int(resource_id)
+                    except (TypeError, ValueError):
+                        warnings.append(f&quot;Invalid resource id &#x27;{resource_id}&#x27; ignored for node &#x27;{node_id}&#x27;&quot;)
+                        continue
+                    if numeric_id in valid_resource_ids:
+                        resource_ids.append(numeric_id)
+                    else:
+                        warnings.append(
+                            f&quot;Unknown resource id &#x27;{numeric_id}&#x27; ignored for node &#x27;{node_id}&#x27;&quot;
+                        )
+
+            resource_types = []
+            for raw_type in raw_node.get(&quot;required_resource_types&quot;, []) or []:
+                try:
+                    resource_types.append(ResourceType(str(raw_type)).value)
+                except ValueError:
+                    warnings.append(
+                        f&quot;Unknown resource type &#x27;{raw_type}&#x27; ignored for node &#x27;{node_id}&#x27;&quot;
+                    )
+
+            rollback_strategy = str(
+                raw_node.get(&quot;rollback_strategy&quot;, RollbackStrategy.FAIL_FAST.value)
+            )
+            if rollback_strategy not in {strategy.value for strategy in RollbackStrategy}:
+                warnings.append(
+                    f&quot;Unknown rollback strategy &#x27;{rollback_strategy}&#x27; replaced with FAIL_FAST for node &#x27;{node_id}&#x27;&quot;
+                )
+                rollback_strategy = RollbackStrategy.FAIL_FAST.value
+
+            retry_policy = self._normalize_retry_policy(raw_node.get(&quot;retry_policy&quot;))
+            title = str(raw_node.get(&quot;title&quot;) or raw_node.get(&quot;label&quot;) or handler_name).strip()
+            metadata = self._normalize_object(raw_node.get(&quot;metadata&quot;))
+            metadata.setdefault(&quot;ui&quot;, {})
+            if isinstance(metadata[&quot;ui&quot;], dict):
+                metadata[&quot;ui&quot;].setdefault(&quot;title&quot;, title)
+
+            input_payload = raw_node.get(&quot;input&quot;, {})
+            if not isinstance(input_payload, dict):
+                input_payload = {}
+            input_payload = self._normalize_handler_input(
+                handler_name=handler_name,
+                input_payload=dict(input_payload),
+                node_id=node_id,
+                dependencies=self._normalize_string_list(raw_node.get(&quot;dependencies&quot;)),
+                memory_ids=memory_ids,
+                comm_agent_ids=comm_agent_ids,
+                communication_agents=communication_agents,
+                warnings=warnings,
+            )
+
+            normalized_nodes.append(
+                {
+                    &quot;node_id&quot;: node_id,
+                    &quot;handler_name&quot;: handler_name,
+                    &quot;input&quot;: input_payload,
+                    &quot;required_capabilities&quot;: self._normalize_string_list(
+                        raw_node.get(&quot;required_capabilities&quot;)
+                    ),
+                    &quot;required_resource_ids&quot;: resource_ids,
+                    &quot;required_resource_types&quot;: resource_types,
+                    &quot;retry_policy&quot;: retry_policy,
+                    &quot;rollback_strategy&quot;: rollback_strategy,
+                    &quot;validator_rules&quot;: self._normalize_object(raw_node.get(&quot;validator_rules&quot;)),
+                    &quot;metadata&quot;: metadata,
+                    &quot;requires_manual_approval&quot;: bool(raw_node.get(&quot;requires_manual_approval&quot;, False)),
+                    &quot;manual_approval&quot;: self._normalize_object(raw_node.get(&quot;manual_approval&quot;)),
+                    &quot;compensation_handler&quot;: self._normalize_compensation_handler(
+                        raw_node.get(&quot;compensation_handler&quot;),
+                        handler_set,
+                        warnings,
+                        node_id,
+                    ),
+                    &quot;dependencies&quot;: self._normalize_string_list(raw_node.get(&quot;dependencies&quot;)),
+                    &quot;conditions&quot;: self._normalize_conditions(raw_node.get(&quot;conditions&quot;)),
+                    &quot;preferred_agent_id&quot;: preferred_agent_id,
+                }
+            )
+
+        normalized_edges = self._normalize_edges(raw_edges, node_ids, warnings)
+        self._merge_dependencies(normalized_nodes, normalized_edges)
+        self._validate_acyclic(normalized_nodes)
+
+        if len(raw_nodes) &gt; max_nodes:
+            warnings.append(f&quot;Planner returned {len(raw_nodes)} nodes; truncated to {max_nodes}&quot;)
+
+        return {
+            &quot;nodes&quot;: normalized_nodes,
+            &quot;edges&quot;: normalized_edges,
+        }, warnings
+
+    @staticmethod
+    def _normalize_node_id(raw_value: Any) -&gt; str:
+        base = re.sub(r&quot;[^a-zA-Z0-9_-]+&quot;, &quot;-&quot;, str(raw_value).strip()).strip(&quot;-&quot;)
+        return base or &quot;task&quot;
+
+    @staticmethod
+    def _normalize_object(raw_value: Any) -&gt; dict[str, Any]:
+        return raw_value if isinstance(raw_value, dict) else {}
+
+    @staticmethod
+    def _normalize_string_list(raw_value: Any) -&gt; list[str]:
+        if not isinstance(raw_value, list):
+            return []
+        return [str(item).strip() for item in raw_value if str(item).strip()]
+
+    @staticmethod
+    def _normalize_conditions(raw_value: Any) -&gt; dict[str, str]:
+        if not isinstance(raw_value, dict):
+            return {}
+        return {
+            str(key): str(value)
+            for key, value in raw_value.items()
+            if str(key).strip() and str(value).strip()
+        }
+
+    @staticmethod
+    def _normalize_retry_policy(raw_value: Any) -&gt; dict[str, Any]:
+        if not isinstance(raw_value, dict):
+            return dict(DEFAULT_RETRY_POLICY)
+        policy = dict(DEFAULT_RETRY_POLICY)
+        for key in policy:
+            if key in raw_value:
+                policy[key] = raw_value[key]
+        policy[&quot;max_retries&quot;] = int(policy[&quot;max_retries&quot;])
+        policy[&quot;backoff_ms&quot;] = int(policy[&quot;backoff_ms&quot;])
+        policy[&quot;exponential&quot;] = bool(policy[&quot;exponential&quot;])
+        policy[&quot;max_backoff_ms&quot;] = int(policy[&quot;max_backoff_ms&quot;])
+        policy[&quot;jitter_ratio&quot;] = float(policy[&quot;jitter_ratio&quot;])
+        return policy
+
+    @staticmethod
+    def _normalize_compensation_handler(
+        raw_value: Any,
+        allowed_handlers: set[str],
+        warnings: list[str],
+        node_id: str,
+    ) -&gt; str | None:
+        if raw_value is None:
+            return None
+        handler_name = str(raw_value).strip()
+        if not handler_name:
+            return None
+        if handler_name not in allowed_handlers:
+            warnings.append(
+                f&quot;Unknown compensation handler &#x27;{handler_name}&#x27; ignored for node &#x27;{node_id}&#x27;&quot;
+            )
+            return None
+        return handler_name
+
+    @staticmethod
+    def _normalize_edges(
+        raw_edges: Any,
+        node_ids: set[str],
+        warnings: list[str],
+    ) -&gt; list[dict[str, str]]:
+        if raw_edges is None:
+            return []
+        if not isinstance(raw_edges, list):
+            raise ValueError(&quot;Planner response field &#x27;edges&#x27; must be an array&quot;)
+
+        normalized: list[dict[str, str]] = []
+        seen: set[tuple[str, str]] = set()
+        for raw_edge in raw_edges:
+            if not isinstance(raw_edge, dict):
+                continue
+            source = str(raw_edge.get(&quot;from_node&quot;) or raw_edge.get(&quot;source&quot;) or &quot;&quot;).strip()
+            target = str(raw_edge.get(&quot;to_node&quot;) or raw_edge.get(&quot;target&quot;) or &quot;&quot;).strip()
+            if source not in node_ids or target not in node_ids:
+                warnings.append(
+                    f&quot;Edge &#x27;{source}&#x27; -&gt; &#x27;{target}&#x27; ignored because it references unknown nodes&quot;
+                )
+                continue
+            if source == target:
+                warnings.append(f&quot;Self-edge on &#x27;{source}&#x27; ignored&quot;)
+                continue
+            key = (source, target)
+            if key in seen:
+                continue
+            seen.add(key)
+            normalized.append(
+                {
+                    &quot;from_node&quot;: source,
+                    &quot;to_node&quot;: target,
+                    &quot;condition&quot;: str(raw_edge.get(&quot;condition&quot;) or raw_edge.get(&quot;label&quot;) or &quot;True&quot;),
+                }
+            )
+        return normalized
+
+    @staticmethod
+    def _merge_dependencies(
+        normalized_nodes: list[dict[str, Any]],
+        normalized_edges: list[dict[str, str]],
+    ) -&gt; None:
+        node_index = {node[&quot;node_id&quot;]: node for node in normalized_nodes}
+        for edge in normalized_edges:
+            target_node = node_index[edge[&quot;to_node&quot;]]
+            if edge[&quot;from_node&quot;] not in target_node[&quot;dependencies&quot;]:
+                target_node[&quot;dependencies&quot;].append(edge[&quot;from_node&quot;])
+            target_node[&quot;conditions&quot;].setdefault(edge[&quot;from_node&quot;], edge[&quot;condition&quot;])
+
+    @staticmethod
+    def _validate_acyclic(normalized_nodes: list[dict[str, Any]]) -&gt; None:
+        adjacency: dict[str, list[str]] = {node[&quot;node_id&quot;]: [] for node in normalized_nodes}
+        indegree: dict[str, int] = {node[&quot;node_id&quot;]: 0 for node in normalized_nodes}
+
+        for node in normalized_nodes:
+            for dependency in node[&quot;dependencies&quot;]:
+                if dependency not in adjacency:
+                    continue
+                adjacency[dependency].append(node[&quot;node_id&quot;])
+                indegree[node[&quot;node_id&quot;]] += 1
+
+        queue = [node_id for node_id, degree in indegree.items() if degree == 0]
+        visited = 0
+        while queue:
+            node_id = queue.pop(0)
+            visited += 1
+            for target in adjacency[node_id]:
+                indegree[target] -= 1
+                if indegree[target] == 0:
+                    queue.append(target)
+
+        if visited != len(normalized_nodes):
+            raise ValueError(&quot;Planner produced a cyclic dependency graph; only DAG flows are supported&quot;)
+
+    @staticmethod
+    def _normalize_handler_input(
+        handler_name: str,
+        input_payload: dict[str, Any],
+        node_id: str,
+        dependencies: list[str],
+        memory_ids: list[str],
+        comm_agent_ids: set[int],
+        communication_agents: dict[str, int],
+        warnings: list[str],
+    ) -&gt; dict[str, Any]:
+        upstream_reference = (
+            f&quot;{{{{ results[&#x27;{dependencies[-1]}&#x27;] }}}}&quot; if dependencies else {}
+        )
+
+        if handler_name == &quot;memory_store&quot;:
+            if &quot;memory_id&quot; not in input_payload and memory_ids:
+                input_payload[&quot;memory_id&quot;] = memory_ids[0]
+                warnings.append(
+                    f&quot;memory_store node &#x27;{node_id}&#x27; had no memory_id; defaulted to &#x27;{memory_ids[0]}&#x27;&quot;
+                )
+            if &quot;key&quot; not in input_payload:
+                input_payload[&quot;key&quot;] = f&quot;{node_id}-result&quot;
+                warnings.append(
+                    f&quot;memory_store node &#x27;{node_id}&#x27; had no key; defaulted to &#x27;{node_id}-result&#x27;&quot;
+                )
+            if &quot;value&quot; not in input_payload:
+                if &quot;data&quot; in input_payload:
+                    input_payload[&quot;value&quot;] = input_payload.pop(&quot;data&quot;)
+                    warnings.append(
+                        f&quot;memory_store node &#x27;{node_id}&#x27; used &#x27;data&#x27;; remapped to &#x27;value&#x27;&quot;
+                    )
+                else:
+                    input_payload[&quot;value&quot;] = upstream_reference
+                    warnings.append(
+                        f&quot;memory_store node &#x27;{node_id}&#x27; had no value; defaulted to upstream result reference&quot;
+                    )
+
+        if handler_name == &quot;memory_retrieve&quot;:
+            if &quot;memory_id&quot; not in input_payload and memory_ids:
+                input_payload[&quot;memory_id&quot;] = memory_ids[0]
+                warnings.append(
+                    f&quot;memory_retrieve node &#x27;{node_id}&#x27; had no memory_id; defaulted to &#x27;{memory_ids[0]}&#x27;&quot;
+                )
+
+        if handler_name == &quot;memory_search&quot;:
+            if &quot;memory_id&quot; not in input_payload and memory_ids:
+                input_payload[&quot;memory_id&quot;] = memory_ids[0]
+                warnings.append(
+                    f&quot;memory_search node &#x27;{node_id}&#x27; had no memory_id; defaulted to &#x27;{memory_ids[0]}&#x27;&quot;
+                )
+            input_payload.setdefault(&quot;limit&quot;, 5)
+
+        if handler_name == &quot;http_request&quot;:
+            input_payload.setdefault(&quot;method&quot;, &quot;GET&quot;)
+
+        if handler_name == &quot;send_message&quot;:
+            if &quot;message&quot; not in input_payload:
+                input_payload[&quot;message&quot;] = {&quot;text&quot;: f&quot;Flow node {node_id} completed.&quot;}
+                warnings.append(
+                    f&quot;send_message node &#x27;{node_id}&#x27; had no message; inserted default completion message&quot;
+                )
+            if &quot;target_agent_id&quot; not in input_payload:
+                raw_target_name = input_payload.get(&quot;target_agent_name&quot;)
+                if isinstance(raw_target_name, str) and raw_target_name.strip():
+                    resolved_agent_id = communication_agents.get(raw_target_name.casefold())
+                    if resolved_agent_id is None:
+                        if len(communication_agents) == 1:
+                            sole_name, sole_id = next(iter(communication_agents.items()))
+                            input_payload[&quot;target_agent_id&quot;] = sole_id
+                            warnings.append(
+                                f&quot;send_message node &#x27;{node_id}&#x27; referenced unknown agent &#x27;{raw_target_name}&#x27;; defaulted to the only communication-enabled agent &#x27;{sole_name}&#x27; ({sole_id})&quot;
+                            )
+                            return input_payload
+                        if not communication_agents:
+                            raise ValueError(
+                                f&quot;send_message node &#x27;{node_id}&#x27; cannot be planned because no communication-enabled target agent is registered&quot;
+                            )
+                        allowed_targets = &quot;, &quot;.join(
+                            sorted(
+                                agent_name for agent_name in communication_agents.keys()
+                            )
+                        )
+                        raise ValueError(
+                            f&quot;send_message node &#x27;{node_id}&#x27; references unknown agent &#x27;{raw_target_name}&#x27;. Allowed target_agent_name values: {allowed_targets}&quot;
+                        )
+                    input_payload[&quot;target_agent_id&quot;] = resolved_agent_id
+                    warnings.append(
+                        f&quot;send_message node &#x27;{node_id}&#x27; resolved target_agent_name &#x27;{raw_target_name}&#x27; to target_agent_id &#x27;{resolved_agent_id}&#x27;&quot;
+                    )
+                    return input_payload
+                if len(comm_agent_ids) == 1:
+                    input_payload[&quot;target_agent_id&quot;] = next(iter(comm_agent_ids))
+                    warnings.append(
+                        f&quot;send_message node &#x27;{node_id}&#x27; had no target_agent_id; defaulted to the only communication-enabled agent&quot;
+                    )
+                elif len(comm_agent_ids) == 0:
+                    raise ValueError(
+                        f&quot;send_message node &#x27;{node_id}&#x27; is not executable because no communication-enabled target agent is registered&quot;
+                    )
+                else:
+                    raise ValueError(
+                        f&quot;send_message node &#x27;{node_id}&#x27; requires an explicit target_agent_id because multiple communication-enabled agents are registered&quot;
+                    )
+
+        if handler_name == &quot;template_render&quot;:
+            input_payload.setdefault(&quot;template&quot;, &quot;Task completed: {node_id}&quot;)
+            input_payload.setdefault(&quot;values&quot;, {&quot;node_id&quot;: node_id})
+
+        if handler_name == &quot;merge_payloads&quot;:
+            input_payload.setdefault(&quot;base&quot;, {})
+            input_payload.setdefault(&quot;updates&quot;, [upstream_reference] if dependencies else [{}])
+
+        if handler_name == &quot;json_serialize&quot;:
+            input_payload.setdefault(&quot;value&quot;, upstream_reference)
+            input_payload.setdefault(&quot;indent&quot;, 2)
+
+        return input_payload
+</code></pre>
+          </section>
+        </article>
+        <aside class="doc-toc">
+          <div class="doc-toc__card">
+            <p class="doc-toc__eyebrow">On this page</p>
+            <p class="toc__empty">Repository view</p>
+          </div>
+        </aside>
+      </main>
+    </div>
+  </div>
+  <script src="../../../../assets/site-data.js"></script>
+  <script src="../../../../assets/site.js"></script>
+</body>
+</html>

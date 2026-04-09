@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Repository: src/nova_synesis/persistence/sqlite_repository.py | NOVA-SYNESIS Docs</title>
+  <meta name="description" content="Repository file view for src/nova_synesis/persistence/sqlite_repository.py">
+  <link rel="icon" type="image/svg+xml" href="../../../../assets/favicon.svg">
+  <link rel="stylesheet" href="../../../../assets/site.css">
+</head>
+<body data-page-url="repo/src/nova_synesis/persistence/sqlite_repository.py.html">
+  <div class="site-shell">
+    <aside class="site-sidebar" id="site-sidebar">
+      <div class="brand">
+        <p class="brand__eyebrow">Neural Orchestration Visual Autonomy</p>
+        <h1>NOVA-SYNESIS</h1>
+        <p class="brand__subtitle">Stateful Yielding Node-based Execution Semantic Integrated Surface</p>
+      </div>
+      <label class="search-box">
+        <span class="search-box__label">Search docs</span>
+        <input id="docs-search" type="search" placeholder="Search guides, files, handlers, policies">
+      </label>
+      <div class="search-results" id="search-results" hidden></div>
+      <div class="sidebar-scroll">
+        <a class="brand__home" href="../../../../index.html">Documentation Home</a><section class="sidebar__group"><h2>Guides</h2><ul class="nav-list"><li><a class="nav-list__link" href="../../../../index.html">NOVA-SYNESIS Dokumentation</a></li><li><a class="nav-list__link" href="../../../../getting-started.html">Schnellstart</a></li><li><a class="nav-list__link" href="../../../../system-overview.html">Systemueberblick</a></li><li><a class="nav-list__link" href="../../../../backend-runtime.html">Backend-Laufzeit</a></li><li><a class="nav-list__link" href="../../../../frontend-editor.html">Frontend-Editor</a></li><li><a class="nav-list__link" href="../../../../planner-and-lit.html">LLM-Planer und LiteRT</a></li><li><a class="nav-list__link" href="../../../../security-and-policy.html">Security und Policy</a></li><li><a class="nav-list__link" href="../../../../handler-trust-and-approval.html">Handler Trust und Freigaben</a></li><li><a class="nav-list__link" href="../../../../failure-playbook.html">Failure Playbook</a></li><li><a class="nav-list__link" href="../../../../decision-guide.html">Decision Guide</a></li><li><a class="nav-list__link" href="../../../../real-world-scenarios.html">Real World Scenarios</a></li><li><a class="nav-list__link" href="../../../../change-workflows.html">Aenderungsleitfaden</a></li></ul></section><section class="sidebar__group"><h2>Reference</h2><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/index.html">Referenzindex</a></li><li><a class="nav-list__link" href="../../../../reference/.env.example.html">.env.example</a></li><li><a class="nav-list__link" href="../../../../reference/.gitignore.html">.gitignore</a></li><li><a class="nav-list__link" href="../../../../reference/Anweisung.md.html">Anweisung.md</a></li><li><a class="nav-list__link" href="../../../../reference/Dockerfile.html">Dockerfile</a></li><li class="nav-list__branch"><details ><summary>Frontend</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/frontend/.env.example.html">.env.example</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/index.html.html">index.html</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/package-lock.json.html">package-lock.json</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/package.json.html">package.json</a></li><li class="nav-list__branch"><details ><summary>Source</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/frontend/src/app.css.html">app.css</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/src/App.tsx.html">App.tsx</a></li><li class="nav-list__branch"><details ><summary>Components</summary><ul class="nav-list"><li class="nav-list__branch"><details ><summary>Common</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/frontend/src/components/common/JsonEditor.tsx.html">JsonEditor.tsx</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/src/components/common/StatusBadge.tsx.html">StatusBadge.tsx</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Flow</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/frontend/src/components/flow/FlowCanvas.tsx.html">FlowCanvas.tsx</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/src/components/flow/TaskNode.tsx.html">TaskNode.tsx</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Layout</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/frontend/src/components/layout/InspectorPanel.tsx.html">InspectorPanel.tsx</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/src/components/layout/PlannerComposer.tsx.html">PlannerComposer.tsx</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/src/components/layout/Sidebar.tsx.html">Sidebar.tsx</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/src/components/layout/TopBar.tsx.html">TopBar.tsx</a></li></ul></details></li></ul></details></li><li class="nav-list__branch"><details ><summary>Hooks</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/frontend/src/hooks/useCatalogBootstrap.ts.html">useCatalogBootstrap.ts</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/src/hooks/useFlowLiveUpdates.ts.html">useFlowLiveUpdates.ts</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Lib</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/frontend/src/lib/apiClient.ts.html">apiClient.ts</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/src/lib/autoLayout.ts.html">autoLayout.ts</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/src/lib/flowSerialization.ts.html">flowSerialization.ts</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/src/lib/json.ts.html">json.ts</a></li></ul></details></li><li><a class="nav-list__link" href="../../../../reference/frontend/src/main.tsx.html">main.tsx</a></li><li class="nav-list__branch"><details ><summary>Store</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/frontend/src/store/useFlowStore.ts.html">useFlowStore.ts</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Types</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/frontend/src/types/api.ts.html">api.ts</a></li></ul></details></li><li><a class="nav-list__link" href="../../../../reference/frontend/src/vite-env.d.ts.html">vite-env.d.ts</a></li></ul></details></li><li><a class="nav-list__link" href="../../../../reference/frontend/tsconfig.app.json.html">tsconfig.app.json</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/tsconfig.json.html">tsconfig.json</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/tsconfig.node.json.html">tsconfig.node.json</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/vite.config.d.ts.html">vite.config.d.ts</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/vite.config.js.html">vite.config.js</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/vite.config.ts.html">vite.config.ts</a></li></ul></details></li><li><a class="nav-list__link" href="../../../../reference/LICENSE.html">LICENSE</a></li><li class="nav-list__branch"><details ><summary>LIT</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/LIT/planner_test_prompt.txt.html">planner_test_prompt.txt</a></li><li><a class="nav-list__link" href="../../../../reference/LIT/README.md.html">README.md</a></li></ul></details></li><li><a class="nav-list__link" href="../../../../reference/pyproject.toml.html">pyproject.toml</a></li><li><a class="nav-list__link" href="../../../../reference/README.md.html">README.md</a></li><li><a class="nav-list__link" href="../../../../reference/run-backend.cmd.html">run-backend.cmd</a></li><li><a class="nav-list__link" href="../../../../reference/run-backend.ps1.html">run-backend.ps1</a></li><li class="nav-list__branch"><details ><summary>Source</summary><ul class="nav-list"><li class="nav-list__branch"><details ><summary>NOVA-SYNESIS</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/__init__.py.html">__init__.py</a></li><li class="nav-list__branch"><details ><summary>API</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/api/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/api/app.py.html">app.py</a></li></ul></details></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/cli.py.html">cli.py</a></li><li class="nav-list__branch"><details ><summary>Communication</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/communication/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/communication/adapters.py.html">adapters.py</a></li></ul></details></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/config.py.html">config.py</a></li><li class="nav-list__branch"><details ><summary>Domain</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/domain/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/domain/models.py.html">models.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Memory</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/memory/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/memory/systems.py.html">systems.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Persistence</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/persistence/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/persistence/sqlite_repository.py.html">sqlite_repository.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Planning</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/planning/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/planning/lit_planner.py.html">lit_planner.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/planning/planner.py.html">planner.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Resources</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/resources/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/resources/manager.py.html">manager.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Runtime</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/runtime/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/runtime/engine.py.html">engine.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/runtime/handlers.py.html">handlers.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Security</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/security/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/security/policy.py.html">policy.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/security/trust.py.html">trust.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Services</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/services/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/services/orchestrator.py.html">orchestrator.py</a></li></ul></details></li></ul></details></li></ul></details></li><li class="nav-list__branch"><details ><summary>Tests</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/tests/test_orchestrator.py.html">test_orchestrator.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Tools</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/tools/build_code_release.ps1.html">build_code_release.ps1</a></li><li><a class="nav-list__link" href="../../../../reference/tools/build_web_docs.py.html">build_web_docs.py</a></li><li><a class="nav-list__link" href="../../../../reference/tools/generate_docs.py.html">generate_docs.py</a></li></ul></details></li><li><a class="nav-list__link" href="../../../../reference/uml.html.html">uml.html</a></li><li><a class="nav-list__link" href="../../../../reference/uml_V3.mmd.html">uml_V3.mmd</a></li><li class="nav-list__branch"><details ><summary>Use Cases</summary><ul class="nav-list"><li class="nav-list__branch"><details ><summary>Platform Health Snapshot</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/Use_Cases/platform_health_snapshot/flow.json.html">flow.json</a></li><li><a class="nav-list__link" href="../../../../reference/Use_Cases/platform_health_snapshot/platform_health_snapshot.png.html">platform_health_snapshot.png</a></li><li><a class="nav-list__link" href="../../../../reference/Use_Cases/platform_health_snapshot/README.md.html">README.md</a></li><li><a class="nav-list__link" href="../../../../reference/Use_Cases/platform_health_snapshot/run.ps1.html">run.ps1</a></li><li><a class="nav-list__link" href="../../../../reference/Use_Cases/platform_health_snapshot/setup.ps1.html">setup.ps1</a></li></ul></details></li><li><a class="nav-list__link" href="../../../../reference/Use_Cases/README.md.html">README.md</a></li><li class="nav-list__branch"><details ><summary>Semantic Ticket Triage</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/Use_Cases/semantic_ticket_triage/flow.json.html">flow.json</a></li><li><a class="nav-list__link" href="../../../../reference/Use_Cases/semantic_ticket_triage/README.md.html">README.md</a></li><li><a class="nav-list__link" href="../../../../reference/Use_Cases/semantic_ticket_triage/run.ps1.html">run.ps1</a></li><li><a class="nav-list__link" href="../../../../reference/Use_Cases/semantic_ticket_triage/semantic_ticket_triage.png.html">semantic_ticket_triage.png</a></li><li><a class="nav-list__link" href="../../../../reference/Use_Cases/semantic_ticket_triage/setup.ps1.html">setup.ps1</a></li></ul></details></li></ul></details></li></ul></section><section class="sidebar__group"><h2>Appendix</h2><ul class="nav-list"><li><a class="nav-list__link" href="../../../../coverage.html">Abdeckung</a></li><li><a class="nav-list__link" href="../../../../Whitepaper.html">Whitepaper: Die Genesis von NOVA-SYNESIS</a></li></ul></section><section class="sidebar__group sidebar__group--meta"><h2>Search</h2><p>Use <kbd>/</kbd> to focus the search field and jump across guides, references and scenarios.</p></section>
+      </div>
+    </aside>
+
+    <div class="site-main">
+      <header class="site-header">
+        <button class="site-header__toggle" type="button" id="sidebar-toggle" aria-controls="site-sidebar" aria-expanded="false">
+          Menu
+        </button>
+        <div class="site-header__meta">
+          <p class="site-header__eyebrow">Generated documentation surface</p>
+          <h2>Repository: src/nova_synesis/persistence/sqlite_repository.py</h2>
+        </div>
+        <div class="site-header__status">
+          <span class="status-chip">HTML docs</span>
+          <span class="status-chip status-chip--accent">2026-04-09 00:10 UTC</span>
+        </div>
+      </header>
+
+      <main class="content-shell">
+        <article class="doc-article">
+          <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="../../../../index.html">Docs</a><span aria-current="page">reference</span></nav>
+          <section class="doc-hero">
+            <p class="doc-hero__eyebrow">Documentation</p>
+            <h1>Repository: src/nova_synesis/persistence/sqlite_repository.py</h1>
+            <p>Repository file view for src/nova_synesis/persistence/sqlite_repository.py</p>
+          </section>
+          <section class="doc-content">
+            <section class="source-meta"><p class="doc-hero__eyebrow">Repository file</p><h1>src/nova_synesis/persistence/sqlite_repository.py</h1><p>Rendered source view for the repository file. 431 lines.</p></section><pre class="source-block"><code class="language-python">from __future__ import annotations
+
+import json
+import sqlite3
+import threading
+from pathlib import Path
+from typing import Any
+
+from nova_synesis.domain.models import Agent, ExecutionFlow, Intent, Resource, Task, TaskExecution
+from nova_synesis.memory.systems import MemorySystem
+
+
+class SQLiteRepository:
+    def __init__(self, database_path: str) -&gt; None:
+        Path(database_path).parent.mkdir(parents=True, exist_ok=True)
+        self._connection = sqlite3.connect(database_path, check_same_thread=False)
+        self._connection.row_factory = sqlite3.Row
+        self._lock = threading.RLock()
+        self._initialize_schema()
+
+    def _initialize_schema(self) -&gt; None:
+        with self._lock:
+            self._connection.executescript(
+                &quot;&quot;&quot;
+                CREATE TABLE IF NOT EXISTS counters (
+                    name TEXT PRIMARY KEY,
+                    value INTEGER NOT NULL
+                );
+
+                CREATE TABLE IF NOT EXISTS agents (
+                    agent_id INTEGER PRIMARY KEY,
+                    name TEXT NOT NULL,
+                    role TEXT NOT NULL,
+                    state TEXT NOT NULL,
+                    capabilities_json TEXT NOT NULL,
+                    comms_json TEXT,
+                    memory_refs_json TEXT NOT NULL,
+                    updated_at TEXT NOT NULL
+                );
+
+                CREATE TABLE IF NOT EXISTS memories (
+                    memory_id TEXT PRIMARY KEY,
+                    type TEXT NOT NULL,
+                    backend TEXT NOT NULL,
+                    config_json TEXT NOT NULL,
+                    updated_at TEXT NOT NULL
+                );
+
+                CREATE TABLE IF NOT EXISTS resources (
+                    resource_id INTEGER PRIMARY KEY,
+                    type TEXT NOT NULL,
+                    endpoint TEXT NOT NULL,
+                    metadata_json TEXT NOT NULL,
+                    state TEXT NOT NULL,
+                    updated_at TEXT NOT NULL
+                );
+
+                CREATE TABLE IF NOT EXISTS intents (
+                    intent_id INTEGER PRIMARY KEY,
+                    goal TEXT NOT NULL,
+                    constraints_json TEXT NOT NULL,
+                    priority INTEGER NOT NULL,
+                    timestamp TEXT NOT NULL
+                );
+
+                CREATE TABLE IF NOT EXISTS tasks (
+                    task_id INTEGER PRIMARY KEY,
+                    input_json TEXT NOT NULL,
+                    output_json TEXT,
+                    status TEXT NOT NULL,
+                    assigned_agent_id INTEGER,
+                    required_resources_json TEXT NOT NULL,
+                    retry_policy_json TEXT NOT NULL,
+                    handler_name TEXT NOT NULL,
+                    validator_rules_json TEXT NOT NULL,
+                    context_json TEXT NOT NULL,
+                    metadata_json TEXT NOT NULL,
+                    rollback_strategy TEXT NOT NULL,
+                    compensation_handler TEXT,
+                    updated_at TEXT NOT NULL
+                );
+
+                CREATE TABLE IF NOT EXISTS flows (
+                    flow_id INTEGER PRIMARY KEY,
+                    state TEXT NOT NULL,
+                    nodes_json TEXT NOT NULL,
+                    edges_json TEXT NOT NULL,
+                    metadata_json TEXT NOT NULL,
+                    updated_at TEXT NOT NULL
+                );
+
+                CREATE TABLE IF NOT EXISTS executions (
+                    execution_id INTEGER PRIMARY KEY,
+                    task_id INTEGER NOT NULL,
+                    flow_id INTEGER,
+                    start_time TEXT,
+                    end_time TEXT,
+                    result_json TEXT,
+                    status TEXT NOT NULL,
+                    errors_json TEXT NOT NULL,
+                    attempt_count INTEGER NOT NULL,
+                    resource_history_json TEXT NOT NULL,
+                    updated_at TEXT NOT NULL
+                );
+                &quot;&quot;&quot;
+            )
+            self._connection.commit()
+
+    def next_id(self, name: str) -&gt; int:
+        with self._lock:
+            row = self._connection.execute(
+                &quot;SELECT value FROM counters WHERE name = ?&quot;,
+                (name,),
+            ).fetchone()
+            if row is None:
+                value = 1
+                self._connection.execute(
+                    &quot;INSERT INTO counters (name, value) VALUES (?, ?)&quot;,
+                    (name, value),
+                )
+            else:
+                value = int(row[&quot;value&quot;]) + 1
+                self._connection.execute(
+                    &quot;UPDATE counters SET value = ? WHERE name = ?&quot;,
+                    (value, name),
+                )
+            self._connection.commit()
+            return value
+
+    def save_agent(self, agent: Agent) -&gt; None:
+        comms_payload = None
+        if agent.comms is not None:
+            comms_payload = {
+                &quot;protocol&quot;: agent.comms.protocol.value,
+                &quot;endpoint&quot;: agent.comms.endpoint,
+                &quot;config&quot;: agent.comms.config,
+            }
+        with self._lock:
+            self._connection.execute(
+                &quot;&quot;&quot;
+                INSERT INTO agents (agent_id, name, role, state, capabilities_json, comms_json, memory_refs_json, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+                ON CONFLICT(agent_id) DO UPDATE SET
+                    name = excluded.name,
+                    role = excluded.role,
+                    state = excluded.state,
+                    capabilities_json = excluded.capabilities_json,
+                    comms_json = excluded.comms_json,
+                    memory_refs_json = excluded.memory_refs_json,
+                    updated_at = excluded.updated_at
+                &quot;&quot;&quot;,
+                (
+                    agent.agent_id,
+                    agent.name,
+                    agent.role,
+                    agent.state.value,
+                    json.dumps(
+                        [
+                            {
+                                &quot;name&quot;: capability.name,
+                                &quot;type&quot;: capability.type,
+                                &quot;constraints&quot;: capability.constraints,
+                            }
+                            for capability in agent.capabilities
+                        ]
+                    ),
+                    json.dumps(comms_payload) if comms_payload else None,
+                    json.dumps([memory.memory_id for memory in agent.memory_refs]),
+                ),
+            )
+            self._connection.commit()
+
+    def save_memory_system(self, memory_system: MemorySystem) -&gt; None:
+        with self._lock:
+            self._connection.execute(
+                &quot;&quot;&quot;
+                INSERT INTO memories (memory_id, type, backend, config_json, updated_at)
+                VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+                ON CONFLICT(memory_id) DO UPDATE SET
+                    type = excluded.type,
+                    backend = excluded.backend,
+                    config_json = excluded.config_json,
+                    updated_at = excluded.updated_at
+                &quot;&quot;&quot;,
+                (
+                    memory_system.memory_id,
+                    memory_system.type.value,
+                    memory_system.backend,
+                    json.dumps(memory_system.config),
+                ),
+            )
+            self._connection.commit()
+
+    def save_resource(self, resource: Resource) -&gt; None:
+        with self._lock:
+            self._connection.execute(
+                &quot;&quot;&quot;
+                INSERT INTO resources (resource_id, type, endpoint, metadata_json, state, updated_at)
+                VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+                ON CONFLICT(resource_id) DO UPDATE SET
+                    type = excluded.type,
+                    endpoint = excluded.endpoint,
+                    metadata_json = excluded.metadata_json,
+                    state = excluded.state,
+                    updated_at = excluded.updated_at
+                &quot;&quot;&quot;,
+                (
+                    resource.resource_id,
+                    resource.type.value,
+                    resource.endpoint,
+                    json.dumps(resource.metadata),
+                    resource.state.value,
+                ),
+            )
+            self._connection.commit()
+
+    def save_intent(self, intent: Intent) -&gt; None:
+        with self._lock:
+            self._connection.execute(
+                &quot;&quot;&quot;
+                INSERT INTO intents (intent_id, goal, constraints_json, priority, timestamp)
+                VALUES (?, ?, ?, ?, ?)
+                ON CONFLICT(intent_id) DO UPDATE SET
+                    goal = excluded.goal,
+                    constraints_json = excluded.constraints_json,
+                    priority = excluded.priority,
+                    timestamp = excluded.timestamp
+                &quot;&quot;&quot;,
+                (
+                    intent.intent_id,
+                    intent.goal,
+                    json.dumps(intent.constraints),
+                    intent.priority,
+                    intent.timestamp.isoformat(),
+                ),
+            )
+            self._connection.commit()
+
+    def save_task(self, task: Task) -&gt; None:
+        with self._lock:
+            self._connection.execute(
+                &quot;&quot;&quot;
+                INSERT INTO tasks (
+                    task_id, input_json, output_json, status, assigned_agent_id, required_resources_json,
+                    retry_policy_json, handler_name, validator_rules_json, context_json, metadata_json,
+                    rollback_strategy, compensation_handler, updated_at
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+                ON CONFLICT(task_id) DO UPDATE SET
+                    input_json = excluded.input_json,
+                    output_json = excluded.output_json,
+                    status = excluded.status,
+                    assigned_agent_id = excluded.assigned_agent_id,
+                    required_resources_json = excluded.required_resources_json,
+                    retry_policy_json = excluded.retry_policy_json,
+                    handler_name = excluded.handler_name,
+                    validator_rules_json = excluded.validator_rules_json,
+                    context_json = excluded.context_json,
+                    metadata_json = excluded.metadata_json,
+                    rollback_strategy = excluded.rollback_strategy,
+                    compensation_handler = excluded.compensation_handler,
+                    updated_at = excluded.updated_at
+                &quot;&quot;&quot;,
+                (
+                    task.task_id,
+                    json.dumps(task.input, default=str),
+                    json.dumps(task.output, default=str) if task.output is not None else None,
+                    task.status.value,
+                    task.assigned_agent.agent_id if task.assigned_agent else None,
+                    json.dumps([resource.resource_id for resource in task.required_resources]),
+                    json.dumps(
+                        {
+                            &quot;max_retries&quot;: task.retry_policy.max_retries,
+                            &quot;backoff_ms&quot;: task.retry_policy.backoff_ms,
+                            &quot;exponential&quot;: task.retry_policy.exponential,
+                            &quot;max_backoff_ms&quot;: task.retry_policy.max_backoff_ms,
+                            &quot;jitter_ratio&quot;: task.retry_policy.jitter_ratio,
+                        }
+                    ),
+                    task.handler_name,
+                    json.dumps(task.validator_rules),
+                    json.dumps(task.context, default=str),
+                    json.dumps(
+                        {
+                            **task.metadata,
+                            &quot;requires_manual_approval&quot;: task.requires_manual_approval,
+                            &quot;manual_approval&quot;: task.manual_approval.as_dict(),
+                        },
+                        default=str,
+                    ),
+                    task.rollback_strategy.value,
+                    task.compensation_handler,
+                ),
+            )
+            self._connection.commit()
+
+    def save_flow(self, flow: ExecutionFlow) -&gt; None:
+        with self._lock:
+            self._connection.execute(
+                &quot;&quot;&quot;
+                INSERT INTO flows (flow_id, state, nodes_json, edges_json, metadata_json, updated_at)
+                VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+                ON CONFLICT(flow_id) DO UPDATE SET
+                    state = excluded.state,
+                    nodes_json = excluded.nodes_json,
+                    edges_json = excluded.edges_json,
+                    metadata_json = excluded.metadata_json,
+                    updated_at = excluded.updated_at
+                &quot;&quot;&quot;,
+                (
+                    flow.flow_id,
+                    flow.state.value,
+                    json.dumps(
+                        {
+                            node_id: {
+                                &quot;task_id&quot;: node.task.task_id,
+                                &quot;task_status&quot;: node.task.status.value,
+                                &quot;handler_name&quot;: node.task.handler_name,
+                                &quot;assigned_agent_id&quot;: node.agent.agent_id if node.agent else None,
+                                &quot;input&quot;: node.task.input,
+                                &quot;output&quot;: node.task.output,
+                                &quot;required_capabilities&quot;: node.task.context.get(&quot;required_capabilities&quot;, []),
+                                &quot;required_resource_ids&quot;: [
+                                    resource.resource_id for resource in node.task.required_resources
+                                ],
+                                &quot;required_resource_types&quot;: [
+                                    resource.type.value for resource in node.task.required_resources
+                                ],
+                                &quot;retry_policy&quot;: {
+                                    &quot;max_retries&quot;: node.task.retry_policy.max_retries,
+                                    &quot;backoff_ms&quot;: node.task.retry_policy.backoff_ms,
+                                    &quot;exponential&quot;: node.task.retry_policy.exponential,
+                                    &quot;max_backoff_ms&quot;: node.task.retry_policy.max_backoff_ms,
+                                    &quot;jitter_ratio&quot;: node.task.retry_policy.jitter_ratio,
+                                },
+                                &quot;rollback_strategy&quot;: node.task.rollback_strategy.value,
+                                &quot;validator_rules&quot;: node.task.validator_rules,
+                                &quot;metadata&quot;: node.task.metadata,
+                                &quot;requires_manual_approval&quot;: node.task.requires_manual_approval,
+                                &quot;manual_approval&quot;: node.task.manual_approval.as_dict(),
+                                &quot;compensation_handler&quot;: node.task.compensation_handler,
+                            }
+                            for node_id, node in flow.nodes.items()
+                        },
+                        default=str,
+                    ),
+                    json.dumps(
+                        [
+                            {
+                                &quot;from_node&quot;: edge.from_node,
+                                &quot;to_node&quot;: edge.to_node,
+                                &quot;condition&quot;: edge.condition.expression,
+                            }
+                            for edge in flow.edges
+                        ]
+                    ),
+                    json.dumps(flow.metadata, default=str),
+                ),
+            )
+            self._connection.commit()
+
+    def save_execution(self, execution: TaskExecution, flow_id: int | None = None) -&gt; None:
+        with self._lock:
+            self._connection.execute(
+                &quot;&quot;&quot;
+                INSERT INTO executions (
+                    execution_id, task_id, flow_id, start_time, end_time, result_json, status,
+                    errors_json, attempt_count, resource_history_json, updated_at
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+                ON CONFLICT(execution_id) DO UPDATE SET
+                    task_id = excluded.task_id,
+                    flow_id = excluded.flow_id,
+                    start_time = excluded.start_time,
+                    end_time = excluded.end_time,
+                    result_json = excluded.result_json,
+                    status = excluded.status,
+                    errors_json = excluded.errors_json,
+                    attempt_count = excluded.attempt_count,
+                    resource_history_json = excluded.resource_history_json,
+                    updated_at = excluded.updated_at
+                &quot;&quot;&quot;,
+                (
+                    execution.execution_id,
+                    execution.task_ref.task_id,
+                    flow_id,
+                    execution.start_time.isoformat() if execution.start_time else None,
+                    execution.end_time.isoformat() if execution.end_time else None,
+                    json.dumps(execution.result, default=str) if execution.result is not None else None,
+                    execution.status.value,
+                    json.dumps([error.as_dict() for error in execution.errors], default=str),
+                    execution.attempt_count,
+                    json.dumps(execution.resource_history),
+                ),
+            )
+            self._connection.commit()
+
+    def list_executions(self) -&gt; list[dict[str, Any]]:
+        with self._lock:
+            rows = self._connection.execute(
+                &quot;SELECT * FROM executions ORDER BY execution_id ASC&quot;
+            ).fetchall()
+        return [self._decode_execution_row(row) for row in rows]
+
+    def get_flow_record(self, flow_id: int) -&gt; dict[str, Any] | None:
+        with self._lock:
+            row = self._connection.execute(
+                &quot;SELECT * FROM flows WHERE flow_id = ?&quot;,
+                (flow_id,),
+            ).fetchone()
+        return self._decode_flow_row(row) if row else None
+
+    @staticmethod
+    def _decode_execution_row(row: sqlite3.Row) -&gt; dict[str, Any]:
+        payload = dict(row)
+        for field in (&quot;result_json&quot;, &quot;errors_json&quot;, &quot;resource_history_json&quot;):
+            if payload.get(field):
+                payload[field] = json.loads(payload[field])
+        return payload
+
+    @staticmethod
+    def _decode_flow_row(row: sqlite3.Row) -&gt; dict[str, Any]:
+        payload = dict(row)
+        return {
+            &quot;flow_id&quot;: payload[&quot;flow_id&quot;],
+            &quot;state&quot;: payload[&quot;state&quot;],
+            &quot;nodes&quot;: json.loads(payload[&quot;nodes_json&quot;]),
+            &quot;edges&quot;: json.loads(payload[&quot;edges_json&quot;]),
+            &quot;metadata&quot;: json.loads(payload[&quot;metadata_json&quot;]),
+            &quot;updated_at&quot;: payload[&quot;updated_at&quot;],
+        }
+</code></pre>
+          </section>
+        </article>
+        <aside class="doc-toc">
+          <div class="doc-toc__card">
+            <p class="doc-toc__eyebrow">On this page</p>
+            <p class="toc__empty">Repository view</p>
+          </div>
+        </aside>
+      </main>
+    </div>
+  </div>
+  <script src="../../../../assets/site-data.js"></script>
+  <script src="../../../../assets/site.js"></script>
+</body>
+</html>

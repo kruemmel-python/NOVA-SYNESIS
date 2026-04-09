@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Repository: src/nova_synesis/domain/models.py | NOVA-SYNESIS Docs</title>
+  <meta name="description" content="Repository file view for src/nova_synesis/domain/models.py">
+  <link rel="icon" type="image/svg+xml" href="../../../../assets/favicon.svg">
+  <link rel="stylesheet" href="../../../../assets/site.css">
+</head>
+<body data-page-url="repo/src/nova_synesis/domain/models.py.html">
+  <div class="site-shell">
+    <aside class="site-sidebar" id="site-sidebar">
+      <div class="brand">
+        <p class="brand__eyebrow">Neural Orchestration Visual Autonomy</p>
+        <h1>NOVA-SYNESIS</h1>
+        <p class="brand__subtitle">Stateful Yielding Node-based Execution Semantic Integrated Surface</p>
+      </div>
+      <label class="search-box">
+        <span class="search-box__label">Search docs</span>
+        <input id="docs-search" type="search" placeholder="Search guides, files, handlers, policies">
+      </label>
+      <div class="search-results" id="search-results" hidden></div>
+      <div class="sidebar-scroll">
+        <a class="brand__home" href="../../../../index.html">Documentation Home</a><section class="sidebar__group"><h2>Guides</h2><ul class="nav-list"><li><a class="nav-list__link" href="../../../../index.html">NOVA-SYNESIS Dokumentation</a></li><li><a class="nav-list__link" href="../../../../getting-started.html">Schnellstart</a></li><li><a class="nav-list__link" href="../../../../system-overview.html">Systemueberblick</a></li><li><a class="nav-list__link" href="../../../../backend-runtime.html">Backend-Laufzeit</a></li><li><a class="nav-list__link" href="../../../../frontend-editor.html">Frontend-Editor</a></li><li><a class="nav-list__link" href="../../../../planner-and-lit.html">LLM-Planer und LiteRT</a></li><li><a class="nav-list__link" href="../../../../security-and-policy.html">Security und Policy</a></li><li><a class="nav-list__link" href="../../../../handler-trust-and-approval.html">Handler Trust und Freigaben</a></li><li><a class="nav-list__link" href="../../../../failure-playbook.html">Failure Playbook</a></li><li><a class="nav-list__link" href="../../../../decision-guide.html">Decision Guide</a></li><li><a class="nav-list__link" href="../../../../real-world-scenarios.html">Real World Scenarios</a></li><li><a class="nav-list__link" href="../../../../change-workflows.html">Aenderungsleitfaden</a></li></ul></section><section class="sidebar__group"><h2>Reference</h2><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/index.html">Referenzindex</a></li><li><a class="nav-list__link" href="../../../../reference/.env.example.html">.env.example</a></li><li><a class="nav-list__link" href="../../../../reference/.gitignore.html">.gitignore</a></li><li><a class="nav-list__link" href="../../../../reference/Anweisung.md.html">Anweisung.md</a></li><li><a class="nav-list__link" href="../../../../reference/Dockerfile.html">Dockerfile</a></li><li class="nav-list__branch"><details ><summary>Frontend</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/frontend/.env.example.html">.env.example</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/index.html.html">index.html</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/package-lock.json.html">package-lock.json</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/package.json.html">package.json</a></li><li class="nav-list__branch"><details ><summary>Source</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/frontend/src/app.css.html">app.css</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/src/App.tsx.html">App.tsx</a></li><li class="nav-list__branch"><details ><summary>Components</summary><ul class="nav-list"><li class="nav-list__branch"><details ><summary>Common</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/frontend/src/components/common/JsonEditor.tsx.html">JsonEditor.tsx</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/src/components/common/StatusBadge.tsx.html">StatusBadge.tsx</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Flow</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/frontend/src/components/flow/FlowCanvas.tsx.html">FlowCanvas.tsx</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/src/components/flow/TaskNode.tsx.html">TaskNode.tsx</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Layout</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/frontend/src/components/layout/InspectorPanel.tsx.html">InspectorPanel.tsx</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/src/components/layout/PlannerComposer.tsx.html">PlannerComposer.tsx</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/src/components/layout/Sidebar.tsx.html">Sidebar.tsx</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/src/components/layout/TopBar.tsx.html">TopBar.tsx</a></li></ul></details></li></ul></details></li><li class="nav-list__branch"><details ><summary>Hooks</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/frontend/src/hooks/useCatalogBootstrap.ts.html">useCatalogBootstrap.ts</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/src/hooks/useFlowLiveUpdates.ts.html">useFlowLiveUpdates.ts</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Lib</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/frontend/src/lib/apiClient.ts.html">apiClient.ts</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/src/lib/autoLayout.ts.html">autoLayout.ts</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/src/lib/flowSerialization.ts.html">flowSerialization.ts</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/src/lib/json.ts.html">json.ts</a></li></ul></details></li><li><a class="nav-list__link" href="../../../../reference/frontend/src/main.tsx.html">main.tsx</a></li><li class="nav-list__branch"><details ><summary>Store</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/frontend/src/store/useFlowStore.ts.html">useFlowStore.ts</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Types</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/frontend/src/types/api.ts.html">api.ts</a></li></ul></details></li><li><a class="nav-list__link" href="../../../../reference/frontend/src/vite-env.d.ts.html">vite-env.d.ts</a></li></ul></details></li><li><a class="nav-list__link" href="../../../../reference/frontend/tsconfig.app.json.html">tsconfig.app.json</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/tsconfig.json.html">tsconfig.json</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/tsconfig.node.json.html">tsconfig.node.json</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/vite.config.d.ts.html">vite.config.d.ts</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/vite.config.js.html">vite.config.js</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/vite.config.ts.html">vite.config.ts</a></li></ul></details></li><li><a class="nav-list__link" href="../../../../reference/LICENSE.html">LICENSE</a></li><li class="nav-list__branch"><details ><summary>LIT</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/LIT/planner_test_prompt.txt.html">planner_test_prompt.txt</a></li><li><a class="nav-list__link" href="../../../../reference/LIT/README.md.html">README.md</a></li></ul></details></li><li><a class="nav-list__link" href="../../../../reference/pyproject.toml.html">pyproject.toml</a></li><li><a class="nav-list__link" href="../../../../reference/README.md.html">README.md</a></li><li><a class="nav-list__link" href="../../../../reference/run-backend.cmd.html">run-backend.cmd</a></li><li><a class="nav-list__link" href="../../../../reference/run-backend.ps1.html">run-backend.ps1</a></li><li class="nav-list__branch"><details ><summary>Source</summary><ul class="nav-list"><li class="nav-list__branch"><details ><summary>NOVA-SYNESIS</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/__init__.py.html">__init__.py</a></li><li class="nav-list__branch"><details ><summary>API</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/api/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/api/app.py.html">app.py</a></li></ul></details></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/cli.py.html">cli.py</a></li><li class="nav-list__branch"><details ><summary>Communication</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/communication/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/communication/adapters.py.html">adapters.py</a></li></ul></details></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/config.py.html">config.py</a></li><li class="nav-list__branch"><details ><summary>Domain</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/domain/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/domain/models.py.html">models.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Memory</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/memory/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/memory/systems.py.html">systems.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Persistence</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/persistence/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/persistence/sqlite_repository.py.html">sqlite_repository.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Planning</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/planning/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/planning/lit_planner.py.html">lit_planner.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/planning/planner.py.html">planner.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Resources</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/resources/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/resources/manager.py.html">manager.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Runtime</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/runtime/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/runtime/engine.py.html">engine.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/runtime/handlers.py.html">handlers.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Security</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/security/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/security/policy.py.html">policy.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/security/trust.py.html">trust.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Services</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/services/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/services/orchestrator.py.html">orchestrator.py</a></li></ul></details></li></ul></details></li></ul></details></li><li class="nav-list__branch"><details ><summary>Tests</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/tests/test_orchestrator.py.html">test_orchestrator.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Tools</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/tools/build_code_release.ps1.html">build_code_release.ps1</a></li><li><a class="nav-list__link" href="../../../../reference/tools/build_web_docs.py.html">build_web_docs.py</a></li><li><a class="nav-list__link" href="../../../../reference/tools/generate_docs.py.html">generate_docs.py</a></li></ul></details></li><li><a class="nav-list__link" href="../../../../reference/uml.html.html">uml.html</a></li><li><a class="nav-list__link" href="../../../../reference/uml_V3.mmd.html">uml_V3.mmd</a></li><li class="nav-list__branch"><details ><summary>Use Cases</summary><ul class="nav-list"><li class="nav-list__branch"><details ><summary>Platform Health Snapshot</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/Use_Cases/platform_health_snapshot/flow.json.html">flow.json</a></li><li><a class="nav-list__link" href="../../../../reference/Use_Cases/platform_health_snapshot/platform_health_snapshot.png.html">platform_health_snapshot.png</a></li><li><a class="nav-list__link" href="../../../../reference/Use_Cases/platform_health_snapshot/README.md.html">README.md</a></li><li><a class="nav-list__link" href="../../../../reference/Use_Cases/platform_health_snapshot/run.ps1.html">run.ps1</a></li><li><a class="nav-list__link" href="../../../../reference/Use_Cases/platform_health_snapshot/setup.ps1.html">setup.ps1</a></li></ul></details></li><li><a class="nav-list__link" href="../../../../reference/Use_Cases/README.md.html">README.md</a></li><li class="nav-list__branch"><details ><summary>Semantic Ticket Triage</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/Use_Cases/semantic_ticket_triage/flow.json.html">flow.json</a></li><li><a class="nav-list__link" href="../../../../reference/Use_Cases/semantic_ticket_triage/README.md.html">README.md</a></li><li><a class="nav-list__link" href="../../../../reference/Use_Cases/semantic_ticket_triage/run.ps1.html">run.ps1</a></li><li><a class="nav-list__link" href="../../../../reference/Use_Cases/semantic_ticket_triage/semantic_ticket_triage.png.html">semantic_ticket_triage.png</a></li><li><a class="nav-list__link" href="../../../../reference/Use_Cases/semantic_ticket_triage/setup.ps1.html">setup.ps1</a></li></ul></details></li></ul></details></li></ul></section><section class="sidebar__group"><h2>Appendix</h2><ul class="nav-list"><li><a class="nav-list__link" href="../../../../coverage.html">Abdeckung</a></li><li><a class="nav-list__link" href="../../../../Whitepaper.html">Whitepaper: Die Genesis von NOVA-SYNESIS</a></li></ul></section><section class="sidebar__group sidebar__group--meta"><h2>Search</h2><p>Use <kbd>/</kbd> to focus the search field and jump across guides, references and scenarios.</p></section>
+      </div>
+    </aside>
+
+    <div class="site-main">
+      <header class="site-header">
+        <button class="site-header__toggle" type="button" id="sidebar-toggle" aria-controls="site-sidebar" aria-expanded="false">
+          Menu
+        </button>
+        <div class="site-header__meta">
+          <p class="site-header__eyebrow">Generated documentation surface</p>
+          <h2>Repository: src/nova_synesis/domain/models.py</h2>
+        </div>
+        <div class="site-header__status">
+          <span class="status-chip">HTML docs</span>
+          <span class="status-chip status-chip--accent">2026-04-09 00:10 UTC</span>
+        </div>
+      </header>
+
+      <main class="content-shell">
+        <article class="doc-article">
+          <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="../../../../index.html">Docs</a><span aria-current="page">reference</span></nav>
+          <section class="doc-hero">
+            <p class="doc-hero__eyebrow">Documentation</p>
+            <h1>Repository: src/nova_synesis/domain/models.py</h1>
+            <p>Repository file view for src/nova_synesis/domain/models.py</p>
+          </section>
+          <section class="doc-content">
+            <section class="source-meta"><p class="doc-hero__eyebrow">Repository file</p><h1>src/nova_synesis/domain/models.py</h1><p>Rendered source view for the repository file. 693 lines.</p></section><pre class="source-block"><code class="language-python">from __future__ import annotations
+
+import ast
+import asyncio
+import sqlite3
+from dataclasses import dataclass, field
+from datetime import datetime, timezone
+from enum import StrEnum
+from pathlib import Path
+from random import uniform
+from typing import TYPE_CHECKING, Any, Callable
+
+import httpx
+
+if TYPE_CHECKING:
+    from nova_synesis.communication.adapters import CommunicationAdapter
+    from nova_synesis.memory.systems import MemorySystem
+    from nova_synesis.planning.planner import IntentPlanner
+    from nova_synesis.runtime.engine import FlowExecutor
+
+
+def utcnow() -&gt; datetime:
+    return datetime.now(timezone.utc)
+
+
+async def maybe_await(value: Any) -&gt; Any:
+    if asyncio.iscoroutine(value) or isinstance(value, asyncio.Future):
+        return await value
+    return value
+
+
+class AgentState(StrEnum):
+    IDLE = &quot;IDLE&quot;
+    RUNNING = &quot;RUNNING&quot;
+    ERROR = &quot;ERROR&quot;
+    WAITING = &quot;WAITING&quot;
+
+
+class ProtocolType(StrEnum):
+    REST = &quot;REST&quot;
+    WEBSOCKET = &quot;WEBSOCKET&quot;
+    MESSAGE_QUEUE = &quot;MESSAGE_QUEUE&quot;
+
+
+class MemoryType(StrEnum):
+    SHORT_TERM = &quot;SHORT_TERM&quot;
+    LONG_TERM = &quot;LONG_TERM&quot;
+    VECTOR = &quot;VECTOR&quot;
+
+
+class TaskStatus(StrEnum):
+    PENDING = &quot;PENDING&quot;
+    RUNNING = &quot;RUNNING&quot;
+    SUCCESS = &quot;SUCCESS&quot;
+    FAILED = &quot;FAILED&quot;
+
+
+class ExecutionStatus(StrEnum):
+    STARTED = &quot;STARTED&quot;
+    COMPLETED = &quot;COMPLETED&quot;
+    FAILED = &quot;FAILED&quot;
+    ROLLED_BACK = &quot;ROLLED_BACK&quot;
+
+
+class RollbackStrategy(StrEnum):
+    RETRY = &quot;RETRY&quot;
+    COMPENSATE = &quot;COMPENSATE&quot;
+    FAIL_FAST = &quot;FAIL_FAST&quot;
+    FALLBACK_RESOURCE = &quot;FALLBACK_RESOURCE&quot;
+
+
+class ResourceType(StrEnum):
+    API = &quot;API&quot;
+    MODEL = &quot;MODEL&quot;
+    DATABASE = &quot;DATABASE&quot;
+    FILE = &quot;FILE&quot;
+    GPU = &quot;GPU&quot;
+
+
+class ResourceState(StrEnum):
+    AVAILABLE = &quot;AVAILABLE&quot;
+    BUSY = &quot;BUSY&quot;
+    DOWN = &quot;DOWN&quot;
+
+
+class FlowState(StrEnum):
+    CREATED = &quot;CREATED&quot;
+    RUNNING = &quot;RUNNING&quot;
+    PAUSED = &quot;PAUSED&quot;
+    COMPLETED = &quot;COMPLETED&quot;
+    FAILED = &quot;FAILED&quot;
+
+
+@dataclass(slots=True)
+class Capability:
+    name: str
+    type: str
+    constraints: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass(slots=True)
+class RetryPolicy:
+    max_retries: int = 3
+    backoff_ms: int = 250
+    exponential: bool = True
+    max_backoff_ms: int = 10_000
+    jitter_ratio: float = 0.0
+
+    def next_delay(self, attempt: int) -&gt; float:
+        base_delay_ms = self.backoff_ms * (2 ** (attempt - 1) if self.exponential else 1)
+        bounded_ms = min(base_delay_ms, self.max_backoff_ms)
+        jitter_ms = bounded_ms * self.jitter_ratio
+        return max(0.0, (bounded_ms + uniform(-jitter_ms, jitter_ms)) / 1000)
+
+
+@dataclass(slots=True)
+class ErrorEvent:
+    type: str
+    message: str
+    timestamp: datetime = field(default_factory=utcnow)
+    context: dict[str, Any] = field(default_factory=dict)
+
+    def as_dict(self) -&gt; dict[str, Any]:
+        return {
+            &quot;type&quot;: self.type,
+            &quot;message&quot;: self.message,
+            &quot;timestamp&quot;: self.timestamp.isoformat(),
+            &quot;context&quot;: self.context,
+        }
+
+
+@dataclass(slots=True)
+class ManualApproval:
+    approved: bool = False
+    approved_by: str | None = None
+    approved_at: datetime | None = None
+    reason: str | None = None
+    revoked_by: str | None = None
+    revoked_at: datetime | None = None
+
+    def approve(self, approved_by: str, reason: str | None = None) -&gt; None:
+        self.approved = True
+        self.approved_by = approved_by
+        self.approved_at = utcnow()
+        self.reason = reason
+        self.revoked_by = None
+        self.revoked_at = None
+
+    def revoke(self, revoked_by: str | None = None, reason: str | None = None) -&gt; None:
+        self.approved = False
+        self.revoked_by = revoked_by
+        self.revoked_at = utcnow()
+        if reason is not None:
+            self.reason = reason
+
+    def as_dict(self) -&gt; dict[str, Any]:
+        return {
+            &quot;approved&quot;: self.approved,
+            &quot;approved_by&quot;: self.approved_by,
+            &quot;approved_at&quot;: self.approved_at.isoformat() if self.approved_at else None,
+            &quot;reason&quot;: self.reason,
+            &quot;revoked_by&quot;: self.revoked_by,
+            &quot;revoked_at&quot;: self.revoked_at.isoformat() if self.revoked_at else None,
+        }
+
+    @classmethod
+    def from_dict(cls, payload: dict[str, Any] | None) -&gt; &quot;ManualApproval&quot;:
+        raw = payload or {}
+        approved_at = raw.get(&quot;approved_at&quot;)
+        revoked_at = raw.get(&quot;revoked_at&quot;)
+        return cls(
+            approved=bool(raw.get(&quot;approved&quot;, False)),
+            approved_by=raw.get(&quot;approved_by&quot;),
+            approved_at=datetime.fromisoformat(approved_at) if isinstance(approved_at, str) and approved_at else None,
+            reason=raw.get(&quot;reason&quot;),
+            revoked_by=raw.get(&quot;revoked_by&quot;),
+            revoked_at=datetime.fromisoformat(revoked_at) if isinstance(revoked_at, str) and revoked_at else None,
+        )
+
+
+class SafeExpressionEvaluator(ast.NodeVisitor):
+    _comparators: dict[type[ast.AST], Callable[[Any, Any], bool]] = {
+        ast.Eq: lambda left, right: left == right,
+        ast.NotEq: lambda left, right: left != right,
+        ast.Lt: lambda left, right: left &lt; right,
+        ast.LtE: lambda left, right: left &lt;= right,
+        ast.Gt: lambda left, right: left &gt; right,
+        ast.GtE: lambda left, right: left &gt;= right,
+        ast.In: lambda left, right: left in right,
+        ast.NotIn: lambda left, right: left not in right,
+    }
+    _binary: dict[type[ast.AST], Callable[[Any, Any], Any]] = {
+        ast.Add: lambda left, right: left + right,
+        ast.Sub: lambda left, right: left - right,
+        ast.Mult: lambda left, right: left * right,
+        ast.Div: lambda left, right: left / right,
+        ast.Mod: lambda left, right: left % right,
+    }
+    _allowed_functions: dict[str, Callable[..., Any]] = {
+        &quot;len&quot;: len,
+        &quot;sum&quot;: sum,
+        &quot;min&quot;: min,
+        &quot;max&quot;: max,
+        &quot;all&quot;: all,
+        &quot;any&quot;: any,
+        &quot;contains&quot;: lambda collection, item: item in collection,
+        &quot;exists&quot;: lambda value: value is not None,
+    }
+
+    def __init__(self, context: dict[str, Any]) -&gt; None:
+        self.context = context
+
+    def evaluate(self, expression: str) -&gt; Any:
+        tree = ast.parse(expression, mode=&quot;eval&quot;)
+        return self.visit(tree.body)
+
+    def visit_Name(self, node: ast.Name) -&gt; Any:
+        if node.id not in self.context:
+            raise ValueError(f&quot;Unknown symbol &#x27;{node.id}&#x27; in condition&quot;)
+        return self.context[node.id]
+
+    def visit_Constant(self, node: ast.Constant) -&gt; Any:
+        return node.value
+
+    def visit_List(self, node: ast.List) -&gt; list[Any]:
+        return [self.visit(element) for element in node.elts]
+
+    def visit_Tuple(self, node: ast.Tuple) -&gt; tuple[Any, ...]:
+        return tuple(self.visit(element) for element in node.elts)
+
+    def visit_Dict(self, node: ast.Dict) -&gt; dict[Any, Any]:
+        return {
+            self.visit(key): self.visit(value)
+            for key, value in zip(node.keys, node.values, strict=True)
+        }
+
+    def visit_BoolOp(self, node: ast.BoolOp) -&gt; bool:
+        values = [bool(self.visit(value)) for value in node.values]
+        if isinstance(node.op, ast.And):
+            return all(values)
+        if isinstance(node.op, ast.Or):
+            return any(values)
+        raise ValueError(f&quot;Unsupported boolean operator: {type(node.op).__name__}&quot;)
+
+    def visit_UnaryOp(self, node: ast.UnaryOp) -&gt; Any:
+        operand = self.visit(node.operand)
+        if isinstance(node.op, ast.Not):
+            return not operand
+        if isinstance(node.op, ast.USub):
+            return -operand
+        raise ValueError(f&quot;Unsupported unary operator: {type(node.op).__name__}&quot;)
+
+    def visit_BinOp(self, node: ast.BinOp) -&gt; Any:
+        operator = self._binary.get(type(node.op))
+        if operator is None:
+            raise ValueError(f&quot;Unsupported binary operator: {type(node.op).__name__}&quot;)
+        return operator(self.visit(node.left), self.visit(node.right))
+
+    def visit_Compare(self, node: ast.Compare) -&gt; bool:
+        left = self.visit(node.left)
+        for operator_node, comparator_node in zip(node.ops, node.comparators, strict=True):
+            comparator = self._comparators.get(type(operator_node))
+            right = self.visit(comparator_node)
+            if comparator is None or not comparator(left, right):
+                return False
+            left = right
+        return True
+
+    def visit_Subscript(self, node: ast.Subscript) -&gt; Any:
+        value = self.visit(node.value)
+        if isinstance(node.slice, ast.Slice):
+            lower = self.visit(node.slice.lower) if node.slice.lower else None
+            upper = self.visit(node.slice.upper) if node.slice.upper else None
+            step = self.visit(node.slice.step) if node.slice.step else None
+            return value[slice(lower, upper, step)]
+        return value[self.visit(node.slice)]
+
+    def visit_Call(self, node: ast.Call) -&gt; Any:
+        if not isinstance(node.func, ast.Name):
+            raise ValueError(&quot;Only named helper functions are allowed in conditions&quot;)
+        function = self._allowed_functions.get(node.func.id)
+        if function is None:
+            raise ValueError(f&quot;Unsupported function &#x27;{node.func.id}&#x27; in condition&quot;)
+        args = [self.visit(argument) for argument in node.args]
+        kwargs = {
+            keyword.arg: self.visit(keyword.value)
+            for keyword in node.keywords
+            if keyword.arg is not None
+        }
+        return function(*args, **kwargs)
+
+    def generic_visit(self, node: ast.AST) -&gt; Any:
+        raise ValueError(f&quot;Unsupported expression element: {type(node).__name__}&quot;)
+
+
+def safe_evaluate(expression: str, context: dict[str, Any]) -&gt; Any:
+    return SafeExpressionEvaluator(context).evaluate(expression)
+
+
+@dataclass(slots=True)
+class Condition:
+    expression: str
+
+    def evaluate(self, context: dict[str, Any]) -&gt; bool:
+        return bool(safe_evaluate(self.expression, context))
+
+
+@dataclass(slots=True)
+class Resource:
+    resource_id: int
+    type: ResourceType
+    endpoint: str
+    metadata: dict[str, Any] = field(default_factory=dict)
+    state: ResourceState = ResourceState.AVAILABLE
+    _lock: asyncio.Lock = field(default_factory=asyncio.Lock, init=False, repr=False)
+    _semaphore: asyncio.BoundedSemaphore = field(init=False, repr=False)
+    _in_use: int = field(default=0, init=False, repr=False)
+
+    def __post_init__(self) -&gt; None:
+        capacity = int(self.metadata.get(&quot;capacity&quot;, 1))
+        self._semaphore = asyncio.BoundedSemaphore(capacity)
+
+    @property
+    def capacity(self) -&gt; int:
+        return int(self.metadata.get(&quot;capacity&quot;, 1))
+
+    async def acquire(self, timeout: float | None = None) -&gt; bool:
+        if self.state == ResourceState.DOWN:
+            return False
+        try:
+            if timeout is None:
+                await self._semaphore.acquire()
+            else:
+                await asyncio.wait_for(self._semaphore.acquire(), timeout=timeout)
+        except TimeoutError:
+            return False
+        async with self._lock:
+            self._in_use += 1
+            self.state = (
+                ResourceState.BUSY
+                if self._in_use &gt;= self.capacity
+                else ResourceState.AVAILABLE
+            )
+        return True
+
+    async def release(self) -&gt; None:
+        async with self._lock:
+            if self._in_use &gt; 0:
+                self._in_use -= 1
+                self._semaphore.release()
+            self.state = (
+                ResourceState.BUSY if self._in_use &gt;= self.capacity else ResourceState.AVAILABLE
+            )
+
+    async def health_check(self) -&gt; bool:
+        custom_checker = self.metadata.get(&quot;health_check&quot;)
+        if callable(custom_checker):
+            is_healthy = bool(await maybe_await(custom_checker(self)))
+            self.state = ResourceState.AVAILABLE if is_healthy else ResourceState.DOWN
+            return is_healthy
+
+        try:
+            if self.type == ResourceType.API and self.endpoint:
+                method = self.metadata.get(&quot;health_method&quot;, &quot;GET&quot;)
+                timeout = float(self.metadata.get(&quot;timeout_s&quot;, 3.0))
+                async with httpx.AsyncClient(timeout=timeout) as client:
+                    response = await client.request(method, self.endpoint)
+                is_healthy = response.status_code &lt; 500
+            elif self.type == ResourceType.FILE:
+                is_healthy = Path(self.endpoint).exists()
+            elif self.type == ResourceType.DATABASE:
+                database_path = self.metadata.get(&quot;database_path&quot;, self.endpoint)
+                with sqlite3.connect(database_path) as connection:
+                    connection.execute(&quot;SELECT 1&quot;)
+                is_healthy = True
+            else:
+                is_healthy = self.state != ResourceState.DOWN
+        except Exception:
+            is_healthy = False
+
+        self.state = ResourceState.AVAILABLE if is_healthy else ResourceState.DOWN
+        return is_healthy
+
+
+@dataclass(slots=True)
+class Agent:
+    agent_id: int
+    name: str
+    role: str
+    capabilities: list[Capability] = field(default_factory=list)
+    state: AgentState = AgentState.IDLE
+    comms: CommunicationAdapter | None = None
+    memory_refs: list[MemorySystem] = field(default_factory=list)
+
+    def capability_index(self) -&gt; set[str]:
+        values = {self.role}
+        for capability in self.capabilities:
+            values.add(capability.name)
+            values.add(capability.type)
+        return values
+
+    def can_execute(self, required_capabilities: list[str]) -&gt; bool:
+        if not required_capabilities:
+            return True
+        available = self.capability_index()
+        return all(capability in available for capability in required_capabilities)
+
+    async def perceive(self, input_data: Any) -&gt; dict[str, Any]:
+        return {
+            &quot;input&quot;: input_data,
+            &quot;agent_id&quot;: self.agent_id,
+            &quot;role&quot;: self.role,
+            &quot;capabilities&quot;: [capability.name for capability in self.capabilities],
+            &quot;timestamp&quot;: utcnow().isoformat(),
+        }
+
+    async def decide(self, context: dict[str, Any]) -&gt; dict[str, Any]:
+        required = set(context.get(&quot;required_capabilities&quot;, []))
+        available = self.capability_index()
+        matched = sorted(required.intersection(available))
+        return {
+            &quot;selected&quot;: not required or required.issubset(available),
+            &quot;matched_capabilities&quot;: matched,
+            &quot;available_capabilities&quot;: sorted(available),
+        }
+
+    async def act(self, task: &quot;Task&quot;) -&gt; dict[str, Any]:
+        self.state = AgentState.RUNNING
+        return {
+            &quot;task_id&quot;: task.task_id,
+            &quot;handler_name&quot;: task.handler_name,
+            &quot;timestamp&quot;: utcnow().isoformat(),
+        }
+
+    async def communicate(
+        self,
+        message: Any,
+        target: str | int | None = None,
+        protocol: ProtocolType | None = None,
+    ) -&gt; Any:
+        if self.comms is None:
+            raise RuntimeError(f&quot;Agent &#x27;{self.name}&#x27; has no communication adapter configured&quot;)
+        payload = {
+            &quot;source_agent_id&quot;: self.agent_id,
+            &quot;target&quot;: target,
+            &quot;protocol&quot;: str(protocol or self.comms.protocol),
+            &quot;message&quot;: message,
+            &quot;timestamp&quot;: utcnow().isoformat(),
+        }
+        return await self.comms.send(payload)
+
+
+@dataclass(slots=True)
+class Task:
+    task_id: int
+    input: Any
+    output: Any = None
+    status: TaskStatus = TaskStatus.PENDING
+    assigned_agent: Agent | None = None
+    required_resources: list[Resource] = field(default_factory=list)
+    retry_policy: RetryPolicy = field(default_factory=RetryPolicy)
+    handler_name: str = &quot;template_render&quot;
+    validator_rules: dict[str, Any] = field(default_factory=dict)
+    context: dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
+    requires_manual_approval: bool = False
+    manual_approval: ManualApproval = field(default_factory=ManualApproval)
+    rollback_strategy: RollbackStrategy = RollbackStrategy.FAIL_FAST
+    compensation_handler: str | None = None
+
+    async def execute(self) -&gt; None:
+        self.status = TaskStatus.RUNNING
+
+    def validate(self, result: Any) -&gt; bool:
+        required_keys = self.validator_rules.get(&quot;required_keys&quot;, [])
+        if required_keys:
+            if not isinstance(result, dict):
+                raise ValueError(&quot;Validation failed: result is not a dictionary&quot;)
+            missing = [key for key in required_keys if key not in result]
+            if missing:
+                raise ValueError(f&quot;Validation failed: missing keys {missing}&quot;)
+
+        expected_type = self.validator_rules.get(&quot;output_type&quot;)
+        if expected_type:
+            type_mapping = {
+                &quot;str&quot;: str,
+                &quot;int&quot;: int,
+                &quot;float&quot;: float,
+                &quot;dict&quot;: dict,
+                &quot;list&quot;: list,
+                &quot;bool&quot;: bool,
+            }
+            target_type = type_mapping.get(expected_type)
+            if target_type is None or not isinstance(result, target_type):
+                raise ValueError(f&quot;Validation failed: output is not of type {expected_type}&quot;)
+
+        expression = self.validator_rules.get(&quot;expression&quot;)
+        if expression and not safe_evaluate(
+            expression,
+            {
+                &quot;result&quot;: result,
+                &quot;metadata&quot;: self.metadata,
+            },
+        ):
+            raise ValueError(&quot;Validation failed: expression evaluated to false&quot;)
+        return True
+
+    def complete(self, output: Any) -&gt; Any:
+        self.output = output
+        self.status = TaskStatus.SUCCESS
+        return output
+
+    def reset(self) -&gt; None:
+        self.output = None
+        self.status = TaskStatus.PENDING
+
+
+@dataclass(slots=True)
+class TaskExecution:
+    execution_id: int
+    task_ref: Task
+    start_time: datetime | None = None
+    end_time: datetime | None = None
+    result: Any = None
+    status: ExecutionStatus = ExecutionStatus.STARTED
+    errors: list[ErrorEvent] = field(default_factory=list)
+    attempt_count: int = 0
+    resource_history: list[int] = field(default_factory=list)
+
+    def start(self) -&gt; None:
+        self.start_time = utcnow()
+        self.status = ExecutionStatus.STARTED
+        self.task_ref.status = TaskStatus.RUNNING
+
+    def finish(self, result: Any) -&gt; None:
+        self.end_time = utcnow()
+        self.result = result
+        self.status = ExecutionStatus.COMPLETED
+        self.task_ref.complete(result)
+
+    def record_error(self, error: ErrorEvent) -&gt; ErrorEvent:
+        self.errors.append(error)
+        self.status = ExecutionStatus.FAILED
+        self.task_ref.status = TaskStatus.FAILED
+        return error
+
+    def rollback(self, strategy: RollbackStrategy) -&gt; None:
+        self.end_time = utcnow()
+        self.status = ExecutionStatus.ROLLED_BACK
+        self.task_ref.metadata[&quot;rollback_strategy_used&quot;] = strategy.value
+
+    def retry(self) -&gt; None:
+        self.attempt_count += 1
+        self.status = ExecutionStatus.STARTED
+        self.task_ref.status = TaskStatus.RUNNING
+
+
+@dataclass(slots=True)
+class Intent:
+    intent_id: int
+    goal: str
+    constraints: dict[str, Any] = field(default_factory=dict)
+    priority: int = 1
+    timestamp: datetime = field(default_factory=utcnow)
+
+    def refine(self, updates: dict[str, Any]) -&gt; &quot;Intent&quot;:
+        merged_constraints = dict(self.constraints)
+        merged_constraints.update(updates)
+        self.constraints = merged_constraints
+        return self
+
+    async def plan(
+        self,
+        planner: IntentPlanner,
+        agents: list[Agent],
+        resources: list[Resource],
+        task_id_allocator: Callable[[], int],
+        flow_id_allocator: Callable[[], int],
+    ) -&gt; &quot;ExecutionFlow&quot;:
+        return planner.plan_intent(
+            self,
+            agents=agents,
+            resources=resources,
+            task_id_allocator=task_id_allocator,
+            flow_id_allocator=flow_id_allocator,
+        )
+
+    async def promote_to_task(
+        self,
+        planner: IntentPlanner,
+        agents: list[Agent],
+        resources: list[Resource],
+        task_id_allocator: Callable[[], int],
+    ) -&gt; Task:
+        return planner.promote_to_task(
+            self,
+            agents=agents,
+            resources=resources,
+            task_id_allocator=task_id_allocator,
+        )
+
+
+@dataclass(slots=True)
+class FlowNode:
+    node_id: str
+    task: Task
+    agent: Agent | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass(slots=True)
+class FlowEdge:
+    from_node: str
+    to_node: str
+    condition: Condition = field(default_factory=lambda: Condition(&quot;True&quot;))
+
+
+@dataclass(slots=True)
+class ExecutionFlow:
+    flow_id: int
+    state: FlowState = FlowState.CREATED
+    nodes: dict[str, FlowNode] = field(default_factory=dict)
+    edges: list[FlowEdge] = field(default_factory=list)
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+    def add_node(self, node: FlowNode) -&gt; None:
+        self.nodes[node.node_id] = node
+
+    def add_edge(self, edge: FlowEdge) -&gt; None:
+        if edge.from_node not in self.nodes:
+            raise ValueError(f&quot;Unknown source node &#x27;{edge.from_node}&#x27;&quot;)
+        if edge.to_node not in self.nodes:
+            raise ValueError(f&quot;Unknown target node &#x27;{edge.to_node}&#x27;&quot;)
+        self.edges.append(edge)
+
+    def incoming_edges(self, node_id: str) -&gt; list[FlowEdge]:
+        return [edge for edge in self.edges if edge.to_node == node_id]
+
+    def outgoing_edges(self, node_id: str) -&gt; list[FlowEdge]:
+        return [edge for edge in self.edges if edge.from_node == node_id]
+
+    async def run(self, executor: FlowExecutor) -&gt; dict[str, Any]:
+        return await executor.run_flow(self)
+
+    def pause(self) -&gt; None:
+        self.state = FlowState.PAUSED
+        self.metadata[&quot;pause_requested&quot;] = True
+
+    def observe(self) -&gt; dict[str, Any]:
+        return {
+            &quot;flow_id&quot;: self.flow_id,
+            &quot;state&quot;: self.state.value,
+            &quot;metadata&quot;: self.metadata,
+            &quot;nodes&quot;: {
+                node_id: {
+                    &quot;task_id&quot;: node.task.task_id,
+                    &quot;task_status&quot;: node.task.status.value,
+                    &quot;handler_name&quot;: node.task.handler_name,
+                    &quot;assigned_agent_id&quot;: node.agent.agent_id if node.agent else None,
+                    &quot;input&quot;: node.task.input,
+                    &quot;output&quot;: node.task.output,
+                    &quot;required_capabilities&quot;: node.task.context.get(&quot;required_capabilities&quot;, []),
+                    &quot;required_resource_ids&quot;: [
+                        resource.resource_id for resource in node.task.required_resources
+                    ],
+                    &quot;required_resource_types&quot;: [
+                        resource.type.value for resource in node.task.required_resources
+                    ],
+                    &quot;retry_policy&quot;: {
+                        &quot;max_retries&quot;: node.task.retry_policy.max_retries,
+                        &quot;backoff_ms&quot;: node.task.retry_policy.backoff_ms,
+                        &quot;exponential&quot;: node.task.retry_policy.exponential,
+                        &quot;max_backoff_ms&quot;: node.task.retry_policy.max_backoff_ms,
+                        &quot;jitter_ratio&quot;: node.task.retry_policy.jitter_ratio,
+                    },
+                    &quot;rollback_strategy&quot;: node.task.rollback_strategy.value,
+                    &quot;validator_rules&quot;: node.task.validator_rules,
+                    &quot;metadata&quot;: node.task.metadata,
+                    &quot;requires_manual_approval&quot;: node.task.requires_manual_approval,
+                    &quot;manual_approval&quot;: node.task.manual_approval.as_dict(),
+                    &quot;compensation_handler&quot;: node.task.compensation_handler,
+                }
+                for node_id, node in self.nodes.items()
+            },
+            &quot;edges&quot;: [
+                {
+                    &quot;from_node&quot;: edge.from_node,
+                    &quot;to_node&quot;: edge.to_node,
+                    &quot;condition&quot;: edge.condition.expression,
+                }
+                for edge in self.edges
+            ],
+        }
+</code></pre>
+          </section>
+        </article>
+        <aside class="doc-toc">
+          <div class="doc-toc__card">
+            <p class="doc-toc__eyebrow">On this page</p>
+            <p class="toc__empty">Repository view</p>
+          </div>
+        </aside>
+      </main>
+    </div>
+  </div>
+  <script src="../../../../assets/site-data.js"></script>
+  <script src="../../../../assets/site.js"></script>
+</body>
+</html>

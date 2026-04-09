@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Repository: src/nova_synesis/api/app.py | NOVA-SYNESIS Docs</title>
+  <meta name="description" content="Repository file view for src/nova_synesis/api/app.py">
+  <link rel="icon" type="image/svg+xml" href="../../../../assets/favicon.svg">
+  <link rel="stylesheet" href="../../../../assets/site.css">
+</head>
+<body data-page-url="repo/src/nova_synesis/api/app.py.html">
+  <div class="site-shell">
+    <aside class="site-sidebar" id="site-sidebar">
+      <div class="brand">
+        <p class="brand__eyebrow">Neural Orchestration Visual Autonomy</p>
+        <h1>NOVA-SYNESIS</h1>
+        <p class="brand__subtitle">Stateful Yielding Node-based Execution Semantic Integrated Surface</p>
+      </div>
+      <label class="search-box">
+        <span class="search-box__label">Search docs</span>
+        <input id="docs-search" type="search" placeholder="Search guides, files, handlers, policies">
+      </label>
+      <div class="search-results" id="search-results" hidden></div>
+      <div class="sidebar-scroll">
+        <a class="brand__home" href="../../../../index.html">Documentation Home</a><section class="sidebar__group"><h2>Guides</h2><ul class="nav-list"><li><a class="nav-list__link" href="../../../../index.html">NOVA-SYNESIS Dokumentation</a></li><li><a class="nav-list__link" href="../../../../getting-started.html">Schnellstart</a></li><li><a class="nav-list__link" href="../../../../system-overview.html">Systemueberblick</a></li><li><a class="nav-list__link" href="../../../../backend-runtime.html">Backend-Laufzeit</a></li><li><a class="nav-list__link" href="../../../../frontend-editor.html">Frontend-Editor</a></li><li><a class="nav-list__link" href="../../../../planner-and-lit.html">LLM-Planer und LiteRT</a></li><li><a class="nav-list__link" href="../../../../security-and-policy.html">Security und Policy</a></li><li><a class="nav-list__link" href="../../../../handler-trust-and-approval.html">Handler Trust und Freigaben</a></li><li><a class="nav-list__link" href="../../../../failure-playbook.html">Failure Playbook</a></li><li><a class="nav-list__link" href="../../../../decision-guide.html">Decision Guide</a></li><li><a class="nav-list__link" href="../../../../real-world-scenarios.html">Real World Scenarios</a></li><li><a class="nav-list__link" href="../../../../change-workflows.html">Aenderungsleitfaden</a></li></ul></section><section class="sidebar__group"><h2>Reference</h2><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/index.html">Referenzindex</a></li><li><a class="nav-list__link" href="../../../../reference/.env.example.html">.env.example</a></li><li><a class="nav-list__link" href="../../../../reference/.gitignore.html">.gitignore</a></li><li><a class="nav-list__link" href="../../../../reference/Anweisung.md.html">Anweisung.md</a></li><li><a class="nav-list__link" href="../../../../reference/Dockerfile.html">Dockerfile</a></li><li class="nav-list__branch"><details ><summary>Frontend</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/frontend/.env.example.html">.env.example</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/index.html.html">index.html</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/package-lock.json.html">package-lock.json</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/package.json.html">package.json</a></li><li class="nav-list__branch"><details ><summary>Source</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/frontend/src/app.css.html">app.css</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/src/App.tsx.html">App.tsx</a></li><li class="nav-list__branch"><details ><summary>Components</summary><ul class="nav-list"><li class="nav-list__branch"><details ><summary>Common</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/frontend/src/components/common/JsonEditor.tsx.html">JsonEditor.tsx</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/src/components/common/StatusBadge.tsx.html">StatusBadge.tsx</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Flow</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/frontend/src/components/flow/FlowCanvas.tsx.html">FlowCanvas.tsx</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/src/components/flow/TaskNode.tsx.html">TaskNode.tsx</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Layout</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/frontend/src/components/layout/InspectorPanel.tsx.html">InspectorPanel.tsx</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/src/components/layout/PlannerComposer.tsx.html">PlannerComposer.tsx</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/src/components/layout/Sidebar.tsx.html">Sidebar.tsx</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/src/components/layout/TopBar.tsx.html">TopBar.tsx</a></li></ul></details></li></ul></details></li><li class="nav-list__branch"><details ><summary>Hooks</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/frontend/src/hooks/useCatalogBootstrap.ts.html">useCatalogBootstrap.ts</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/src/hooks/useFlowLiveUpdates.ts.html">useFlowLiveUpdates.ts</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Lib</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/frontend/src/lib/apiClient.ts.html">apiClient.ts</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/src/lib/autoLayout.ts.html">autoLayout.ts</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/src/lib/flowSerialization.ts.html">flowSerialization.ts</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/src/lib/json.ts.html">json.ts</a></li></ul></details></li><li><a class="nav-list__link" href="../../../../reference/frontend/src/main.tsx.html">main.tsx</a></li><li class="nav-list__branch"><details ><summary>Store</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/frontend/src/store/useFlowStore.ts.html">useFlowStore.ts</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Types</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/frontend/src/types/api.ts.html">api.ts</a></li></ul></details></li><li><a class="nav-list__link" href="../../../../reference/frontend/src/vite-env.d.ts.html">vite-env.d.ts</a></li></ul></details></li><li><a class="nav-list__link" href="../../../../reference/frontend/tsconfig.app.json.html">tsconfig.app.json</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/tsconfig.json.html">tsconfig.json</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/tsconfig.node.json.html">tsconfig.node.json</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/vite.config.d.ts.html">vite.config.d.ts</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/vite.config.js.html">vite.config.js</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/vite.config.ts.html">vite.config.ts</a></li></ul></details></li><li><a class="nav-list__link" href="../../../../reference/LICENSE.html">LICENSE</a></li><li class="nav-list__branch"><details ><summary>LIT</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/LIT/planner_test_prompt.txt.html">planner_test_prompt.txt</a></li><li><a class="nav-list__link" href="../../../../reference/LIT/README.md.html">README.md</a></li></ul></details></li><li><a class="nav-list__link" href="../../../../reference/pyproject.toml.html">pyproject.toml</a></li><li><a class="nav-list__link" href="../../../../reference/README.md.html">README.md</a></li><li><a class="nav-list__link" href="../../../../reference/run-backend.cmd.html">run-backend.cmd</a></li><li><a class="nav-list__link" href="../../../../reference/run-backend.ps1.html">run-backend.ps1</a></li><li class="nav-list__branch"><details ><summary>Source</summary><ul class="nav-list"><li class="nav-list__branch"><details ><summary>NOVA-SYNESIS</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/__init__.py.html">__init__.py</a></li><li class="nav-list__branch"><details ><summary>API</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/api/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/api/app.py.html">app.py</a></li></ul></details></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/cli.py.html">cli.py</a></li><li class="nav-list__branch"><details ><summary>Communication</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/communication/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/communication/adapters.py.html">adapters.py</a></li></ul></details></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/config.py.html">config.py</a></li><li class="nav-list__branch"><details ><summary>Domain</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/domain/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/domain/models.py.html">models.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Memory</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/memory/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/memory/systems.py.html">systems.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Persistence</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/persistence/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/persistence/sqlite_repository.py.html">sqlite_repository.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Planning</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/planning/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/planning/lit_planner.py.html">lit_planner.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/planning/planner.py.html">planner.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Resources</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/resources/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/resources/manager.py.html">manager.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Runtime</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/runtime/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/runtime/engine.py.html">engine.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/runtime/handlers.py.html">handlers.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Security</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/security/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/security/policy.py.html">policy.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/security/trust.py.html">trust.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Services</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/services/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/services/orchestrator.py.html">orchestrator.py</a></li></ul></details></li></ul></details></li></ul></details></li><li class="nav-list__branch"><details ><summary>Tests</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/tests/test_orchestrator.py.html">test_orchestrator.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Tools</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/tools/build_code_release.ps1.html">build_code_release.ps1</a></li><li><a class="nav-list__link" href="../../../../reference/tools/build_web_docs.py.html">build_web_docs.py</a></li><li><a class="nav-list__link" href="../../../../reference/tools/generate_docs.py.html">generate_docs.py</a></li></ul></details></li><li><a class="nav-list__link" href="../../../../reference/uml.html.html">uml.html</a></li><li><a class="nav-list__link" href="../../../../reference/uml_V3.mmd.html">uml_V3.mmd</a></li><li class="nav-list__branch"><details ><summary>Use Cases</summary><ul class="nav-list"><li class="nav-list__branch"><details ><summary>Platform Health Snapshot</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/Use_Cases/platform_health_snapshot/flow.json.html">flow.json</a></li><li><a class="nav-list__link" href="../../../../reference/Use_Cases/platform_health_snapshot/platform_health_snapshot.png.html">platform_health_snapshot.png</a></li><li><a class="nav-list__link" href="../../../../reference/Use_Cases/platform_health_snapshot/README.md.html">README.md</a></li><li><a class="nav-list__link" href="../../../../reference/Use_Cases/platform_health_snapshot/run.ps1.html">run.ps1</a></li><li><a class="nav-list__link" href="../../../../reference/Use_Cases/platform_health_snapshot/setup.ps1.html">setup.ps1</a></li></ul></details></li><li><a class="nav-list__link" href="../../../../reference/Use_Cases/README.md.html">README.md</a></li><li class="nav-list__branch"><details ><summary>Semantic Ticket Triage</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/Use_Cases/semantic_ticket_triage/flow.json.html">flow.json</a></li><li><a class="nav-list__link" href="../../../../reference/Use_Cases/semantic_ticket_triage/README.md.html">README.md</a></li><li><a class="nav-list__link" href="../../../../reference/Use_Cases/semantic_ticket_triage/run.ps1.html">run.ps1</a></li><li><a class="nav-list__link" href="../../../../reference/Use_Cases/semantic_ticket_triage/semantic_ticket_triage.png.html">semantic_ticket_triage.png</a></li><li><a class="nav-list__link" href="../../../../reference/Use_Cases/semantic_ticket_triage/setup.ps1.html">setup.ps1</a></li></ul></details></li></ul></details></li></ul></section><section class="sidebar__group"><h2>Appendix</h2><ul class="nav-list"><li><a class="nav-list__link" href="../../../../coverage.html">Abdeckung</a></li><li><a class="nav-list__link" href="../../../../Whitepaper.html">Whitepaper: Die Genesis von NOVA-SYNESIS</a></li></ul></section><section class="sidebar__group sidebar__group--meta"><h2>Search</h2><p>Use <kbd>/</kbd> to focus the search field and jump across guides, references and scenarios.</p></section>
+      </div>
+    </aside>
+
+    <div class="site-main">
+      <header class="site-header">
+        <button class="site-header__toggle" type="button" id="sidebar-toggle" aria-controls="site-sidebar" aria-expanded="false">
+          Menu
+        </button>
+        <div class="site-header__meta">
+          <p class="site-header__eyebrow">Generated documentation surface</p>
+          <h2>Repository: src/nova_synesis/api/app.py</h2>
+        </div>
+        <div class="site-header__status">
+          <span class="status-chip">HTML docs</span>
+          <span class="status-chip status-chip--accent">2026-04-09 00:10 UTC</span>
+        </div>
+      </header>
+
+      <main class="content-shell">
+        <article class="doc-article">
+          <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="../../../../index.html">Docs</a><span aria-current="page">reference</span></nav>
+          <section class="doc-hero">
+            <p class="doc-hero__eyebrow">Documentation</p>
+            <h1>Repository: src/nova_synesis/api/app.py</h1>
+            <p>Repository file view for src/nova_synesis/api/app.py</p>
+          </section>
+          <section class="doc-content">
+            <section class="source-meta"><p class="doc-hero__eyebrow">Repository file</p><h1>src/nova_synesis/api/app.py</h1><p>Rendered source view for the repository file. 391 lines.</p></section><pre class="source-block"><code class="language-python">from __future__ import annotations
+
+import asyncio
+from contextlib import asynccontextmanager
+from typing import Any
+
+from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, Field
+
+from nova_synesis.config import Settings
+from nova_synesis.domain.models import MemoryType, ProtocolType, ResourceType, RollbackStrategy
+from nova_synesis.services.orchestrator import OrchestratorService, create_orchestrator
+
+
+class CapabilityModel(BaseModel):
+    name: str
+    type: str
+    constraints: dict[str, Any] = Field(default_factory=dict)
+
+
+class CommunicationModel(BaseModel):
+    protocol: ProtocolType
+    endpoint: str
+    config: dict[str, Any] = Field(default_factory=dict)
+
+
+class AgentCreateRequest(BaseModel):
+    name: str
+    role: str
+    capabilities: list[CapabilityModel] = Field(default_factory=list)
+    communication: CommunicationModel | None = None
+    memory_ids: list[str] = Field(default_factory=list)
+
+
+class MemorySystemCreateRequest(BaseModel):
+    memory_id: str
+    type: MemoryType
+    backend: str | None = None
+    config: dict[str, Any] = Field(default_factory=dict)
+
+
+class ResourceCreateRequest(BaseModel):
+    type: ResourceType
+    endpoint: str
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class RetryPolicyModel(BaseModel):
+    max_retries: int = 3
+    backoff_ms: int = 250
+    exponential: bool = True
+    max_backoff_ms: int = 10_000
+    jitter_ratio: float = 0.0
+
+
+class ManualApprovalModel(BaseModel):
+    approved: bool = False
+    approved_by: str | None = None
+    approved_at: str | None = None
+    reason: str | None = None
+    revoked_by: str | None = None
+    revoked_at: str | None = None
+
+
+class TaskSpecModel(BaseModel):
+    node_id: str
+    handler_name: str
+    input: Any = None
+    required_capabilities: list[str] = Field(default_factory=list)
+    required_resource_ids: list[int] = Field(default_factory=list)
+    required_resource_types: list[ResourceType] = Field(default_factory=list)
+    retry_policy: RetryPolicyModel = Field(default_factory=RetryPolicyModel)
+    rollback_strategy: RollbackStrategy = RollbackStrategy.FAIL_FAST
+    validator_rules: dict[str, Any] = Field(default_factory=dict)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+    requires_manual_approval: bool = False
+    manual_approval: ManualApprovalModel = Field(default_factory=ManualApprovalModel)
+    compensation_handler: str | None = None
+    dependencies: list[str] = Field(default_factory=list)
+    conditions: dict[str, str] = Field(default_factory=dict)
+    preferred_agent_id: int | None = None
+
+
+class EdgeModel(BaseModel):
+    from_node: str
+    to_node: str
+    condition: str = &quot;True&quot;
+
+
+class FlowCreateRequest(BaseModel):
+    nodes: list[TaskSpecModel]
+    edges: list[EdgeModel] = Field(default_factory=list)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class IntentRequest(BaseModel):
+    goal: str
+    constraints: dict[str, Any] = Field(default_factory=dict)
+    priority: int = 1
+
+
+class LLMPlannerRequest(BaseModel):
+    prompt: str
+    current_flow: FlowCreateRequest | None = None
+    max_nodes: int = Field(default=12, ge=1, le=40)
+
+
+class NodeApprovalRequest(BaseModel):
+    approved_by: str = Field(min_length=1)
+    reason: str | None = None
+
+
+class NodeApprovalRevokeRequest(BaseModel):
+    revoked_by: str | None = None
+    reason: str | None = None
+
+
+def create_app(
+    settings: Settings | None = None,
+    orchestrator: OrchestratorService | None = None,
+) -&gt; FastAPI:
+    runtime = orchestrator or create_orchestrator(settings)
+
+    @asynccontextmanager
+    async def lifespan(_: FastAPI):
+        yield
+        await runtime.shutdown()
+
+    app = FastAPI(title=runtime.settings.app_name, version=&quot;1.0.5&quot;, lifespan=lifespan)
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=list(runtime.settings.cors_origins),
+        allow_credentials=True,
+        allow_methods=[&quot;*&quot;],
+        allow_headers=[&quot;*&quot;],
+    )
+
+    def _translate_error(exc: Exception) -&gt; HTTPException:
+        if isinstance(exc, KeyError):
+            return HTTPException(status_code=404, detail=str(exc))
+        return HTTPException(status_code=400, detail=str(exc))
+
+    @app.get(&quot;/health&quot;)
+    async def health() -&gt; dict[str, Any]:
+        return {
+            &quot;status&quot;: &quot;ok&quot;,
+            &quot;agents&quot;: len(runtime.agents),
+            &quot;resources&quot;: len(runtime.resource_manager.list()),
+            &quot;memory_systems&quot;: len(runtime.memory_manager.list()),
+            &quot;handlers&quot;: runtime.handler_registry.names(),
+        }
+
+    @app.get(&quot;/handlers&quot;)
+    async def list_handlers() -&gt; dict[str, Any]:
+        details = runtime.list_handlers()
+        return {
+            &quot;handlers&quot;: [item[&quot;name&quot;] for item in details],
+            &quot;details&quot;: details,
+        }
+
+    @app.get(&quot;/planner/status&quot;)
+    async def planner_status() -&gt; dict[str, Any]:
+        return runtime.get_llm_planner_status()
+
+    @app.post(&quot;/memory-systems&quot;)
+    async def create_memory_system(request: MemorySystemCreateRequest) -&gt; dict[str, Any]:
+        try:
+            return runtime.register_memory_system(
+                memory_id=request.memory_id,
+                memory_type=request.type,
+                backend=request.backend,
+                config=request.config,
+            )
+        except Exception as exc:
+            raise _translate_error(exc) from exc
+
+    @app.get(&quot;/memory-systems&quot;)
+    async def list_memory_systems() -&gt; list[dict[str, Any]]:
+        return runtime.list_memory_systems()
+
+    @app.post(&quot;/agents&quot;)
+    async def create_agent(request: AgentCreateRequest) -&gt; dict[str, Any]:
+        try:
+            return runtime.register_agent(
+                name=request.name,
+                role=request.role,
+                capabilities=[item.model_dump() for item in request.capabilities],
+                communication=request.communication.model_dump() if request.communication else None,
+                memory_ids=request.memory_ids,
+            )
+        except Exception as exc:
+            raise _translate_error(exc) from exc
+
+    @app.get(&quot;/agents&quot;)
+    async def list_agents() -&gt; list[dict[str, Any]]:
+        return runtime.list_agents()
+
+    @app.post(&quot;/resources&quot;)
+    async def create_resource(request: ResourceCreateRequest) -&gt; dict[str, Any]:
+        try:
+            return runtime.register_resource(
+                resource_type=request.type,
+                endpoint=request.endpoint,
+                metadata=request.metadata,
+            )
+        except Exception as exc:
+            raise _translate_error(exc) from exc
+
+    @app.get(&quot;/resources&quot;)
+    async def list_resources() -&gt; list[dict[str, Any]]:
+        return runtime.list_resources()
+
+    @app.post(&quot;/flows&quot;)
+    async def create_flow_endpoint(request: FlowCreateRequest) -&gt; dict[str, Any]:
+        try:
+            return runtime.create_flow(
+                nodes=[node.model_dump(mode=&quot;json&quot;) for node in request.nodes],
+                edges=[edge.model_dump(mode=&quot;json&quot;) for edge in request.edges],
+                metadata=request.metadata,
+            )
+        except Exception as exc:
+            raise _translate_error(exc) from exc
+
+    @app.post(&quot;/flows/validate&quot;)
+    async def validate_flow_endpoint(request: FlowCreateRequest) -&gt; dict[str, Any]:
+        try:
+            report = runtime.validate_flow_request(
+                nodes=[node.model_dump(mode=&quot;json&quot;) for node in request.nodes],
+                edges=[edge.model_dump(mode=&quot;json&quot;) for edge in request.edges],
+                metadata=request.metadata,
+                phase=&quot;validate&quot;,
+            )
+            return report.as_dict()
+        except Exception as exc:
+            raise _translate_error(exc) from exc
+
+    @app.get(&quot;/flows/{flow_id}&quot;)
+    async def get_flow(flow_id: int) -&gt; dict[str, Any]:
+        try:
+            return runtime.get_flow(flow_id)
+        except Exception as exc:
+            raise _translate_error(exc) from exc
+
+    @app.post(&quot;/flows/{flow_id}/run&quot;)
+    async def run_flow(flow_id: int, background: bool = False) -&gt; dict[str, Any]:
+        try:
+            if background:
+                asyncio.create_task(runtime.run_flow(flow_id))
+                return {&quot;flow_id&quot;: flow_id, &quot;scheduled&quot;: True}
+            return await runtime.run_flow(flow_id)
+        except Exception as exc:
+            raise _translate_error(exc) from exc
+
+    @app.post(&quot;/flows/{flow_id}/pause&quot;)
+    async def pause_flow(flow_id: int) -&gt; dict[str, Any]:
+        try:
+            return runtime.pause_flow(flow_id)
+        except Exception as exc:
+            raise _translate_error(exc) from exc
+
+    @app.post(&quot;/flows/{flow_id}/nodes/{node_id}/approval&quot;)
+    async def approve_flow_node(
+        flow_id: int,
+        node_id: str,
+        request: NodeApprovalRequest,
+    ) -&gt; dict[str, Any]:
+        try:
+            return runtime.approve_flow_node(
+                flow_id=flow_id,
+                node_id=node_id,
+                approved_by=request.approved_by,
+                reason=request.reason,
+            )
+        except Exception as exc:
+            raise _translate_error(exc) from exc
+
+    @app.delete(&quot;/flows/{flow_id}/nodes/{node_id}/approval&quot;)
+    async def revoke_flow_node_approval(
+        flow_id: int,
+        node_id: str,
+        request: NodeApprovalRevokeRequest,
+    ) -&gt; dict[str, Any]:
+        try:
+            return runtime.revoke_flow_node_approval(
+                flow_id=flow_id,
+                node_id=node_id,
+                revoked_by=request.revoked_by,
+                reason=request.reason,
+            )
+        except Exception as exc:
+            raise _translate_error(exc) from exc
+
+    @app.post(&quot;/intents/plan&quot;)
+    async def plan_intent(request: IntentRequest) -&gt; dict[str, Any]:
+        try:
+            return runtime.plan_intent(
+                goal=request.goal,
+                constraints=request.constraints,
+                priority=request.priority,
+            )
+        except Exception as exc:
+            raise _translate_error(exc) from exc
+
+    @app.post(&quot;/intents/execute&quot;)
+    async def execute_intent(request: IntentRequest) -&gt; dict[str, Any]:
+        try:
+            return await runtime.execute_intent(
+                goal=request.goal,
+                constraints=request.constraints,
+                priority=request.priority,
+            )
+        except Exception as exc:
+            raise _translate_error(exc) from exc
+
+    @app.post(&quot;/planner/generate-flow&quot;)
+    async def generate_flow_with_llm(request: LLMPlannerRequest) -&gt; dict[str, Any]:
+        try:
+            return await runtime.generate_flow_with_llm(
+                prompt=request.prompt,
+                current_flow=request.current_flow.model_dump(mode=&quot;json&quot;)
+                if request.current_flow
+                else None,
+                max_nodes=request.max_nodes,
+            )
+        except Exception as exc:
+            raise _translate_error(exc) from exc
+
+    @app.get(&quot;/executions&quot;)
+    async def list_executions() -&gt; list[dict[str, Any]]:
+        return runtime.list_executions()
+
+    @app.websocket(&quot;/ws/flows/{flow_id}&quot;)
+    async def flow_events(websocket: WebSocket, flow_id: int) -&gt; None:
+        await websocket.accept()
+        try:
+            snapshot = runtime.get_flow(flow_id)
+        except KeyError:
+            await websocket.send_json(
+                {
+                    &quot;type&quot;: &quot;flow.not_found&quot;,
+                    &quot;flow_id&quot;: flow_id,
+                    &quot;detail&quot;: f&quot;Unknown flow &#x27;{flow_id}&#x27;&quot;,
+                }
+            )
+            await websocket.close(code=1008)
+            return
+
+        queue = runtime.subscribe_flow(flow_id)
+        await websocket.send_json(
+            {
+                &quot;type&quot;: &quot;flow.snapshot&quot;,
+                &quot;flow_id&quot;: flow_id,
+                &quot;snapshot&quot;: snapshot,
+            }
+        )
+
+        disconnect_task = asyncio.create_task(websocket.receive())
+        queue_task: asyncio.Task[dict[str, Any]] | None = None
+
+        try:
+            while True:
+                queue_task = asyncio.create_task(queue.get())
+                done, pending = await asyncio.wait(
+                    {disconnect_task, queue_task},
+                    return_when=asyncio.FIRST_COMPLETED,
+                )
+
+                if disconnect_task in done:
+                    try:
+                        message = disconnect_task.result()
+                    except WebSocketDisconnect:
+                        break
+                    if message.get(&quot;type&quot;) == &quot;websocket.disconnect&quot;:
+                        break
+                    disconnect_task = asyncio.create_task(websocket.receive())
+
+                if queue_task in done:
+                    await websocket.send_json(queue_task.result())
+                    queue_task = None
+
+                if queue_task in pending:
+                    queue_task.cancel()
+                    queue_task = None
+        finally:
+            runtime.unsubscribe_flow(flow_id, queue)
+            if queue_task is not None:
+                queue_task.cancel()
+            disconnect_task.cancel()
+
+    return app
+</code></pre>
+          </section>
+        </article>
+        <aside class="doc-toc">
+          <div class="doc-toc__card">
+            <p class="doc-toc__eyebrow">On this page</p>
+            <p class="toc__empty">Repository view</p>
+          </div>
+        </aside>
+      </main>
+    </div>
+  </div>
+  <script src="../../../../assets/site-data.js"></script>
+  <script src="../../../../assets/site.js"></script>
+</body>
+</html>

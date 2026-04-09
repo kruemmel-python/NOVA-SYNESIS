@@ -13,6 +13,7 @@ REF = DOCS / 'reference'
 EXCLUDED = {
     '.git',
     'docs',
+    'web',
     'data',
     'debug_tmp',
     'planner_live_check',
@@ -200,6 +201,11 @@ FILE_NOTES = {
         'purpose': 'Globale Aktionsleiste fuer Save, Run, Planner, Import und Export.',
         'edit': 'Wenn globale Bedienaktionen oder Statusanzeigen geaendert werden.',
         'related': ['frontend/src/App.tsx', 'frontend/src/components/common/StatusBadge.tsx'],
+    },
+    'tools/build_web_docs.py': {
+        'purpose': 'Generiert aus dem docs-Ordner eine statische HTML-Dokumentationsseite mit Navigation, Suche und Source-Ansichten.',
+        'edit': 'Wenn Layout, Suchlogik, Seitenrouting oder die statische Web-Doku erweitert werden sollen.',
+        'related': ['docs/README.md', 'README.md', 'web/index.html'],
     },
 }
 

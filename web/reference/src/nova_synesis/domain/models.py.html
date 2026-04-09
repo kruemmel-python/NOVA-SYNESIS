@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>src/nova_synesis/domain/models.py | NOVA-SYNESIS Docs</title>
+  <meta name="description" content="Quellpfad: src/nova_synesis/domain/models.py Kategorie: Backend">
+  <link rel="icon" type="image/svg+xml" href="../../../../assets/favicon.svg">
+  <link rel="stylesheet" href="../../../../assets/site.css">
+</head>
+<body data-page-url="reference/src/nova_synesis/domain/models.py.html">
+  <div class="site-shell">
+    <aside class="site-sidebar" id="site-sidebar">
+      <div class="brand">
+        <p class="brand__eyebrow">Neural Orchestration Visual Autonomy</p>
+        <h1>NOVA-SYNESIS</h1>
+        <p class="brand__subtitle">Stateful Yielding Node-based Execution Semantic Integrated Surface</p>
+      </div>
+      <label class="search-box">
+        <span class="search-box__label">Search docs</span>
+        <input id="docs-search" type="search" placeholder="Search guides, files, handlers, policies">
+      </label>
+      <div class="search-results" id="search-results" hidden></div>
+      <div class="sidebar-scroll">
+        <a class="brand__home" href="../../../../index.html">Documentation Home</a><section class="sidebar__group"><h2>Guides</h2><ul class="nav-list"><li><a class="nav-list__link" href="../../../../index.html">NOVA-SYNESIS Dokumentation</a></li><li><a class="nav-list__link" href="../../../../getting-started.html">Schnellstart</a></li><li><a class="nav-list__link" href="../../../../system-overview.html">Systemueberblick</a></li><li><a class="nav-list__link" href="../../../../backend-runtime.html">Backend-Laufzeit</a></li><li><a class="nav-list__link" href="../../../../frontend-editor.html">Frontend-Editor</a></li><li><a class="nav-list__link" href="../../../../planner-and-lit.html">LLM-Planer und LiteRT</a></li><li><a class="nav-list__link" href="../../../../security-and-policy.html">Security und Policy</a></li><li><a class="nav-list__link" href="../../../../handler-trust-and-approval.html">Handler Trust und Freigaben</a></li><li><a class="nav-list__link" href="../../../../failure-playbook.html">Failure Playbook</a></li><li><a class="nav-list__link" href="../../../../decision-guide.html">Decision Guide</a></li><li><a class="nav-list__link" href="../../../../real-world-scenarios.html">Real World Scenarios</a></li><li><a class="nav-list__link" href="../../../../change-workflows.html">Aenderungsleitfaden</a></li></ul></section><section class="sidebar__group"><h2>Reference</h2><ul class="nav-list"><li><a class="nav-list__link" href="../../../index.html">Referenzindex</a></li><li><a class="nav-list__link" href="../../../.env.example.html">.env.example</a></li><li><a class="nav-list__link" href="../../../.gitignore.html">.gitignore</a></li><li><a class="nav-list__link" href="../../../Anweisung.md.html">Anweisung.md</a></li><li><a class="nav-list__link" href="../../../Dockerfile.html">Dockerfile</a></li><li class="nav-list__branch"><details ><summary>Frontend</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../frontend/.env.example.html">.env.example</a></li><li><a class="nav-list__link" href="../../../frontend/index.html.html">index.html</a></li><li><a class="nav-list__link" href="../../../frontend/package-lock.json.html">package-lock.json</a></li><li><a class="nav-list__link" href="../../../frontend/package.json.html">package.json</a></li><li class="nav-list__branch"><details ><summary>Source</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../frontend/src/app.css.html">app.css</a></li><li><a class="nav-list__link" href="../../../frontend/src/App.tsx.html">App.tsx</a></li><li class="nav-list__branch"><details ><summary>Components</summary><ul class="nav-list"><li class="nav-list__branch"><details ><summary>Common</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../frontend/src/components/common/JsonEditor.tsx.html">JsonEditor.tsx</a></li><li><a class="nav-list__link" href="../../../frontend/src/components/common/StatusBadge.tsx.html">StatusBadge.tsx</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Flow</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../frontend/src/components/flow/FlowCanvas.tsx.html">FlowCanvas.tsx</a></li><li><a class="nav-list__link" href="../../../frontend/src/components/flow/TaskNode.tsx.html">TaskNode.tsx</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Layout</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../frontend/src/components/layout/InspectorPanel.tsx.html">InspectorPanel.tsx</a></li><li><a class="nav-list__link" href="../../../frontend/src/components/layout/PlannerComposer.tsx.html">PlannerComposer.tsx</a></li><li><a class="nav-list__link" href="../../../frontend/src/components/layout/Sidebar.tsx.html">Sidebar.tsx</a></li><li><a class="nav-list__link" href="../../../frontend/src/components/layout/TopBar.tsx.html">TopBar.tsx</a></li></ul></details></li></ul></details></li><li class="nav-list__branch"><details ><summary>Hooks</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../frontend/src/hooks/useCatalogBootstrap.ts.html">useCatalogBootstrap.ts</a></li><li><a class="nav-list__link" href="../../../frontend/src/hooks/useFlowLiveUpdates.ts.html">useFlowLiveUpdates.ts</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Lib</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../frontend/src/lib/apiClient.ts.html">apiClient.ts</a></li><li><a class="nav-list__link" href="../../../frontend/src/lib/autoLayout.ts.html">autoLayout.ts</a></li><li><a class="nav-list__link" href="../../../frontend/src/lib/flowSerialization.ts.html">flowSerialization.ts</a></li><li><a class="nav-list__link" href="../../../frontend/src/lib/json.ts.html">json.ts</a></li></ul></details></li><li><a class="nav-list__link" href="../../../frontend/src/main.tsx.html">main.tsx</a></li><li class="nav-list__branch"><details ><summary>Store</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../frontend/src/store/useFlowStore.ts.html">useFlowStore.ts</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Types</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../frontend/src/types/api.ts.html">api.ts</a></li></ul></details></li><li><a class="nav-list__link" href="../../../frontend/src/vite-env.d.ts.html">vite-env.d.ts</a></li></ul></details></li><li><a class="nav-list__link" href="../../../frontend/tsconfig.app.json.html">tsconfig.app.json</a></li><li><a class="nav-list__link" href="../../../frontend/tsconfig.json.html">tsconfig.json</a></li><li><a class="nav-list__link" href="../../../frontend/tsconfig.node.json.html">tsconfig.node.json</a></li><li><a class="nav-list__link" href="../../../frontend/vite.config.d.ts.html">vite.config.d.ts</a></li><li><a class="nav-list__link" href="../../../frontend/vite.config.js.html">vite.config.js</a></li><li><a class="nav-list__link" href="../../../frontend/vite.config.ts.html">vite.config.ts</a></li></ul></details></li><li><a class="nav-list__link" href="../../../LICENSE.html">LICENSE</a></li><li class="nav-list__branch"><details ><summary>LIT</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../LIT/planner_test_prompt.txt.html">planner_test_prompt.txt</a></li><li><a class="nav-list__link" href="../../../LIT/README.md.html">README.md</a></li></ul></details></li><li><a class="nav-list__link" href="../../../pyproject.toml.html">pyproject.toml</a></li><li><a class="nav-list__link" href="../../../README.md.html">README.md</a></li><li><a class="nav-list__link" href="../../../run-backend.cmd.html">run-backend.cmd</a></li><li><a class="nav-list__link" href="../../../run-backend.ps1.html">run-backend.ps1</a></li><li class="nav-list__branch"><details open><summary>Source</summary><ul class="nav-list"><li class="nav-list__branch"><details open><summary>NOVA-SYNESIS</summary><ul class="nav-list"><li><a class="nav-list__link" href="../__init__.py.html">__init__.py</a></li><li class="nav-list__branch"><details ><summary>API</summary><ul class="nav-list"><li><a class="nav-list__link" href="../api/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../api/app.py.html">app.py</a></li></ul></details></li><li><a class="nav-list__link" href="../cli.py.html">cli.py</a></li><li class="nav-list__branch"><details ><summary>Communication</summary><ul class="nav-list"><li><a class="nav-list__link" href="../communication/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../communication/adapters.py.html">adapters.py</a></li></ul></details></li><li><a class="nav-list__link" href="../config.py.html">config.py</a></li><li class="nav-list__branch"><details open><summary>Domain</summary><ul class="nav-list"><li><a class="nav-list__link" href="__init__.py.html">__init__.py</a></li><li><a class="nav-list__link nav-list__link--active" href="models.py.html">models.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Memory</summary><ul class="nav-list"><li><a class="nav-list__link" href="../memory/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../memory/systems.py.html">systems.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Persistence</summary><ul class="nav-list"><li><a class="nav-list__link" href="../persistence/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../persistence/sqlite_repository.py.html">sqlite_repository.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Planning</summary><ul class="nav-list"><li><a class="nav-list__link" href="../planning/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../planning/lit_planner.py.html">lit_planner.py</a></li><li><a class="nav-list__link" href="../planning/planner.py.html">planner.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Resources</summary><ul class="nav-list"><li><a class="nav-list__link" href="../resources/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../resources/manager.py.html">manager.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Runtime</summary><ul class="nav-list"><li><a class="nav-list__link" href="../runtime/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../runtime/engine.py.html">engine.py</a></li><li><a class="nav-list__link" href="../runtime/handlers.py.html">handlers.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Security</summary><ul class="nav-list"><li><a class="nav-list__link" href="../security/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../security/policy.py.html">policy.py</a></li><li><a class="nav-list__link" href="../security/trust.py.html">trust.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Services</summary><ul class="nav-list"><li><a class="nav-list__link" href="../services/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../services/orchestrator.py.html">orchestrator.py</a></li></ul></details></li></ul></details></li></ul></details></li><li class="nav-list__branch"><details ><summary>Tests</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../tests/test_orchestrator.py.html">test_orchestrator.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Tools</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../tools/build_code_release.ps1.html">build_code_release.ps1</a></li><li><a class="nav-list__link" href="../../../tools/build_web_docs.py.html">build_web_docs.py</a></li><li><a class="nav-list__link" href="../../../tools/generate_docs.py.html">generate_docs.py</a></li></ul></details></li><li><a class="nav-list__link" href="../../../uml.html.html">uml.html</a></li><li><a class="nav-list__link" href="../../../uml_V3.mmd.html">uml_V3.mmd</a></li><li class="nav-list__branch"><details ><summary>Use Cases</summary><ul class="nav-list"><li class="nav-list__branch"><details ><summary>Platform Health Snapshot</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../Use_Cases/platform_health_snapshot/flow.json.html">flow.json</a></li><li><a class="nav-list__link" href="../../../Use_Cases/platform_health_snapshot/platform_health_snapshot.png.html">platform_health_snapshot.png</a></li><li><a class="nav-list__link" href="../../../Use_Cases/platform_health_snapshot/README.md.html">README.md</a></li><li><a class="nav-list__link" href="../../../Use_Cases/platform_health_snapshot/run.ps1.html">run.ps1</a></li><li><a class="nav-list__link" href="../../../Use_Cases/platform_health_snapshot/setup.ps1.html">setup.ps1</a></li></ul></details></li><li><a class="nav-list__link" href="../../../Use_Cases/README.md.html">README.md</a></li><li class="nav-list__branch"><details ><summary>Semantic Ticket Triage</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../Use_Cases/semantic_ticket_triage/flow.json.html">flow.json</a></li><li><a class="nav-list__link" href="../../../Use_Cases/semantic_ticket_triage/README.md.html">README.md</a></li><li><a class="nav-list__link" href="../../../Use_Cases/semantic_ticket_triage/run.ps1.html">run.ps1</a></li><li><a class="nav-list__link" href="../../../Use_Cases/semantic_ticket_triage/semantic_ticket_triage.png.html">semantic_ticket_triage.png</a></li><li><a class="nav-list__link" href="../../../Use_Cases/semantic_ticket_triage/setup.ps1.html">setup.ps1</a></li></ul></details></li></ul></details></li></ul></section><section class="sidebar__group"><h2>Appendix</h2><ul class="nav-list"><li><a class="nav-list__link" href="../../../../coverage.html">Abdeckung</a></li><li><a class="nav-list__link" href="../../../../Whitepaper.html">Whitepaper: Die Genesis von NOVA-SYNESIS</a></li></ul></section><section class="sidebar__group sidebar__group--meta"><h2>Search</h2><p>Use <kbd>/</kbd> to focus the search field and jump across guides, references and scenarios.</p></section>
+      </div>
+    </aside>
+
+    <div class="site-main">
+      <header class="site-header">
+        <button class="site-header__toggle" type="button" id="sidebar-toggle" aria-controls="site-sidebar" aria-expanded="false">
+          Menu
+        </button>
+        <div class="site-header__meta">
+          <p class="site-header__eyebrow">Generated documentation surface</p>
+          <h2>src/nova_synesis/domain/models.py</h2>
+        </div>
+        <div class="site-header__status">
+          <span class="status-chip">HTML docs</span>
+          <span class="status-chip status-chip--accent">2026-04-09 00:10 UTC</span>
+        </div>
+      </header>
+
+      <main class="content-shell">
+        <article class="doc-article">
+          <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="../../../../index.html">Docs</a><a href="../../../index.html">Reference</a><span>Source</span><span>NOVA-SYNESIS</span><span>Domain</span><span aria-current="page">models.py</span></nav>
+          <section class="doc-hero">
+            <p class="doc-hero__eyebrow">Documentation</p>
+            <h1>src/nova_synesis/domain/models.py</h1>
+            <p>Quellpfad: src/nova_synesis/domain/models.py Kategorie: Backend</p>
+          </section>
+          <section class="doc-content">
+            <h1 id="srcnova_synesisdomainmodelspy"><a class="heading-anchor" href="#srcnova_synesisdomainmodelspy"><code>src/nova_synesis/domain/models.py</code></a></h1>
+<ul>
+<li>Quellpfad: <a href="../../../../repo/src/nova_synesis/domain/models.py.html">src/nova_synesis/domain/models.py</a></li>
+<li>Kategorie: <code>Backend</code></li>
+</ul>
+<h2 id="aufgabe-der-datei"><a class="heading-anchor" href="#aufgabe-der-datei">Aufgabe der Datei</a></h2>
+<p>Kern-Domaenenmodell mit Agenten, Ressourcen, Tasks, Bedingungen und ExecutionFlow.</p>
+<h2 id="wann-du-diese-datei-bearbeitest"><a class="heading-anchor" href="#wann-du-diese-datei-bearbeitest">Wann du diese Datei bearbeitest</a></h2>
+<p>Wenn das fachliche Laufzeitmodell des Systems veraendert wird.</p>
+<h2 id="klassen"><a class="heading-anchor" href="#klassen">Klassen</a></h2>
+<h3 id="agentstate"><a class="heading-anchor" href="#agentstate"><code>AgentState</code></a></h3>
+<p>Klasse <code>AgentState</code> dieses Moduls.</p>
+<h3 id="protocoltype"><a class="heading-anchor" href="#protocoltype"><code>ProtocolType</code></a></h3>
+<p>Klasse <code>ProtocolType</code> dieses Moduls.</p>
+<h3 id="memorytype"><a class="heading-anchor" href="#memorytype"><code>MemoryType</code></a></h3>
+<p>Klasse <code>MemoryType</code> dieses Moduls.</p>
+<h3 id="taskstatus"><a class="heading-anchor" href="#taskstatus"><code>TaskStatus</code></a></h3>
+<p>Klasse <code>TaskStatus</code> dieses Moduls.</p>
+<h3 id="executionstatus"><a class="heading-anchor" href="#executionstatus"><code>ExecutionStatus</code></a></h3>
+<p>Klasse <code>ExecutionStatus</code> dieses Moduls.</p>
+<h3 id="rollbackstrategy"><a class="heading-anchor" href="#rollbackstrategy"><code>RollbackStrategy</code></a></h3>
+<p>Klasse <code>RollbackStrategy</code> dieses Moduls.</p>
+<h3 id="resourcetype"><a class="heading-anchor" href="#resourcetype"><code>ResourceType</code></a></h3>
+<p>Klasse <code>ResourceType</code> dieses Moduls.</p>
+<h3 id="resourcestate"><a class="heading-anchor" href="#resourcestate"><code>ResourceState</code></a></h3>
+<p>Klasse <code>ResourceState</code> dieses Moduls.</p>
+<h3 id="flowstate"><a class="heading-anchor" href="#flowstate"><code>FlowState</code></a></h3>
+<p>Klasse <code>FlowState</code> dieses Moduls.</p>
+<h3 id="capability"><a class="heading-anchor" href="#capability"><code>Capability</code></a></h3>
+<p>Klasse <code>Capability</code> dieses Moduls.</p>
+<h3 id="retrypolicy"><a class="heading-anchor" href="#retrypolicy"><code>RetryPolicy</code></a></h3>
+<p>Klasse <code>RetryPolicy</code> dieses Moduls.</p>
+<p>Methoden:</p>
+<ul>
+<li><code>next_delay(self, attempt)</code>: Funktion oder Definition <code>next_delay</code> dieses Moduls.</li>
+</ul>
+<h3 id="errorevent"><a class="heading-anchor" href="#errorevent"><code>ErrorEvent</code></a></h3>
+<p>Klasse <code>ErrorEvent</code> dieses Moduls.</p>
+<p>Methoden:</p>
+<ul>
+<li><code>as_dict(self)</code>: Funktion oder Definition <code>as_dict</code> dieses Moduls.</li>
+</ul>
+<h3 id="manualapproval"><a class="heading-anchor" href="#manualapproval"><code>ManualApproval</code></a></h3>
+<p>Speichert den manuellen Freigabestatus eines Nodes fuer die Ausfuehrung.</p>
+<p>Methoden:</p>
+<ul>
+<li><code>approve(self, approved_by, reason)</code>: Funktion oder Definition <code>approve</code> dieses Moduls.</li>
+<li><code>revoke(self, revoked_by, reason)</code>: Funktion oder Definition <code>revoke</code> dieses Moduls.</li>
+<li><code>as_dict(self)</code>: Funktion oder Definition <code>as_dict</code> dieses Moduls.</li>
+<li><code>from_dict(cls, payload)</code>: Wandelt externe Daten fuer <code>from_dict</code> in das interne Format um.</li>
+</ul>
+<h3 id="safeexpressionevaluator"><a class="heading-anchor" href="#safeexpressionevaluator"><code>SafeExpressionEvaluator</code></a></h3>
+<p>Klasse <code>SafeExpressionEvaluator</code> dieses Moduls.</p>
+<p>Methoden:</p>
+<ul>
+<li><code>__init__(self, context)</code>: Konstruktor, der Abhaengigkeiten und Ausgangszustand vorbereitet.</li>
+<li><code>evaluate(self, expression)</code>: Funktion oder Definition <code>evaluate</code> dieses Moduls.</li>
+<li><code>visit_Name(self, node)</code>: AST-Besuchsmethode fuer <code>Name</code>-Knoten.</li>
+<li><code>visit_Constant(self, node)</code>: AST-Besuchsmethode fuer <code>Constant</code>-Knoten.</li>
+<li><code>visit_List(self, node)</code>: AST-Besuchsmethode fuer <code>List</code>-Knoten.</li>
+<li><code>visit_Tuple(self, node)</code>: AST-Besuchsmethode fuer <code>Tuple</code>-Knoten.</li>
+<li><code>visit_Dict(self, node)</code>: AST-Besuchsmethode fuer <code>Dict</code>-Knoten.</li>
+<li><code>visit_BoolOp(self, node)</code>: AST-Besuchsmethode fuer <code>BoolOp</code>-Knoten.</li>
+<li><code>visit_UnaryOp(self, node)</code>: AST-Besuchsmethode fuer <code>UnaryOp</code>-Knoten.</li>
+<li><code>visit_BinOp(self, node)</code>: AST-Besuchsmethode fuer <code>BinOp</code>-Knoten.</li>
+<li><code>visit_Compare(self, node)</code>: AST-Besuchsmethode fuer <code>Compare</code>-Knoten.</li>
+<li><code>visit_Subscript(self, node)</code>: AST-Besuchsmethode fuer <code>Subscript</code>-Knoten.</li>
+<li><code>visit_Call(self, node)</code>: AST-Besuchsmethode fuer <code>Call</code>-Knoten.</li>
+<li><code>generic_visit(self, node)</code>: Funktion oder Definition <code>generic_visit</code> dieses Moduls.</li>
+</ul>
+<h3 id="condition"><a class="heading-anchor" href="#condition"><code>Condition</code></a></h3>
+<p>Klasse <code>Condition</code> dieses Moduls.</p>
+<p>Methoden:</p>
+<ul>
+<li><code>evaluate(self, context)</code>: Funktion oder Definition <code>evaluate</code> dieses Moduls.</li>
+</ul>
+<h3 id="resource"><a class="heading-anchor" href="#resource"><code>Resource</code></a></h3>
+<p>Klasse <code>Resource</code> dieses Moduls.</p>
+<p>Methoden:</p>
+<ul>
+<li><code>__post_init__(self)</code>: Funktion oder Definition <code>__post_init__</code> dieses Moduls.</li>
+<li><code>capacity(self)</code>: Funktion oder Definition <code>capacity</code> dieses Moduls.</li>
+<li><code>acquire(self, timeout)</code>: Funktion oder Definition <code>acquire</code> dieses Moduls.</li>
+<li><code>release(self)</code>: Funktion oder Definition <code>release</code> dieses Moduls.</li>
+<li><code>health_check(self)</code>: Funktion oder Definition <code>health_check</code> dieses Moduls.</li>
+</ul>
+<h3 id="agent"><a class="heading-anchor" href="#agent"><code>Agent</code></a></h3>
+<p>Klasse <code>Agent</code> dieses Moduls.</p>
+<p>Methoden:</p>
+<ul>
+<li><code>capability_index(self)</code>: Funktion oder Definition <code>capability_index</code> dieses Moduls.</li>
+<li><code>can_execute(self, required_capabilities)</code>: Funktion oder Definition <code>can_execute</code> dieses Moduls.</li>
+<li><code>perceive(self, input_data)</code>: Funktion oder Definition <code>perceive</code> dieses Moduls.</li>
+<li><code>decide(self, context)</code>: Funktion oder Definition <code>decide</code> dieses Moduls.</li>
+<li><code>act(self, task)</code>: Funktion oder Definition <code>act</code> dieses Moduls.</li>
+<li><code>communicate(self, message, target, protocol)</code>: Funktion oder Definition <code>communicate</code> dieses Moduls.</li>
+</ul>
+<h3 id="task"><a class="heading-anchor" href="#task"><code>Task</code></a></h3>
+<p>Klasse <code>Task</code> dieses Moduls.</p>
+<p>Methoden:</p>
+<ul>
+<li><code>execute(self)</code>: Fuehrt die Kernarbeit von <code>execute</code> aus.</li>
+<li><code>validate(self, result)</code>: Funktion oder Definition <code>validate</code> dieses Moduls.</li>
+<li><code>complete(self, output)</code>: Funktion oder Definition <code>complete</code> dieses Moduls.</li>
+<li><code>reset(self)</code>: Funktion oder Definition <code>reset</code> dieses Moduls.</li>
+</ul>
+<h3 id="taskexecution"><a class="heading-anchor" href="#taskexecution"><code>TaskExecution</code></a></h3>
+<p>Klasse <code>TaskExecution</code> dieses Moduls.</p>
+<p>Methoden:</p>
+<ul>
+<li><code>start(self)</code>: Funktion oder Definition <code>start</code> dieses Moduls.</li>
+<li><code>finish(self, result)</code>: Funktion oder Definition <code>finish</code> dieses Moduls.</li>
+<li><code>record_error(self, error)</code>: Funktion oder Definition <code>record_error</code> dieses Moduls.</li>
+<li><code>rollback(self, strategy)</code>: Funktion oder Definition <code>rollback</code> dieses Moduls.</li>
+<li><code>retry(self)</code>: Funktion oder Definition <code>retry</code> dieses Moduls.</li>
+</ul>
+<h3 id="intent"><a class="heading-anchor" href="#intent"><code>Intent</code></a></h3>
+<p>Klasse <code>Intent</code> dieses Moduls.</p>
+<p>Methoden:</p>
+<ul>
+<li><code>refine(self, updates)</code>: Funktion oder Definition <code>refine</code> dieses Moduls.</li>
+<li><code>plan(self, planner, agents, resources, task_id_allocator, flow_id_allocator)</code>: Funktion oder Definition <code>plan</code> dieses Moduls.</li>
+<li><code>promote_to_task(self, planner, agents, resources, task_id_allocator)</code>: Funktion oder Definition <code>promote_to_task</code> dieses Moduls.</li>
+</ul>
+<h3 id="flownode"><a class="heading-anchor" href="#flownode"><code>FlowNode</code></a></h3>
+<p>Klasse <code>FlowNode</code> dieses Moduls.</p>
+<h3 id="flowedge"><a class="heading-anchor" href="#flowedge"><code>FlowEdge</code></a></h3>
+<p>Klasse <code>FlowEdge</code> dieses Moduls.</p>
+<h3 id="executionflow"><a class="heading-anchor" href="#executionflow"><code>ExecutionFlow</code></a></h3>
+<p>Graph-Modell des ausfuehrbaren Workflows.</p>
+<p>Methoden:</p>
+<ul>
+<li><code>add_node(self, node)</code>: Funktion oder Definition <code>add_node</code> dieses Moduls.</li>
+<li><code>add_edge(self, edge)</code>: Funktion oder Definition <code>add_edge</code> dieses Moduls.</li>
+<li><code>incoming_edges(self, node_id)</code>: Funktion oder Definition <code>incoming_edges</code> dieses Moduls.</li>
+<li><code>outgoing_edges(self, node_id)</code>: Funktion oder Definition <code>outgoing_edges</code> dieses Moduls.</li>
+<li><code>run(self, executor)</code>: Steuert den Ablauf von <code>run</code>.</li>
+<li><code>pause(self)</code>: Funktion oder Definition <code>pause</code> dieses Moduls.</li>
+<li><code>observe(self)</code>: Erzeugt den serialisierbaren Zustand eines Flows fuer API und UI.</li>
+</ul>
+<h2 id="funktionen"><a class="heading-anchor" href="#funktionen">Funktionen</a></h2>
+<ul>
+<li><code>utcnow()</code>: Funktion oder Definition <code>utcnow</code> dieses Moduls.</li>
+<li><code>maybe_await(value)</code>: Funktion oder Definition <code>maybe_await</code> dieses Moduls.</li>
+<li><code>safe_evaluate(expression, context)</code>: Funktion oder Definition <code>safe_evaluate</code> dieses Moduls.</li>
+</ul>
+<h2 id="abhaengigkeiten"><a class="heading-anchor" href="#abhaengigkeiten">Abhaengigkeiten</a></h2>
+<ul>
+<li><code>from __future__ import annotations</code></li>
+<li><code>import ast</code></li>
+<li><code>import asyncio</code></li>
+<li><code>import sqlite3</code></li>
+<li><code>from dataclasses import dataclass, field</code></li>
+<li><code>from datetime import datetime, timezone</code></li>
+<li><code>from enum import StrEnum</code></li>
+<li><code>from pathlib import Path</code></li>
+<li><code>from random import uniform</code></li>
+<li><code>from typing import TYPE_CHECKING, Any, Callable</code></li>
+<li><code>import httpx</code></li>
+</ul>
+<h2 id="aenderungshinweise"><a class="heading-anchor" href="#aenderungshinweise">Aenderungshinweise</a></h2>
+<ul>
+<li>Aendere Vertrage nie isoliert, wenn dieselben Felder in API, UI und Persistenz verwendet werden.</li>
+<li>Pruefe nach Veraenderungen immer die benachbarten Dateien derselben Verantwortungskette.</li>
+<li>Bei Runtime- oder API-Aenderungen die Tests erneut ausfuehren.</li>
+</ul>
+<h2 id="verwandte-dateien"><a class="heading-anchor" href="#verwandte-dateien">Verwandte Dateien</a></h2>
+<ul>
+<li><a href="../runtime/engine.py.html">src/nova_synesis/runtime/engine.py</a></li>
+<li><a href="../services/orchestrator.py.html">src/nova_synesis/services/orchestrator.py</a></li>
+</ul>
+          </section>
+        </article>
+        <aside class="doc-toc">
+          <div class="doc-toc__card">
+            <p class="doc-toc__eyebrow">On this page</p>
+            <ul class="toc-list"><li class="toc-list__item toc-list__item--level-1"><a href="#srcnova_synesisdomainmodelspy">src/nova_synesis/domain/models.py</a></li><li class="toc-list__item toc-list__item--level-2"><a href="#aufgabe-der-datei">Aufgabe der Datei</a></li><li class="toc-list__item toc-list__item--level-2"><a href="#wann-du-diese-datei-bearbeitest">Wann du diese Datei bearbeitest</a></li><li class="toc-list__item toc-list__item--level-2"><a href="#klassen">Klassen</a></li><li class="toc-list__item toc-list__item--level-3"><a href="#agentstate">AgentState</a></li><li class="toc-list__item toc-list__item--level-3"><a href="#protocoltype">ProtocolType</a></li><li class="toc-list__item toc-list__item--level-3"><a href="#memorytype">MemoryType</a></li><li class="toc-list__item toc-list__item--level-3"><a href="#taskstatus">TaskStatus</a></li><li class="toc-list__item toc-list__item--level-3"><a href="#executionstatus">ExecutionStatus</a></li><li class="toc-list__item toc-list__item--level-3"><a href="#rollbackstrategy">RollbackStrategy</a></li><li class="toc-list__item toc-list__item--level-3"><a href="#resourcetype">ResourceType</a></li><li class="toc-list__item toc-list__item--level-3"><a href="#resourcestate">ResourceState</a></li><li class="toc-list__item toc-list__item--level-3"><a href="#flowstate">FlowState</a></li><li class="toc-list__item toc-list__item--level-3"><a href="#capability">Capability</a></li><li class="toc-list__item toc-list__item--level-3"><a href="#retrypolicy">RetryPolicy</a></li><li class="toc-list__item toc-list__item--level-3"><a href="#errorevent">ErrorEvent</a></li><li class="toc-list__item toc-list__item--level-3"><a href="#manualapproval">ManualApproval</a></li><li class="toc-list__item toc-list__item--level-3"><a href="#safeexpressionevaluator">SafeExpressionEvaluator</a></li><li class="toc-list__item toc-list__item--level-3"><a href="#condition">Condition</a></li><li class="toc-list__item toc-list__item--level-3"><a href="#resource">Resource</a></li><li class="toc-list__item toc-list__item--level-3"><a href="#agent">Agent</a></li><li class="toc-list__item toc-list__item--level-3"><a href="#task">Task</a></li><li class="toc-list__item toc-list__item--level-3"><a href="#taskexecution">TaskExecution</a></li><li class="toc-list__item toc-list__item--level-3"><a href="#intent">Intent</a></li><li class="toc-list__item toc-list__item--level-3"><a href="#flownode">FlowNode</a></li><li class="toc-list__item toc-list__item--level-3"><a href="#flowedge">FlowEdge</a></li><li class="toc-list__item toc-list__item--level-3"><a href="#executionflow">ExecutionFlow</a></li><li class="toc-list__item toc-list__item--level-2"><a href="#funktionen">Funktionen</a></li><li class="toc-list__item toc-list__item--level-2"><a href="#abhaengigkeiten">Abhaengigkeiten</a></li><li class="toc-list__item toc-list__item--level-2"><a href="#aenderungshinweise">Aenderungshinweise</a></li><li class="toc-list__item toc-list__item--level-2"><a href="#verwandte-dateien">Verwandte Dateien</a></li></ul>
+          </div>
+        </aside>
+      </main>
+    </div>
+  </div>
+  <script src="../../../../assets/site-data.js"></script>
+  <script src="../../../../assets/site.js"></script>
+</body>
+</html>

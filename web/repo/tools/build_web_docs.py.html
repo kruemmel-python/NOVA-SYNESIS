@@ -1,0 +1,1456 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Repository: tools/build_web_docs.py | NOVA-SYNESIS Docs</title>
+  <meta name="description" content="Repository file view for tools/build_web_docs.py">
+  <link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
+  <link rel="stylesheet" href="../../assets/site.css">
+</head>
+<body data-page-url="repo/tools/build_web_docs.py.html">
+  <div class="site-shell">
+    <aside class="site-sidebar" id="site-sidebar">
+      <div class="brand">
+        <p class="brand__eyebrow">Neural Orchestration Visual Autonomy</p>
+        <h1>NOVA-SYNESIS</h1>
+        <p class="brand__subtitle">Stateful Yielding Node-based Execution Semantic Integrated Surface</p>
+      </div>
+      <label class="search-box">
+        <span class="search-box__label">Search docs</span>
+        <input id="docs-search" type="search" placeholder="Search guides, files, handlers, policies">
+      </label>
+      <div class="search-results" id="search-results" hidden></div>
+      <div class="sidebar-scroll">
+        <a class="brand__home" href="../../index.html">Documentation Home</a><section class="sidebar__group"><h2>Guides</h2><ul class="nav-list"><li><a class="nav-list__link" href="../../index.html">NOVA-SYNESIS Dokumentation</a></li><li><a class="nav-list__link" href="../../getting-started.html">Schnellstart</a></li><li><a class="nav-list__link" href="../../system-overview.html">Systemueberblick</a></li><li><a class="nav-list__link" href="../../backend-runtime.html">Backend-Laufzeit</a></li><li><a class="nav-list__link" href="../../frontend-editor.html">Frontend-Editor</a></li><li><a class="nav-list__link" href="../../planner-and-lit.html">LLM-Planer und LiteRT</a></li><li><a class="nav-list__link" href="../../security-and-policy.html">Security und Policy</a></li><li><a class="nav-list__link" href="../../handler-trust-and-approval.html">Handler Trust und Freigaben</a></li><li><a class="nav-list__link" href="../../failure-playbook.html">Failure Playbook</a></li><li><a class="nav-list__link" href="../../decision-guide.html">Decision Guide</a></li><li><a class="nav-list__link" href="../../real-world-scenarios.html">Real World Scenarios</a></li><li><a class="nav-list__link" href="../../change-workflows.html">Aenderungsleitfaden</a></li></ul></section><section class="sidebar__group"><h2>Reference</h2><ul class="nav-list"><li><a class="nav-list__link" href="../../reference/index.html">Referenzindex</a></li><li><a class="nav-list__link" href="../../reference/.env.example.html">.env.example</a></li><li><a class="nav-list__link" href="../../reference/.gitignore.html">.gitignore</a></li><li><a class="nav-list__link" href="../../reference/Anweisung.md.html">Anweisung.md</a></li><li><a class="nav-list__link" href="../../reference/Dockerfile.html">Dockerfile</a></li><li class="nav-list__branch"><details ><summary>Frontend</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../reference/frontend/.env.example.html">.env.example</a></li><li><a class="nav-list__link" href="../../reference/frontend/index.html.html">index.html</a></li><li><a class="nav-list__link" href="../../reference/frontend/package-lock.json.html">package-lock.json</a></li><li><a class="nav-list__link" href="../../reference/frontend/package.json.html">package.json</a></li><li class="nav-list__branch"><details ><summary>Source</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../reference/frontend/src/app.css.html">app.css</a></li><li><a class="nav-list__link" href="../../reference/frontend/src/App.tsx.html">App.tsx</a></li><li class="nav-list__branch"><details ><summary>Components</summary><ul class="nav-list"><li class="nav-list__branch"><details ><summary>Common</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../reference/frontend/src/components/common/JsonEditor.tsx.html">JsonEditor.tsx</a></li><li><a class="nav-list__link" href="../../reference/frontend/src/components/common/StatusBadge.tsx.html">StatusBadge.tsx</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Flow</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../reference/frontend/src/components/flow/FlowCanvas.tsx.html">FlowCanvas.tsx</a></li><li><a class="nav-list__link" href="../../reference/frontend/src/components/flow/TaskNode.tsx.html">TaskNode.tsx</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Layout</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../reference/frontend/src/components/layout/InspectorPanel.tsx.html">InspectorPanel.tsx</a></li><li><a class="nav-list__link" href="../../reference/frontend/src/components/layout/PlannerComposer.tsx.html">PlannerComposer.tsx</a></li><li><a class="nav-list__link" href="../../reference/frontend/src/components/layout/Sidebar.tsx.html">Sidebar.tsx</a></li><li><a class="nav-list__link" href="../../reference/frontend/src/components/layout/TopBar.tsx.html">TopBar.tsx</a></li></ul></details></li></ul></details></li><li class="nav-list__branch"><details ><summary>Hooks</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../reference/frontend/src/hooks/useCatalogBootstrap.ts.html">useCatalogBootstrap.ts</a></li><li><a class="nav-list__link" href="../../reference/frontend/src/hooks/useFlowLiveUpdates.ts.html">useFlowLiveUpdates.ts</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Lib</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../reference/frontend/src/lib/apiClient.ts.html">apiClient.ts</a></li><li><a class="nav-list__link" href="../../reference/frontend/src/lib/autoLayout.ts.html">autoLayout.ts</a></li><li><a class="nav-list__link" href="../../reference/frontend/src/lib/flowSerialization.ts.html">flowSerialization.ts</a></li><li><a class="nav-list__link" href="../../reference/frontend/src/lib/json.ts.html">json.ts</a></li></ul></details></li><li><a class="nav-list__link" href="../../reference/frontend/src/main.tsx.html">main.tsx</a></li><li class="nav-list__branch"><details ><summary>Store</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../reference/frontend/src/store/useFlowStore.ts.html">useFlowStore.ts</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Types</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../reference/frontend/src/types/api.ts.html">api.ts</a></li></ul></details></li><li><a class="nav-list__link" href="../../reference/frontend/src/vite-env.d.ts.html">vite-env.d.ts</a></li></ul></details></li><li><a class="nav-list__link" href="../../reference/frontend/tsconfig.app.json.html">tsconfig.app.json</a></li><li><a class="nav-list__link" href="../../reference/frontend/tsconfig.json.html">tsconfig.json</a></li><li><a class="nav-list__link" href="../../reference/frontend/tsconfig.node.json.html">tsconfig.node.json</a></li><li><a class="nav-list__link" href="../../reference/frontend/vite.config.d.ts.html">vite.config.d.ts</a></li><li><a class="nav-list__link" href="../../reference/frontend/vite.config.js.html">vite.config.js</a></li><li><a class="nav-list__link" href="../../reference/frontend/vite.config.ts.html">vite.config.ts</a></li></ul></details></li><li><a class="nav-list__link" href="../../reference/LICENSE.html">LICENSE</a></li><li class="nav-list__branch"><details ><summary>LIT</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../reference/LIT/planner_test_prompt.txt.html">planner_test_prompt.txt</a></li><li><a class="nav-list__link" href="../../reference/LIT/README.md.html">README.md</a></li></ul></details></li><li><a class="nav-list__link" href="../../reference/pyproject.toml.html">pyproject.toml</a></li><li><a class="nav-list__link" href="../../reference/README.md.html">README.md</a></li><li><a class="nav-list__link" href="../../reference/run-backend.cmd.html">run-backend.cmd</a></li><li><a class="nav-list__link" href="../../reference/run-backend.ps1.html">run-backend.ps1</a></li><li class="nav-list__branch"><details ><summary>Source</summary><ul class="nav-list"><li class="nav-list__branch"><details ><summary>NOVA-SYNESIS</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../reference/src/nova_synesis/__init__.py.html">__init__.py</a></li><li class="nav-list__branch"><details ><summary>API</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../reference/src/nova_synesis/api/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../reference/src/nova_synesis/api/app.py.html">app.py</a></li></ul></details></li><li><a class="nav-list__link" href="../../reference/src/nova_synesis/cli.py.html">cli.py</a></li><li class="nav-list__branch"><details ><summary>Communication</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../reference/src/nova_synesis/communication/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../reference/src/nova_synesis/communication/adapters.py.html">adapters.py</a></li></ul></details></li><li><a class="nav-list__link" href="../../reference/src/nova_synesis/config.py.html">config.py</a></li><li class="nav-list__branch"><details ><summary>Domain</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../reference/src/nova_synesis/domain/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../reference/src/nova_synesis/domain/models.py.html">models.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Memory</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../reference/src/nova_synesis/memory/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../reference/src/nova_synesis/memory/systems.py.html">systems.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Persistence</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../reference/src/nova_synesis/persistence/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../reference/src/nova_synesis/persistence/sqlite_repository.py.html">sqlite_repository.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Planning</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../reference/src/nova_synesis/planning/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../reference/src/nova_synesis/planning/lit_planner.py.html">lit_planner.py</a></li><li><a class="nav-list__link" href="../../reference/src/nova_synesis/planning/planner.py.html">planner.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Resources</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../reference/src/nova_synesis/resources/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../reference/src/nova_synesis/resources/manager.py.html">manager.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Runtime</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../reference/src/nova_synesis/runtime/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../reference/src/nova_synesis/runtime/engine.py.html">engine.py</a></li><li><a class="nav-list__link" href="../../reference/src/nova_synesis/runtime/handlers.py.html">handlers.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Security</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../reference/src/nova_synesis/security/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../reference/src/nova_synesis/security/policy.py.html">policy.py</a></li><li><a class="nav-list__link" href="../../reference/src/nova_synesis/security/trust.py.html">trust.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Services</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../reference/src/nova_synesis/services/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../reference/src/nova_synesis/services/orchestrator.py.html">orchestrator.py</a></li></ul></details></li></ul></details></li></ul></details></li><li class="nav-list__branch"><details ><summary>Tests</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../reference/tests/test_orchestrator.py.html">test_orchestrator.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Tools</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../reference/tools/build_code_release.ps1.html">build_code_release.ps1</a></li><li><a class="nav-list__link" href="../../reference/tools/build_web_docs.py.html">build_web_docs.py</a></li><li><a class="nav-list__link" href="../../reference/tools/generate_docs.py.html">generate_docs.py</a></li></ul></details></li><li><a class="nav-list__link" href="../../reference/uml.html.html">uml.html</a></li><li><a class="nav-list__link" href="../../reference/uml_V3.mmd.html">uml_V3.mmd</a></li><li class="nav-list__branch"><details ><summary>Use Cases</summary><ul class="nav-list"><li class="nav-list__branch"><details ><summary>Platform Health Snapshot</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../reference/Use_Cases/platform_health_snapshot/flow.json.html">flow.json</a></li><li><a class="nav-list__link" href="../../reference/Use_Cases/platform_health_snapshot/platform_health_snapshot.png.html">platform_health_snapshot.png</a></li><li><a class="nav-list__link" href="../../reference/Use_Cases/platform_health_snapshot/README.md.html">README.md</a></li><li><a class="nav-list__link" href="../../reference/Use_Cases/platform_health_snapshot/run.ps1.html">run.ps1</a></li><li><a class="nav-list__link" href="../../reference/Use_Cases/platform_health_snapshot/setup.ps1.html">setup.ps1</a></li></ul></details></li><li><a class="nav-list__link" href="../../reference/Use_Cases/README.md.html">README.md</a></li><li class="nav-list__branch"><details ><summary>Semantic Ticket Triage</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../reference/Use_Cases/semantic_ticket_triage/flow.json.html">flow.json</a></li><li><a class="nav-list__link" href="../../reference/Use_Cases/semantic_ticket_triage/README.md.html">README.md</a></li><li><a class="nav-list__link" href="../../reference/Use_Cases/semantic_ticket_triage/run.ps1.html">run.ps1</a></li><li><a class="nav-list__link" href="../../reference/Use_Cases/semantic_ticket_triage/semantic_ticket_triage.png.html">semantic_ticket_triage.png</a></li><li><a class="nav-list__link" href="../../reference/Use_Cases/semantic_ticket_triage/setup.ps1.html">setup.ps1</a></li></ul></details></li></ul></details></li></ul></section><section class="sidebar__group"><h2>Appendix</h2><ul class="nav-list"><li><a class="nav-list__link" href="../../coverage.html">Abdeckung</a></li><li><a class="nav-list__link" href="../../Whitepaper.html">Whitepaper: Die Genesis von NOVA-SYNESIS</a></li></ul></section><section class="sidebar__group sidebar__group--meta"><h2>Search</h2><p>Use <kbd>/</kbd> to focus the search field and jump across guides, references and scenarios.</p></section>
+      </div>
+    </aside>
+
+    <div class="site-main">
+      <header class="site-header">
+        <button class="site-header__toggle" type="button" id="sidebar-toggle" aria-controls="site-sidebar" aria-expanded="false">
+          Menu
+        </button>
+        <div class="site-header__meta">
+          <p class="site-header__eyebrow">Generated documentation surface</p>
+          <h2>Repository: tools/build_web_docs.py</h2>
+        </div>
+        <div class="site-header__status">
+          <span class="status-chip">HTML docs</span>
+          <span class="status-chip status-chip--accent">2026-04-09 00:10 UTC</span>
+        </div>
+      </header>
+
+      <main class="content-shell">
+        <article class="doc-article">
+          <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="../../index.html">Docs</a><span aria-current="page">reference</span></nav>
+          <section class="doc-hero">
+            <p class="doc-hero__eyebrow">Documentation</p>
+            <h1>Repository: tools/build_web_docs.py</h1>
+            <p>Repository file view for tools/build_web_docs.py</p>
+          </section>
+          <section class="doc-content">
+            <section class="source-meta"><p class="doc-hero__eyebrow">Repository file</p><h1>tools/build_web_docs.py</h1><p>Rendered source view for the repository file. 1388 lines.</p></section><pre class="source-block"><code class="language-python">from __future__ import annotations
+
+import html
+import json
+import mimetypes
+import posixpath
+import re
+import shutil
+from dataclasses import dataclass, field
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any
+
+try:
+    import markdown
+except ImportError as exc:  # pragma: no cover - operator guidance
+    raise SystemExit(
+        &quot;The web docs builder requires the &#x27;markdown&#x27; package. &quot;
+        &quot;Install it with &#x27;pip install -e .[dev]&#x27; or &#x27;pip install markdown&#x27;.&quot;
+    ) from exc
+
+ROOT = Path(__file__).resolve().parent.parent
+DOCS = ROOT / &quot;docs&quot;
+WEB = ROOT / &quot;web&quot;
+ASSETS = WEB / &quot;assets&quot;
+REPO_VIEW = WEB / &quot;repo&quot;
+REPO_ASSETS = WEB / &quot;repo-assets&quot;
+
+SKIP_DOC_FILES = {&quot;docs.md&quot;}
+ASSET_EXTENSIONS = {
+    &quot;.png&quot;,
+    &quot;.jpg&quot;,
+    &quot;.jpeg&quot;,
+    &quot;.gif&quot;,
+    &quot;.svg&quot;,
+    &quot;.webp&quot;,
+    &quot;.avif&quot;,
+    &quot;.ico&quot;,
+    &quot;.bmp&quot;,
+}
+TEXT_EXTENSIONS = {
+    &quot;.py&quot;,
+    &quot;.pyi&quot;,
+    &quot;.ts&quot;,
+    &quot;.tsx&quot;,
+    &quot;.js&quot;,
+    &quot;.jsx&quot;,
+    &quot;.json&quot;,
+    &quot;.css&quot;,
+    &quot;.scss&quot;,
+    &quot;.html&quot;,
+    &quot;.md&quot;,
+    &quot;.toml&quot;,
+    &quot;.yaml&quot;,
+    &quot;.yml&quot;,
+    &quot;.ps1&quot;,
+    &quot;.cmd&quot;,
+    &quot;.mmd&quot;,
+    &quot;.txt&quot;,
+    &quot;.env&quot;,
+    &quot;.example&quot;,
+    &quot;.lock&quot;,
+    &quot;.gitignore&quot;,
+    &quot;.d.ts&quot;,
+}
+EXTERNAL_PREFIXES = (&quot;http://&quot;, &quot;https://&quot;, &quot;mailto:&quot;, &quot;tel:&quot;)
+SPECIAL_BRANCH_LABELS = {
+    &quot;api&quot;: &quot;API&quot;,
+    &quot;frontend&quot;: &quot;Frontend&quot;,
+    &quot;lit&quot;: &quot;LIT&quot;,
+    &quot;nova_synesis&quot;: &quot;NOVA-SYNESIS&quot;,
+    &quot;reference&quot;: &quot;Reference&quot;,
+    &quot;src&quot;: &quot;Source&quot;,
+    &quot;use_cases&quot;: &quot;Use Cases&quot;,
+}
+ACRONYM_SEGMENTS = {
+    &quot;api&quot;,
+    &quot;cli&quot;,
+    &quot;css&quot;,
+    &quot;html&quot;,
+    &quot;http&quot;,
+    &quot;json&quot;,
+    &quot;lit&quot;,
+    &quot;llm&quot;,
+    &quot;toml&quot;,
+    &quot;ts&quot;,
+    &quot;tsx&quot;,
+    &quot;ui&quot;,
+    &quot;uml&quot;,
+    &quot;url&quot;,
+    &quot;ws&quot;,
+    &quot;xml&quot;,
+    &quot;yaml&quot;,
+    &quot;yml&quot;,
+}
+
+
+@dataclass(slots=True)
+class Page:
+    source_path: Path
+    docs_relative_path: Path
+    output_relative_path: Path
+    output_path: Path
+    url: str
+    title: str
+    description: str
+    group: str
+    html_content: str = &quot;&quot;
+    plain_text: str = &quot;&quot;
+    headings: list[dict[str, Any]] = field(default_factory=list)
+
+
+@dataclass(slots=True)
+class RepoSourcePage:
+    target_path: Path
+    output_relative_path: Path
+    output_path: Path
+    url: str
+    title: str
+    kind: str
+
+
+def slugify(value: str) -&gt; str:
+    normalized = re.sub(r&quot;&lt;[^&gt;]+&gt;&quot;, &quot;&quot;, value)
+    normalized = html.unescape(normalized)
+    normalized = normalized.strip().casefold()
+    normalized = re.sub(r&quot;[^a-z0-9]+&quot;, &quot;-&quot;, normalized)
+    normalized = re.sub(r&quot;-{2,}&quot;, &quot;-&quot;, normalized).strip(&quot;-&quot;)
+    return normalized or &quot;section&quot;
+
+
+def strip_markdown(text: str) -&gt; str:
+    cleaned = re.sub(r&quot;```.*?```&quot;, &quot; &quot;, text, flags=re.DOTALL)
+    cleaned = re.sub(r&quot;`([^`]+)`&quot;, r&quot;\1&quot;, cleaned)
+    cleaned = re.sub(r&quot;!\[([^\]]*)\]\([^)]+\)&quot;, r&quot;\1&quot;, cleaned)
+    cleaned = re.sub(r&quot;\[([^\]]+)\]\([^)]+\)&quot;, r&quot;\1&quot;, cleaned)
+    cleaned = re.sub(r&quot;^#{1,6}\s*&quot;, &quot;&quot;, cleaned, flags=re.MULTILINE)
+    cleaned = re.sub(r&quot;^\s*[-*+]\s+&quot;, &quot;&quot;, cleaned, flags=re.MULTILINE)
+    cleaned = re.sub(r&quot;^\s*\d+\.\s+&quot;, &quot;&quot;, cleaned, flags=re.MULTILINE)
+    cleaned = re.sub(r&quot;(?&lt;!\w)\*\*([^*]+)\*\*(?!\w)&quot;, r&quot;\1&quot;, cleaned)
+    cleaned = re.sub(r&quot;(?&lt;!\w)\*([^*]+)\*(?!\w)&quot;, r&quot;\1&quot;, cleaned)
+    cleaned = re.sub(r&quot;(?&lt;!\w)_([^_]+)_(?!\w)&quot;, r&quot;\1&quot;, cleaned)
+    cleaned = re.sub(r&quot;\s+&quot;, &quot; &quot;, cleaned)
+    return cleaned.strip()
+
+
+def first_paragraph(markdown_text: str) -&gt; str:
+    paragraphs = [chunk.strip() for chunk in re.split(r&quot;\n\s*\n&quot;, markdown_text) if chunk.strip()]
+    for paragraph in paragraphs:
+        if paragraph.startswith(&quot;#&quot;):
+            continue
+        if paragraph.startswith(&quot;```&quot;):
+            continue
+        return strip_markdown(paragraph)
+    return &quot;&quot;
+
+
+def read_text(path: Path) -&gt; str:
+    for encoding in (&quot;utf-8&quot;, &quot;utf-8-sig&quot;, &quot;cp1252&quot;, &quot;latin-1&quot;):
+        try:
+            return path.read_text(encoding=encoding)
+        except UnicodeDecodeError:
+            continue
+    return path.read_text(encoding=&quot;utf-8&quot;, errors=&quot;ignore&quot;)
+
+
+def markdown_output_path(docs_relative: Path) -&gt; Path:
+    if docs_relative == Path(&quot;README.md&quot;):
+        return Path(&quot;index.html&quot;)
+    return docs_relative.with_suffix(&quot;.html&quot;)
+
+
+def relative_href(current_output: Path, target_url: str) -&gt; str:
+    rel = posixpath.relpath(target_url, start=current_output.parent.as_posix())
+    return rel if rel != &quot;.&quot; else &quot;index.html&quot;
+
+
+def resolve_local_target(current_source: Path, raw_target: str) -&gt; Path | None:
+    target = raw_target.replace(&quot;\\&quot;, &quot;/&quot;)
+    if re.match(r&quot;^/?[A-Za-z]:/&quot;, target):
+        normalized = target.lstrip(&quot;/&quot;)
+        return Path(normalized)
+    if target.startswith(&quot;/&quot;):
+        absolute = Path(target)
+        if absolute.exists():
+            return absolute
+        repo_candidate = ROOT / target.lstrip(&quot;/&quot;)
+        if repo_candidate.exists():
+            return repo_candidate.resolve()
+        return None
+    return (current_source.parent / target).resolve()
+
+
+def is_binary_asset(path: Path) -&gt; bool:
+    return path.suffix.casefold() in ASSET_EXTENSIONS
+
+
+def page_title(markdown_text: str, fallback: str) -&gt; str:
+    for line in markdown_text.splitlines():
+        if line.startswith(&quot;# &quot;):
+            return strip_markdown(line[2:].strip()) or fallback
+    return fallback
+
+
+def toc_to_flat_tokens(tokens: list[dict[str, Any]]) -&gt; list[dict[str, str]]:
+    flattened: list[dict[str, str]] = []
+    for token in tokens:
+        flattened.append(
+            {
+                &quot;id&quot;: str(token.get(&quot;id&quot;, &quot;&quot;)),
+                &quot;name&quot;: str(token.get(&quot;name&quot;, &quot;&quot;)),
+                &quot;level&quot;: str(token.get(&quot;level&quot;, &quot;2&quot;)),
+            }
+        )
+        children = token.get(&quot;children&quot;, [])
+        if isinstance(children, list):
+            flattened.extend(toc_to_flat_tokens(children))
+    return flattened
+
+
+def parse_ordered_links(markdown_text: str) -&gt; list[str]:
+    links: list[str] = []
+    for _, href in re.findall(r&quot;\[([^\]]+)\]\(([^)]+)\)&quot;, markdown_text):
+        if href.startswith(EXTERNAL_PREFIXES):
+            continue
+        if href.endswith(&quot;.md&quot;) and href not in links:
+            links.append(href)
+    return links
+
+
+def escape_script_json(payload: Any) -&gt; str:
+    serialized = json.dumps(payload, ensure_ascii=False, separators=(&quot;,&quot;, &quot;:&quot;))
+    return serialized.replace(&quot;&lt;/&quot;, &quot;&lt;\\/&quot;)
+
+
+def inject_heading_anchors(content: str) -&gt; str:
+    heading_pattern = re.compile(r&quot;&lt;h([1-6]) id=\&quot;([^\&quot;]+)\&quot;&gt;(.*?)&lt;/h\1&gt;&quot;)
+
+    def replace(match: re.Match[str]) -&gt; str:
+        level = match.group(1)
+        heading_id = match.group(2)
+        inner = match.group(3)
+        return (
+            f&quot;&lt;h{level} id=\&quot;{heading_id}\&quot;&gt;&quot;
+            f&quot;&lt;a class=\&quot;heading-anchor\&quot; href=\&quot;#{heading_id}\&quot;&gt;{inner}&lt;/a&gt;&quot;
+            f&quot;&lt;/h{level}&gt;&quot;
+        )
+
+    return heading_pattern.sub(replace, content)
+
+
+def build_markdown_page(
+    page: Page,
+    page_map: dict[Path, Page],
+    repo_file_pages: dict[Path, RepoSourcePage],
+    repo_dir_pages: dict[Path, RepoSourcePage],
+    doc_assets: set[Path],
+    repo_assets: set[Path],
+) -&gt; None:
+    markdown_text = read_text(page.source_path)
+    md = markdown.Markdown(
+        extensions=[&quot;fenced_code&quot;, &quot;tables&quot;, &quot;sane_lists&quot;, &quot;toc&quot;, &quot;attr_list&quot;],
+        extension_configs={&quot;toc&quot;: {&quot;permalink&quot;: False}},
+    )
+    converted = md.convert(markdown_text)
+    rewritten = rewrite_html_links(
+        html_fragment=converted,
+        current_page=page,
+        page_map=page_map,
+        repo_file_pages=repo_file_pages,
+        repo_dir_pages=repo_dir_pages,
+        doc_assets=doc_assets,
+        repo_assets=repo_assets,
+    )
+    page.html_content = inject_heading_anchors(rewritten)
+    page.plain_text = strip_markdown(markdown_text)
+    page.headings = toc_to_flat_tokens(getattr(md, &quot;toc_tokens&quot;, []))
+
+
+def rewrite_html_links(
+    html_fragment: str,
+    current_page: Page,
+    page_map: dict[Path, Page],
+    repo_file_pages: dict[Path, RepoSourcePage],
+    repo_dir_pages: dict[Path, RepoSourcePage],
+    doc_assets: set[Path],
+    repo_assets: set[Path],
+) -&gt; str:
+    attribute_pattern = re.compile(r&quot;(?P&lt;attr&gt;href|src)=\&quot;(?P&lt;value&gt;[^\&quot;]+)\&quot;&quot;)
+
+    def replace(match: re.Match[str]) -&gt; str:
+        attribute = match.group(&quot;attr&quot;)
+        value = match.group(&quot;value&quot;)
+        rewritten = rewrite_link_value(
+            raw_value=value,
+            current_page=current_page,
+            attribute=attribute,
+            page_map=page_map,
+            repo_file_pages=repo_file_pages,
+            repo_dir_pages=repo_dir_pages,
+            doc_assets=doc_assets,
+            repo_assets=repo_assets,
+        )
+        return f&#x27;{attribute}=&quot;{html.escape(rewritten, quote=True)}&quot;&#x27;
+
+    return attribute_pattern.sub(replace, html_fragment)
+
+
+def rewrite_link_value(
+    raw_value: str,
+    current_page: Page,
+    attribute: str,
+    page_map: dict[Path, Page],
+    repo_file_pages: dict[Path, RepoSourcePage],
+    repo_dir_pages: dict[Path, RepoSourcePage],
+    doc_assets: set[Path],
+    repo_assets: set[Path],
+) -&gt; str:
+    if raw_value.startswith(EXTERNAL_PREFIXES) or raw_value.startswith(&quot;#&quot;):
+        return raw_value
+
+    anchor = &quot;&quot;
+    if &quot;#&quot; in raw_value:
+        path_part, anchor_fragment = raw_value.split(&quot;#&quot;, 1)
+        anchor = f&quot;#{slugify(anchor_fragment)}&quot; if anchor_fragment else &quot;&quot;
+    else:
+        path_part = raw_value
+
+    if not path_part:
+        return anchor or &quot;#&quot;
+
+    resolved_target = resolve_local_target(current_page.source_path, path_part)
+    if resolved_target is None:
+        return raw_value
+
+    if DOCS.resolve() in resolved_target.parents or resolved_target == DOCS.resolve():
+        if resolved_target.is_dir():
+            candidate = resolved_target / &quot;README.md&quot;
+            if candidate in {page.source_path for page in page_map.values()}:
+                target_page = page_map[candidate.relative_to(DOCS)]
+                return relative_href(current_page.output_relative_path, target_page.url) + anchor
+            return &quot;#&quot;
+
+        if resolved_target.suffix.casefold() == &quot;.md&quot;:
+            docs_relative = resolved_target.relative_to(DOCS)
+            target_page = page_map.get(docs_relative)
+            if target_page is None:
+                return &quot;#&quot;
+            return relative_href(current_page.output_relative_path, target_page.url) + anchor
+
+        doc_assets.add(resolved_target)
+        asset_url = resolved_target.relative_to(DOCS).as_posix()
+        return relative_href(current_page.output_relative_path, asset_url)
+
+    if ROOT.resolve() in resolved_target.parents or resolved_target == ROOT.resolve():
+        if resolved_target.is_dir():
+            page = repo_dir_pages.setdefault(
+                resolved_target,
+                RepoSourcePage(
+                    target_path=resolved_target,
+                    output_relative_path=Path(&quot;repo&quot;) / resolved_target.relative_to(ROOT) / &quot;index.html&quot;,
+                    output_path=REPO_VIEW / resolved_target.relative_to(ROOT) / &quot;index.html&quot;,
+                    url=(Path(&quot;repo&quot;) / resolved_target.relative_to(ROOT) / &quot;index.html&quot;).as_posix(),
+                    title=f&quot;Repository: {resolved_target.relative_to(ROOT).as_posix()}&quot;,
+                    kind=&quot;directory&quot;,
+                ),
+            )
+            return relative_href(current_page.output_relative_path, page.url)
+
+        if is_binary_asset(resolved_target):
+            repo_assets.add(resolved_target)
+            asset_url = (Path(&quot;repo-assets&quot;) / resolved_target.relative_to(ROOT)).as_posix()
+            return relative_href(current_page.output_relative_path, asset_url)
+
+        page = repo_file_pages.setdefault(
+            resolved_target,
+            RepoSourcePage(
+                target_path=resolved_target,
+                output_relative_path=Path(&quot;repo&quot;) / resolved_target.relative_to(ROOT).with_suffix(
+                    resolved_target.suffix + &quot;.html&quot;
+                ),
+                output_path=REPO_VIEW / resolved_target.relative_to(ROOT).with_suffix(
+                    resolved_target.suffix + &quot;.html&quot;
+                ),
+                url=(Path(&quot;repo&quot;) / resolved_target.relative_to(ROOT).with_suffix(
+                    resolved_target.suffix + &quot;.html&quot;
+                )).as_posix(),
+                title=f&quot;Repository: {resolved_target.relative_to(ROOT).as_posix()}&quot;,
+                kind=&quot;file&quot;,
+            ),
+        )
+        return relative_href(current_page.output_relative_path, page.url)
+
+    return raw_value
+
+
+def build_navigation(page_map: dict[Path, Page]) -&gt; list[dict[str, Any]]:
+    home_page = page_map[Path(&quot;README.md&quot;)]
+    root_readme_text = read_text(home_page.source_path)
+    ordered_links = parse_ordered_links(root_readme_text)
+    ordered_root_paths = [Path(link) for link in ordered_links if Path(link) in page_map]
+
+    root_pages = {
+        path: page
+        for path, page in page_map.items()
+        if len(path.parts) == 1 and path.name not in SKIP_DOC_FILES and path != Path(&quot;README.md&quot;)
+    }
+
+    guide_items = [{&quot;label&quot;: home_page.title, &quot;url&quot;: home_page.url}]
+    for path in ordered_root_paths:
+        if path == Path(&quot;README.md&quot;) or path.parts[:1] == (&quot;reference&quot;,):
+            continue
+        if path in root_pages:
+            guide_items.append({&quot;label&quot;: page_map[path].title, &quot;url&quot;: page_map[path].url})
+
+    appendix_items = []
+    ordered_set = set(ordered_root_paths)
+    for path, page in sorted(root_pages.items(), key=lambda item: item[1].title.casefold()):
+        if path in ordered_set:
+            continue
+        appendix_items.append({&quot;label&quot;: page.title, &quot;url&quot;: page.url})
+
+    reference_items = build_reference_tree(page_map)
+
+    groups = [
+        {&quot;label&quot;: &quot;Guides&quot;, &quot;items&quot;: guide_items},
+        {&quot;label&quot;: &quot;Reference&quot;, &quot;items&quot;: reference_items},
+    ]
+    if appendix_items:
+        groups.append({&quot;label&quot;: &quot;Appendix&quot;, &quot;items&quot;: appendix_items})
+    return groups
+
+
+def build_reference_tree(page_map: dict[Path, Page]) -&gt; list[dict[str, Any]]:
+    reference_pages = {
+        path: page for path, page in page_map.items() if path.parts and path.parts[0] == &quot;reference&quot;
+    }
+    items: list[dict[str, Any]] = []
+    index_page = reference_pages.get(Path(&quot;reference/index.md&quot;))
+    if index_page is not None:
+        items.append({&quot;label&quot;: index_page.title, &quot;url&quot;: index_page.url})
+
+    tree: dict[str, Any] = {}
+    for path, page in reference_pages.items():
+        if path == Path(&quot;reference/index.md&quot;):
+            continue
+        cursor = tree
+        parts = list(path.parts[1:])
+        for segment in parts[:-1]:
+            cursor = cursor.setdefault(segment, {})
+        cursor[parts[-1]] = page
+
+    def render_branch(branch: dict[str, Any]) -&gt; list[dict[str, Any]]:
+        rendered: list[dict[str, Any]] = []
+        for key in sorted(branch.keys(), key=lambda value: value.casefold()):
+            value = branch[key]
+            if isinstance(value, Page):
+                rendered.append({&quot;label&quot;: docs_filename_label(value.docs_relative_path), &quot;url&quot;: value.url})
+                continue
+            rendered.append(
+                {
+                    &quot;label&quot;: humanize_segment(key),
+                    &quot;children&quot;: render_branch(value),
+                }
+            )
+        return rendered
+
+    items.extend(render_branch(tree))
+    return items
+
+
+def humanize_segment(value: str) -&gt; str:
+    stripped = value[:-3] if value.endswith(&quot;.md&quot;) else value
+    special = SPECIAL_BRANCH_LABELS.get(stripped.casefold())
+    if special is not None:
+        return special
+    if stripped.isupper():
+        return stripped
+
+    words = [word for word in re.split(r&quot;[-_]+&quot;, stripped) if word]
+    if not words:
+        return stripped
+
+    converted: list[str] = []
+    for word in words:
+        lowered = word.casefold()
+        if lowered in ACRONYM_SEGMENTS:
+            converted.append(word.upper())
+        elif word.isupper():
+            converted.append(word)
+        elif word.islower():
+            converted.append(word.capitalize())
+        else:
+            converted.append(word)
+    return &quot; &quot;.join(converted)
+
+
+def docs_filename_label(docs_relative: Path) -&gt; str:
+    name = docs_relative.name
+    return name[:-3] if name.endswith(&quot;.md&quot;) else name
+
+
+def render_sidebar(groups: list[dict[str, Any]], current_url: str) -&gt; str:
+    sections = [f&quot;&lt;a class=\&quot;brand__home\&quot; href=\&quot;{relative_href(Path(current_url), &#x27;index.html&#x27;)}\&quot;&gt;Documentation Home&lt;/a&gt;&quot;]
+    for group in groups:
+        sections.append(
+            &quot;&lt;section class=\&quot;sidebar__group\&quot;&gt;&quot;
+            f&quot;&lt;h2&gt;{html.escape(group[&#x27;label&#x27;])}&lt;/h2&gt;&quot;
+            f&quot;{render_nav_items(group[&#x27;items&#x27;], current_url)}&quot;
+            &quot;&lt;/section&gt;&quot;
+        )
+    sections.append(
+        &quot;&lt;section class=\&quot;sidebar__group sidebar__group--meta\&quot;&gt;&quot;
+        &quot;&lt;h2&gt;Search&lt;/h2&gt;&quot;
+        &quot;&lt;p&gt;Use &lt;kbd&gt;/&lt;/kbd&gt; to focus the search field and jump across guides, references and scenarios.&lt;/p&gt;&quot;
+        &quot;&lt;/section&gt;&quot;
+    )
+    return &quot;&quot;.join(sections)
+
+
+def render_nav_items(items: list[dict[str, Any]], current_url: str) -&gt; str:
+    rendered = [&quot;&lt;ul class=\&quot;nav-list\&quot;&gt;&quot;]
+    for item in items:
+        children = item.get(&quot;children&quot;)
+        url = item.get(&quot;url&quot;)
+        label = html.escape(str(item[&quot;label&quot;]))
+        if children:
+            is_open = contains_active(children, current_url)
+            rendered.append(
+                f&quot;&lt;li class=\&quot;nav-list__branch\&quot;&gt;&lt;details {&#x27;open&#x27; if is_open else &#x27;&#x27;}&gt;&quot;
+                f&quot;&lt;summary&gt;{label}&lt;/summary&gt;&quot;
+                f&quot;{render_nav_items(children, current_url)}&quot;
+                &quot;&lt;/details&gt;&lt;/li&gt;&quot;
+            )
+            continue
+        active = &quot; nav-list__link--active&quot; if url == current_url else &quot;&quot;
+        rendered.append(
+            &quot;&lt;li&gt;&quot;
+            f&quot;&lt;a class=\&quot;nav-list__link{active}\&quot; href=\&quot;{html.escape(relative_href(Path(current_url), str(url)))}\&quot;&gt;{label}&lt;/a&gt;&quot;
+            &quot;&lt;/li&gt;&quot;
+        )
+    rendered.append(&quot;&lt;/ul&gt;&quot;)
+    return &quot;&quot;.join(rendered)
+
+
+def contains_active(items: list[dict[str, Any]], current_url: str) -&gt; bool:
+    for item in items:
+        if item.get(&quot;url&quot;) == current_url:
+            return True
+        children = item.get(&quot;children&quot;)
+        if children and contains_active(children, current_url):
+            return True
+    return False
+
+
+def render_toc(headings: list[dict[str, Any]], current_url: str) -&gt; str:
+    if not headings:
+        return &quot;&lt;p class=\&quot;toc__empty\&quot;&gt;No section map for this page.&lt;/p&gt;&quot;
+
+    links: list[str] = [&quot;&lt;ul class=\&quot;toc-list\&quot;&gt;&quot;]
+    for heading in headings:
+        heading_id = html.escape(str(heading[&quot;id&quot;]))
+        name = html.escape(str(heading[&quot;name&quot;]))
+        level = int(heading.get(&quot;level&quot;, &quot;2&quot;))
+        indent_class = f&quot; toc-list__item--level-{min(level, 4)}&quot;
+        links.append(
+            &quot;&lt;li class=\&quot;toc-list__item&quot;
+            f&quot;{indent_class}\&quot;&gt;&lt;a href=\&quot;#{heading_id}\&quot;&gt;{name}&lt;/a&gt;&lt;/li&gt;&quot;
+        )
+    links.append(&quot;&lt;/ul&gt;&quot;)
+    return &quot;&quot;.join(links)
+
+
+def render_breadcrumbs(source_relative: Path, current_url: str, current_title: str) -&gt; str:
+    crumbs = [{&quot;label&quot;: &quot;Docs&quot;, &quot;url&quot;: &quot;index.html&quot;}]
+    parts = list(source_relative.parts)
+    for index, part in enumerate(parts[:-1], start=1):
+        partial = Path(*parts[:index])
+        if partial == Path(&quot;reference&quot;):
+            target = &quot;reference/index.html&quot;
+        else:
+            target = None
+        crumbs.append({&quot;label&quot;: humanize_segment(part), &quot;url&quot;: target})
+    if source_relative.parts and source_relative.parts[0] == &quot;reference&quot;:
+        current_label = docs_filename_label(source_relative)
+    else:
+        current_label = current_title
+    crumbs.append({&quot;label&quot;: current_label, &quot;url&quot;: None})
+
+    rendered = [&quot;&lt;nav class=\&quot;breadcrumbs\&quot; aria-label=\&quot;Breadcrumb\&quot;&gt;&quot;]
+    for crumb in crumbs[:-1]:
+        label = html.escape(str(crumb[&quot;label&quot;]))
+        target = crumb[&quot;url&quot;]
+        if target:
+            href = html.escape(relative_href(Path(current_url), target))
+            rendered.append(f&quot;&lt;a href=\&quot;{href}\&quot;&gt;{label}&lt;/a&gt;&quot;)
+        else:
+            rendered.append(f&quot;&lt;span&gt;{label}&lt;/span&gt;&quot;)
+    rendered.append(f&quot;&lt;span aria-current=\&quot;page\&quot;&gt;{html.escape(str(crumbs[-1][&#x27;label&#x27;]))}&lt;/span&gt;&quot;)
+    rendered.append(&quot;&lt;/nav&gt;&quot;)
+    return &quot;&quot;.join(rendered)
+
+
+def build_page_document(
+    *,
+    page_title: str,
+    description: str,
+    current_url: str,
+    sidebar_html: str,
+    toc_html: str,
+    breadcrumbs_html: str,
+    content_html: str,
+    generated_at: str,
+) -&gt; str:
+    assets_prefix = html.escape(relative_href(Path(current_url), &quot;assets/site.css&quot;))
+    data_prefix = html.escape(relative_href(Path(current_url), &quot;assets/site-data.js&quot;))
+    script_prefix = html.escape(relative_href(Path(current_url), &quot;assets/site.js&quot;))
+    icon_prefix = html.escape(relative_href(Path(current_url), &quot;assets/favicon.svg&quot;))
+    safe_title = html.escape(page_title)
+    safe_description = html.escape(description)
+    return f&quot;&quot;&quot;&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;de&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;utf-8&quot;&gt;
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;
+  &lt;title&gt;{safe_title} | NOVA-SYNESIS Docs&lt;/title&gt;
+  &lt;meta name=&quot;description&quot; content=&quot;{safe_description}&quot;&gt;
+  &lt;link rel=&quot;icon&quot; type=&quot;image/svg+xml&quot; href=&quot;{icon_prefix}&quot;&gt;
+  &lt;link rel=&quot;stylesheet&quot; href=&quot;{assets_prefix}&quot;&gt;
+&lt;/head&gt;
+&lt;body data-page-url=&quot;{html.escape(current_url)}&quot;&gt;
+  &lt;div class=&quot;site-shell&quot;&gt;
+    &lt;aside class=&quot;site-sidebar&quot; id=&quot;site-sidebar&quot;&gt;
+      &lt;div class=&quot;brand&quot;&gt;
+        &lt;p class=&quot;brand__eyebrow&quot;&gt;Neural Orchestration Visual Autonomy&lt;/p&gt;
+        &lt;h1&gt;NOVA-SYNESIS&lt;/h1&gt;
+        &lt;p class=&quot;brand__subtitle&quot;&gt;Stateful Yielding Node-based Execution Semantic Integrated Surface&lt;/p&gt;
+      &lt;/div&gt;
+      &lt;label class=&quot;search-box&quot;&gt;
+        &lt;span class=&quot;search-box__label&quot;&gt;Search docs&lt;/span&gt;
+        &lt;input id=&quot;docs-search&quot; type=&quot;search&quot; placeholder=&quot;Search guides, files, handlers, policies&quot;&gt;
+      &lt;/label&gt;
+      &lt;div class=&quot;search-results&quot; id=&quot;search-results&quot; hidden&gt;&lt;/div&gt;
+      &lt;div class=&quot;sidebar-scroll&quot;&gt;
+        {sidebar_html}
+      &lt;/div&gt;
+    &lt;/aside&gt;
+
+    &lt;div class=&quot;site-main&quot;&gt;
+      &lt;header class=&quot;site-header&quot;&gt;
+        &lt;button class=&quot;site-header__toggle&quot; type=&quot;button&quot; id=&quot;sidebar-toggle&quot; aria-controls=&quot;site-sidebar&quot; aria-expanded=&quot;false&quot;&gt;
+          Menu
+        &lt;/button&gt;
+        &lt;div class=&quot;site-header__meta&quot;&gt;
+          &lt;p class=&quot;site-header__eyebrow&quot;&gt;Generated documentation surface&lt;/p&gt;
+          &lt;h2&gt;{safe_title}&lt;/h2&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;site-header__status&quot;&gt;
+          &lt;span class=&quot;status-chip&quot;&gt;HTML docs&lt;/span&gt;
+          &lt;span class=&quot;status-chip status-chip--accent&quot;&gt;{generated_at}&lt;/span&gt;
+        &lt;/div&gt;
+      &lt;/header&gt;
+
+      &lt;main class=&quot;content-shell&quot;&gt;
+        &lt;article class=&quot;doc-article&quot;&gt;
+          {breadcrumbs_html}
+          &lt;section class=&quot;doc-hero&quot;&gt;
+            &lt;p class=&quot;doc-hero__eyebrow&quot;&gt;Documentation&lt;/p&gt;
+            &lt;h1&gt;{safe_title}&lt;/h1&gt;
+            &lt;p&gt;{safe_description}&lt;/p&gt;
+          &lt;/section&gt;
+          &lt;section class=&quot;doc-content&quot;&gt;
+            {content_html}
+          &lt;/section&gt;
+        &lt;/article&gt;
+        &lt;aside class=&quot;doc-toc&quot;&gt;
+          &lt;div class=&quot;doc-toc__card&quot;&gt;
+            &lt;p class=&quot;doc-toc__eyebrow&quot;&gt;On this page&lt;/p&gt;
+            {toc_html}
+          &lt;/div&gt;
+        &lt;/aside&gt;
+      &lt;/main&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;script src=&quot;{data_prefix}&quot;&gt;&lt;/script&gt;
+  &lt;script src=&quot;{script_prefix}&quot;&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+&quot;&quot;&quot;
+
+
+def code_language_for(path: Path) -&gt; str:
+    mapping = {
+        &quot;.py&quot;: &quot;python&quot;,
+        &quot;.ps1&quot;: &quot;powershell&quot;,
+        &quot;.cmd&quot;: &quot;batch&quot;,
+        &quot;.ts&quot;: &quot;typescript&quot;,
+        &quot;.tsx&quot;: &quot;tsx&quot;,
+        &quot;.js&quot;: &quot;javascript&quot;,
+        &quot;.jsx&quot;: &quot;jsx&quot;,
+        &quot;.css&quot;: &quot;css&quot;,
+        &quot;.html&quot;: &quot;html&quot;,
+        &quot;.json&quot;: &quot;json&quot;,
+        &quot;.md&quot;: &quot;markdown&quot;,
+        &quot;.toml&quot;: &quot;toml&quot;,
+        &quot;.yml&quot;: &quot;yaml&quot;,
+        &quot;.yaml&quot;: &quot;yaml&quot;,
+        &quot;.mmd&quot;: &quot;mermaid&quot;,
+    }
+    return mapping.get(path.suffix.casefold(), &quot;text&quot;)
+
+
+def build_source_file_content(target_path: Path) -&gt; tuple[str, str]:
+    relative = target_path.relative_to(ROOT).as_posix()
+    content = read_text(target_path)
+    line_count = len(content.splitlines())
+    language = code_language_for(target_path)
+    html_content = (
+        &quot;&lt;section class=\&quot;source-meta\&quot;&gt;&quot;
+        f&quot;&lt;p class=\&quot;doc-hero__eyebrow\&quot;&gt;Repository file&lt;/p&gt;&lt;h1&gt;{html.escape(relative)}&lt;/h1&gt;&quot;
+        f&quot;&lt;p&gt;Rendered source view for the repository file. {line_count} lines.&lt;/p&gt;&quot;
+        &quot;&lt;/section&gt;&quot;
+        &quot;&lt;pre class=\&quot;source-block\&quot;&gt;&lt;code class=\&quot;language-&quot;
+        f&quot;{html.escape(language)}\&quot;&gt;{html.escape(content)}&lt;/code&gt;&lt;/pre&gt;&quot;
+    )
+    description = f&quot;Repository file view for {relative}&quot;
+    return html_content, description
+
+
+def build_source_directory_content(target_path: Path, current_url: str) -&gt; tuple[str, str]:
+    relative = target_path.relative_to(ROOT).as_posix()
+    rows = []
+    for child in sorted(target_path.iterdir(), key=lambda item: (item.is_file(), item.name.casefold())):
+        if child.name.startswith(&quot;.git&quot;):
+            continue
+        child_rel = child.relative_to(ROOT)
+        if child.is_dir():
+            child_url = (Path(&quot;repo&quot;) / child_rel / &quot;index.html&quot;).as_posix()
+            kind = &quot;Directory&quot;
+        elif is_binary_asset(child):
+            child_url = (Path(&quot;repo-assets&quot;) / child_rel).as_posix()
+            kind = &quot;Asset&quot;
+        else:
+            child_url = (Path(&quot;repo&quot;) / child_rel.with_suffix(child.suffix + &quot;.html&quot;)).as_posix()
+            kind = &quot;File&quot;
+        rows.append(
+            &quot;&lt;li&gt;&quot;
+            f&quot;&lt;a href=\&quot;{html.escape(relative_href(Path(current_url), child_url))}\&quot;&gt;{html.escape(child.name)}&lt;/a&gt;&quot;
+            f&quot;&lt;span&gt;{kind}&lt;/span&gt;&quot;
+            &quot;&lt;/li&gt;&quot;
+        )
+    html_content = (
+        &quot;&lt;section class=\&quot;source-meta\&quot;&gt;&quot;
+        f&quot;&lt;p class=\&quot;doc-hero__eyebrow\&quot;&gt;Repository directory&lt;/p&gt;&lt;h1&gt;{html.escape(relative)}&lt;/h1&gt;&quot;
+        &quot;&lt;p&gt;Directory listing generated for local file references used in the documentation.&lt;/p&gt;&quot;
+        &quot;&lt;/section&gt;&quot;
+        &quot;&lt;ul class=\&quot;directory-list\&quot;&gt;&quot;
+        f&quot;{&#x27;&#x27;.join(rows)}&quot;
+        &quot;&lt;/ul&gt;&quot;
+    )
+    description = f&quot;Repository directory view for {relative}&quot;
+    return html_content, description
+
+
+def write_page(output_path: Path, document: str) -&gt; None:
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(document, encoding=&quot;utf-8&quot;)
+
+
+def build_search_index(pages: list[Page]) -&gt; list[dict[str, Any]]:
+    entries: list[dict[str, Any]] = []
+    for page in pages:
+        entries.append(
+            {
+                &quot;title&quot;: page.title,
+                &quot;url&quot;: page.url,
+                &quot;group&quot;: page.group,
+                &quot;description&quot;: page.description,
+                &quot;headings&quot;: [heading[&quot;name&quot;] for heading in page.headings],
+                &quot;body&quot;: page.plain_text[:4000],
+            }
+        )
+    return entries
+
+
+def write_static_assets(search_index: list[dict[str, Any]], nav_groups: list[dict[str, Any]]) -&gt; None:
+    ASSETS.mkdir(parents=True, exist_ok=True)
+    (ASSETS / &quot;site.css&quot;).write_text(SITE_CSS, encoding=&quot;utf-8&quot;)
+    (ASSETS / &quot;site-data.js&quot;).write_text(
+        &quot;window.NOVA_SYNESIS_SEARCH_INDEX = &quot;
+        + escape_script_json(search_index)
+        + &quot;;\nwindow.NOVA_SYNESIS_NAVIGATION = &quot;
+        + escape_script_json(nav_groups)
+        + &quot;;\n&quot;,
+        encoding=&quot;utf-8&quot;,
+    )
+    (ASSETS / &quot;site.js&quot;).write_text(SITE_JS, encoding=&quot;utf-8&quot;)
+    (ASSETS / &quot;favicon.svg&quot;).write_text(FAVICON_SVG, encoding=&quot;utf-8&quot;)
+
+
+def collect_pages() -&gt; dict[Path, Page]:
+    pages: dict[Path, Page] = {}
+    for source_path in sorted(DOCS.rglob(&quot;*.md&quot;)):
+        docs_relative = source_path.relative_to(DOCS)
+        if docs_relative.name in SKIP_DOC_FILES:
+            continue
+        output_relative = markdown_output_path(docs_relative)
+        markdown_text = read_text(source_path)
+        title = page_title(markdown_text, fallback=humanize_segment(docs_relative.stem))
+        description = first_paragraph(markdown_text) or title
+        group = &quot;Reference&quot; if docs_relative.parts and docs_relative.parts[0] == &quot;reference&quot; else &quot;Guide&quot;
+        pages[docs_relative] = Page(
+            source_path=source_path,
+            docs_relative_path=docs_relative,
+            output_relative_path=output_relative,
+            output_path=WEB / output_relative,
+            url=output_relative.as_posix(),
+            title=title,
+            description=description,
+            group=group,
+        )
+    return pages
+
+
+def copy_doc_assets(doc_assets: set[Path]) -&gt; None:
+    for asset_path in DOCS.rglob(&quot;*&quot;):
+        if asset_path.is_dir():
+            continue
+        if asset_path.suffix.casefold() not in ASSET_EXTENSIONS:
+            continue
+        doc_assets.add(asset_path)
+
+    for asset_path in sorted(doc_assets):
+        relative = asset_path.relative_to(DOCS)
+        destination = WEB / relative
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(asset_path, destination)
+
+
+def copy_repo_assets(repo_assets: set[Path]) -&gt; None:
+    for asset_path in sorted(repo_assets):
+        relative = asset_path.relative_to(ROOT)
+        destination = REPO_ASSETS / relative
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(asset_path, destination)
+
+
+def build_repo_pages(
+    repo_file_pages: dict[Path, RepoSourcePage],
+    repo_dir_pages: dict[Path, RepoSourcePage],
+    search_index: list[dict[str, Any]],
+    nav_groups: list[dict[str, Any]],
+    generated_at: str,
+) -&gt; None:
+    for page in repo_file_pages.values():
+        content_html, description = build_source_file_content(page.target_path)
+        document = build_page_document(
+            page_title=page.title,
+            description=description,
+            current_url=page.url,
+            sidebar_html=render_sidebar(nav_groups, page.url),
+            toc_html=&quot;&lt;p class=\&quot;toc__empty\&quot;&gt;Repository view&lt;/p&gt;&quot;,
+            breadcrumbs_html=render_breadcrumbs(Path(&quot;reference&quot;), page.url, page.title),
+            content_html=content_html,
+            generated_at=generated_at,
+        )
+        write_page(page.output_path, document)
+
+    for page in repo_dir_pages.values():
+        content_html, description = build_source_directory_content(page.target_path, page.url)
+        document = build_page_document(
+            page_title=page.title,
+            description=description,
+            current_url=page.url,
+            sidebar_html=render_sidebar(nav_groups, page.url),
+            toc_html=&quot;&lt;p class=\&quot;toc__empty\&quot;&gt;Directory listing&lt;/p&gt;&quot;,
+            breadcrumbs_html=render_breadcrumbs(Path(&quot;reference&quot;), page.url, page.title),
+            content_html=content_html,
+            generated_at=generated_at,
+        )
+        write_page(page.output_path, document)
+
+
+def build_web_docs() -&gt; None:
+    if WEB.exists():
+        shutil.rmtree(WEB)
+    WEB.mkdir(parents=True, exist_ok=True)
+
+    pages = collect_pages()
+    repo_file_pages: dict[Path, RepoSourcePage] = {}
+    repo_dir_pages: dict[Path, RepoSourcePage] = {}
+    doc_assets: set[Path] = set()
+    repo_assets: set[Path] = set()
+
+    for page in pages.values():
+        build_markdown_page(
+            page=page,
+            page_map=pages,
+            repo_file_pages=repo_file_pages,
+            repo_dir_pages=repo_dir_pages,
+            doc_assets=doc_assets,
+            repo_assets=repo_assets,
+        )
+
+    nav_groups = build_navigation(pages)
+    search_index = build_search_index(list(pages.values()))
+    generated_at = datetime.now(timezone.utc).strftime(&quot;%Y-%m-%d %H:%M UTC&quot;)
+
+    write_static_assets(search_index, nav_groups)
+
+    for page in pages.values():
+        document = build_page_document(
+            page_title=page.title,
+            description=page.description,
+            current_url=page.url,
+            sidebar_html=render_sidebar(nav_groups, page.url),
+            toc_html=render_toc(page.headings, page.url),
+            breadcrumbs_html=render_breadcrumbs(page.docs_relative_path, page.url, page.title),
+            content_html=page.html_content,
+            generated_at=generated_at,
+        )
+        write_page(page.output_path, document)
+
+    copy_doc_assets(doc_assets)
+    copy_repo_assets(repo_assets)
+    build_repo_pages(repo_file_pages, repo_dir_pages, search_index, nav_groups, generated_at)
+
+    print(
+        f&quot;Built NOVA-SYNESIS web docs with {len(pages)} documentation pages, &quot;
+        f&quot;{len(repo_file_pages)} repository file views and {len(repo_dir_pages)} directory views in {WEB}&quot;
+    )
+
+
+SITE_CSS = &quot;&quot;&quot;
+:root {
+  --bg: #07111f;
+  --panel: rgba(11, 24, 39, 0.88);
+  --surface-border: rgba(125, 166, 214, 0.18);
+  --text: #e9f2ff;
+  --text-muted: #9db1c9;
+  --text-dim: #74879f;
+  --accent: #f3c969;
+  --cyan: #73dfd2;
+  --shadow: 0 22px 60px rgba(0, 0, 0, 0.32);
+  --radius: 24px;
+  --font-body: &quot;Sora&quot;, &quot;Segoe UI Variable&quot;, &quot;Segoe UI&quot;, sans-serif;
+  --font-code: &quot;IBM Plex Mono&quot;, &quot;Cascadia Code&quot;, &quot;Consolas&quot;, monospace;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--font-body);
+  color: var(--text);
+  background:
+    radial-gradient(circle at top left, rgba(115, 223, 210, 0.14), transparent 26%),
+    radial-gradient(circle at top right, rgba(243, 201, 105, 0.16), transparent 22%),
+    linear-gradient(180deg, #08101b 0%, #0a1623 45%, #08111d 100%);
+}
+
+a { color: inherit; text-decoration: none; }
+code, pre, kbd { font-family: var(--font-code); }
+
+.site-shell {
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr);
+  min-height: 100vh;
+}
+
+.site-sidebar {
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  height: 100vh;
+  padding: 1.4rem 1.2rem 1.2rem;
+  background: linear-gradient(180deg, rgba(6, 15, 27, 0.97), rgba(8, 17, 29, 0.93));
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(18px);
+  z-index: 20;
+}
+
+.brand {
+  padding: 1.1rem 1rem;
+  border-radius: var(--radius);
+  background: linear-gradient(135deg, rgba(11, 25, 42, 0.92), rgba(9, 18, 31, 0.72));
+  border: 1px solid rgba(243, 201, 105, 0.18);
+  box-shadow: var(--shadow);
+}
+
+.brand h1 { margin: 0.3rem 0 0; font-size: 2rem; letter-spacing: -0.04em; }
+
+.brand__eyebrow,
+.site-header__eyebrow,
+.doc-hero__eyebrow,
+.doc-toc__eyebrow,
+.search-box__label {
+  margin: 0;
+  font-size: 0.73rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.brand__subtitle {
+  margin: 0.7rem 0 0;
+  color: var(--text-muted);
+  line-height: 1.55;
+}
+
+.brand__home {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.75rem 0.95rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-muted);
+}
+
+.brand__home:hover { background: rgba(255, 255, 255, 0.08); color: var(--text); }
+.sidebar-scroll { overflow: auto; padding-right: 0.3rem; }
+.sidebar-scroll::-webkit-scrollbar, .doc-content::-webkit-scrollbar { width: 10px; }
+.sidebar-scroll::-webkit-scrollbar-thumb, .doc-content::-webkit-scrollbar-thumb {
+  background: rgba(117, 148, 186, 0.25);
+  border-radius: 999px;
+}
+
+.search-box {
+  display: grid;
+  gap: 0.55rem;
+  padding: 0.9rem 1rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.search-box input {
+  width: 100%;
+  padding: 0.95rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  background: rgba(8, 16, 29, 0.95);
+  color: var(--text);
+  outline: none;
+}
+
+.search-box input:focus {
+  border-color: rgba(115, 223, 210, 0.55);
+  box-shadow: 0 0 0 4px rgba(115, 223, 210, 0.1);
+}
+
+.search-results {
+  max-height: 320px;
+  overflow: auto;
+  border-radius: 18px;
+  background: rgba(8, 16, 29, 0.97);
+  border: 1px solid rgba(115, 223, 210, 0.18);
+  box-shadow: var(--shadow);
+}
+
+.search-results__item {
+  display: grid;
+  gap: 0.3rem;
+  padding: 0.95rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.search-results__item:last-child { border-bottom: none; }
+.search-results__item:hover { background: rgba(255, 255, 255, 0.04); }
+.search-results__path {
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--cyan);
+}
+
+.search-results__title { font-weight: 600; }
+.search-results__excerpt { color: var(--text-muted); font-size: 0.95rem; line-height: 1.55; }
+.sidebar__group { margin-top: 1.2rem; }
+.sidebar__group h2 {
+  margin: 0 0 0.8rem;
+  font-size: 0.82rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.sidebar__group--meta p { margin: 0; color: var(--text-muted); line-height: 1.6; font-size: 0.95rem; }
+.nav-list { display: grid; gap: 0.25rem; margin: 0; padding: 0; list-style: none; }
+.nav-list__link, .nav-list summary {
+  display: block;
+  padding: 0.7rem 0.85rem;
+  border-radius: 12px;
+  color: var(--text-muted);
+}
+
+.nav-list__link:hover, .nav-list summary:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text);
+  transform: translateX(2px);
+}
+
+.nav-list__link--active {
+  background: linear-gradient(135deg, rgba(243, 201, 105, 0.18), rgba(115, 223, 210, 0.12));
+  color: var(--text);
+  border: 1px solid rgba(243, 201, 105, 0.15);
+}
+
+.nav-list__branch summary { cursor: pointer; list-style: none; }
+.nav-list__branch summary::-webkit-details-marker { display: none; }
+.nav-list__branch .nav-list {
+  margin-left: 0.55rem;
+  padding-left: 0.55rem;
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.site-main { min-width: 0; }
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 12;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.2rem 2rem;
+  background: rgba(6, 14, 25, 0.76);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(18px);
+}
+
+.site-header__meta h2 { margin: 0.25rem 0 0; font-size: 1.15rem; }
+.site-header__toggle {
+  display: none;
+  padding: 0.75rem 1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+}
+
+.site-header__status { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.status-chip {
+  padding: 0.55rem 0.85rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-muted);
+  font-size: 0.84rem;
+}
+
+.status-chip--accent { background: rgba(243, 201, 105, 0.12); color: var(--accent); }
+.content-shell { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 2rem; padding: 2rem; }
+.doc-article { min-width: 0; }
+.breadcrumbs { display: flex; flex-wrap: wrap; gap: 0.55rem; margin-bottom: 1rem; color: var(--text-dim); font-size: 0.92rem; }
+.breadcrumbs a::after, .breadcrumbs span:not(:last-child)::after { content: &quot;/&quot;; margin-left: 0.55rem; color: rgba(255, 255, 255, 0.18); }
+.doc-hero, .doc-content, .doc-toc__card {
+  border-radius: var(--radius);
+  border: 1px solid var(--surface-border);
+  background: linear-gradient(180deg, rgba(13, 25, 40, 0.94), rgba(9, 18, 30, 0.92));
+  box-shadow: var(--shadow);
+}
+
+.doc-hero { padding: 1.7rem 1.8rem; margin-bottom: 1.4rem; }
+.doc-hero h1 { margin: 0.5rem 0 0.7rem; font-size: clamp(2rem, 4vw, 3.2rem); letter-spacing: -0.05em; }
+.doc-hero p { margin: 0; max-width: 58rem; color: var(--text-muted); line-height: 1.7; }
+.doc-content { padding: 2rem 2.15rem; line-height: 1.8; }
+.doc-content &gt; *:first-child { margin-top: 0; }
+.doc-content h1, .doc-content h2, .doc-content h3, .doc-content h4 { margin-top: 2rem; margin-bottom: 0.7rem; letter-spacing: -0.03em; scroll-margin-top: 7rem; }
+.doc-content h2 { font-size: 1.7rem; }
+.doc-content h3 { font-size: 1.25rem; }
+.heading-anchor { color: inherit; text-decoration: none; }
+.heading-anchor:hover { color: var(--accent); }
+.doc-content p, .doc-content li { color: var(--text-muted); }
+.doc-content strong, .doc-content b { color: var(--text); }
+.doc-content a { color: var(--cyan); text-decoration: underline; text-decoration-color: rgba(115, 223, 210, 0.35); }
+.doc-content pre {
+  overflow: auto;
+  padding: 1rem 1.1rem;
+  border-radius: 18px;
+  background: rgba(5, 11, 20, 0.98);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.doc-content code { padding: 0.18rem 0.35rem; border-radius: 7px; background: rgba(255, 255, 255, 0.07); color: #f7d98f; }
+.doc-content pre code { padding: 0; background: transparent; color: #dce9ff; }
+.doc-content blockquote { margin: 1.4rem 0; padding: 0.9rem 1rem; border-left: 3px solid rgba(115, 223, 210, 0.55); background: rgba(255, 255, 255, 0.03); color: var(--text-muted); }
+.doc-content table { width: 100%; border-collapse: collapse; margin: 1.3rem 0; overflow: hidden; border-radius: 18px; background: rgba(255, 255, 255, 0.03); }
+.doc-content th, .doc-content td { padding: 0.95rem 1rem; border-bottom: 1px solid rgba(255, 255, 255, 0.08); text-align: left; }
+.doc-content th { color: var(--text); background: rgba(255, 255, 255, 0.04); }
+.doc-content hr { border: none; height: 1px; background: rgba(255, 255, 255, 0.08); margin: 2rem 0; }
+.doc-content img { display: block; max-width: 100%; border-radius: 18px; border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: var(--shadow); }
+.doc-toc { position: sticky; top: 6.8rem; align-self: start; }
+.doc-toc__card { padding: 1.25rem 1.1rem; }
+.toc-list { margin: 0; padding: 0; list-style: none; display: grid; gap: 0.4rem; }
+.toc-list__item a { display: block; padding: 0.5rem 0.65rem; border-radius: 10px; color: var(--text-muted); }
+.toc-list__item a:hover { background: rgba(255, 255, 255, 0.05); color: var(--text); }
+.toc-list__item--level-3 { margin-left: 0.7rem; }
+.toc-list__item--level-4 { margin-left: 1.2rem; }
+.toc__empty { margin: 0; color: var(--text-dim); }
+.source-meta { margin-bottom: 1.4rem; }
+.source-block { padding: 1.1rem 1.15rem; border-radius: 20px; background: rgba(5, 11, 20, 0.98); border: 1px solid rgba(255, 255, 255, 0.07); overflow: auto; }
+.directory-list { display: grid; gap: 0.65rem; padding: 0; margin: 0; list-style: none; }
+.directory-list li { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 0.85rem 1rem; border-radius: 16px; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.06); }
+.directory-list span { color: var(--text-dim); font-size: 0.88rem; }
+kbd { padding: 0.18rem 0.38rem; border-radius: 7px; border: 1px solid rgba(255, 255, 255, 0.15); background: rgba(255, 255, 255, 0.04); color: var(--text); }
+
+@media (max-width: 1320px) {
+  .content-shell { grid-template-columns: minmax(0, 1fr); }
+  .doc-toc { display: none; }
+}
+
+@media (max-width: 1040px) {
+  .site-shell { grid-template-columns: 1fr; }
+  .site-sidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: min(88vw, 340px);
+    transform: translateX(-100%);
+    transition: transform 180ms ease;
+  }
+  .site-sidebar.site-sidebar--open { transform: translateX(0); }
+  .site-header__toggle { display: inline-flex; }
+}
+
+@media (max-width: 760px) {
+  .site-header, .content-shell { padding-left: 1rem; padding-right: 1rem; }
+  .doc-content, .doc-hero { padding: 1.35rem; }
+  .site-header { flex-wrap: wrap; }
+}
+&quot;&quot;&quot;
+
+
+SITE_JS = &quot;&quot;&quot;
+(() =&gt; {
+  const pageUrl = document.body.dataset.pageUrl || &quot;index.html&quot;;
+  const sidebar = document.getElementById(&quot;site-sidebar&quot;);
+  const toggle = document.getElementById(&quot;sidebar-toggle&quot;);
+  const searchInput = document.getElementById(&quot;docs-search&quot;);
+  const searchResults = document.getElementById(&quot;search-results&quot;);
+  const searchIndex = Array.isArray(window.NOVA_SYNESIS_SEARCH_INDEX) ? window.NOVA_SYNESIS_SEARCH_INDEX : [];
+
+  if (toggle &amp;&amp; sidebar) {
+    toggle.addEventListener(&quot;click&quot;, () =&gt; {
+      const open = sidebar.classList.toggle(&quot;site-sidebar--open&quot;);
+      toggle.setAttribute(&quot;aria-expanded&quot;, String(open));
+    });
+  }
+
+  document.addEventListener(&quot;keydown&quot;, (event) =&gt; {
+    if (event.key === &quot;/&quot; &amp;&amp; document.activeElement !== searchInput) {
+      event.preventDefault();
+      searchInput?.focus();
+      searchInput?.select();
+    }
+    if (event.key === &quot;Escape&quot;) {
+      searchResults?.setAttribute(&quot;hidden&quot;, &quot;&quot;);
+      if (document.activeElement === searchInput) {
+        searchInput.blur();
+      }
+      sidebar?.classList.remove(&quot;site-sidebar--open&quot;);
+      toggle?.setAttribute(&quot;aria-expanded&quot;, &quot;false&quot;);
+    }
+  });
+
+  function tokenize(query) {
+    return query.toLowerCase().split(/\\s+/).map((token) =&gt; token.trim()).filter(Boolean);
+  }
+
+  function toRelativeUrl(targetUrl) {
+    const fromParts = pageUrl.split(&quot;/&quot;).slice(0, -1);
+    const toParts = String(targetUrl).split(&quot;/&quot;);
+
+    while (fromParts.length &amp;&amp; toParts.length &amp;&amp; fromParts[0] === toParts[0]) {
+      fromParts.shift();
+      toParts.shift();
+    }
+
+    const prefix = fromParts.map(() =&gt; &quot;..&quot;);
+    const joined = [...prefix, ...toParts].join(&quot;/&quot;);
+    return joined || &quot;index.html&quot;;
+  }
+
+  function scoreEntry(entry, tokens, rawQuery) {
+    const title = String(entry.title || &quot;&quot;).toLowerCase();
+    const description = String(entry.description || &quot;&quot;).toLowerCase();
+    const headings = Array.isArray(entry.headings) ? entry.headings.join(&quot; &quot;).toLowerCase() : &quot;&quot;;
+    const body = String(entry.body || &quot;&quot;).toLowerCase();
+    let score = 0;
+
+    for (const token of tokens) {
+      if (title.includes(token)) score += 60;
+      else if (headings.includes(token)) score += 28;
+      else if (description.includes(token)) score += 18;
+      else if (body.includes(token)) score += 8;
+      else return 0;
+    }
+
+    if (title.includes(rawQuery)) score += 40;
+    if (entry.url === pageUrl) score += 4;
+    return score;
+  }
+
+  function buildExcerpt(entry, query) {
+    const haystack = `${entry.description || &quot;&quot;} ${entry.body || &quot;&quot;}`.replace(/\\s+/g, &quot; &quot;).trim();
+    if (!haystack) return &quot;&quot;;
+    const lower = haystack.toLowerCase();
+    const index = lower.indexOf(query);
+    if (index === -1) return haystack.slice(0, 160);
+    const start = Math.max(0, index - 50);
+    const end = Math.min(haystack.length, index + 110);
+    const prefix = start &gt; 0 ? &quot;…&quot; : &quot;&quot;;
+    const suffix = end &lt; haystack.length ? &quot;…&quot; : &quot;&quot;;
+    return `${prefix}${haystack.slice(start, end)}${suffix}`;
+  }
+
+  function renderResults(results, rawQuery) {
+    if (!searchResults) return;
+    if (!rawQuery) {
+      searchResults.innerHTML = &quot;&quot;;
+      searchResults.setAttribute(&quot;hidden&quot;, &quot;&quot;);
+      return;
+    }
+
+    if (!results.length) {
+      searchResults.innerHTML = `&lt;div class=&quot;search-results__item&quot;&gt;&lt;div class=&quot;search-results__title&quot;&gt;No results&lt;/div&gt;&lt;div class=&quot;search-results__excerpt&quot;&gt;No documentation page matches &quot;${rawQuery}&quot;.&lt;/div&gt;&lt;/div&gt;`;
+      searchResults.removeAttribute(&quot;hidden&quot;);
+      return;
+    }
+
+    searchResults.innerHTML = results.map((entry) =&gt; `
+      &lt;a class=&quot;search-results__item&quot; href=&quot;${toRelativeUrl(entry.url)}&quot;&gt;
+        &lt;span class=&quot;search-results__path&quot;&gt;${entry.group || &quot;Docs&quot;}&lt;/span&gt;
+        &lt;span class=&quot;search-results__title&quot;&gt;${entry.title}&lt;/span&gt;
+        &lt;span class=&quot;search-results__excerpt&quot;&gt;${buildExcerpt(entry, rawQuery.toLowerCase())}&lt;/span&gt;
+      &lt;/a&gt;
+    `).join(&quot;&quot;);
+    searchResults.removeAttribute(&quot;hidden&quot;);
+  }
+
+  searchInput?.addEventListener(&quot;input&quot;, (event) =&gt; {
+    const rawQuery = String(event.target.value || &quot;&quot;).trim();
+    const tokens = tokenize(rawQuery);
+    if (!tokens.length) {
+      renderResults([], &quot;&quot;);
+      return;
+    }
+
+    const results = searchIndex
+      .map((entry) =&gt; ({ ...entry, _score: scoreEntry(entry, tokens, rawQuery.toLowerCase()) }))
+      .filter((entry) =&gt; entry._score &gt; 0)
+      .sort((left, right) =&gt; right._score - left._score)
+      .slice(0, 12);
+
+    renderResults(results, rawQuery);
+  });
+
+  document.addEventListener(&quot;click&quot;, (event) =&gt; {
+    if (!searchResults || !searchInput) return;
+    const target = event.target;
+    if (target instanceof Node &amp;&amp; (searchResults.contains(target) || searchInput.contains(target))) return;
+    searchResults.setAttribute(&quot;hidden&quot;, &quot;&quot;);
+  });
+})();
+&quot;&quot;&quot;
+
+
+FAVICON_SVG = &quot;&quot;&quot;
+&lt;svg width=&quot;128&quot; height=&quot;128&quot; viewBox=&quot;0 0 128 128&quot; fill=&quot;none&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;&gt;
+  &lt;defs&gt;
+    &lt;linearGradient id=&quot;nova-core&quot; x1=&quot;18&quot; y1=&quot;18&quot; x2=&quot;110&quot; y2=&quot;110&quot; gradientUnits=&quot;userSpaceOnUse&quot;&gt;
+      &lt;stop offset=&quot;0&quot; stop-color=&quot;#73DFD2&quot;/&gt;
+      &lt;stop offset=&quot;1&quot; stop-color=&quot;#F3C969&quot;/&gt;
+    &lt;/linearGradient&gt;
+  &lt;/defs&gt;
+  &lt;rect x=&quot;10&quot; y=&quot;10&quot; width=&quot;108&quot; height=&quot;108&quot; rx=&quot;28&quot; fill=&quot;#08111D&quot; stroke=&quot;url(#nova-core)&quot; stroke-width=&quot;4&quot;/&gt;
+  &lt;path d=&quot;M34 88V40L64 68L94 40V88&quot; stroke=&quot;url(#nova-core)&quot; stroke-width=&quot;8&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;/&gt;
+  &lt;circle cx=&quot;34&quot; cy=&quot;88&quot; r=&quot;7&quot; fill=&quot;#73DFD2&quot;/&gt;
+  &lt;circle cx=&quot;94&quot; cy=&quot;88&quot; r=&quot;7&quot; fill=&quot;#F3C969&quot;/&gt;
+&lt;/svg&gt;
+&quot;&quot;&quot;
+
+
+if __name__ == &quot;__main__&quot;:
+    build_web_docs()
+</code></pre>
+          </section>
+        </article>
+        <aside class="doc-toc">
+          <div class="doc-toc__card">
+            <p class="doc-toc__eyebrow">On this page</p>
+            <p class="toc__empty">Repository view</p>
+          </div>
+        </aside>
+      </main>
+    </div>
+  </div>
+  <script src="../../assets/site-data.js"></script>
+  <script src="../../assets/site.js"></script>
+</body>
+</html>

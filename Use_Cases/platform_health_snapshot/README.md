@@ -40,6 +40,7 @@ Optional kann das Setup auch separat ausgefuehrt werden:
 ```
 
 `setup.ps1` aktualisiert `ops-long-term` bewusst mit `planner_visible = false`, damit der Flow auch in der Web UI direkt gespeichert und gestartet werden kann, ohne an der Memory-Poisoning-Regel zu scheitern.
+Zusaetzlich registriert das Setup einen Message-Queue-Sink `ops-notify`, damit der LLM-Planner fuer Completion-Flows ein legales `send_message`-Ziel hat.
 
 ## Ablauf im Graphen
 
@@ -49,6 +50,8 @@ Optional kann das Setup auch separat ausgefuehrt werden:
 - `write_health_report`: schreibt `output/latest-health.json`
 - `render_health_summary`: erzeugt eine lesbare Kurzfassung
 - `persist_summary`: schreibt `output/latest-health-summary.txt`
+
+Fuer planner-generierte Varianten steht ausserdem der Agent `ops-notify` als Kommunikationsziel fuer `send_message` zur Verfuegung.
 
 ## Erwartete Artefakte
 

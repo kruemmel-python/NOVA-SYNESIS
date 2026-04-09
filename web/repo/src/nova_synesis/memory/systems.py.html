@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Repository: src/nova_synesis/memory/systems.py | NOVA-SYNESIS Docs</title>
+  <meta name="description" content="Repository file view for src/nova_synesis/memory/systems.py">
+  <link rel="icon" type="image/svg+xml" href="../../../../assets/favicon.svg">
+  <link rel="stylesheet" href="../../../../assets/site.css">
+</head>
+<body data-page-url="repo/src/nova_synesis/memory/systems.py.html">
+  <div class="site-shell">
+    <aside class="site-sidebar" id="site-sidebar">
+      <div class="brand">
+        <p class="brand__eyebrow">Neural Orchestration Visual Autonomy</p>
+        <h1>NOVA-SYNESIS</h1>
+        <p class="brand__subtitle">Stateful Yielding Node-based Execution Semantic Integrated Surface</p>
+      </div>
+      <label class="search-box">
+        <span class="search-box__label">Search docs</span>
+        <input id="docs-search" type="search" placeholder="Search guides, files, handlers, policies">
+      </label>
+      <div class="search-results" id="search-results" hidden></div>
+      <div class="sidebar-scroll">
+        <a class="brand__home" href="../../../../index.html">Documentation Home</a><section class="sidebar__group"><h2>Guides</h2><ul class="nav-list"><li><a class="nav-list__link" href="../../../../index.html">NOVA-SYNESIS Dokumentation</a></li><li><a class="nav-list__link" href="../../../../getting-started.html">Schnellstart</a></li><li><a class="nav-list__link" href="../../../../system-overview.html">Systemueberblick</a></li><li><a class="nav-list__link" href="../../../../backend-runtime.html">Backend-Laufzeit</a></li><li><a class="nav-list__link" href="../../../../frontend-editor.html">Frontend-Editor</a></li><li><a class="nav-list__link" href="../../../../planner-and-lit.html">LLM-Planer und LiteRT</a></li><li><a class="nav-list__link" href="../../../../security-and-policy.html">Security und Policy</a></li><li><a class="nav-list__link" href="../../../../handler-trust-and-approval.html">Handler Trust und Freigaben</a></li><li><a class="nav-list__link" href="../../../../failure-playbook.html">Failure Playbook</a></li><li><a class="nav-list__link" href="../../../../decision-guide.html">Decision Guide</a></li><li><a class="nav-list__link" href="../../../../real-world-scenarios.html">Real World Scenarios</a></li><li><a class="nav-list__link" href="../../../../change-workflows.html">Aenderungsleitfaden</a></li></ul></section><section class="sidebar__group"><h2>Reference</h2><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/index.html">Referenzindex</a></li><li><a class="nav-list__link" href="../../../../reference/.env.example.html">.env.example</a></li><li><a class="nav-list__link" href="../../../../reference/.gitignore.html">.gitignore</a></li><li><a class="nav-list__link" href="../../../../reference/Anweisung.md.html">Anweisung.md</a></li><li><a class="nav-list__link" href="../../../../reference/Dockerfile.html">Dockerfile</a></li><li class="nav-list__branch"><details ><summary>Frontend</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/frontend/.env.example.html">.env.example</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/index.html.html">index.html</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/package-lock.json.html">package-lock.json</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/package.json.html">package.json</a></li><li class="nav-list__branch"><details ><summary>Source</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/frontend/src/app.css.html">app.css</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/src/App.tsx.html">App.tsx</a></li><li class="nav-list__branch"><details ><summary>Components</summary><ul class="nav-list"><li class="nav-list__branch"><details ><summary>Common</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/frontend/src/components/common/JsonEditor.tsx.html">JsonEditor.tsx</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/src/components/common/StatusBadge.tsx.html">StatusBadge.tsx</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Flow</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/frontend/src/components/flow/FlowCanvas.tsx.html">FlowCanvas.tsx</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/src/components/flow/TaskNode.tsx.html">TaskNode.tsx</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Layout</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/frontend/src/components/layout/InspectorPanel.tsx.html">InspectorPanel.tsx</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/src/components/layout/PlannerComposer.tsx.html">PlannerComposer.tsx</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/src/components/layout/Sidebar.tsx.html">Sidebar.tsx</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/src/components/layout/TopBar.tsx.html">TopBar.tsx</a></li></ul></details></li></ul></details></li><li class="nav-list__branch"><details ><summary>Hooks</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/frontend/src/hooks/useCatalogBootstrap.ts.html">useCatalogBootstrap.ts</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/src/hooks/useFlowLiveUpdates.ts.html">useFlowLiveUpdates.ts</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Lib</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/frontend/src/lib/apiClient.ts.html">apiClient.ts</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/src/lib/autoLayout.ts.html">autoLayout.ts</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/src/lib/flowSerialization.ts.html">flowSerialization.ts</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/src/lib/json.ts.html">json.ts</a></li></ul></details></li><li><a class="nav-list__link" href="../../../../reference/frontend/src/main.tsx.html">main.tsx</a></li><li class="nav-list__branch"><details ><summary>Store</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/frontend/src/store/useFlowStore.ts.html">useFlowStore.ts</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Types</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/frontend/src/types/api.ts.html">api.ts</a></li></ul></details></li><li><a class="nav-list__link" href="../../../../reference/frontend/src/vite-env.d.ts.html">vite-env.d.ts</a></li></ul></details></li><li><a class="nav-list__link" href="../../../../reference/frontend/tsconfig.app.json.html">tsconfig.app.json</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/tsconfig.json.html">tsconfig.json</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/tsconfig.node.json.html">tsconfig.node.json</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/vite.config.d.ts.html">vite.config.d.ts</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/vite.config.js.html">vite.config.js</a></li><li><a class="nav-list__link" href="../../../../reference/frontend/vite.config.ts.html">vite.config.ts</a></li></ul></details></li><li><a class="nav-list__link" href="../../../../reference/LICENSE.html">LICENSE</a></li><li class="nav-list__branch"><details ><summary>LIT</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/LIT/planner_test_prompt.txt.html">planner_test_prompt.txt</a></li><li><a class="nav-list__link" href="../../../../reference/LIT/README.md.html">README.md</a></li></ul></details></li><li><a class="nav-list__link" href="../../../../reference/pyproject.toml.html">pyproject.toml</a></li><li><a class="nav-list__link" href="../../../../reference/README.md.html">README.md</a></li><li><a class="nav-list__link" href="../../../../reference/run-backend.cmd.html">run-backend.cmd</a></li><li><a class="nav-list__link" href="../../../../reference/run-backend.ps1.html">run-backend.ps1</a></li><li class="nav-list__branch"><details ><summary>Source</summary><ul class="nav-list"><li class="nav-list__branch"><details ><summary>NOVA-SYNESIS</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/__init__.py.html">__init__.py</a></li><li class="nav-list__branch"><details ><summary>API</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/api/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/api/app.py.html">app.py</a></li></ul></details></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/cli.py.html">cli.py</a></li><li class="nav-list__branch"><details ><summary>Communication</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/communication/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/communication/adapters.py.html">adapters.py</a></li></ul></details></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/config.py.html">config.py</a></li><li class="nav-list__branch"><details ><summary>Domain</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/domain/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/domain/models.py.html">models.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Memory</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/memory/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/memory/systems.py.html">systems.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Persistence</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/persistence/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/persistence/sqlite_repository.py.html">sqlite_repository.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Planning</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/planning/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/planning/lit_planner.py.html">lit_planner.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/planning/planner.py.html">planner.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Resources</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/resources/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/resources/manager.py.html">manager.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Runtime</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/runtime/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/runtime/engine.py.html">engine.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/runtime/handlers.py.html">handlers.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Security</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/security/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/security/policy.py.html">policy.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/security/trust.py.html">trust.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Services</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/services/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../../../reference/src/nova_synesis/services/orchestrator.py.html">orchestrator.py</a></li></ul></details></li></ul></details></li></ul></details></li><li class="nav-list__branch"><details ><summary>Tests</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/tests/test_orchestrator.py.html">test_orchestrator.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Tools</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/tools/build_code_release.ps1.html">build_code_release.ps1</a></li><li><a class="nav-list__link" href="../../../../reference/tools/build_web_docs.py.html">build_web_docs.py</a></li><li><a class="nav-list__link" href="../../../../reference/tools/generate_docs.py.html">generate_docs.py</a></li></ul></details></li><li><a class="nav-list__link" href="../../../../reference/uml.html.html">uml.html</a></li><li><a class="nav-list__link" href="../../../../reference/uml_V3.mmd.html">uml_V3.mmd</a></li><li class="nav-list__branch"><details ><summary>Use Cases</summary><ul class="nav-list"><li class="nav-list__branch"><details ><summary>Platform Health Snapshot</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/Use_Cases/platform_health_snapshot/flow.json.html">flow.json</a></li><li><a class="nav-list__link" href="../../../../reference/Use_Cases/platform_health_snapshot/platform_health_snapshot.png.html">platform_health_snapshot.png</a></li><li><a class="nav-list__link" href="../../../../reference/Use_Cases/platform_health_snapshot/README.md.html">README.md</a></li><li><a class="nav-list__link" href="../../../../reference/Use_Cases/platform_health_snapshot/run.ps1.html">run.ps1</a></li><li><a class="nav-list__link" href="../../../../reference/Use_Cases/platform_health_snapshot/setup.ps1.html">setup.ps1</a></li></ul></details></li><li><a class="nav-list__link" href="../../../../reference/Use_Cases/README.md.html">README.md</a></li><li class="nav-list__branch"><details ><summary>Semantic Ticket Triage</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../../reference/Use_Cases/semantic_ticket_triage/flow.json.html">flow.json</a></li><li><a class="nav-list__link" href="../../../../reference/Use_Cases/semantic_ticket_triage/README.md.html">README.md</a></li><li><a class="nav-list__link" href="../../../../reference/Use_Cases/semantic_ticket_triage/run.ps1.html">run.ps1</a></li><li><a class="nav-list__link" href="../../../../reference/Use_Cases/semantic_ticket_triage/semantic_ticket_triage.png.html">semantic_ticket_triage.png</a></li><li><a class="nav-list__link" href="../../../../reference/Use_Cases/semantic_ticket_triage/setup.ps1.html">setup.ps1</a></li></ul></details></li></ul></details></li></ul></section><section class="sidebar__group"><h2>Appendix</h2><ul class="nav-list"><li><a class="nav-list__link" href="../../../../coverage.html">Abdeckung</a></li><li><a class="nav-list__link" href="../../../../Whitepaper.html">Whitepaper: Die Genesis von NOVA-SYNESIS</a></li></ul></section><section class="sidebar__group sidebar__group--meta"><h2>Search</h2><p>Use <kbd>/</kbd> to focus the search field and jump across guides, references and scenarios.</p></section>
+      </div>
+    </aside>
+
+    <div class="site-main">
+      <header class="site-header">
+        <button class="site-header__toggle" type="button" id="sidebar-toggle" aria-controls="site-sidebar" aria-expanded="false">
+          Menu
+        </button>
+        <div class="site-header__meta">
+          <p class="site-header__eyebrow">Generated documentation surface</p>
+          <h2>Repository: src/nova_synesis/memory/systems.py</h2>
+        </div>
+        <div class="site-header__status">
+          <span class="status-chip">HTML docs</span>
+          <span class="status-chip status-chip--accent">2026-04-09 00:10 UTC</span>
+        </div>
+      </header>
+
+      <main class="content-shell">
+        <article class="doc-article">
+          <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="../../../../index.html">Docs</a><span aria-current="page">reference</span></nav>
+          <section class="doc-hero">
+            <p class="doc-hero__eyebrow">Documentation</p>
+            <h1>Repository: src/nova_synesis/memory/systems.py</h1>
+            <p>Repository file view for src/nova_synesis/memory/systems.py</p>
+          </section>
+          <section class="doc-content">
+            <section class="source-meta"><p class="doc-hero__eyebrow">Repository file</p><h1>src/nova_synesis/memory/systems.py</h1><p>Rendered source view for the repository file. 384 lines.</p></section><pre class="source-block"><code class="language-python">from __future__ import annotations
+
+import asyncio
+import json
+import math
+import sqlite3
+from abc import ABC, abstractmethod
+from collections import OrderedDict
+from dataclasses import dataclass, field
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any
+
+from nova_synesis.domain.models import MemoryType
+
+
+def utcnow_iso() -&gt; str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def cosine_similarity(left: list[float], right: list[float]) -&gt; float:
+    if len(left) != len(right) or not left:
+        return 0.0
+    numerator = sum(a * b for a, b in zip(left, right, strict=True))
+    left_norm = math.sqrt(sum(value * value for value in left))
+    right_norm = math.sqrt(sum(value * value for value in right))
+    if left_norm == 0 or right_norm == 0:
+        return 0.0
+    return numerator / (left_norm * right_norm)
+
+
+@dataclass(slots=True)
+class MemorySearchHit:
+    key: str
+    value: Any
+    score: float
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+    def as_dict(self) -&gt; dict[str, Any]:
+        return {
+            &quot;key&quot;: self.key,
+            &quot;value&quot;: self.value,
+            &quot;score&quot;: self.score,
+            &quot;metadata&quot;: self.metadata,
+        }
+
+
+class MemorySystem(ABC):
+    def __init__(
+        self,
+        memory_id: str,
+        memory_type: MemoryType,
+        backend: str,
+        config: dict[str, Any] | None = None,
+    ) -&gt; None:
+        self.memory_id = memory_id
+        self.type = memory_type
+        self.backend = backend
+        self.config = config or {}
+
+    @abstractmethod
+    async def store(self, key: str, value: Any) -&gt; dict[str, Any]:
+        raise NotImplementedError
+
+    @abstractmethod
+    async def retrieve(self, key: str) -&gt; Any:
+        raise NotImplementedError
+
+    @abstractmethod
+    async def search(self, query: Any, limit: int = 5) -&gt; list[dict[str, Any]]:
+        raise NotImplementedError
+
+    @abstractmethod
+    async def persist(self) -&gt; None:
+        raise NotImplementedError
+
+
+class ShortTermMemorySystem(MemorySystem):
+    def __init__(
+        self,
+        memory_id: str,
+        backend: str = &quot;memory&quot;,
+        config: dict[str, Any] | None = None,
+    ) -&gt; None:
+        super().__init__(memory_id, MemoryType.SHORT_TERM, backend, config)
+        self._lock = asyncio.Lock()
+        self._values: OrderedDict[str, dict[str, Any]] = OrderedDict()
+        self._max_items = int(self.config.get(&quot;max_items&quot;, 512))
+        if self.backend != &quot;memory&quot;:
+            self._load_from_disk()
+
+    def _load_from_disk(self) -&gt; None:
+        path = Path(self.backend)
+        if path.exists():
+            payload = json.loads(path.read_text(encoding=&quot;utf-8&quot;))
+            for key, entry in payload.items():
+                self._values[key] = entry
+
+    async def store(self, key: str, value: Any) -&gt; dict[str, Any]:
+        async with self._lock:
+            self._values[key] = {&quot;value&quot;: value, &quot;stored_at&quot;: utcnow_iso()}
+            self._values.move_to_end(key)
+            while len(self._values) &gt; self._max_items:
+                self._values.popitem(last=False)
+        return {&quot;memory_id&quot;: self.memory_id, &quot;key&quot;: key, &quot;stored&quot;: True}
+
+    async def retrieve(self, key: str) -&gt; Any:
+        async with self._lock:
+            entry = self._values.get(key)
+            if entry is None:
+                return None
+            self._values.move_to_end(key)
+            return entry[&quot;value&quot;]
+
+    async def search(self, query: Any, limit: int = 5) -&gt; list[dict[str, Any]]:
+        async with self._lock:
+            hits: list[MemorySearchHit] = []
+            for key, entry in self._values.items():
+                value = entry[&quot;value&quot;]
+                score = self._score_value(value, query)
+                if score &gt; 0:
+                    hits.append(MemorySearchHit(key=key, value=value, score=score))
+            ordered = sorted(hits, key=lambda hit: hit.score, reverse=True)[:limit]
+            return [hit.as_dict() for hit in ordered]
+
+    def _score_value(self, value: Any, query: Any) -&gt; float:
+        if isinstance(query, str):
+            haystack = json.dumps(value, ensure_ascii=False)
+            return 1.0 if query.lower() in haystack.lower() else 0.0
+        embedding = self._extract_embedding(value)
+        if isinstance(query, list) and embedding:
+            return cosine_similarity(query, embedding)
+        return 1.0 if value == query else 0.0
+
+    @staticmethod
+    def _extract_embedding(value: Any) -&gt; list[float] | None:
+        if isinstance(value, dict):
+            embedding = value.get(&quot;embedding&quot;)
+            if isinstance(embedding, list):
+                return [float(component) for component in embedding]
+        return None
+
+    async def persist(self) -&gt; None:
+        if self.backend == &quot;memory&quot;:
+            return
+        async with self._lock:
+            path = Path(self.backend)
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(
+                json.dumps(self._values, ensure_ascii=False, indent=2, default=str),
+                encoding=&quot;utf-8&quot;,
+            )
+
+
+class LongTermMemorySystem(MemorySystem):
+    def __init__(
+        self,
+        memory_id: str,
+        backend: str,
+        config: dict[str, Any] | None = None,
+    ) -&gt; None:
+        super().__init__(memory_id, MemoryType.LONG_TERM, backend, config)
+        Path(self.backend).parent.mkdir(parents=True, exist_ok=True)
+        self._connection = sqlite3.connect(self.backend, check_same_thread=False)
+        self._connection.row_factory = sqlite3.Row
+        self._lock = asyncio.Lock()
+        self._connection.execute(
+            &quot;&quot;&quot;
+            CREATE TABLE IF NOT EXISTS long_term_memory (
+                memory_id TEXT NOT NULL,
+                key TEXT NOT NULL,
+                value_json TEXT NOT NULL,
+                metadata_json TEXT,
+                updated_at TEXT NOT NULL,
+                PRIMARY KEY (memory_id, key)
+            )
+            &quot;&quot;&quot;
+        )
+        self._connection.commit()
+
+    async def store(self, key: str, value: Any) -&gt; dict[str, Any]:
+        payload = value.get(&quot;value&quot;) if isinstance(value, dict) and &quot;value&quot; in value else value
+        metadata = value.get(&quot;metadata&quot;, {}) if isinstance(value, dict) else {}
+        async with self._lock:
+            self._connection.execute(
+                &quot;&quot;&quot;
+                INSERT INTO long_term_memory (memory_id, key, value_json, metadata_json, updated_at)
+                VALUES (?, ?, ?, ?, ?)
+                ON CONFLICT(memory_id, key) DO UPDATE SET
+                    value_json = excluded.value_json,
+                    metadata_json = excluded.metadata_json,
+                    updated_at = excluded.updated_at
+                &quot;&quot;&quot;,
+                (
+                    self.memory_id,
+                    key,
+                    json.dumps(payload, ensure_ascii=False, default=str),
+                    json.dumps(metadata, ensure_ascii=False, default=str),
+                    utcnow_iso(),
+                ),
+            )
+            self._connection.commit()
+        return {&quot;memory_id&quot;: self.memory_id, &quot;key&quot;: key, &quot;stored&quot;: True}
+
+    async def retrieve(self, key: str) -&gt; Any:
+        async with self._lock:
+            row = self._connection.execute(
+                &quot;SELECT value_json FROM long_term_memory WHERE memory_id = ? AND key = ?&quot;,
+                (self.memory_id, key),
+            ).fetchone()
+        return json.loads(row[&quot;value_json&quot;]) if row else None
+
+    async def search(self, query: Any, limit: int = 5) -&gt; list[dict[str, Any]]:
+        async with self._lock:
+            rows = self._connection.execute(
+                &quot;SELECT key, value_json, metadata_json FROM long_term_memory WHERE memory_id = ?&quot;,
+                (self.memory_id,),
+            ).fetchall()
+        hits: list[MemorySearchHit] = []
+        for row in rows:
+            value = json.loads(row[&quot;value_json&quot;])
+            metadata = json.loads(row[&quot;metadata_json&quot;]) if row[&quot;metadata_json&quot;] else {}
+            score = 0.0
+            if isinstance(query, str):
+                score = 1.0 if query.lower() in json.dumps(value).lower() else 0.0
+            elif value == query:
+                score = 1.0
+            elif isinstance(query, list) and isinstance(value, dict) and isinstance(value.get(&quot;embedding&quot;), list):
+                score = cosine_similarity(query, value[&quot;embedding&quot;])
+            if score &gt; 0:
+                hits.append(MemorySearchHit(key=row[&quot;key&quot;], value=value, metadata=metadata, score=score))
+        ordered = sorted(hits, key=lambda hit: hit.score, reverse=True)[:limit]
+        return [hit.as_dict() for hit in ordered]
+
+    async def persist(self) -&gt; None:
+        async with self._lock:
+            self._connection.commit()
+
+
+class VectorMemorySystem(MemorySystem):
+    def __init__(
+        self,
+        memory_id: str,
+        backend: str,
+        config: dict[str, Any] | None = None,
+    ) -&gt; None:
+        super().__init__(memory_id, MemoryType.VECTOR, backend, config)
+        Path(self.backend).parent.mkdir(parents=True, exist_ok=True)
+        self._connection = sqlite3.connect(self.backend, check_same_thread=False)
+        self._connection.row_factory = sqlite3.Row
+        self._lock = asyncio.Lock()
+        self._connection.execute(
+            &quot;&quot;&quot;
+            CREATE TABLE IF NOT EXISTS vector_memory (
+                memory_id TEXT NOT NULL,
+                key TEXT NOT NULL,
+                value_json TEXT NOT NULL,
+                embedding_json TEXT NOT NULL,
+                metadata_json TEXT,
+                updated_at TEXT NOT NULL,
+                PRIMARY KEY (memory_id, key)
+            )
+            &quot;&quot;&quot;
+        )
+        self._connection.commit()
+
+    async def store(self, key: str, value: Any) -&gt; dict[str, Any]:
+        if not isinstance(value, dict) or &quot;embedding&quot; not in value:
+            raise ValueError(&quot;Vector memory expects a dict value containing an &#x27;embedding&#x27; field&quot;)
+        embedding = [float(component) for component in value[&quot;embedding&quot;]]
+        payload = value.get(&quot;value&quot;, value)
+        metadata = value.get(&quot;metadata&quot;, {})
+        async with self._lock:
+            self._connection.execute(
+                &quot;&quot;&quot;
+                INSERT INTO vector_memory (memory_id, key, value_json, embedding_json, metadata_json, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?)
+                ON CONFLICT(memory_id, key) DO UPDATE SET
+                    value_json = excluded.value_json,
+                    embedding_json = excluded.embedding_json,
+                    metadata_json = excluded.metadata_json,
+                    updated_at = excluded.updated_at
+                &quot;&quot;&quot;,
+                (
+                    self.memory_id,
+                    key,
+                    json.dumps(payload, ensure_ascii=False, default=str),
+                    json.dumps(embedding),
+                    json.dumps(metadata, ensure_ascii=False, default=str),
+                    utcnow_iso(),
+                ),
+            )
+            self._connection.commit()
+        return {&quot;memory_id&quot;: self.memory_id, &quot;key&quot;: key, &quot;stored&quot;: True}
+
+    async def retrieve(self, key: str) -&gt; Any:
+        async with self._lock:
+            row = self._connection.execute(
+                &quot;SELECT value_json, embedding_json, metadata_json FROM vector_memory WHERE memory_id = ? AND key = ?&quot;,
+                (self.memory_id, key),
+            ).fetchone()
+        if row is None:
+            return None
+        return {
+            &quot;value&quot;: json.loads(row[&quot;value_json&quot;]),
+            &quot;embedding&quot;: json.loads(row[&quot;embedding_json&quot;]),
+            &quot;metadata&quot;: json.loads(row[&quot;metadata_json&quot;]) if row[&quot;metadata_json&quot;] else {},
+        }
+
+    async def search(self, query: Any, limit: int = 5) -&gt; list[dict[str, Any]]:
+        if not isinstance(query, list):
+            raise ValueError(&quot;Vector memory search expects a vector query list&quot;)
+        normalized_query = [float(component) for component in query]
+        async with self._lock:
+            rows = self._connection.execute(
+                &quot;SELECT key, value_json, embedding_json, metadata_json FROM vector_memory WHERE memory_id = ?&quot;,
+                (self.memory_id,),
+            ).fetchall()
+        hits: list[MemorySearchHit] = []
+        for row in rows:
+            embedding = json.loads(row[&quot;embedding_json&quot;])
+            score = cosine_similarity(normalized_query, embedding)
+            if score &gt; 0:
+                hits.append(
+                    MemorySearchHit(
+                        key=row[&quot;key&quot;],
+                        value=json.loads(row[&quot;value_json&quot;]),
+                        metadata=json.loads(row[&quot;metadata_json&quot;]) if row[&quot;metadata_json&quot;] else {},
+                        score=score,
+                    )
+                )
+        ordered = sorted(hits, key=lambda hit: hit.score, reverse=True)[:limit]
+        return [hit.as_dict() for hit in ordered]
+
+    async def persist(self) -&gt; None:
+        async with self._lock:
+            self._connection.commit()
+
+
+class MemorySystemFactory:
+    @staticmethod
+    def create(
+        memory_id: str,
+        memory_type: MemoryType,
+        backend: str,
+        config: dict[str, Any] | None = None,
+    ) -&gt; MemorySystem:
+        if memory_type == MemoryType.SHORT_TERM:
+            return ShortTermMemorySystem(memory_id=memory_id, backend=backend, config=config)
+        if memory_type == MemoryType.LONG_TERM:
+            return LongTermMemorySystem(memory_id=memory_id, backend=backend, config=config)
+        if memory_type == MemoryType.VECTOR:
+            return VectorMemorySystem(memory_id=memory_id, backend=backend, config=config)
+        raise ValueError(f&quot;Unsupported memory type &#x27;{memory_type}&#x27;&quot;)
+
+
+class MemoryManager:
+    def __init__(self) -&gt; None:
+        self._systems: dict[str, MemorySystem] = {}
+
+    def register(self, system: MemorySystem) -&gt; MemorySystem:
+        self._systems[system.memory_id] = system
+        return system
+
+    def get(self, memory_id: str) -&gt; MemorySystem:
+        if memory_id not in self._systems:
+            raise KeyError(f&quot;Unknown memory system &#x27;{memory_id}&#x27;&quot;)
+        return self._systems[memory_id]
+
+    def list(self) -&gt; list[MemorySystem]:
+        return list(self._systems.values())
+
+    async def store(self, memory_id: str, key: str, value: Any) -&gt; dict[str, Any]:
+        return await self.get(memory_id).store(key, value)
+
+    async def retrieve(self, memory_id: str, key: str) -&gt; Any:
+        return await self.get(memory_id).retrieve(key)
+
+    async def search(self, memory_id: str, query: Any, limit: int = 5) -&gt; list[dict[str, Any]]:
+        return await self.get(memory_id).search(query, limit=limit)
+
+    async def persist_all(self) -&gt; None:
+        for system in self._systems.values():
+            await system.persist()
+</code></pre>
+          </section>
+        </article>
+        <aside class="doc-toc">
+          <div class="doc-toc__card">
+            <p class="doc-toc__eyebrow">On this page</p>
+            <p class="toc__empty">Repository view</p>
+          </div>
+        </aside>
+      </main>
+    </div>
+  </div>
+  <script src="../../../../assets/site-data.js"></script>
+  <script src="../../../../assets/site.js"></script>
+</body>
+</html>

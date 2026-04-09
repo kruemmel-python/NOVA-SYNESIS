@@ -1,0 +1,1469 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Repository: tools/generate_docs.py | NOVA-SYNESIS Docs</title>
+  <meta name="description" content="Repository file view for tools/generate_docs.py">
+  <link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
+  <link rel="stylesheet" href="../../assets/site.css">
+</head>
+<body data-page-url="repo/tools/generate_docs.py.html">
+  <div class="site-shell">
+    <aside class="site-sidebar" id="site-sidebar">
+      <div class="brand">
+        <p class="brand__eyebrow">Neural Orchestration Visual Autonomy</p>
+        <h1>NOVA-SYNESIS</h1>
+        <p class="brand__subtitle">Stateful Yielding Node-based Execution Semantic Integrated Surface</p>
+      </div>
+      <label class="search-box">
+        <span class="search-box__label">Search docs</span>
+        <input id="docs-search" type="search" placeholder="Search guides, files, handlers, policies">
+      </label>
+      <div class="search-results" id="search-results" hidden></div>
+      <div class="sidebar-scroll">
+        <a class="brand__home" href="../../index.html">Documentation Home</a><section class="sidebar__group"><h2>Guides</h2><ul class="nav-list"><li><a class="nav-list__link" href="../../index.html">NOVA-SYNESIS Dokumentation</a></li><li><a class="nav-list__link" href="../../getting-started.html">Schnellstart</a></li><li><a class="nav-list__link" href="../../system-overview.html">Systemueberblick</a></li><li><a class="nav-list__link" href="../../backend-runtime.html">Backend-Laufzeit</a></li><li><a class="nav-list__link" href="../../frontend-editor.html">Frontend-Editor</a></li><li><a class="nav-list__link" href="../../planner-and-lit.html">LLM-Planer und LiteRT</a></li><li><a class="nav-list__link" href="../../security-and-policy.html">Security und Policy</a></li><li><a class="nav-list__link" href="../../handler-trust-and-approval.html">Handler Trust und Freigaben</a></li><li><a class="nav-list__link" href="../../failure-playbook.html">Failure Playbook</a></li><li><a class="nav-list__link" href="../../decision-guide.html">Decision Guide</a></li><li><a class="nav-list__link" href="../../real-world-scenarios.html">Real World Scenarios</a></li><li><a class="nav-list__link" href="../../change-workflows.html">Aenderungsleitfaden</a></li></ul></section><section class="sidebar__group"><h2>Reference</h2><ul class="nav-list"><li><a class="nav-list__link" href="../../reference/index.html">Referenzindex</a></li><li><a class="nav-list__link" href="../../reference/.env.example.html">.env.example</a></li><li><a class="nav-list__link" href="../../reference/.gitignore.html">.gitignore</a></li><li><a class="nav-list__link" href="../../reference/Anweisung.md.html">Anweisung.md</a></li><li><a class="nav-list__link" href="../../reference/Dockerfile.html">Dockerfile</a></li><li class="nav-list__branch"><details ><summary>Frontend</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../reference/frontend/.env.example.html">.env.example</a></li><li><a class="nav-list__link" href="../../reference/frontend/index.html.html">index.html</a></li><li><a class="nav-list__link" href="../../reference/frontend/package-lock.json.html">package-lock.json</a></li><li><a class="nav-list__link" href="../../reference/frontend/package.json.html">package.json</a></li><li class="nav-list__branch"><details ><summary>Source</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../reference/frontend/src/app.css.html">app.css</a></li><li><a class="nav-list__link" href="../../reference/frontend/src/App.tsx.html">App.tsx</a></li><li class="nav-list__branch"><details ><summary>Components</summary><ul class="nav-list"><li class="nav-list__branch"><details ><summary>Common</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../reference/frontend/src/components/common/JsonEditor.tsx.html">JsonEditor.tsx</a></li><li><a class="nav-list__link" href="../../reference/frontend/src/components/common/StatusBadge.tsx.html">StatusBadge.tsx</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Flow</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../reference/frontend/src/components/flow/FlowCanvas.tsx.html">FlowCanvas.tsx</a></li><li><a class="nav-list__link" href="../../reference/frontend/src/components/flow/TaskNode.tsx.html">TaskNode.tsx</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Layout</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../reference/frontend/src/components/layout/InspectorPanel.tsx.html">InspectorPanel.tsx</a></li><li><a class="nav-list__link" href="../../reference/frontend/src/components/layout/PlannerComposer.tsx.html">PlannerComposer.tsx</a></li><li><a class="nav-list__link" href="../../reference/frontend/src/components/layout/Sidebar.tsx.html">Sidebar.tsx</a></li><li><a class="nav-list__link" href="../../reference/frontend/src/components/layout/TopBar.tsx.html">TopBar.tsx</a></li></ul></details></li></ul></details></li><li class="nav-list__branch"><details ><summary>Hooks</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../reference/frontend/src/hooks/useCatalogBootstrap.ts.html">useCatalogBootstrap.ts</a></li><li><a class="nav-list__link" href="../../reference/frontend/src/hooks/useFlowLiveUpdates.ts.html">useFlowLiveUpdates.ts</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Lib</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../reference/frontend/src/lib/apiClient.ts.html">apiClient.ts</a></li><li><a class="nav-list__link" href="../../reference/frontend/src/lib/autoLayout.ts.html">autoLayout.ts</a></li><li><a class="nav-list__link" href="../../reference/frontend/src/lib/flowSerialization.ts.html">flowSerialization.ts</a></li><li><a class="nav-list__link" href="../../reference/frontend/src/lib/json.ts.html">json.ts</a></li></ul></details></li><li><a class="nav-list__link" href="../../reference/frontend/src/main.tsx.html">main.tsx</a></li><li class="nav-list__branch"><details ><summary>Store</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../reference/frontend/src/store/useFlowStore.ts.html">useFlowStore.ts</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Types</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../reference/frontend/src/types/api.ts.html">api.ts</a></li></ul></details></li><li><a class="nav-list__link" href="../../reference/frontend/src/vite-env.d.ts.html">vite-env.d.ts</a></li></ul></details></li><li><a class="nav-list__link" href="../../reference/frontend/tsconfig.app.json.html">tsconfig.app.json</a></li><li><a class="nav-list__link" href="../../reference/frontend/tsconfig.json.html">tsconfig.json</a></li><li><a class="nav-list__link" href="../../reference/frontend/tsconfig.node.json.html">tsconfig.node.json</a></li><li><a class="nav-list__link" href="../../reference/frontend/vite.config.d.ts.html">vite.config.d.ts</a></li><li><a class="nav-list__link" href="../../reference/frontend/vite.config.js.html">vite.config.js</a></li><li><a class="nav-list__link" href="../../reference/frontend/vite.config.ts.html">vite.config.ts</a></li></ul></details></li><li><a class="nav-list__link" href="../../reference/LICENSE.html">LICENSE</a></li><li class="nav-list__branch"><details ><summary>LIT</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../reference/LIT/planner_test_prompt.txt.html">planner_test_prompt.txt</a></li><li><a class="nav-list__link" href="../../reference/LIT/README.md.html">README.md</a></li></ul></details></li><li><a class="nav-list__link" href="../../reference/pyproject.toml.html">pyproject.toml</a></li><li><a class="nav-list__link" href="../../reference/README.md.html">README.md</a></li><li><a class="nav-list__link" href="../../reference/run-backend.cmd.html">run-backend.cmd</a></li><li><a class="nav-list__link" href="../../reference/run-backend.ps1.html">run-backend.ps1</a></li><li class="nav-list__branch"><details ><summary>Source</summary><ul class="nav-list"><li class="nav-list__branch"><details ><summary>NOVA-SYNESIS</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../reference/src/nova_synesis/__init__.py.html">__init__.py</a></li><li class="nav-list__branch"><details ><summary>API</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../reference/src/nova_synesis/api/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../reference/src/nova_synesis/api/app.py.html">app.py</a></li></ul></details></li><li><a class="nav-list__link" href="../../reference/src/nova_synesis/cli.py.html">cli.py</a></li><li class="nav-list__branch"><details ><summary>Communication</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../reference/src/nova_synesis/communication/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../reference/src/nova_synesis/communication/adapters.py.html">adapters.py</a></li></ul></details></li><li><a class="nav-list__link" href="../../reference/src/nova_synesis/config.py.html">config.py</a></li><li class="nav-list__branch"><details ><summary>Domain</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../reference/src/nova_synesis/domain/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../reference/src/nova_synesis/domain/models.py.html">models.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Memory</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../reference/src/nova_synesis/memory/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../reference/src/nova_synesis/memory/systems.py.html">systems.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Persistence</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../reference/src/nova_synesis/persistence/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../reference/src/nova_synesis/persistence/sqlite_repository.py.html">sqlite_repository.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Planning</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../reference/src/nova_synesis/planning/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../reference/src/nova_synesis/planning/lit_planner.py.html">lit_planner.py</a></li><li><a class="nav-list__link" href="../../reference/src/nova_synesis/planning/planner.py.html">planner.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Resources</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../reference/src/nova_synesis/resources/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../reference/src/nova_synesis/resources/manager.py.html">manager.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Runtime</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../reference/src/nova_synesis/runtime/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../reference/src/nova_synesis/runtime/engine.py.html">engine.py</a></li><li><a class="nav-list__link" href="../../reference/src/nova_synesis/runtime/handlers.py.html">handlers.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Security</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../reference/src/nova_synesis/security/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../reference/src/nova_synesis/security/policy.py.html">policy.py</a></li><li><a class="nav-list__link" href="../../reference/src/nova_synesis/security/trust.py.html">trust.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Services</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../reference/src/nova_synesis/services/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../reference/src/nova_synesis/services/orchestrator.py.html">orchestrator.py</a></li></ul></details></li></ul></details></li></ul></details></li><li class="nav-list__branch"><details ><summary>Tests</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../reference/tests/test_orchestrator.py.html">test_orchestrator.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Tools</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../reference/tools/build_code_release.ps1.html">build_code_release.ps1</a></li><li><a class="nav-list__link" href="../../reference/tools/build_web_docs.py.html">build_web_docs.py</a></li><li><a class="nav-list__link" href="../../reference/tools/generate_docs.py.html">generate_docs.py</a></li></ul></details></li><li><a class="nav-list__link" href="../../reference/uml.html.html">uml.html</a></li><li><a class="nav-list__link" href="../../reference/uml_V3.mmd.html">uml_V3.mmd</a></li><li class="nav-list__branch"><details ><summary>Use Cases</summary><ul class="nav-list"><li class="nav-list__branch"><details ><summary>Platform Health Snapshot</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../reference/Use_Cases/platform_health_snapshot/flow.json.html">flow.json</a></li><li><a class="nav-list__link" href="../../reference/Use_Cases/platform_health_snapshot/platform_health_snapshot.png.html">platform_health_snapshot.png</a></li><li><a class="nav-list__link" href="../../reference/Use_Cases/platform_health_snapshot/README.md.html">README.md</a></li><li><a class="nav-list__link" href="../../reference/Use_Cases/platform_health_snapshot/run.ps1.html">run.ps1</a></li><li><a class="nav-list__link" href="../../reference/Use_Cases/platform_health_snapshot/setup.ps1.html">setup.ps1</a></li></ul></details></li><li><a class="nav-list__link" href="../../reference/Use_Cases/README.md.html">README.md</a></li><li class="nav-list__branch"><details ><summary>Semantic Ticket Triage</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../reference/Use_Cases/semantic_ticket_triage/flow.json.html">flow.json</a></li><li><a class="nav-list__link" href="../../reference/Use_Cases/semantic_ticket_triage/README.md.html">README.md</a></li><li><a class="nav-list__link" href="../../reference/Use_Cases/semantic_ticket_triage/run.ps1.html">run.ps1</a></li><li><a class="nav-list__link" href="../../reference/Use_Cases/semantic_ticket_triage/semantic_ticket_triage.png.html">semantic_ticket_triage.png</a></li><li><a class="nav-list__link" href="../../reference/Use_Cases/semantic_ticket_triage/setup.ps1.html">setup.ps1</a></li></ul></details></li></ul></details></li></ul></section><section class="sidebar__group"><h2>Appendix</h2><ul class="nav-list"><li><a class="nav-list__link" href="../../coverage.html">Abdeckung</a></li><li><a class="nav-list__link" href="../../Whitepaper.html">Whitepaper: Die Genesis von NOVA-SYNESIS</a></li></ul></section><section class="sidebar__group sidebar__group--meta"><h2>Search</h2><p>Use <kbd>/</kbd> to focus the search field and jump across guides, references and scenarios.</p></section>
+      </div>
+    </aside>
+
+    <div class="site-main">
+      <header class="site-header">
+        <button class="site-header__toggle" type="button" id="sidebar-toggle" aria-controls="site-sidebar" aria-expanded="false">
+          Menu
+        </button>
+        <div class="site-header__meta">
+          <p class="site-header__eyebrow">Generated documentation surface</p>
+          <h2>Repository: tools/generate_docs.py</h2>
+        </div>
+        <div class="site-header__status">
+          <span class="status-chip">HTML docs</span>
+          <span class="status-chip status-chip--accent">2026-04-09 00:10 UTC</span>
+        </div>
+      </header>
+
+      <main class="content-shell">
+        <article class="doc-article">
+          <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="../../index.html">Docs</a><span aria-current="page">reference</span></nav>
+          <section class="doc-hero">
+            <p class="doc-hero__eyebrow">Documentation</p>
+            <h1>Repository: tools/generate_docs.py</h1>
+            <p>Repository file view for tools/generate_docs.py</p>
+          </section>
+          <section class="doc-content">
+            <section class="source-meta"><p class="doc-hero__eyebrow">Repository file</p><h1>tools/generate_docs.py</h1><p>Rendered source view for the repository file. 1401 lines.</p></section><pre class="source-block"><code class="language-python">from __future__ import annotations
+
+import ast
+import os
+import re
+from collections import defaultdict
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+DOCS = ROOT / &#x27;docs&#x27;
+REF = DOCS / &#x27;reference&#x27;
+
+EXCLUDED = {
+    &#x27;.git&#x27;,
+    &#x27;docs&#x27;,
+    &#x27;web&#x27;,
+    &#x27;data&#x27;,
+    &#x27;debug_tmp&#x27;,
+    &#x27;planner_live_check&#x27;,
+    &#x27;planner_live_check2&#x27;,
+    &#x27;release&#x27;,
+    &#x27;ws_debug&#x27;,
+    &#x27;.pytest_cache&#x27;,
+    &#x27;__pycache__&#x27;,
+    &#x27;frontend/node_modules&#x27;,
+    &#x27;frontend/dist&#x27;,
+}
+
+FILE_NOTES = {
+    &#x27;.env.example&#x27;: {
+        &#x27;purpose&#x27;: &#x27;Beispielkonfiguration fuer Backend, Planner, CORS und die semantische Sicherheitsrichtlinie.&#x27;,
+        &#x27;edit&#x27;: &#x27;Wenn neue Umgebungsvariablen eingefuehrt, Security-Grenzen angepasst oder Standardwerte kommuniziert werden muessen.&#x27;,
+        &#x27;related&#x27;: [&#x27;src/nova_synesis/config.py&#x27;, &#x27;README.md&#x27;],
+    },
+    &#x27;Anweisung.md&#x27;: {
+        &#x27;purpose&#x27;: &#x27;Fachliche Ursprungsspezifikation des Systems.&#x27;,
+        &#x27;edit&#x27;: &#x27;Wenn Anforderungen nachgezogen oder gegen die Implementierung gespiegelt werden.&#x27;,
+        &#x27;related&#x27;: [&#x27;uml_V3.mmd&#x27;, &#x27;README.md&#x27;],
+    },
+    &#x27;Dockerfile&#x27;: {
+        &#x27;purpose&#x27;: &#x27;Container-Build fuer das Python-Backend.&#x27;,
+        &#x27;edit&#x27;: &#x27;Wenn Build, Startkommando oder Image-Basis angepasst werden muessen.&#x27;,
+        &#x27;related&#x27;: [&#x27;pyproject.toml&#x27;, &#x27;src/nova_synesis/cli.py&#x27;],
+    },
+    &#x27;pyproject.toml&#x27;: {
+        &#x27;purpose&#x27;: &#x27;Python-Paketdefinition mit Abhaengigkeiten, CLI und Testkonfiguration.&#x27;,
+        &#x27;edit&#x27;: &#x27;Wenn Python-Abhaengigkeiten, Packaging oder Skripte geaendert werden.&#x27;,
+        &#x27;related&#x27;: [&#x27;src/nova_synesis/cli.py&#x27;, &#x27;tests/test_orchestrator.py&#x27;],
+    },
+    &#x27;README.md&#x27;: {
+        &#x27;purpose&#x27;: &#x27;Projektweiter Schnellstart fuer Backend, Frontend und Planner.&#x27;,
+        &#x27;edit&#x27;: &#x27;Wenn sich Startablauf oder Hauptfunktionen fuer Entwickler aendern.&#x27;,
+        &#x27;related&#x27;: [&#x27;docs/README.md&#x27;, &#x27;run-backend.ps1&#x27;, &#x27;frontend/package.json&#x27;],
+    },
+    &#x27;run-backend.ps1&#x27;: {
+        &#x27;purpose&#x27;: &#x27;Empfohlenes Windows-Startskript fuer das Backend.&#x27;,
+        &#x27;edit&#x27;: &#x27;Wenn der lokale Backend-Start fuer Entwickler angepasst werden soll.&#x27;,
+        &#x27;related&#x27;: [&#x27;src/nova_synesis/cli.py&#x27;, &#x27;run-backend.cmd&#x27;],
+    },
+    &#x27;uml_V3.mmd&#x27;: {
+        &#x27;purpose&#x27;: &#x27;Mermaid-Quelle des Architekturdiagramms.&#x27;,
+        &#x27;edit&#x27;: &#x27;Wenn die dokumentierte Zielarchitektur angepasst werden soll.&#x27;,
+        &#x27;related&#x27;: [&#x27;uml.html&#x27;, &#x27;Anweisung.md&#x27;],
+    },
+    &#x27;LIT/README.md&#x27;: {
+        &#x27;purpose&#x27;: &#x27;Hinweise zur lokalen LiteRT-LM-Laufzeit und zu Modelldateien.&#x27;,
+        &#x27;edit&#x27;: &#x27;Wenn Binary- oder Modellsetup aktualisiert wird.&#x27;,
+        &#x27;related&#x27;: [&#x27;src/nova_synesis/planning/lit_planner.py&#x27;, &#x27;.env.example&#x27;],
+    },
+    &#x27;LIT/lit.windows_x86_64.exe&#x27;: {
+        &#x27;purpose&#x27;: &#x27;Windows-Binary fuer die lokale LiteRT-LM-Inferenz.&#x27;,
+        &#x27;edit&#x27;: &#x27;Nur beim gezielten Update der lokalen Runtime.&#x27;,
+        &#x27;related&#x27;: [&#x27;LIT/gemma-4-E2B-it.litertlm&#x27;, &#x27;src/nova_synesis/planning/lit_planner.py&#x27;],
+    },
+    &#x27;LIT/gemma-4-E2B-it.litertlm&#x27;: {
+        &#x27;purpose&#x27;: &#x27;Lokales Modell fuer den autonomen Flow-Planer.&#x27;,
+        &#x27;edit&#x27;: &#x27;Nur wenn ein anderes Planner-Modell eingesetzt wird.&#x27;,
+        &#x27;related&#x27;: [&#x27;LIT/lit.windows_x86_64.exe&#x27;, &#x27;src/nova_synesis/planning/lit_planner.py&#x27;],
+    },
+    &#x27;src/nova_synesis/api/app.py&#x27;: {
+        &#x27;purpose&#x27;: &#x27;FastAPI- und WebSocket-Schicht des Backends inklusive Request-Modelle, Flow-Validierung und Live-Streaming.&#x27;,
+        &#x27;edit&#x27;: &#x27;Wenn API-Endpunkte, Schemafelder, Sicherheitspruefung oder Live-Streaming erweitert werden.&#x27;,
+        &#x27;related&#x27;: [&#x27;src/nova_synesis/services/orchestrator.py&#x27;, &#x27;frontend/src/lib/apiClient.ts&#x27;, &#x27;frontend/src/types/api.ts&#x27;],
+    },
+    &#x27;src/nova_synesis/cli.py&#x27;: {
+        &#x27;purpose&#x27;: &#x27;CLI-Einstiegspunkt fuer API-Start, Flow-Ausfuehrung und lokale Hilfsaufgaben.&#x27;,
+        &#x27;edit&#x27;: &#x27;Wenn neue CLI-Kommandos oder Startoptionen hinzukommen.&#x27;,
+        &#x27;related&#x27;: [&#x27;run-backend.ps1&#x27;, &#x27;pyproject.toml&#x27;],
+    },
+    &#x27;src/nova_synesis/config.py&#x27;: {
+        &#x27;purpose&#x27;: &#x27;Zentrale Laufzeitkonfiguration des Backends inklusive LiteRT- und Semantic-Firewall-Settings.&#x27;,
+        &#x27;edit&#x27;: &#x27;Wenn neue Settings, Standardpfade, Planner-Optionen oder Policy-Grenzen benoetigt werden.&#x27;,
+        &#x27;related&#x27;: [&#x27;.env.example&#x27;, &#x27;src/nova_synesis/cli.py&#x27;],
+    },
+    &#x27;src/nova_synesis/domain/models.py&#x27;: {
+        &#x27;purpose&#x27;: &#x27;Kern-Domaenenmodell mit Agenten, Ressourcen, Tasks, Bedingungen und ExecutionFlow.&#x27;,
+        &#x27;edit&#x27;: &#x27;Wenn das fachliche Laufzeitmodell des Systems veraendert wird.&#x27;,
+        &#x27;related&#x27;: [&#x27;src/nova_synesis/runtime/engine.py&#x27;, &#x27;src/nova_synesis/services/orchestrator.py&#x27;],
+    },
+    &#x27;src/nova_synesis/memory/systems.py&#x27;: {
+        &#x27;purpose&#x27;: &#x27;Implementierungen fuer Kurzzeit-, Langzeit- und Vektor-Speicher.&#x27;,
+        &#x27;edit&#x27;: &#x27;Wenn Speicherverhalten, Suche oder Persistenz geaendert werden.&#x27;,
+        &#x27;related&#x27;: [&#x27;src/nova_synesis/runtime/handlers.py&#x27;, &#x27;src/nova_synesis/services/orchestrator.py&#x27;],
+    },
+    &#x27;src/nova_synesis/persistence/sqlite_repository.py&#x27;: {
+        &#x27;purpose&#x27;: &#x27;SQLite-Persistenzschicht fuer Flows, Ausfuehrungen und Katalogobjekte.&#x27;,
+        &#x27;edit&#x27;: &#x27;Wenn Datenbankstruktur oder gespeicherte Felder angepasst werden.&#x27;,
+        &#x27;related&#x27;: [&#x27;src/nova_synesis/services/orchestrator.py&#x27;],
+    },
+    &#x27;src/nova_synesis/planning/planner.py&#x27;: {
+        &#x27;purpose&#x27;: &#x27;Regelbasierter Intent-zu-Task-Planer.&#x27;,
+        &#x27;edit&#x27;: &#x27;Wenn strukturierte Intents anders in Tasks zerlegt werden sollen.&#x27;,
+        &#x27;related&#x27;: [&#x27;src/nova_synesis/domain/models.py&#x27;, &#x27;src/nova_synesis/services/orchestrator.py&#x27;],
+    },
+    &#x27;src/nova_synesis/planning/lit_planner.py&#x27;: {
+        &#x27;purpose&#x27;: &#x27;Lokaler LLM-Planer ueber LiteRT-LM inklusive Prompting, Parsing, Katalognutzung und Graph-Normalisierung.&#x27;,
+        &#x27;edit&#x27;: &#x27;Wenn Planner-Qualitaet, Modellaufruf, Katalogfilterung oder Vorvalidierung verbessert werden soll.&#x27;,
+        &#x27;related&#x27;: [&#x27;LIT/lit.windows_x86_64.exe&#x27;, &#x27;LIT/gemma-4-E2B-it.litertlm&#x27;, &#x27;frontend/src/components/layout/PlannerComposer.tsx&#x27;],
+    },
+    &#x27;src/nova_synesis/security/__init__.py&#x27;: {
+        &#x27;purpose&#x27;: &#x27;Paketexporte fuer die semantische Sicherheitspruefung.&#x27;,
+        &#x27;edit&#x27;: &#x27;Wenn Security-Klassen neu exportiert oder das Security-Paket umstrukturiert werden soll.&#x27;,
+        &#x27;related&#x27;: [&#x27;src/nova_synesis/security/policy.py&#x27;, &#x27;src/nova_synesis/services/orchestrator.py&#x27;],
+    },
+    &#x27;src/nova_synesis/security/trust.py&#x27;: {
+        &#x27;purpose&#x27;: &#x27;Digitale Handler-Zertifikate, Fingerprints und Trust-Validierung fuer Runtime-Handler.&#x27;,
+        &#x27;edit&#x27;: &#x27;Wenn Handler-Zertifikate, Fingerprinting oder der Signaturmechanismus angepasst werden muessen.&#x27;,
+        &#x27;related&#x27;: [&#x27;src/nova_synesis/runtime/handlers.py&#x27;, &#x27;src/nova_synesis/config.py&#x27;, &#x27;src/nova_synesis/services/orchestrator.py&#x27;],
+    },
+    &#x27;src/nova_synesis/security/policy.py&#x27;: {
+        &#x27;purpose&#x27;: &#x27;Semantische Firewall fuer Flow- und Agent-Validierung vor Planung, Speicherung und Ausfuehrung.&#x27;,
+        &#x27;edit&#x27;: &#x27;Wenn Sicherheitsregeln, Allowlists oder die Graph-Absichtspruefung veraendert werden muessen.&#x27;,
+        &#x27;related&#x27;: [&#x27;src/nova_synesis/services/orchestrator.py&#x27;, &#x27;src/nova_synesis/config.py&#x27;, &#x27;tests/test_orchestrator.py&#x27;],
+    },
+    &#x27;src/nova_synesis/resources/manager.py&#x27;: {
+        &#x27;purpose&#x27;: &#x27;Verwaltung und Aufloesung registrierter Ressourcen.&#x27;,
+        &#x27;edit&#x27;: &#x27;Wenn Ressourcenallokation oder Fallbacks angepasst werden.&#x27;,
+        &#x27;related&#x27;: [&#x27;src/nova_synesis/runtime/engine.py&#x27;],
+    },
+    &#x27;src/nova_synesis/runtime/engine.py&#x27;: {
+        &#x27;purpose&#x27;: &#x27;Graph-Ausfuehrungsengine fuer Task- und Flow-Lifecycle inklusive Template-Aufloesung und Live-Snapshots.&#x27;,
+        &#x27;edit&#x27;: &#x27;Wenn Ablaufsteuerung, Parallelitaet, Template-Kontext oder Snapshot-Logik geaendert wird.&#x27;,
+        &#x27;related&#x27;: [&#x27;src/nova_synesis/domain/models.py&#x27;, &#x27;src/nova_synesis/runtime/handlers.py&#x27;],
+    },
+    &#x27;src/nova_synesis/runtime/handlers.py&#x27;: {
+        &#x27;purpose&#x27;: &#x27;Eingebaute Handler fuer HTTP, Memory, Messaging, Dateien und Serialisierung.&#x27;,
+        &#x27;edit&#x27;: &#x27;Wenn neue Arbeitsbausteine hinzugefuegt oder bestehende Handler verbessert werden.&#x27;,
+        &#x27;related&#x27;: [&#x27;src/nova_synesis/runtime/engine.py&#x27;, &#x27;frontend/src/components/layout/Sidebar.tsx&#x27;],
+    },
+    &#x27;src/nova_synesis/services/orchestrator.py&#x27;: {
+        &#x27;purpose&#x27;: &#x27;Zentrale Service-Fassade des Backends inklusive Security-Gates, Planner-Katalog und Lifecycle-Management.&#x27;,
+        &#x27;edit&#x27;: &#x27;Wenn Systemkomposition, Registrierungen, Policy-Durchsetzung oder Lifecycle-Management geaendert werden.&#x27;,
+        &#x27;related&#x27;: [&#x27;src/nova_synesis/api/app.py&#x27;, &#x27;src/nova_synesis/runtime/engine.py&#x27;],
+    },
+    &#x27;tests/test_orchestrator.py&#x27;: {
+        &#x27;purpose&#x27;: &#x27;Regressionstests fuer Backend, Planner, WebSocket-Livebetrieb und Semantic-Firewall.&#x27;,
+        &#x27;edit&#x27;: &#x27;Wenn neue Features abgesichert, Sicherheitsregeln erweitert oder Fehler reproduzierbar getestet werden.&#x27;,
+        &#x27;related&#x27;: [&#x27;src/nova_synesis/services/orchestrator.py&#x27;, &#x27;src/nova_synesis/api/app.py&#x27;],
+    },
+    &#x27;frontend/src/App.tsx&#x27;: {
+        &#x27;purpose&#x27;: &#x27;Root-Komponente der UI mit Layout, Planner, Save/Run und Live-Sync.&#x27;,
+        &#x27;edit&#x27;: &#x27;Wenn globale Frontend-Aktionen oder das Seitenlayout geaendert werden.&#x27;,
+        &#x27;related&#x27;: [&#x27;frontend/src/store/useFlowStore.ts&#x27;, &#x27;frontend/src/components/layout/TopBar.tsx&#x27;],
+    },
+    &#x27;frontend/src/types/api.ts&#x27;: {
+        &#x27;purpose&#x27;: &#x27;Gemeinsame TypeScript-Schemata fuer API, Snapshots und Editorgraph.&#x27;,
+        &#x27;edit&#x27;: &#x27;Wenn Backend-Vertraege oder UI-Datentypen erweitert werden.&#x27;,
+        &#x27;related&#x27;: [&#x27;src/nova_synesis/api/app.py&#x27;, &#x27;frontend/src/lib/flowSerialization.ts&#x27;],
+    },
+    &#x27;frontend/src/lib/apiClient.ts&#x27;: {
+        &#x27;purpose&#x27;: &#x27;Echter API-Client fuer REST, Flow-Validierung, Planner und WebSocket-Basis-URLs.&#x27;,
+        &#x27;edit&#x27;: &#x27;Wenn neue Backend-Endpunkte im Frontend angebunden werden.&#x27;,
+        &#x27;related&#x27;: [&#x27;src/nova_synesis/api/app.py&#x27;, &#x27;frontend/src/types/api.ts&#x27;],
+    },
+    &#x27;frontend/src/lib/flowSerialization.ts&#x27;: {
+        &#x27;purpose&#x27;: &#x27;Uebersetzung zwischen React-Flow und echtem Backend-Flow-Schema.&#x27;,
+        &#x27;edit&#x27;: &#x27;Wenn Node-Felder oder Flow-Schema geaendert werden.&#x27;,
+        &#x27;related&#x27;: [&#x27;frontend/src/types/api.ts&#x27;, &#x27;src/nova_synesis/api/app.py&#x27;],
+    },
+    &#x27;frontend/src/store/useFlowStore.ts&#x27;: {
+        &#x27;purpose&#x27;: &#x27;Zustand-Store fuer Graph, Auswahl, Undo/Redo und Laufzeitstatus.&#x27;,
+        &#x27;edit&#x27;: &#x27;Wenn Editorverhalten oder Snapshot-Uebernahme angepasst werden.&#x27;,
+        &#x27;related&#x27;: [&#x27;frontend/src/App.tsx&#x27;, &#x27;frontend/src/hooks/useFlowLiveUpdates.ts&#x27;],
+    },
+    &#x27;frontend/src/components/layout/InspectorPanel.tsx&#x27;: {
+        &#x27;purpose&#x27;: &#x27;Node- und Edge-Inspector fuer bearbeitbare Eigenschaften.&#x27;,
+        &#x27;edit&#x27;: &#x27;Wenn weitere konfigurierbare Felder in der UI auftauchen sollen.&#x27;,
+        &#x27;related&#x27;: [&#x27;frontend/src/store/useFlowStore.ts&#x27;, &#x27;frontend/src/components/common/JsonEditor.tsx&#x27;],
+    },
+    &#x27;frontend/src/components/layout/PlannerComposer.tsx&#x27;: {
+        &#x27;purpose&#x27;: &#x27;Planner-Dialog fuer die lokale LLM-Graph-Erzeugung.&#x27;,
+        &#x27;edit&#x27;: &#x27;Wenn Prompting-UX oder Planner-Rueckmeldungen im Frontend erweitert werden.&#x27;,
+        &#x27;related&#x27;: [&#x27;frontend/src/App.tsx&#x27;, &#x27;src/nova_synesis/planning/lit_planner.py&#x27;],
+    },
+    &#x27;frontend/src/components/layout/Sidebar.tsx&#x27;: {
+        &#x27;purpose&#x27;: &#x27;Linke Katalogleiste mit Handlern, Agenten und Ressourcen.&#x27;,
+        &#x27;edit&#x27;: &#x27;Wenn Drag-and-Drop oder Katalogdarstellung geaendert wird.&#x27;,
+        &#x27;related&#x27;: [&#x27;frontend/src/components/flow/FlowCanvas.tsx&#x27;, &#x27;frontend/src/store/useFlowStore.ts&#x27;],
+    },
+    &#x27;frontend/src/components/layout/TopBar.tsx&#x27;: {
+        &#x27;purpose&#x27;: &#x27;Globale Aktionsleiste fuer Save, Run, Planner, Import und Export.&#x27;,
+        &#x27;edit&#x27;: &#x27;Wenn globale Bedienaktionen oder Statusanzeigen geaendert werden.&#x27;,
+        &#x27;related&#x27;: [&#x27;frontend/src/App.tsx&#x27;, &#x27;frontend/src/components/common/StatusBadge.tsx&#x27;],
+    },
+    &#x27;tools/build_web_docs.py&#x27;: {
+        &#x27;purpose&#x27;: &#x27;Generiert aus dem docs-Ordner eine statische HTML-Dokumentationsseite mit Navigation, Suche und Source-Ansichten.&#x27;,
+        &#x27;edit&#x27;: &#x27;Wenn Layout, Suchlogik, Seitenrouting oder die statische Web-Doku erweitert werden sollen.&#x27;,
+        &#x27;related&#x27;: [&#x27;docs/README.md&#x27;, &#x27;README.md&#x27;, &#x27;web/index.html&#x27;],
+    },
+}
+
+SYMBOL_NOTES = {
+    &#x27;create_app&#x27;: &#x27;Erzeugt die FastAPI-Anwendung und registriert ihre Endpunkte.&#x27;,
+    &#x27;Settings&#x27;: &#x27;Dataklasse fuer die Backend-Laufzeitkonfiguration.&#x27;,
+    &#x27;Settings.from_env&#x27;: &#x27;Laedt Settings aus Umgebungsvariablen mit sicheren Defaults.&#x27;,
+    &#x27;Settings.ensure_directories&#x27;: &#x27;Erzeugt benoetigte Daten- und Arbeitsverzeichnisse.&#x27;,
+    &#x27;OrchestratorService&#x27;: &#x27;Zentrale Fassade, die alle Backend-Bausteine zusammenhaelt.&#x27;,
+    &#x27;create_orchestrator&#x27;: &#x27;Factory fuer ein komplett verdrahtetes Orchestrator-System.&#x27;,
+    &#x27;ExecutionFlow&#x27;: &#x27;Graph-Modell des ausfuehrbaren Workflows.&#x27;,
+    &#x27;ExecutionFlow.observe&#x27;: &#x27;Erzeugt den serialisierbaren Zustand eines Flows fuer API und UI.&#x27;,
+    &#x27;ManualApproval&#x27;: &#x27;Speichert den manuellen Freigabestatus eines Nodes fuer die Ausfuehrung.&#x27;,
+    &#x27;TaskExecutor&#x27;: &#x27;Fuehrt eine einzelne Task inklusive Fehlerbehandlung aus.&#x27;,
+    &#x27;FlowExecutor&#x27;: &#x27;Fuehrt einen gesamten Workflow-Graphen aus.&#x27;,
+    &#x27;TaskHandlerRegistry&#x27;: &#x27;Registry der registrierten Runtime-Handler.&#x27;,
+    &#x27;TaskHandlerRegistry.issue_certificate&#x27;: &#x27;Erzeugt ein digitales Zertifikat fuer einen bereits registrierten Handler.&#x27;,
+    &#x27;register_default_handlers&#x27;: &#x27;Registriert alle eingebauten Handler.&#x27;,
+    &#x27;SQLiteRepository&#x27;: &#x27;Persistenzschicht fuer SQLite.&#x27;,
+    &#x27;LiteRTPlanner&#x27;: &#x27;Lokale LLM-Planung ueber LiteRT-LM.&#x27;,
+    &#x27;LiteRTPlanner.generate_flow_request&#x27;: &#x27;Erzeugt aus natuerlicher Sprache einen validierten FlowRequest.&#x27;,
+    &#x27;IntentPlanner&#x27;: &#x27;Regelbasierter Planer fuer strukturierte Intents.&#x27;,
+    &#x27;HandlerCertificate&#x27;: &#x27;Signierte Beschreibung eines vertrauenswuerdigen Handlers inklusive Fingerprint und Ablaufdatum.&#x27;,
+    &#x27;HandlerTrustRecord&#x27;: &#x27;Serialisierbare Trust-Sicht auf einen registrierten Handler fuer API und UI.&#x27;,
+    &#x27;HandlerTrustAuthority&#x27;: &#x27;Signiert und validiert Handler-Zertifikate gegen den aktuellen Code-Fingerprint.&#x27;,
+    &#x27;SemanticFirewall&#x27;: &#x27;Semantische Sicherheitspruefung fuer Flows, Agenten und aus Planner-Graphen abgeleitete Absichten.&#x27;,
+    &#x27;FlowSecurityReport&#x27;: &#x27;Strukturiertes Ergebnis einer Policy-Pruefung mit Fehlern und Warnungen.&#x27;,
+    &#x27;FlowSecurityReport.ensure_allowed&#x27;: &#x27;Bricht den aktuellen Vorgang ab, wenn Regelverletzungen gefunden wurden.&#x27;,
+    &#x27;SemanticFirewall.validate_flow_request&#x27;: &#x27;Prueft Graph-Struktur, Expressions, Egress und Memory-Fluesse vor der Ausfuehrung.&#x27;,
+    &#x27;SemanticFirewall.validate_agent_registration&#x27;: &#x27;Prueft Agent-Registrierung auf riskante Capabilities und unerlaubte Endpunkte.&#x27;,
+    &#x27;FlowCanvas&#x27;: &#x27;React-Flow-Leinwand des Editors.&#x27;,
+    &#x27;TaskNode&#x27;: &#x27;Custom Node fuer einzelne Tasks im Canvas.&#x27;,
+    &#x27;InspectorPanel&#x27;: &#x27;Eigenschaftseditor fuer Nodes und Edges.&#x27;,
+    &#x27;PlannerComposer&#x27;: &#x27;Dialog fuer die autonome Graph-Erzeugung.&#x27;,
+    &#x27;useFlowStore&#x27;: &#x27;Globaler Zustandsspeicher der UI auf Basis von Zustand.&#x27;,
+    &#x27;toFlowRequest&#x27;: &#x27;Serialisiert den Editorgraphen exakt in das Backend-Schema.&#x27;,
+    &#x27;fromFlowSnapshot&#x27;: &#x27;Wandelt einen Backend-Snapshot in React-Flow-Elemente um.&#x27;,
+    &#x27;createTaskNode&#x27;: &#x27;Erzeugt einen neuen Task-Node mit Defaultwerten.&#x27;,
+    &#x27;createTaskEdge&#x27;: &#x27;Erzeugt eine neue Kante mit Standardbedingung.&#x27;,
+}
+
+TS_INTERNALS = {
+    &#x27;frontend/src/App.tsx&#x27;: [
+        (&#x27;saveCurrentFlow&#x27;, &#x27;Speichert den aktuellen Canvas als echten Flow im Backend.&#x27;),
+        (&#x27;handleRun&#x27;, &#x27;Speichert bei Bedarf und startet anschliessend die Flow-Ausfuehrung.&#x27;),
+        (&#x27;handleExport&#x27;, &#x27;Exportiert den Editorzustand als JSON-Datei.&#x27;),
+        (&#x27;handleImport&#x27;, &#x27;Importiert einen Editor-Export oder einen nackten FlowRequest.&#x27;),
+        (&#x27;handleGenerateWithPlanner&#x27;, &#x27;Fordert ueber das Backend einen neuen Graphen vom LLM-Planer an.&#x27;),
+    ],
+    &#x27;frontend/src/store/useFlowStore.ts&#x27;: [
+        (&#x27;snapshotGraph&#x27;, &#x27;Erzeugt einen unveraenderlichen Graph-Snapshot fuer Undo/Redo.&#x27;),
+        (&#x27;withHistory&#x27;, &#x27;Haengt den aktuellen Zustand an die Undo-Historie an.&#x27;),
+        (&#x27;mergeSnapshotIntoNode&#x27;, &#x27;Uebernimmt Runtime-Daten aus einem Backend-Snapshot in einen Editor-Node.&#x27;),
+    ],
+    &#x27;frontend/src/components/layout/InspectorPanel.tsx&#x27;: [
+        (&#x27;patchNode&#x27;, &#x27;Wendet ein Teilupdate auf die Daten eines Nodes an.&#x27;),
+        (&#x27;splitCsv&#x27;, &#x27;Konvertiert komma-separierte Texte in Stringlisten.&#x27;),
+        (&#x27;asObject&#x27;, &#x27;Normalisiert unbekannte Werte zu einem sicheren Objekt.&#x27;),
+        (&#x27;statusTone&#x27;, &#x27;Ordnet Task-Status einer Badge-Farbe zu.&#x27;),
+        (&#x27;handleApproveNode&#x27;, &#x27;Freigabe eines Nodes lokal oder ueber die Approval-API.&#x27;),
+        (&#x27;handleRevokeNodeApproval&#x27;, &#x27;Hebt eine bestehende manuelle Freigabe lokal oder ueber die Approval-API auf.&#x27;),
+        (&#x27;NodeField&#x27;, &#x27;Hilfskomponente fuer einfache Texteingaben im Inspector.&#x27;),
+        (&#x27;NumericField&#x27;, &#x27;Hilfskomponente fuer numerische Eingaben im Inspector.&#x27;),
+    ],
+    &#x27;frontend/src/lib/flowSerialization.ts&#x27;: [
+        (&#x27;readUiMetadata&#x27;, &#x27;Liest UI-spezifische Metadaten aus dem allgemeinen Metadata-Objekt.&#x27;),
+        (&#x27;asPosition&#x27;, &#x27;Leitet eine gueltige Canvas-Position aus Metadaten oder Fallbacks ab.&#x27;),
+        (&#x27;snapshotNodeToEditorNode&#x27;, &#x27;Wandelt einen Backend-Node-Snapshot in einen Editor-Node um.&#x27;),
+    ],
+    &#x27;frontend/src/components/layout/TopBar.tsx&#x27;: [
+        (&#x27;statusTone&#x27;, &#x27;Ordnet globale Flow-Zustaende den Topbar-Badge-Farben zu.&#x27;),
+    ],
+}
+
+GUIDES = {
+    &#x27;README.md&#x27;: &#x27;&#x27;&#x27;# NOVA-SYNESIS Dokumentation
+
+Neural Orchestration Visual Autonomy  
+Stateful Yielding Node-based Execution Semantic Integrated Surface
+
+Diese Dokumentation erklaert das System so, dass auch ein Entwickler ohne Vorwissen NOVA-SYNESIS starten, verstehen, absichern und gezielt aendern kann.
+
+## Einstieg
+
+1. [Schnellstart](getting-started.md)
+2. [Systemueberblick](system-overview.md)
+3. [Backend-Laufzeit](backend-runtime.md)
+4. [Frontend-Editor](frontend-editor.md)
+5. [LLM-Planer und LiteRT](planner-and-lit.md)
+6. [Security und Policy](security-and-policy.md)
+7. [Handler Trust und Freigaben](handler-trust-and-approval.md)
+8. [Failure Playbook](failure-playbook.md)
+9. [Decision Guide](decision-guide.md)
+10. [Real World Scenarios](real-world-scenarios.md)
+11. [Aenderungsleitfaden](change-workflows.md)
+12. [Referenzindex](reference/index.md)
+
+## Wie du diese Doku liest
+
+- Starte mit `getting-started.md`, wenn du das System lokal hochfahren willst.
+- Lies `system-overview.md` und `backend-runtime.md`, wenn du Architektur und Laufzeit verstehen willst.
+- Nutze `security-and-policy.md`, `handler-trust-and-approval.md` und `failure-playbook.md`, bevor du produktive Flows oder neue Handler einsetzt.
+- Verwende `decision-guide.md` und `real-world-scenarios.md`, wenn du eigene Flows sicher entwerfen oder veraendern willst.
+&#x27;&#x27;&#x27;,
+    &#x27;getting-started.md&#x27;: &#x27;&#x27;&#x27;# Schnellstart
+
+## 1. Backend starten
+
+```powershell
+./run-backend.ps1 -BindHost 127.0.0.1 -Port 8552
+```
+
+Wichtige URLs:
+
+- `GET /docs`
+- `GET /health`
+- `GET /planner/status`
+- `POST /flows/validate`
+
+## 2. Frontend starten
+
+`frontend/.env`:
+
+```env
+VITE_API_BASE_URL=http://127.0.0.1:8552
+```
+
+Dann:
+
+```powershell
+cd frontend
+npm run dev
+```
+
+## 3. Minimaler Arbeitsablauf
+
+1. Handler, Agenten und Ressourcen im Frontend laden.
+2. In `GET /handlers` oder der Sidebar pruefen, welche Handler trusted sind.
+3. Einen Graphen im Canvas zeichnen oder ueber den Planner erzeugen.
+4. Fuer sensitive oder untrusted Handler im Inspector entscheiden, ob `requires_manual_approval` gesetzt sein soll.
+5. Vor dem Speichern `POST /flows/validate` verwenden oder die UI-Validierung ausloesen.
+6. Den Flow ueber `POST /flows` speichern.
+7. Falls noetig den Node per Inspector oder Approval-API freigeben.
+8. Den Flow ueber `POST /flows/{flow_id}/run` ausfuehren.
+9. Laufzeit und Status ueber `GET /flows/{flow_id}` oder `/ws/flows/{flow_id}` beobachten.
+
+## 4. Wichtige Umgebungsvariablen
+
+- `NS_API_HOST`, `NS_API_PORT`: FastAPI-Bindung
+- `NS_LIT_BINARY_PATH`, `NS_LIT_MODEL_PATH`, `NS_LIT_TIMEOUT_S`: lokaler Planner
+- `NS_HANDLER_CERTIFICATE_SECRET`, `NS_HANDLER_CERTIFICATE_ISSUER`, `NS_HANDLER_CERTIFICATE_TTL_HOURS`: Handler-Zertifikate
+- `NS_SECURITY_ENABLED`: Semantic Firewall global ein- oder ausschalten
+- `NS_SECURITY_AUTO_ISSUE_BUILTIN_HANDLER_CERTIFICATES`: Built-ins automatisch signieren
+- `NS_SECURITY_REQUIRE_TRUSTED_HANDLERS`: untrusted Handler beim Run blockieren
+- `NS_SECURITY_ALLOW_MANUAL_APPROVAL_FOR_UNTRUSTED_HANDLERS`: explizite Override-Freigabe zulassen
+- `NS_SECURITY_HTTP_ALLOWED_HOSTS`: erlaubte HTTP-Zielhosts
+- `NS_SECURITY_SEND_PROTOCOLS`: erlaubte Kommunikationsprotokolle fuer `send_message`
+- `NS_CORS_ORIGINS`: erlaubte Frontend-Urspruenge
+
+## 5. Mentales Modell
+
+- Das Frontend bearbeitet einen gerichteten Graphen aus Nodes und Edges.
+- `toFlowRequest()` wandelt den Editorgraphen in das Backend-Schema.
+- Das Backend validiert Struktur, Expressions, Handler-Trust und Sicherheitsregeln.
+- Erst danach wird gespeichert oder ausgefuehrt.
+- Die Runtime fuehrt nur DAGs aus und meldet Snapshots laufend an UI und Persistenz zurueck.
+&#x27;&#x27;&#x27;,
+    &#x27;system-overview.md&#x27;: &#x27;&#x27;&#x27;# Systemueberblick
+
+## Schichten
+
+- Domaene: `src/nova_synesis/domain/models.py`
+- Planung: `planning/planner.py` und `planning/lit_planner.py`
+- Sicherheitspruefung: `security/policy.py` und `security/trust.py`
+- Runtime: `runtime/engine.py` und `runtime/handlers.py`
+- Persistenz: `persistence/sqlite_repository.py`
+- API: `api/app.py`
+- UI: `frontend/src/`
+
+## Hauptdatenfluss
+
+1. Graph im Frontend erstellen oder ueber den LiteRT-Planer generieren
+2. `toFlowRequest()` erzeugt das Backend-Schema
+3. `POST /flows/validate` prueft Graph, Expressions, Handler-Trust, Egress und Memory-Fluesse
+4. `POST /flows` speichert den Graphen
+5. optionale manuelle Freigaben werden node-spezifisch gesetzt
+6. `POST /flows/{id}/run` startet die Ausfuehrung
+7. `FlowExecutor` verarbeitet den Graphen Node fuer Node
+8. `/ws/flows/{flow_id}` uebertraegt Snapshots an die UI
+9. `GET /flows/{flow_id}` bleibt die kanonische Wahrheit fuer den Laufzeitstand
+
+## Was dieses System bewusst ist
+
+- graphbasiert statt chatbasiert
+- zustandsbehaftet statt nur requestbasiert
+- planner-unterstuetzt, aber nicht planner-abhaengig
+- sicherheitsgefiltert, bevor Seiteneffekte entstehen
+- handler-vertrauensbasiert statt nur handler-namensbasiert
+&#x27;&#x27;&#x27;,
+    &#x27;backend-runtime.md&#x27;: &#x27;&#x27;&#x27;# Backend-Laufzeit
+
+Die Backend-Laufzeit wird durch `OrchestratorService` zusammengesetzt. Er verdrahtet Repository, Speicher, Ressourcenmanager, Handler-Registry, Planner, Semantic Firewall und Execution-Engine.
+
+## Reihenfolge eines normalen Flows
+
+1. API nimmt einen `FlowCreateRequest` oder eine Planner-Anfrage entgegen.
+2. `TaskHandlerRegistry` bewertet alle Handler gegen digitale Zertifikate und erzeugt Trust-Records.
+3. `OrchestratorService.validate_flow_request()` laesst die semantische Firewall laufen.
+4. Der Flow wird in Domaenenobjekte ueberfuehrt und in SQLite gespeichert.
+5. `FlowExecutor.run_flow()` startet die DAG-Ausfuehrung.
+6. `TaskExecutor.execute_task()` loest Templates auf, reserviert Ressourcen, ruft Agent und Handler auf und persistiert Snapshots.
+7. WebSocket-Abonnenten erhalten Ereignisse wie `flow.started`, `node.completed`, `node.approval.updated` oder `flow.failed`.
+
+## Trust- und Approval-Gates
+
+- `GET /handlers` ist die kanonische Betriebsansicht auf Handler-Trust.
+- Der Planner-Katalog enthaelt nur trusted Handler.
+- Freigaben liegen an `Task.manual_approval` und werden im Flow-Snapshot persistiert.
+- `POST /flows/{flow_id}/nodes/{node_id}/approval` und `DELETE /flows/{flow_id}/nodes/{node_id}/approval` aendern den Freigabestatus ohne den ganzen Flow neu anzulegen.
+
+## Regel fuer Aenderungen
+
+Wenn du etwas an einem Runtime-Vertrag aenderst, pruefe fast immer gleichzeitig API, Domaenenmodell, Engine, Frontend-Typen, Serialisierung und Tests.
+&#x27;&#x27;&#x27;,
+    &#x27;frontend-editor.md&#x27;: &#x27;&#x27;&#x27;# Frontend-Editor
+
+Die UI besteht aus `App.tsx`, dem Zustand-Store `useFlowStore.ts`, der Zeichenflaeche `FlowCanvas.tsx`, der linken `Sidebar.tsx`, dem `InspectorPanel.tsx`, dem Planner-Dialog und der `TopBar.tsx`.
+
+## Was der Editor wirklich tut
+
+- laedt Handler, Agenten und Ressourcen aus dem echten Backend
+- baut daraus React-Flow-Nodes und -Edges
+- serialisiert den Editorzustand ueber `toFlowRequest()`
+- speichert und startet echte Flows
+- uebernimmt Live-Snapshots ueber WebSocket oder Polling
+- zeigt pro Node Handler-Trust und manuelle Freigaben im Inspector
+
+## Kritische Integrationsstellen
+
+- `frontend/src/lib/flowSerialization.ts`: muss exakt zum FastAPI-Schema passen
+- `frontend/src/lib/apiClient.ts`: enthaelt die echten REST-, Approval- und WebSocket-Aufrufe inklusive `POST /flows/validate`
+- `frontend/src/store/useFlowStore.ts`: haelt den kanonischen UI-Zustand fuer Nodes, Edges, Auswahl und Laufzeitstatus
+- `frontend/src/hooks/useFlowLiveUpdates.ts`: faellt bei Socket-Problemen auf Polling zurueck
+
+## Betreiberperspektive im Inspector
+
+- `Handler trust` zeigt Zertifikatsstatus, Issuer, Fingerprint und Ablaufdatum
+- `Require manual approval before execution` markiert einen Node als freigabepflichtig
+- `Approve Node` und `Revoke Approval` sprechen direkt mit der Approval-API, wenn der Flow bereits gespeichert ist
+- bei ungespeicherten lokalen Aenderungen arbeitet der Inspector bewusst lokal weiter, um den Canvas-Zustand nicht zu ueberschreiben
+&#x27;&#x27;&#x27;,
+    &#x27;planner-and-lit.md&#x27;: &#x27;&#x27;&#x27;# LLM-Planer und LiteRT
+
+Der Planner erzeugt keine Mock-Graphen. Er nutzt die lokale `lit`-Binary und das Gemma-Modell im `LIT/`-Ordner, extrahiert JSON und normalisiert das Resultat auf das echte `FlowRequest`-Schema.
+
+## Ablauf
+
+1. `LiteRTPlanner._build_prompt()` baut den Prompt aus Benutzerziel und echtem Katalog.
+2. `_invoke_model()` ruft `lit.windows_x86_64.exe` mit `gemma-4-E2B-it.litertlm` auf.
+3. `_parse_model_output()` extrahiert genau ein JSON-Objekt.
+4. `_normalize_flow_request()` korrigiert IDs, Defaults, Abhaengigkeiten und Handler-Inputs.
+5. `OrchestratorService.generate_flow_with_llm()` laesst den Graphen anschliessend noch durch die Semantic Firewall laufen.
+
+## Wichtige Sicherheitsgrenzen
+
+- Ressourcen und Memories mit `sensitive = true` oder `planner_visible = false` werden aus dem Planner-Katalog herausgefiltert.
+- untrusted Handler werden komplett aus dem Planner-Katalog entfernt.
+- Die Antwort enthaelt `security_report`, damit UI und Betreiber sehen, ob der generierte Graph policy-konform war.
+- Planner-Warnungen bedeuten: der Graph wurde normalisiert, aber nicht stillschweigend erweitert.
+- `requires_manual_approval` wird standardmaessig auf `false` normalisiert und nur uebernommen, wenn es explizit im Graphen gesetzt ist.
+&#x27;&#x27;&#x27;,
+    &#x27;security-and-policy.md&#x27;: &#x27;&#x27;&#x27;# Security und Policy
+
+NOVA-SYNESIS sichert nicht nur Code, sondern die Absicht eines Graphen. Diese Aufgabe uebernimmt die Semantic Firewall in `src/nova_synesis/security/policy.py`.
+
+## Wann die Policy greift
+
+- bei Agent-Registrierung
+- bei `POST /flows/validate`
+- bei `POST /flows`
+- vor `POST /flows/{flow_id}/run`
+- nach einer Planner-Generierung, bevor der Graph an die UI zurueckgeht
+
+## Was geprueft wird
+
+- Graph-Struktur: keine Zyklen, keine Selbstkanten, keine unbekannten Nodes
+- Retry-Budget und maximale Graphgroesse
+- Handler-Trust: unbekannte, untrusted oder abgelaufene Handler-Zustaende
+- Expressions und Templates: nur erlaubte Symbole und AST-Knoten
+- HTTP-Egress: nur erlaubte Hosts oder Loopback
+- Messaging: nur erlaubte Protokolle und kein Endpoint-Override im Payload
+- Dateioperationen: kein `allow_outside_workdir`
+- Sensitive Memories: kein Abfluss in `http_request` oder externe Nachrichtenziele
+- Planner-visible Memories: kein untrusted Ingest ohne explizites Opt-in
+- Agent-Registrierung: keine unerlaubten REST/WebSocket-Endpunkte und keine blockierten Capability-Profile
+
+## Digitale Handler-Zertifikate
+
+- `HandlerTrustAuthority` signiert interne Handler-Zertifikate mit HMAC ueber einen kanonischen Payload.
+- Der Fingerprint wird aus Handlername, Modul, Qualname und Quellcode abgeleitet.
+- Built-in-Handler koennen automatisch signiert werden.
+- Custom Handler bleiben ohne Zertifikat sichtbar, aber sie gelten als untrusted.
+- `GET /handlers` ist die Betriebsansicht fuer `trusted`, `trust_reason`, `fingerprint` und `certificate`.
+
+## Manuelle Freigabe
+
+- Ein Node kann `requires_manual_approval = true` tragen.
+- Die Freigabe liegt in `manual_approval`.
+- Im Create- und Validate-Pfad wird das als Warnung behandelt.
+- Im Run-Pfad blockiert die Policy den Start, solange keine gueltige Freigabe mit `approved_by` vorliegt.
+- Wenn `NS_SECURITY_ALLOW_MANUAL_APPROVAL_FOR_UNTRUSTED_HANDLERS=true` aktiv ist, kann eine explizite Node-Freigabe einen untrusted Handler fuer genau diesen Flow-Node erlauben.
+
+## Bedeutende Felder
+
+- `sensitive = true`
+- `planner_visible = false`
+- `allow_untrusted_ingest = true`
+- `requires_manual_approval = true`
+- `manual_approval.approved = true`
+
+## Wichtige Settings
+
+- `NS_HANDLER_CERTIFICATE_SECRET`
+- `NS_HANDLER_CERTIFICATE_ISSUER`
+- `NS_HANDLER_CERTIFICATE_TTL_HOURS`
+- `NS_SECURITY_ENABLED`
+- `NS_SECURITY_AUTO_ISSUE_BUILTIN_HANDLER_CERTIFICATES`
+- `NS_SECURITY_REQUIRE_TRUSTED_HANDLERS`
+- `NS_SECURITY_ALLOW_MANUAL_APPROVAL_FOR_UNTRUSTED_HANDLERS`
+- `NS_SECURITY_MAX_NODES`
+- `NS_SECURITY_MAX_EDGES`
+- `NS_SECURITY_MAX_TOTAL_ATTEMPTS`
+- `NS_SECURITY_MAX_EXPRESSION_LENGTH`
+- `NS_SECURITY_MAX_EXPRESSION_NODES`
+- `NS_SECURITY_HTTP_ALLOWED_HOSTS`
+- `NS_SECURITY_SEND_PROTOCOLS`
+&#x27;&#x27;&#x27;,
+    &#x27;handler-trust-and-approval.md&#x27;: &#x27;&#x27;&#x27;# Handler Trust und Freigaben
+
+Diese Seite beschreibt die zweite Sicherheitslinie nach der Semantic Firewall: vertrauenswuerdige Handler und die explizite manuelle Node-Freigabe.
+
+## 1. Was ein Handler-Zertifikat hier bedeutet
+
+NOVA-SYNESIS nutzt kein externes X.509-PKI, sondern ein internes, signiertes Handler-Zertifikat:
+
+- der Fingerprint wird aus Modul, Qualname und Quellcode des Handlers abgeleitet
+- `HandlerTrustAuthority` signiert diesen Fingerprint per HMAC
+- das Zertifikat enthaelt `issuer`, `issued_at`, `expires_at`, `fingerprint` und `built_in`
+- bei jeder Registrierung wird geprueft, ob Zertifikat und aktueller Handler-Code noch zusammenpassen
+
+## 2. Trust-Lebenszyklus
+
+1. Ein Handler wird registriert.
+2. Built-in-Handler erhalten automatisch ein Zertifikat, wenn `NS_SECURITY_AUTO_ISSUE_BUILTIN_HANDLER_CERTIFICATES=true` ist.
+3. Custom Handler koennen beim Registrieren ein Zertifikat mitgeben oder spaeter ueber `TaskHandlerRegistry.issue_certificate()` signiert werden.
+4. `GET /handlers` liefert den aktuellen Trust-Status inklusive Zertifikat an UI und Betrieb.
+5. Der LiteRT-Planer sieht nur trusted Handler im Katalog.
+
+## 3. API und UI
+
+- `GET /handlers`: liefert `handlers` und `details`
+- `POST /flows/{flow_id}/nodes/{node_id}/approval`: setzt eine manuelle Freigabe
+- `DELETE /flows/{flow_id}/nodes/{node_id}/approval`: hebt sie wieder auf
+
+Im `InspectorPanel` sieht der Betreiber:
+
+- ob der aktuelle Handler trusted oder untrusted ist
+- warum der Handler so eingestuft wurde
+- Zertifikatsdetails wie Issuer, Fingerprint und Ablaufdatum
+- ob fuer den Node eine manuelle Freigabe erforderlich oder bereits gesetzt ist
+
+## 4. Wann die Ausfuehrung blockiert wird
+
+- unbekannter Handler: immer blockiert
+- untrusted Handler bei `NS_SECURITY_REQUIRE_TRUSTED_HANDLERS=true`: spaetestens beim Run blockiert
+- `requires_manual_approval=true`, aber keine Freigabe gesetzt: beim Run blockiert
+- Freigabe ohne `approved_by`: ebenfalls blockiert
+
+## 5. Operator-Regeln
+
+- Built-in-Handler bleiben der Normalfall.
+- Eigene Handler nur dann trusten, wenn Codequelle und Seiteneffektprofil klar sind.
+- Manuelle Freigaben sind flow-spezifisch, nicht global.
+- Eine Freigabe ersetzt kein Zertifikat; sie ist eine bewusste Ausnahme fuer einen konkreten Node.
+
+## 6. Relevante Settings
+
+- `NS_HANDLER_CERTIFICATE_SECRET`
+- `NS_HANDLER_CERTIFICATE_ISSUER`
+- `NS_HANDLER_CERTIFICATE_TTL_HOURS`
+- `NS_SECURITY_AUTO_ISSUE_BUILTIN_HANDLER_CERTIFICATES`
+- `NS_SECURITY_REQUIRE_TRUSTED_HANDLERS`
+- `NS_SECURITY_ALLOW_MANUAL_APPROVAL_FOR_UNTRUSTED_HANDLERS`
+&#x27;&#x27;&#x27;,
+    &#x27;failure-playbook.md&#x27;: &#x27;&#x27;&#x27;# Failure Playbook
+
+Diese Seite beschreibt die realen Stoerungsbilder des Systems. Ziel ist nicht nur Fehler zu benennen, sondern eine belastbare Reihenfolge fuer Diagnose und Behebung zu geben.
+
+## Triage-Reihenfolge
+
+1. Zuerst unterscheiden: Planner-Problem, Policy-Rejektion, Live-Transportproblem oder echte Runtime-Stoerung.
+2. Immer den echten Snapshot ueber `GET /flows/{flow_id}` lesen.
+3. Bei Save-/Run-Fehlern zuerst `POST /flows/validate` auswerten.
+4. Erst danach UI, WebSocket oder Planner-Oberflaeche beurteilen.
+
+## 1. Planner liefert ungueltiges JSON
+
+### Woran du es erkennst
+
+- `POST /planner/generate-flow` antwortet mit Fehler
+- im Frontend erscheint keine neue Graphstruktur
+- typische Backend-Meldungen:
+  - `Planner returned invalid JSON`
+  - `Planner response does not contain a JSON object`
+  - `Planner response contains an incomplete JSON object`
+
+### Sofortmassnahmen
+
+1. `GET /planner/status` pruefen
+2. Prompt kuerzen und restriktiver machen
+3. `max_nodes` senken
+4. sicherstellen, dass benoetigte Handler, Agenten, Ressourcen und Memory-IDs wirklich registriert sind
+5. bei wiederholtem Fehler den Flow manuell im Editor bauen
+
+## 2. Semantic Firewall lehnt den Flow ab
+
+### Woran du es erkennst
+
+- `POST /flows/validate`, `POST /flows` oder `POST /planner/generate-flow` liefert einen Fehler
+- typische Fehlermeldungen:
+  - `Semantic firewall rejected flow`
+  - `Outbound host ... is outside the semantic firewall allowlist`
+  - `Flow contains a cycle`
+  - `Sensitive memory data may not flow into http_request nodes`
+
+### Typische Ursachen
+
+- zyklischer Graph
+- `http_request` auf einen nicht erlaubten Host
+- `send_message` ohne `target_agent_id` oder mit Endpoint-Override
+- Template oder Condition mit nicht erlaubten Symbolen
+- planner-sichtbare Memory-Store-Node hinter untrusted Ingest
+
+### Sofortmassnahmen
+
+1. denselben Payload gegen `POST /flows/validate` schicken
+2. `violations` und `warnings` getrennt lesen
+3. pruefen, ob das Problem fachlich oder rein policy-seitig ist
+4. bei legitimen Produktionsfaellen erst Settings oder Memory-/Resource-Metadaten anpassen, nicht die Regel blind entfernen
+
+## 3. Handler ist untrusted, Zertifikat abgelaufen oder Freigabe fehlt
+
+### Woran du es erkennst
+
+- `POST /flows/{flow_id}/run` liefert einen Policy-Fehler
+- `POST /flows/validate` meldet Warnungen zu `requires_manual_approval` oder einem untrusted Handler
+- `GET /handlers` zeigt `trusted = false` oder ein abgelaufenes Zertifikat
+
+### Typische Ursachen
+
+- Custom Handler wurde ohne Zertifikat registriert
+- Handler-Code hat sich geaendert und der Fingerprint passt nicht mehr
+- Zertifikat ist abgelaufen
+- `requires_manual_approval = true`, aber der Node wurde nicht freigegeben
+- `manual_approval.approved = true`, aber `approved_by` fehlt
+
+### Sofortmassnahmen
+
+1. `GET /handlers` lesen und `trust_reason`, Fingerprint und Ablaufdatum pruefen
+2. bei gespeichertem Flow den Node ueber `POST /flows/{flow_id}/nodes/{node_id}/approval` freigeben oder im Inspector freigeben
+3. bei echten Custom Handlern ein neues Zertifikat ausstellen statt die Policy zu lockern
+4. nur wenn fachlich gewollt `NS_SECURITY_ALLOW_MANUAL_APPROVAL_FOR_UNTRUSTED_HANDLERS` verwenden
+
+## 4. WebSocket bricht waehrend der Execution ab
+
+### Woran du es erkennst
+
+- die Topbar zeigt `Offline`
+- Live-Status friert ein oder aktualisiert sich nur stoerend langsam
+- der Flow laeuft im Backend oft trotzdem weiter
+
+### Was das System bereits fuer dich macht
+
+`frontend/src/hooks/useFlowLiveUpdates.ts` faellt automatisch auf Polling gegen `GET /flows/{flow_id}` zurueck. Die UI bleibt dadurch nutzbar, auch wenn der Socket weg ist.
+
+### Sofortmassnahmen
+
+1. `GET /flows/{flow_id}` direkt pruefen
+2. `frontend/.env` gegen die echte Backend-Adresse pruefen
+3. unterscheiden: ist nur `/ws/flows/{flow_id}` defekt oder auch REST?
+4. wenn REST geht, die Ausfuehrung nicht abbrechen, sondern Snapshot weiter per Polling beobachten
+
+## 5. Resource haengt oder laeuft in Timeout / Sattlauf
+
+### Woran du es erkennst
+
+- eine oder mehrere Nodes bleiben lange auf `RUNNING`
+- der Flow macht keine sichtbaren Fortschritte, ohne sofort auf `FAILED` zu springen
+- einzelne Ressourcen stehen auf `BUSY` oder `DOWN`
+
+### Wichtige technische Besonderheit
+
+`ResourceManager.acquire_many()` hat keinen globalen Flow-Timeout. Handler-Timeouts wie `http_request.timeout_s` greifen erst nach erfolgreicher Ressourcenreservierung.
+
+### Sofortmassnahmen
+
+1. `GET /flows/{flow_id}` lesen und die `RUNNING`-Nodes identifizieren
+2. `GET /resources` und gegebenenfalls `resource_health_check` verwenden
+3. `max_concurrency`, Kapazitaet und `required_resource_ids` gegen die echte Infrastruktur pruefen
+4. bei HTTP-Aufrufen explizit `timeout_s` setzen
+5. wenn moeglich auf `required_resource_types` plus `FALLBACK_RESOURCE` umstellen
+
+## 6. Flow bleibt auf `RUNNING` stehen
+
+### Woran du es erkennst
+
+- `GET /flows/{flow_id}` zeigt dauerhaft `state = RUNNING`
+- dieselben Nodes bleiben ueber mehrere Snapshots hinweg `RUNNING`
+- `completed_nodes` waechst nicht mehr
+
+### Typische Ursachen
+
+- Handler wartet auf externen Dienst
+- Ressource wartet auf Freigabe
+- externer Endpunkt antwortet nie innerhalb eines sinnvollen Timeouts
+- ein lang laufender Seiteneffekt wurde nicht in kleinere Nodes zerlegt
+
+### Sofortmassnahmen
+
+1. mehrere Snapshots hintereinander vergleichen
+2. den oder die `RUNNING`-Nodes identifizieren
+3. Handlervertrag des betroffenen Nodes pruefen
+4. bei `http_request` ein sinnvolles `timeout_s` setzen
+5. pruefen, ob Ressource oder Kommunikationsziel erreichbar sind
+
+## 7. Graph-Deadlock oder logisch blockierter Flow
+
+Wichtig: Wenn keine Node mehr startbar ist und trotzdem noch `pending` existiert, setzt `FlowExecutor.run_flow()` den Flow auf `FAILED` und schreibt `deadlock_nodes` in die Metadaten.
+
+### Sofortmassnahmen
+
+1. `deadlock_nodes`, `blocked_nodes` und `failed_nodes` vergleichen
+2. alle eingehenden Kantenbedingungen des betroffenen Knotens lesen
+3. nur die von der Engine gelieferten Bedingungssymbole verwenden:
+   - `results`
+   - `source_result`
+   - `target_node`
+   - `completed`
+   - `blocked`
+   - `failed`
+4. pruefen, ob mindestens ein Node ohne eingehende Kante existiert
+
+## 8. Handler wirft Exception
+
+### Woran du es erkennst
+
+- eine Node springt auf `FAILED`
+- oft folgt `node.rolled_back`
+- der Flow endet mit `FAILED`, ausser `continue_on_error` ist aktiv
+- `failed_nodes` enthaelt die konkrete Fehlermeldung
+
+### Typische reale Ursachen in diesem Projekt
+
+- unbekannter Handlername in `TaskHandlerRegistry`
+- `http_request` ohne `url` und ohne API-Ressource
+- `send_message` ohne Kommunikationsadapter
+- `read_file` oder `write_file` greifen ausserhalb des erlaubten Arbeitsverzeichnisses zu
+- `merge_payloads` bekommt Werte, die keine Dictionaries sind
+- `validator_rules` schlagen fehl
+- eine Ressource kann nicht reserviert werden
+
+### Sofortmassnahmen
+
+1. `failed_nodes` im Snapshot lesen
+2. Input des Nodes mit dem echten Handlervertrag vergleichen
+3. Ressourcen, Agenten und Memory-Systeme pruefen
+4. `retry_policy` und `rollback_strategy` auf Infrastrukturrealitaet abstimmen
+
+## Welche Daten du vor tieferer Analyse sammeln solltest
+
+- `flow_id`
+- kompletter Snapshot aus `GET /flows/{flow_id}`
+- Ergebnis von `POST /flows/validate`, falls Save oder Run scheitert
+- alle aktuell `RUNNING`, `FAILED` und `blocked` Nodes
+- Handlername und Input der auffaelligen Node
+- verwendete Ressourcen, Agenten und Memory-IDs
+- bei Planner-Problemen: Prompt, `max_nodes` und `security_report`
+&#x27;&#x27;&#x27;,
+    &#x27;decision-guide.md&#x27;: &#x27;&#x27;&#x27;# Decision Guide
+
+Diese Seite dokumentiert Entscheidungslogik. Genau dieses Wissen fehlt oft, wenn ein System zwar sauber gebaut, aber noch nicht betriebssicher uebergeben wurde.
+
+## 1. Wann Planner, wann manuell?
+
+Nutze den LiteRT-Planer, wenn:
+
+- du aus einer fachlichen Beschreibung schnell einen ersten Graphen ableiten willst
+- du eine komplexe Kette mit mehreren Handlern skizzieren musst
+- du anschliessend im visuellen Editor nacharbeiten willst
+
+Baue den Flow lieber manuell, wenn:
+
+- die exakte Kantenlogik bereits feststeht
+- du einen Produktionsfehler analysierst
+- du ein sehr kleines, deterministisches Setup mit 1 bis 3 Nodes hast
+
+## 2. Neuer Handler oder bestehenden Handler erweitern?
+
+Erweitere einen bestehenden Handler, wenn:
+
+- dieselbe Grundoperation bleibt
+- Ein- und Ausgabeform nur optional waechst
+- Fehlerbild und Retry-Verhalten gleich bleiben
+
+Baue einen neuen Handler, wenn:
+
+- eine neue Nebenwirkung entsteht
+- eine andere externe Abhaengigkeit angebunden wird
+- der Inputvertrag fachlich anders ist
+- der Nutzer den Baustein im Editor als eigenstaendige Aktion verstehen soll
+
+## 3. Flow, einzelne Task oder Agent?
+
+- Verwende einen Flow, wenn Reihenfolge, Verzweigung oder Fehlerbehandlung sichtbar modelliert werden muessen.
+- Verwende nur eine einzelne Task, wenn genau ein isolierter Arbeitsschritt existiert.
+- Verwende einen Agenten, wenn Faehigkeiten, Kommunikationsadapter oder eine feste Verantwortlichkeit wichtig sind.
+
+Ein Agent ersetzt keinen Flow. Der Flow modelliert den Prozess. Der Agent modelliert, wer oder was eine Task ausfuehren darf.
+
+## 4. Wann ist eine Resource wirklich notwendig?
+
+Nutze eine Resource, wenn der Schritt an ein echtes externes Ziel oder eine limitierte Kapazitaet gebunden ist:
+
+- API-Endpunkt
+- Modellinstanz
+- Datenbank
+- Dateiablage
+- GPU
+
+Nutze keine Resource, wenn der Schritt rein lokal und transformativ ist:
+
+- `template_render`
+- `merge_payloads`
+- `json_serialize`
+
+## 5. Konkrete Resource-ID oder nur Resource-Type?
+
+- `required_resource_ids`: wenn exakt ein bestimmtes System getroffen werden muss
+- `required_resource_types`: wenn jeder passende Vertreter einer Kategorie ausreicht oder Fallback sinnvoll ist
+
+Faustregel: feste Kern-API per ID, austauschbare Replikate oder GPUs per Typ.
+
+## 6. Welche Rollback-Strategie ist die richtige?
+
+- `FAIL_FAST`: wenn Folgeschritte ohne Erfolg des Nodes keinen Sinn ergeben
+- `RETRY`: bei transienten Netz- oder Dienstfehlern
+- `FALLBACK_RESOURCE`: wenn mehrere Ressourcen gleicher Art vorhanden sind
+- `COMPENSATE`: wenn ein Fehler nach einer Nebenwirkung aktiv bereinigt werden muss
+
+## 7. Wann musst du `POST /flows/validate` aktiv nutzen?
+
+Immer vor produktivem Speichern oder Ausfuehren, wenn:
+
+- ein Flow durch den Planner erzeugt wurde
+- neue Templates, Conditions oder Validator-Ausdruecke eingebaut wurden
+- neue Ressourcen, Agenten oder Memory-Systeme beteiligt sind
+- du Security-Grenzen geaendert hast
+
+## 8. Wie klassifizierst du Memory-Systeme?
+
+- `sensitive = true`: fuer vertrauliche Inhalte, die nicht in Planner oder externe Sinks gelangen sollen
+- `planner_visible = false`: wenn ein Memory manuell nutzbar, aber nicht planner-sichtbar sein soll
+- `allow_untrusted_ingest = true`: nur wenn bewusst Daten aus HTTP, Messaging oder Dateiquellen in planner-sichtbares Wissen einfliessen duerfen
+
+Wenn du unsicher bist, starte konservativ: `sensitive = true` oder `planner_visible = false`.
+
+## 9. Wann soll eine Condition auf eine Edge?
+
+Eine Edge-Condition ist richtig, wenn du einen fachlichen Branch modellierst:
+
+- Erfolgspfad vs Fehlerpfad
+- weitere Verarbeitung nur bei gueltigem Ergebnis
+- optionale Folgeaktionen
+
+Eine Edge-Condition ist falsch, wenn du damit Daten umbauen oder fehlende Vorverarbeitung verstecken willst. Dann fehlt meist ein eigener Node.
+&#x27;&#x27;&#x27;,
+    &#x27;real-world-scenarios.md&#x27;: &#x27;&#x27;&#x27;# Real World Scenarios
+
+Diese Seite enthaelt bewusst nur drei End-to-End-Beispiele. Ziel ist nicht Vollstaendigkeit, sondern sichere Anwendbarkeit mit dem echten Backend und der aktiven Security-Policy.
+
+## Szenario 1: Einfacher Betriebsflow &quot;Platform Health Snapshot&quot;
+
+Referenz: `Use_Cases/platform_health_snapshot/`
+
+### Ziel
+
+Die lokale Plattform pruefen, einen Snapshot speichern und daraus eine Textzusammenfassung schreiben.
+
+### Warum dieser Flow produktionsnah ist
+
+- nutzt nur echte Built-in-Handler
+- benoetigt keinen Mock-Service
+- zeigt HTTP, Memory, Serialisierung und Dateiablage in einer kleinen, gut kontrollierbaren Kette
+
+### Typischer Ablauf
+
+1. `http_request` gegen einen lokalen oder allowlist-konformen Health-Endpunkt
+2. `json_serialize` fuer den Snapshot
+3. `write_file` fuer Rohdaten
+4. `template_render` fuer die Zusammenfassung
+5. `write_file` fuer den lesbaren Report
+6. optional `memory_store` fuer den letzten Snapshot-Key
+
+## Szenario 2: Komplexer Flow mit Branching &quot;Semantic Ticket Triage&quot;
+
+Referenz: `Use_Cases/semantic_ticket_triage/`
+
+### Ziel
+
+Tickets semantisch bewerten, Wissen aus Memory laden und je nach Ergebnis an unterschiedliche interne Queue-Agenten dispatchen.
+
+### Warum dieser Flow produktionsnah ist
+
+- kombiniert Vector Memory, Planner-verwertbares Wissen und Messaging
+- nutzt Branching ueber Edge-Conditions
+- bleibt policy-konform, weil `send_message` auf interne Message Queues begrenzt bleibt
+
+### Typischer Ablauf
+
+1. Ticketdaten laden oder als Input entgegennehmen
+2. `memory_search` in einem Vector-Memory
+3. `template_render` fuer die Triage-Zusammenfassung
+4. Branching auf `dispatch-support` oder `dispatch-sales`
+5. `send_message` an registrierte Queue-Agenten
+
+## Szenario 3: Fehlerfall mit Retry und Fallback &quot;API-Replica uebernimmt&quot;
+
+### Ziel
+
+Ein fragiler Infrastrukturzugriff soll auch dann stabil laufen, wenn die bevorzugte Ressource kurzzeitig ausfaellt.
+
+### Beispielstruktur
+
+```json
+{
+  &quot;nodes&quot;: [
+    {
+      &quot;node_id&quot;: &quot;fetch-primary-or-fallback&quot;,
+      &quot;handler_name&quot;: &quot;http_request&quot;,
+      &quot;input&quot;: { &quot;method&quot;: &quot;GET&quot;, &quot;timeout_s&quot;: 8 },
+      &quot;required_resource_types&quot;: [&quot;API&quot;],
+      &quot;retry_policy&quot;: {
+        &quot;max_retries&quot;: 3,
+        &quot;backoff_ms&quot;: 500,
+        &quot;exponential&quot;: true,
+        &quot;max_backoff_ms&quot;: 5000,
+        &quot;jitter_ratio&quot;: 0.1
+      },
+      &quot;rollback_strategy&quot;: &quot;FALLBACK_RESOURCE&quot;,
+      &quot;validator_rules&quot;: {
+        &quot;required_keys&quot;: [&quot;status_code&quot;, &quot;body&quot;],
+        &quot;expression&quot;: &quot;result[&#x27;status_code&#x27;] &lt; 500&quot;
+      }
+    },
+    {
+      &quot;node_id&quot;: &quot;store-result&quot;,
+      &quot;handler_name&quot;: &quot;memory_store&quot;,
+      &quot;input&quot;: {
+        &quot;memory_id&quot;: &quot;working-memory&quot;,
+        &quot;key&quot;: &quot;resilient-fetch-result&quot;,
+        &quot;value&quot;: &quot;{{ results[&#x27;fetch-primary-or-fallback&#x27;][&#x27;body&#x27;] }}&quot;
+      },
+      &quot;dependencies&quot;: [&quot;fetch-primary-or-fallback&quot;],
+      &quot;conditions&quot;: { &quot;fetch-primary-or-fallback&quot;: &quot;source_result[&#x27;status_code&#x27;] &lt; 400&quot; }
+    }
+  ],
+  &quot;edges&quot;: [
+    {
+      &quot;from_node&quot;: &quot;fetch-primary-or-fallback&quot;,
+      &quot;to_node&quot;: &quot;store-result&quot;,
+      &quot;condition&quot;: &quot;source_result[&#x27;status_code&#x27;] &lt; 400&quot;
+    }
+  ]
+}
+```
+
+### Sichere Betriebsreihenfolge
+
+1. zuerst `POST /flows/validate`
+2. danach speichern
+3. Laufzeit ueber `GET /flows/{flow_id}` beobachten
+4. bei Auffaelligkeiten pruefen, ob wirklich Retry oder bereits Resource-Fallback greift
+&#x27;&#x27;&#x27;,
+    &#x27;change-workflows.md&#x27;: &#x27;&#x27;&#x27;# Aenderungsleitfaden
+
+## Neuer Handler
+
+1. Handler in `runtime/handlers.py` implementieren und registrieren
+2. entscheiden, ob der Handler ein digitales Zertifikat erhalten soll oder bewusst untrusted bleibt
+3. pruefen, ob der Handler im Planner sichtbar sein soll
+4. Security-Regeln fuer Egress, Templates oder Seiteneffekte in `security/policy.py` bewerten
+5. Tests in `tests/test_orchestrator.py` erweitern
+6. Frontend prueft den Handler automatisch ueber `/handlers`
+7. `tools/generate_docs.py` und danach `docs/` neu erzeugen
+
+## Neues Node-Feld
+
+1. Backend-Schema in `api/app.py`
+2. Domaenenmodell und Snapshot in `domain/models.py`
+3. TypeScript-Typen in `frontend/src/types/api.ts`
+4. Serialisierung in `frontend/src/lib/flowSerialization.ts`
+5. Inspector in `frontend/src/components/layout/InspectorPanel.tsx`
+6. Validierung und Security-Auswirkungen pruefen
+7. Tests und Dokumentation nachziehen
+
+## Neue Security-Regel
+
+1. Policy in `security/policy.py` erweitern
+2. Settings in `config.py` und `.env.example` nachziehen
+3. API- und Planner-Auswirkungen pruefen
+4. mindestens einen positiven und einen negativen Testfall schreiben
+5. `tools/generate_docs.py` ausfuehren und `docs/` neu erzeugen
+
+## Neuer Trust- oder Approval-Pfad
+
+1. Zertifikats- oder Approval-Logik in `security/trust.py`, `runtime/handlers.py` oder `domain/models.py` anpassen
+2. `services/orchestrator.py` und `api/app.py` auf neue Operator-Aktionen abstimmen
+3. Frontend-Inspector und Typen synchronisieren
+4. mindestens einen positiven und einen negativen Security-Test ergaenzen
+5. danach Referenzdoku und Betriebsdoku neu erzeugen
+&#x27;&#x27;&#x27;,
+}
+
+
+def rel(path: Path) -&gt; str:
+    return path.relative_to(ROOT).as_posix()
+
+
+def excluded(path: Path) -&gt; bool:
+    r = rel(path)
+    parts = set(path.relative_to(ROOT).parts)
+    if &#x27;.pytest_cache&#x27; in parts or &#x27;__pycache__&#x27; in parts:
+        return True
+    if &#x27;output&#x27; in parts or &#x27;state&#x27; in parts:
+        return True
+    if path.name == &#x27;.env&#x27;:
+        return True
+    if path.suffix in {&#x27;.zip&#x27;, &#x27;.exe&#x27;, &#x27;.db&#x27;, &#x27;.pdf&#x27;}:
+        return True
+    if r.endswith(&#x27;.tsbuildinfo&#x27;) or r.endswith(&#x27;.xnnpack_cache&#x27;) or r.endswith(&#x27;.litertlm&#x27;):
+        return True
+    return any(r == item or r.startswith(item + &#x27;/&#x27;) for item in EXCLUDED)
+
+
+def project_files() -&gt; list[Path]:
+    files = [p for p in ROOT.rglob(&#x27;*&#x27;) if p.is_file() and not excluded(p)]
+    return sorted(files, key=lambda p: rel(p))
+
+
+def doc_path(source: Path) -&gt; Path:
+    r = source.relative_to(ROOT)
+    return REF / r.parent / f&#x27;{r.name}.md&#x27;
+
+
+def rlink(base: Path, target: Path) -&gt; str:
+    return os.path.relpath(target, base).replace(&#x27;\\&#x27;, &#x27;/&#x27;)
+
+
+def source_link(doc: Path, source: Path) -&gt; str:
+    return f&#x27;[{rel(source)}]({rlink(doc.parent, source)})&#x27;
+
+
+def doc_link(doc: Path, source: Path) -&gt; str:
+    target = doc_path(source)
+    return f&#x27;[{rel(source)}]({rlink(doc.parent, target)})&#x27;
+
+
+def category(r: str) -&gt; str:
+    if r.startswith(&#x27;src/nova_synesis/&#x27;):
+        return &#x27;Backend&#x27;
+    if r.startswith(&#x27;Use_Cases/&#x27;):
+        return &#x27;Use Cases&#x27;
+    if r.startswith(&#x27;frontend/src/&#x27;):
+        return &#x27;Frontend&#x27;
+    if r.startswith(&#x27;frontend/&#x27;):
+        return &#x27;Frontend-Konfiguration&#x27;
+    if r.startswith(&#x27;LIT/&#x27;):
+        return &#x27;LLM-Runtime&#x27;
+    if r.startswith(&#x27;tests/&#x27;):
+        return &#x27;Tests&#x27;
+    if r.startswith(&#x27;tools/&#x27;):
+        return &#x27;Werkzeug&#x27;
+    return &#x27;Projektdatei&#x27;
+
+
+def generic_purpose(path: Path) -&gt; str:
+    r = rel(path)
+    if path.suffix == &#x27;.py&#x27;:
+        return &#x27;Python-Modul des Projekts.&#x27;
+    if path.suffix in {&#x27;.ts&#x27;, &#x27;.tsx&#x27;}:
+        return &#x27;TypeScript-Modul des Frontends.&#x27;
+    if path.suffix == &#x27;.css&#x27;:
+        return &#x27;Stylesheet der Weboberflaeche.&#x27;
+    if path.suffix in {&#x27;.json&#x27;, &#x27;.toml&#x27;}:
+        return &#x27;Konfigurationsdatei des Projekts.&#x27;
+    if path.suffix == &#x27;.md&#x27;:
+        return &#x27;Markdown-Datei mit Projektwissen oder Anweisungen.&#x27;
+    if path.suffix in {&#x27;.html&#x27;}:
+        return &#x27;HTML-Datei fuer Visualisierung oder Browser-Einstieg.&#x27;
+    if path.suffix in {&#x27;.ps1&#x27;, &#x27;.cmd&#x27;}:
+        return &#x27;Skript fuer lokale Entwicklerablaeufe.&#x27;
+    if r.endswith(&#x27;.tsbuildinfo&#x27;) or r.endswith(&#x27;.xnnpack_cache&#x27;):
+        return &#x27;Generiertes Cache-Artefakt, das Builds oder Inferenz beschleunigt.&#x27;
+    if path.suffix in {&#x27;.exe&#x27;, &#x27;.zip&#x27;} or &#x27;.litertlm&#x27; in r:
+        return &#x27;Binaeres Artefakt des Projekts.&#x27;
+    return &#x27;Projektdatei mit eigener Rolle im Repository.&#x27;
+
+
+def generic_edit(path: Path) -&gt; str:
+    r = rel(path)
+    if path.suffix in {&#x27;.py&#x27;, &#x27;.ts&#x27;, &#x27;.tsx&#x27;, &#x27;.css&#x27;}:
+        return &#x27;Wenn Verhalten, API, UI oder Architektur angepasst werden muessen.&#x27;
+    if path.suffix in {&#x27;.json&#x27;, &#x27;.toml&#x27;}:
+        return &#x27;Wenn Build-, Paket- oder Compilerkonfiguration angepasst werden muss.&#x27;
+    if r.endswith(&#x27;.tsbuildinfo&#x27;) or r.endswith(&#x27;.xnnpack_cache&#x27;):
+        return &#x27;Normalerweise nie direkt. Bei Bedarf loeschen und neu erzeugen lassen.&#x27;
+    if path.suffix in {&#x27;.exe&#x27;, &#x27;.zip&#x27;} or &#x27;.litertlm&#x27; in r:
+        return &#x27;Nur bei gezieltem Austausch des Artefakts.&#x27;
+    return &#x27;Wenn sich die fachliche oder technische Verantwortung dieser Datei aendert.&#x27;
+
+def symbol_desc(name: str, kind: str, parent: str | None = None) -&gt; str:
+    key = f&#x27;{parent}.{name}&#x27; if parent else name
+    if key in SYMBOL_NOTES:
+        return SYMBOL_NOTES[key]
+    if name in SYMBOL_NOTES:
+        return SYMBOL_NOTES[name]
+    low = name.lower()
+    if kind == &#x27;class&#x27;:
+        if name.endswith((&#x27;Request&#x27;, &#x27;Response&#x27;, &#x27;Model&#x27;)):
+            return f&#x27;Datenmodell `{name}` fuer validierte Schichtgrenzen.&#x27;
+        if name.endswith(&#x27;Manager&#x27;):
+            return f&#x27;Koordinationsklasse `{name}` fuer mehrere Instanzen oder Zustandsobjekte.&#x27;
+        if name.endswith(&#x27;Factory&#x27;):
+            return f&#x27;Factory-Klasse `{name}` zum Erzeugen passender Objekte.&#x27;
+        if name.endswith(&#x27;Registry&#x27;):
+            return f&#x27;Registry `{name}` fuer die Registrierung und spaetere Aufloesung von Verhalten.&#x27;
+        if name.endswith(&#x27;Executor&#x27;):
+            return f&#x27;Ausfuehrungskomponente `{name}` fuer Runtime-Logik.&#x27;
+        if name.endswith(&#x27;Service&#x27;):
+            return f&#x27;Service-Klasse `{name}` als fachliche Fassade.&#x27;
+        return f&#x27;Klasse `{name}` dieses Moduls.&#x27;
+    if low == &#x27;__init__&#x27;:
+        return &#x27;Konstruktor, der Abhaengigkeiten und Ausgangszustand vorbereitet.&#x27;
+    if low.startswith(&#x27;from_&#x27;):
+        return f&#x27;Wandelt externe Daten fuer `{name}` in das interne Format um.&#x27;
+    if low.startswith(&#x27;to_&#x27;):
+        return f&#x27;Wandelt interne Daten fuer `{name}` in ein Zielformat um.&#x27;
+    if low.startswith(&#x27;get_&#x27;):
+        return f&#x27;Liest Daten fuer `{name}` aus einem Speicher oder einer Laufzeitquelle.&#x27;
+    if low.startswith(&#x27;list_&#x27;):
+        return f&#x27;Gibt eine Liste von Daten fuer `{name}` zurueck.&#x27;
+    if low.startswith(&#x27;save_&#x27;):
+        return f&#x27;Persistiert Daten fuer `{name}` dauerhaft.&#x27;
+    if low.startswith(&#x27;fetch_&#x27;):
+        return f&#x27;Laedt Daten fuer `{name}` ueber eine externe oder interne API.&#x27;
+    if low.startswith(&#x27;register&#x27;):
+        return f&#x27;Registriert Verhalten oder Objekte fuer `{name}`.&#x27;
+    if low.startswith(&#x27;execute&#x27;):
+        return f&#x27;Fuehrt die Kernarbeit von `{name}` aus.&#x27;
+    if low.startswith(&#x27;run&#x27;):
+        return f&#x27;Steuert den Ablauf von `{name}`.&#x27;
+    if low.startswith(&#x27;update&#x27;):
+        return f&#x27;Aktualisiert den Zustand von `{name}`.&#x27;
+    if low.startswith(&#x27;search&#x27;):
+        return f&#x27;Sucht passende Daten fuer `{name}`.&#x27;
+    if low.startswith(&#x27;persist&#x27;):
+        return f&#x27;Schreibt Daten fuer `{name}` in einen dauerhaften Speicher.&#x27;
+    if low.startswith(&#x27;retrieve&#x27;):
+        return f&#x27;Liests Daten fuer `{name}` aus einem Speicher zurueck.&#x27;
+    if low.startswith(&#x27;visit_&#x27;):
+        return f&#x27;AST-Besuchsmethode fuer `{name[6:]}`-Knoten.&#x27;
+    if kind in {&#x27;type&#x27;, &#x27;interface&#x27;}:
+        return f&#x27;TypeScript-Typ `{name}` fuer einen Datenvertrag.&#x27;
+    if kind == &#x27;component&#x27;:
+        return f&#x27;React-Komponente `{name}` fuer einen klar abgegrenzten UI-Bereich.&#x27;
+    return f&#x27;Funktion oder Definition `{name}` dieses Moduls.&#x27;
+
+
+def imports_for(path: Path) -&gt; list[str]:
+    if path.suffix == &#x27;.py&#x27;:
+        pattern = re.compile(r&#x27;^(from\s+\S+\s+import\s+.+|import\s+.+)$&#x27;, re.MULTILINE)
+    elif path.suffix in {&#x27;.ts&#x27;, &#x27;.tsx&#x27;, &#x27;.js&#x27;, &#x27;.d.ts&#x27;}:
+        pattern = re.compile(r&#x27;^import\s+.+$&#x27;, re.MULTILINE)
+    else:
+        return []
+    return pattern.findall(path.read_text(encoding=&#x27;utf-8&#x27;, errors=&#x27;ignore&#x27;))
+
+
+def py_args(node: ast.AST) -&gt; list[str]:
+    if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+        return []
+    out: list[str] = []
+    for arg in node.args.posonlyargs:
+        out.append(arg.arg)
+    if node.args.posonlyargs:
+        out.append(&#x27;/&#x27;)
+    for arg in node.args.args:
+        out.append(arg.arg)
+    if node.args.vararg:
+        out.append(f&#x27;*{node.args.vararg.arg}&#x27;)
+    elif node.args.kwonlyargs:
+        out.append(&#x27;*&#x27;)
+    for arg in node.args.kwonlyargs:
+        out.append(arg.arg)
+    if node.args.kwarg:
+        out.append(f&#x27;**{node.args.kwarg.arg}&#x27;)
+    return out
+
+
+def py_symbols(path: Path) -&gt; tuple[list[tuple[str, str]], list[tuple[str, list[tuple[str, str]]]]]:
+    mod = ast.parse(path.read_text(encoding=&#x27;utf-8&#x27;))
+    funcs: list[tuple[str, str]] = []
+    classes: list[tuple[str, list[tuple[str, str]]]] = []
+    for node in mod.body:
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            funcs.append((node.name, f&quot;{node.name}({&#x27;, &#x27;.join(py_args(node))})&quot;))
+        elif isinstance(node, ast.ClassDef):
+            methods: list[tuple[str, str]] = []
+            for child in node.body:
+                if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                    methods.append((child.name, f&quot;{child.name}({&#x27;, &#x27;.join(py_args(child))})&quot;))
+            classes.append((node.name, methods))
+    return funcs, classes
+
+
+def ts_symbols(path: Path) -&gt; list[tuple[str, str]]:
+    text = path.read_text(encoding=&#x27;utf-8&#x27;)
+    results: list[tuple[str, str]] = []
+    seen: set[tuple[str, str]] = set()
+    patterns = [
+        (r&#x27;export\s+type\s+([A-Za-z0-9_]+)&#x27;, &#x27;type&#x27;),
+        (r&#x27;export\s+interface\s+([A-Za-z0-9_]+)&#x27;, &#x27;interface&#x27;),
+        (r&#x27;export\s+function\s+([A-Za-z0-9_]+)&#x27;, &#x27;export&#x27;),
+        (r&#x27;export\s+const\s+([A-Za-z0-9_]+)&#x27;, &#x27;export&#x27;),
+        (r&#x27;function\s+([A-Za-z0-9_]+)\s*\(&#x27;, &#x27;internal&#x27;),
+    ]
+    for pattern, kind in patterns:
+        for name in re.findall(pattern, text):
+            item = (name, kind)
+            if item not in seen:
+                seen.add(item)
+                results.append(item)
+    if path.name == &#x27;App.tsx&#x27; and (&#x27;App&#x27;, &#x27;component&#x27;) not in seen:
+        results.insert(0, (&#x27;App&#x27;, &#x27;component&#x27;))
+    return results
+
+
+def symbol_block(path: Path) -&gt; str:
+    r = rel(path)
+    if path.suffix == &#x27;.py&#x27;:
+        funcs, classes = py_symbols(path)
+        lines: list[str] = []
+        if classes:
+            lines += [&#x27;## Klassen&#x27;, &#x27;&#x27;]
+            for cname, methods in classes:
+                lines += [f&#x27;### `{cname}`&#x27;, &#x27;&#x27;, symbol_desc(cname, &#x27;class&#x27;), &#x27;&#x27;]
+                if methods:
+                    lines += [&#x27;Methoden:&#x27;, &#x27;&#x27;]
+                    for mname, sig in methods:
+                        lines.append(f&#x27;- `{sig}`: {symbol_desc(mname, &quot;method&quot;, cname)}&#x27;)
+                    lines.append(&#x27;&#x27;)
+        if funcs:
+            lines += [&#x27;## Funktionen&#x27;, &#x27;&#x27;]
+            for fname, sig in funcs:
+                lines.append(f&#x27;- `{sig}`: {symbol_desc(fname, &quot;function&quot;)}&#x27;)
+            lines.append(&#x27;&#x27;)
+        return &#x27;\n&#x27;.join(lines) if lines else &#x27;## Code-Inhalt\n\nDiese Datei enthaelt keine eigenen Klassen oder Funktionen, sondern primar Paket-Exporte.\n&#x27;
+    if path.suffix in {&#x27;.ts&#x27;, &#x27;.tsx&#x27;, &#x27;.js&#x27;, &#x27;.d.ts&#x27;}:
+        symbols = ts_symbols(path)
+        lines: list[str] = []
+        public_items = [(n, k) for n, k in symbols if k in {&#x27;type&#x27;, &#x27;interface&#x27;, &#x27;export&#x27;, &#x27;component&#x27;}]
+        if public_items:
+            lines += [&#x27;## Exporte und oeffentliche Definitionen&#x27;, &#x27;&#x27;]
+            for name, kind in public_items:
+                lines.append(f&#x27;- `{name}`: {symbol_desc(name, kind)}&#x27;)
+            lines.append(&#x27;&#x27;)
+        if r in TS_INTERNALS:
+            lines += [&#x27;## Wichtige interne Routinen&#x27;, &#x27;&#x27;]
+            for name, description in TS_INTERNALS[r]:
+                lines.append(f&#x27;- `{name}`: {description}&#x27;)
+            lines.append(&#x27;&#x27;)
+        return &#x27;\n&#x27;.join(lines) if lines else &#x27;## Inhalt\n\nDiese Datei dient als Bootstrap-, Deklarations- oder Konfigurationsmodul.\n&#x27;
+    return &#x27;## Inhalt\n\nDiese Datei ist keine klassische Code-Datei mit Klassen und Funktionen. Relevant ist vor allem ihre Rolle im Build-, Laufzeit- oder Dokumentationsprozess.\n&#x27;
+
+
+def write_reference(files: list[Path]) -&gt; None:
+    for source in files:
+        r = rel(source)
+        meta = FILE_NOTES.get(r, {})
+        purpose = meta.get(&#x27;purpose&#x27;, generic_purpose(source))
+        edit = meta.get(&#x27;edit&#x27;, generic_edit(source))
+        related = meta.get(&#x27;related&#x27;, [])
+        doc = doc_path(source)
+        doc.parent.mkdir(parents=True, exist_ok=True)
+        lines = [
+            f&#x27;# `{r}`&#x27;,
+            &#x27;&#x27;,
+            f&#x27;- Quellpfad: {source_link(doc, source)}&#x27;,
+            f&#x27;- Kategorie: `{category(r)}`&#x27;,
+            &#x27;&#x27;,
+            &#x27;## Aufgabe der Datei&#x27;,
+            &#x27;&#x27;,
+            str(purpose),
+            &#x27;&#x27;,
+            &#x27;## Wann du diese Datei bearbeitest&#x27;,
+            &#x27;&#x27;,
+            str(edit),
+            &#x27;&#x27;,
+            symbol_block(source).strip(),
+            &#x27;&#x27;,
+            &#x27;## Abhaengigkeiten&#x27;,
+            &#x27;&#x27;,
+        ]
+        imports = imports_for(source)
+        if imports:
+            lines.extend(f&#x27;- `{item}`&#x27; for item in imports)
+        else:
+            lines.append(&#x27;Keine direkten Importzeilen oder fuer diese Dateiklasse nicht sinnvoll.&#x27;)
+        lines += [
+            &#x27;&#x27;,
+            &#x27;## Aenderungshinweise&#x27;,
+            &#x27;&#x27;,
+            &#x27;- Aendere Vertrage nie isoliert, wenn dieselben Felder in API, UI und Persistenz verwendet werden.&#x27;,
+            &#x27;- Pruefe nach Veraenderungen immer die benachbarten Dateien derselben Verantwortungskette.&#x27;,
+            &#x27;- Bei Runtime- oder API-Aenderungen die Tests erneut ausfuehren.&#x27;,
+            &#x27;&#x27;,
+        ]
+        if related:
+            lines += [&#x27;## Verwandte Dateien&#x27;, &#x27;&#x27;]
+            for item in related:
+                target = ROOT / item
+                lines.append(f&#x27;- {doc_link(doc, target) if target.exists() else item}&#x27;)
+            lines.append(&#x27;&#x27;)
+        doc.write_text(&#x27;\n&#x27;.join(lines).strip() + &#x27;\n&#x27;, encoding=&#x27;utf-8&#x27;)
+
+
+def write_guides(files: list[Path]) -&gt; None:
+    DOCS.mkdir(parents=True, exist_ok=True)
+    for name, content in GUIDES.items():
+        (DOCS / name).write_text(content.strip() + &#x27;\n&#x27;, encoding=&#x27;utf-8&#x27;)
+
+    idx = [&#x27;# Referenzindex&#x27;, &#x27;&#x27;]
+    grouped: dict[str, list[Path]] = defaultdict(list)
+    for file in files:
+        grouped[category(rel(file))].append(file)
+    ref_index = DOCS / &#x27;reference&#x27; / &#x27;index.md&#x27;
+    ref_index.parent.mkdir(parents=True, exist_ok=True)
+    for group in sorted(grouped):
+        idx += [f&#x27;## {group}&#x27;, &#x27;&#x27;]
+        for file in grouped[group]:
+            idx.append(f&#x27;- {doc_link(ref_index, file)}&#x27;)
+        idx.append(&#x27;&#x27;)
+    ref_index.write_text(&#x27;\n&#x27;.join(idx).strip() + &#x27;\n&#x27;, encoding=&#x27;utf-8&#x27;)
+
+    coverage = [
+        &#x27;# Abdeckung&#x27;,
+        &#x27;&#x27;,
+        f&#x27;- Dokumentierte Projektdateien: `{len(files)}`&#x27;,
+        f&#x27;- Referenzdateien: `{len(list(REF.rglob(&quot;*.md&quot;)))}`&#x27;,
+        &#x27;&#x27;,
+        &#x27;## Ausgeschlossene Bereiche&#x27;,
+        &#x27;&#x27;,
+        &#x27;- `data/`, `debug_tmp/`, `planner_live_check*/`, `ws_debug/`: Laufzeit- und Debug-Artefakte&#x27;,
+        &#x27;- `frontend/node_modules/`, `frontend/dist/`: Fremd- und Buildartefakte&#x27;,
+        &#x27;- `__pycache__/`, `.pytest_cache/`: Cache-Verzeichnisse&#x27;,
+        &#x27;- `.git/`, `release/`, lokale `.env`, `Use_Cases/**/output`, `Use_Cases/**/state`, `*.zip`, `*.exe`, `*.db`, `*.pdf`, `*.litertlm`, `*.xnnpack_cache`, `*.tsbuildinfo`: Artefakte, Binaries oder maschinenlokale Dateien&#x27;,
+        &#x27;&#x27;,
+        &#x27;## Dokumentierte Dateien&#x27;,
+        &#x27;&#x27;,
+    ]
+    coverage.extend(f&#x27;- `{rel(file)}`&#x27; for file in files)
+    (DOCS / &#x27;coverage.md&#x27;).write_text(&#x27;\n&#x27;.join(coverage).strip() + &#x27;\n&#x27;, encoding=&#x27;utf-8&#x27;)
+
+
+def main() -&gt; None:
+    files = project_files()
+    write_reference(files)
+    write_guides(files)
+    print(f&#x27;Generated docs for {len(files)} files in {DOCS}&#x27;)
+
+
+if __name__ == &#x27;__main__&#x27;:
+    main()
+</code></pre>
+          </section>
+        </article>
+        <aside class="doc-toc">
+          <div class="doc-toc__card">
+            <p class="doc-toc__eyebrow">On this page</p>
+            <p class="toc__empty">Repository view</p>
+          </div>
+        </aside>
+      </main>
+    </div>
+  </div>
+  <script src="../../assets/site-data.js"></script>
+  <script src="../../assets/site.js"></script>
+</body>
+</html>

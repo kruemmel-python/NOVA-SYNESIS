@@ -62,7 +62,8 @@ function Get-OrCreateAgent {
         [string]$Name,
         [string]$Role,
         [object[]]$Capabilities,
-        [string[]]$MemoryIds
+        [string[]]$MemoryIds,
+        [hashtable]$Communication = $null
     )
 
     $agents = Get-NovaCollection -Path "/agents"
@@ -75,6 +76,7 @@ function Get-OrCreateAgent {
         name = $Name
         role = $Role
         capabilities = $Capabilities
+        communication = $Communication
         memory_ids = $MemoryIds
     }
 }
@@ -104,6 +106,23 @@ $agent = Get-OrCreateAgent `
     ) `
     -MemoryIds @("ops-long-term")
 
+$notifyAgent = Get-OrCreateAgent `
+    -Name "ops-notify" `
+    -Role "sink" `
+    -Capabilities @(
+        @{
+            name = "notify"
+            type = "dispatch"
+            constraints = @{}
+        }
+    ) `
+    -Communication @{
+        protocol = "MESSAGE_QUEUE"
+        endpoint = "queue://ops-notify"
+        config = @{}
+    } `
+    -MemoryIds @()
+
 [pscustomobject]@{
     use_case = "platform_health_snapshot"
     api_base_url = $ApiBaseUrl
@@ -111,4 +130,6 @@ $agent = Get-OrCreateAgent `
     memory_type = $memory.type
     agent_id = $agent.agent_id
     agent_name = $agent.name
+    notify_agent_id = $notifyAgent.agent_id
+    notify_agent_name = $notifyAgent.name
 }

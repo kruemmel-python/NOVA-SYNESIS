@@ -93,14 +93,17 @@
 - [Use_Cases/README.md](Use_Cases/README.md.md)
 - [Use_Cases/platform_health_snapshot/README.md](Use_Cases/platform_health_snapshot/README.md.md)
 - [Use_Cases/platform_health_snapshot/flow.json](Use_Cases/platform_health_snapshot/flow.json.md)
+- [Use_Cases/platform_health_snapshot/platform_health_snapshot.png](Use_Cases/platform_health_snapshot/platform_health_snapshot.png.md)
 - [Use_Cases/platform_health_snapshot/run.ps1](Use_Cases/platform_health_snapshot/run.ps1.md)
 - [Use_Cases/platform_health_snapshot/setup.ps1](Use_Cases/platform_health_snapshot/setup.ps1.md)
 - [Use_Cases/semantic_ticket_triage/README.md](Use_Cases/semantic_ticket_triage/README.md.md)
 - [Use_Cases/semantic_ticket_triage/flow.json](Use_Cases/semantic_ticket_triage/flow.json.md)
 - [Use_Cases/semantic_ticket_triage/run.ps1](Use_Cases/semantic_ticket_triage/run.ps1.md)
+- [Use_Cases/semantic_ticket_triage/semantic_ticket_triage.png](Use_Cases/semantic_ticket_triage/semantic_ticket_triage.png.md)
 - [Use_Cases/semantic_ticket_triage/setup.ps1](Use_Cases/semantic_ticket_triage/setup.ps1.md)
 
 ## Werkzeug
 
 - [tools/build_code_release.ps1](tools/build_code_release.ps1.md)
+- [tools/build_web_docs.py](tools/build_web_docs.py.md)
 - [tools/generate_docs.py](tools/generate_docs.py.md)

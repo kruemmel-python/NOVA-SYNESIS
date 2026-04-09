@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>src/nova_synesis/planning/lit_planner.py | NOVA-SYNESIS Docs</title>
+  <meta name="description" content="Quellpfad: src/nova_synesis/planning/lit_planner.py Kategorie: Backend">
+  <link rel="icon" type="image/svg+xml" href="../../../../assets/favicon.svg">
+  <link rel="stylesheet" href="../../../../assets/site.css">
+</head>
+<body data-page-url="reference/src/nova_synesis/planning/lit_planner.py.html">
+  <div class="site-shell">
+    <aside class="site-sidebar" id="site-sidebar">
+      <div class="brand">
+        <p class="brand__eyebrow">Neural Orchestration Visual Autonomy</p>
+        <h1>NOVA-SYNESIS</h1>
+        <p class="brand__subtitle">Stateful Yielding Node-based Execution Semantic Integrated Surface</p>
+      </div>
+      <label class="search-box">
+        <span class="search-box__label">Search docs</span>
+        <input id="docs-search" type="search" placeholder="Search guides, files, handlers, policies">
+      </label>
+      <div class="search-results" id="search-results" hidden></div>
+      <div class="sidebar-scroll">
+        <a class="brand__home" href="../../../../index.html">Documentation Home</a><section class="sidebar__group"><h2>Guides</h2><ul class="nav-list"><li><a class="nav-list__link" href="../../../../index.html">NOVA-SYNESIS Dokumentation</a></li><li><a class="nav-list__link" href="../../../../getting-started.html">Schnellstart</a></li><li><a class="nav-list__link" href="../../../../system-overview.html">Systemueberblick</a></li><li><a class="nav-list__link" href="../../../../backend-runtime.html">Backend-Laufzeit</a></li><li><a class="nav-list__link" href="../../../../frontend-editor.html">Frontend-Editor</a></li><li><a class="nav-list__link" href="../../../../planner-and-lit.html">LLM-Planer und LiteRT</a></li><li><a class="nav-list__link" href="../../../../security-and-policy.html">Security und Policy</a></li><li><a class="nav-list__link" href="../../../../handler-trust-and-approval.html">Handler Trust und Freigaben</a></li><li><a class="nav-list__link" href="../../../../failure-playbook.html">Failure Playbook</a></li><li><a class="nav-list__link" href="../../../../decision-guide.html">Decision Guide</a></li><li><a class="nav-list__link" href="../../../../real-world-scenarios.html">Real World Scenarios</a></li><li><a class="nav-list__link" href="../../../../change-workflows.html">Aenderungsleitfaden</a></li></ul></section><section class="sidebar__group"><h2>Reference</h2><ul class="nav-list"><li><a class="nav-list__link" href="../../../index.html">Referenzindex</a></li><li><a class="nav-list__link" href="../../../.env.example.html">.env.example</a></li><li><a class="nav-list__link" href="../../../.gitignore.html">.gitignore</a></li><li><a class="nav-list__link" href="../../../Anweisung.md.html">Anweisung.md</a></li><li><a class="nav-list__link" href="../../../Dockerfile.html">Dockerfile</a></li><li class="nav-list__branch"><details ><summary>Frontend</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../frontend/.env.example.html">.env.example</a></li><li><a class="nav-list__link" href="../../../frontend/index.html.html">index.html</a></li><li><a class="nav-list__link" href="../../../frontend/package-lock.json.html">package-lock.json</a></li><li><a class="nav-list__link" href="../../../frontend/package.json.html">package.json</a></li><li class="nav-list__branch"><details ><summary>Source</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../frontend/src/app.css.html">app.css</a></li><li><a class="nav-list__link" href="../../../frontend/src/App.tsx.html">App.tsx</a></li><li class="nav-list__branch"><details ><summary>Components</summary><ul class="nav-list"><li class="nav-list__branch"><details ><summary>Common</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../frontend/src/components/common/JsonEditor.tsx.html">JsonEditor.tsx</a></li><li><a class="nav-list__link" href="../../../frontend/src/components/common/StatusBadge.tsx.html">StatusBadge.tsx</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Flow</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../frontend/src/components/flow/FlowCanvas.tsx.html">FlowCanvas.tsx</a></li><li><a class="nav-list__link" href="../../../frontend/src/components/flow/TaskNode.tsx.html">TaskNode.tsx</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Layout</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../frontend/src/components/layout/InspectorPanel.tsx.html">InspectorPanel.tsx</a></li><li><a class="nav-list__link" href="../../../frontend/src/components/layout/PlannerComposer.tsx.html">PlannerComposer.tsx</a></li><li><a class="nav-list__link" href="../../../frontend/src/components/layout/Sidebar.tsx.html">Sidebar.tsx</a></li><li><a class="nav-list__link" href="../../../frontend/src/components/layout/TopBar.tsx.html">TopBar.tsx</a></li></ul></details></li></ul></details></li><li class="nav-list__branch"><details ><summary>Hooks</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../frontend/src/hooks/useCatalogBootstrap.ts.html">useCatalogBootstrap.ts</a></li><li><a class="nav-list__link" href="../../../frontend/src/hooks/useFlowLiveUpdates.ts.html">useFlowLiveUpdates.ts</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Lib</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../frontend/src/lib/apiClient.ts.html">apiClient.ts</a></li><li><a class="nav-list__link" href="../../../frontend/src/lib/autoLayout.ts.html">autoLayout.ts</a></li><li><a class="nav-list__link" href="../../../frontend/src/lib/flowSerialization.ts.html">flowSerialization.ts</a></li><li><a class="nav-list__link" href="../../../frontend/src/lib/json.ts.html">json.ts</a></li></ul></details></li><li><a class="nav-list__link" href="../../../frontend/src/main.tsx.html">main.tsx</a></li><li class="nav-list__branch"><details ><summary>Store</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../frontend/src/store/useFlowStore.ts.html">useFlowStore.ts</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Types</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../frontend/src/types/api.ts.html">api.ts</a></li></ul></details></li><li><a class="nav-list__link" href="../../../frontend/src/vite-env.d.ts.html">vite-env.d.ts</a></li></ul></details></li><li><a class="nav-list__link" href="../../../frontend/tsconfig.app.json.html">tsconfig.app.json</a></li><li><a class="nav-list__link" href="../../../frontend/tsconfig.json.html">tsconfig.json</a></li><li><a class="nav-list__link" href="../../../frontend/tsconfig.node.json.html">tsconfig.node.json</a></li><li><a class="nav-list__link" href="../../../frontend/vite.config.d.ts.html">vite.config.d.ts</a></li><li><a class="nav-list__link" href="../../../frontend/vite.config.js.html">vite.config.js</a></li><li><a class="nav-list__link" href="../../../frontend/vite.config.ts.html">vite.config.ts</a></li></ul></details></li><li><a class="nav-list__link" href="../../../LICENSE.html">LICENSE</a></li><li class="nav-list__branch"><details ><summary>LIT</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../LIT/planner_test_prompt.txt.html">planner_test_prompt.txt</a></li><li><a class="nav-list__link" href="../../../LIT/README.md.html">README.md</a></li></ul></details></li><li><a class="nav-list__link" href="../../../pyproject.toml.html">pyproject.toml</a></li><li><a class="nav-list__link" href="../../../README.md.html">README.md</a></li><li><a class="nav-list__link" href="../../../run-backend.cmd.html">run-backend.cmd</a></li><li><a class="nav-list__link" href="../../../run-backend.ps1.html">run-backend.ps1</a></li><li class="nav-list__branch"><details open><summary>Source</summary><ul class="nav-list"><li class="nav-list__branch"><details open><summary>NOVA-SYNESIS</summary><ul class="nav-list"><li><a class="nav-list__link" href="../__init__.py.html">__init__.py</a></li><li class="nav-list__branch"><details ><summary>API</summary><ul class="nav-list"><li><a class="nav-list__link" href="../api/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../api/app.py.html">app.py</a></li></ul></details></li><li><a class="nav-list__link" href="../cli.py.html">cli.py</a></li><li class="nav-list__branch"><details ><summary>Communication</summary><ul class="nav-list"><li><a class="nav-list__link" href="../communication/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../communication/adapters.py.html">adapters.py</a></li></ul></details></li><li><a class="nav-list__link" href="../config.py.html">config.py</a></li><li class="nav-list__branch"><details ><summary>Domain</summary><ul class="nav-list"><li><a class="nav-list__link" href="../domain/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../domain/models.py.html">models.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Memory</summary><ul class="nav-list"><li><a class="nav-list__link" href="../memory/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../memory/systems.py.html">systems.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Persistence</summary><ul class="nav-list"><li><a class="nav-list__link" href="../persistence/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../persistence/sqlite_repository.py.html">sqlite_repository.py</a></li></ul></details></li><li class="nav-list__branch"><details open><summary>Planning</summary><ul class="nav-list"><li><a class="nav-list__link" href="__init__.py.html">__init__.py</a></li><li><a class="nav-list__link nav-list__link--active" href="lit_planner.py.html">lit_planner.py</a></li><li><a class="nav-list__link" href="planner.py.html">planner.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Resources</summary><ul class="nav-list"><li><a class="nav-list__link" href="../resources/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../resources/manager.py.html">manager.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Runtime</summary><ul class="nav-list"><li><a class="nav-list__link" href="../runtime/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../runtime/engine.py.html">engine.py</a></li><li><a class="nav-list__link" href="../runtime/handlers.py.html">handlers.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Security</summary><ul class="nav-list"><li><a class="nav-list__link" href="../security/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../security/policy.py.html">policy.py</a></li><li><a class="nav-list__link" href="../security/trust.py.html">trust.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Services</summary><ul class="nav-list"><li><a class="nav-list__link" href="../services/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../services/orchestrator.py.html">orchestrator.py</a></li></ul></details></li></ul></details></li></ul></details></li><li class="nav-list__branch"><details ><summary>Tests</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../tests/test_orchestrator.py.html">test_orchestrator.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Tools</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../tools/build_code_release.ps1.html">build_code_release.ps1</a></li><li><a class="nav-list__link" href="../../../tools/build_web_docs.py.html">build_web_docs.py</a></li><li><a class="nav-list__link" href="../../../tools/generate_docs.py.html">generate_docs.py</a></li></ul></details></li><li><a class="nav-list__link" href="../../../uml.html.html">uml.html</a></li><li><a class="nav-list__link" href="../../../uml_V3.mmd.html">uml_V3.mmd</a></li><li class="nav-list__branch"><details ><summary>Use Cases</summary><ul class="nav-list"><li class="nav-list__branch"><details ><summary>Platform Health Snapshot</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../Use_Cases/platform_health_snapshot/flow.json.html">flow.json</a></li><li><a class="nav-list__link" href="../../../Use_Cases/platform_health_snapshot/platform_health_snapshot.png.html">platform_health_snapshot.png</a></li><li><a class="nav-list__link" href="../../../Use_Cases/platform_health_snapshot/README.md.html">README.md</a></li><li><a class="nav-list__link" href="../../../Use_Cases/platform_health_snapshot/run.ps1.html">run.ps1</a></li><li><a class="nav-list__link" href="../../../Use_Cases/platform_health_snapshot/setup.ps1.html">setup.ps1</a></li></ul></details></li><li><a class="nav-list__link" href="../../../Use_Cases/README.md.html">README.md</a></li><li class="nav-list__branch"><details ><summary>Semantic Ticket Triage</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../Use_Cases/semantic_ticket_triage/flow.json.html">flow.json</a></li><li><a class="nav-list__link" href="../../../Use_Cases/semantic_ticket_triage/README.md.html">README.md</a></li><li><a class="nav-list__link" href="../../../Use_Cases/semantic_ticket_triage/run.ps1.html">run.ps1</a></li><li><a class="nav-list__link" href="../../../Use_Cases/semantic_ticket_triage/semantic_ticket_triage.png.html">semantic_ticket_triage.png</a></li><li><a class="nav-list__link" href="../../../Use_Cases/semantic_ticket_triage/setup.ps1.html">setup.ps1</a></li></ul></details></li></ul></details></li></ul></section><section class="sidebar__group"><h2>Appendix</h2><ul class="nav-list"><li><a class="nav-list__link" href="../../../../coverage.html">Abdeckung</a></li><li><a class="nav-list__link" href="../../../../Whitepaper.html">Whitepaper: Die Genesis von NOVA-SYNESIS</a></li></ul></section><section class="sidebar__group sidebar__group--meta"><h2>Search</h2><p>Use <kbd>/</kbd> to focus the search field and jump across guides, references and scenarios.</p></section>
+      </div>
+    </aside>
+
+    <div class="site-main">
+      <header class="site-header">
+        <button class="site-header__toggle" type="button" id="sidebar-toggle" aria-controls="site-sidebar" aria-expanded="false">
+          Menu
+        </button>
+        <div class="site-header__meta">
+          <p class="site-header__eyebrow">Generated documentation surface</p>
+          <h2>src/nova_synesis/planning/lit_planner.py</h2>
+        </div>
+        <div class="site-header__status">
+          <span class="status-chip">HTML docs</span>
+          <span class="status-chip status-chip--accent">2026-04-09 00:10 UTC</span>
+        </div>
+      </header>
+
+      <main class="content-shell">
+        <article class="doc-article">
+          <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="../../../../index.html">Docs</a><a href="../../../index.html">Reference</a><span>Source</span><span>NOVA-SYNESIS</span><span>Planning</span><span aria-current="page">lit_planner.py</span></nav>
+          <section class="doc-hero">
+            <p class="doc-hero__eyebrow">Documentation</p>
+            <h1>src/nova_synesis/planning/lit_planner.py</h1>
+            <p>Quellpfad: src/nova_synesis/planning/lit_planner.py Kategorie: Backend</p>
+          </section>
+          <section class="doc-content">
+            <h1 id="srcnova_synesisplanninglit_plannerpy"><a class="heading-anchor" href="#srcnova_synesisplanninglit_plannerpy"><code>src/nova_synesis/planning/lit_planner.py</code></a></h1>
+<ul>
+<li>Quellpfad: <a href="../../../../repo/src/nova_synesis/planning/lit_planner.py.html">src/nova_synesis/planning/lit_planner.py</a></li>
+<li>Kategorie: <code>Backend</code></li>
+</ul>
+<h2 id="aufgabe-der-datei"><a class="heading-anchor" href="#aufgabe-der-datei">Aufgabe der Datei</a></h2>
+<p>Lokaler LLM-Planer ueber LiteRT-LM inklusive Prompting, Parsing, Katalognutzung und Graph-Normalisierung.</p>
+<h2 id="wann-du-diese-datei-bearbeitest"><a class="heading-anchor" href="#wann-du-diese-datei-bearbeitest">Wann du diese Datei bearbeitest</a></h2>
+<p>Wenn Planner-Qualitaet, Modellaufruf, Katalogfilterung oder Vorvalidierung verbessert werden soll.</p>
+<h2 id="klassen"><a class="heading-anchor" href="#klassen">Klassen</a></h2>
+<h3 id="plannercatalog"><a class="heading-anchor" href="#plannercatalog"><code>PlannerCatalog</code></a></h3>
+<p>Klasse <code>PlannerCatalog</code> dieses Moduls.</p>
+<h3 id="plannergraphresult"><a class="heading-anchor" href="#plannergraphresult"><code>PlannerGraphResult</code></a></h3>
+<p>Klasse <code>PlannerGraphResult</code> dieses Moduls.</p>
+<h3 id="litertplanner"><a class="heading-anchor" href="#litertplanner"><code>LiteRTPlanner</code></a></h3>
+<p>Lokale LLM-Planung ueber LiteRT-LM.</p>
+<p>Methoden:</p>
+<ul>
+<li><code>__init__(self, settings)</code>: Konstruktor, der Abhaengigkeiten und Ausgangszustand vorbereitet.</li>
+<li><code>status(self)</code>: Funktion oder Definition <code>status</code> dieses Moduls.</li>
+<li><code>ensure_available(self)</code>: Funktion oder Definition <code>ensure_available</code> dieses Moduls.</li>
+<li><code>generate_flow_request(self, prompt, catalog, current_flow, max_nodes)</code>: Erzeugt aus natuerlicher Sprache einen validierten FlowRequest.</li>
+<li><code>_invoke_model(self, planner_prompt)</code>: Funktion oder Definition <code>_invoke_model</code> dieses Moduls.</li>
+<li><code>_build_prompt(self, prompt, catalog, current_flow, max_nodes, *, detail_level, max_chars)</code>: Funktion oder Definition <code>_build_prompt</code> dieses Moduls.</li>
+<li><code>_build_prompt_variants(self, prompt, catalog, current_flow, max_nodes)</code>: Funktion oder Definition <code>_build_prompt_variants</code> dieses Moduls.</li>
+<li><code>_looks_like_context_overflow(message)</code>: Funktion oder Definition <code>_looks_like_context_overflow</code> dieses Moduls.</li>
+<li><code>_build_handler_section(self, handlers, detail_level)</code>: Funktion oder Definition <code>_build_handler_section</code> dieses Moduls.</li>
+<li><code>_build_agent_section(self, agents, detail_level)</code>: Funktion oder Definition <code>_build_agent_section</code> dieses Moduls.</li>
+<li><code>_build_send_target_section(self, agents, detail_level)</code>: Funktion oder Definition <code>_build_send_target_section</code> dieses Moduls.</li>
+<li><code>_build_resource_section(self, resources, detail_level)</code>: Funktion oder Definition <code>_build_resource_section</code> dieses Moduls.</li>
+<li><code>_build_memory_section(self, memory_systems, detail_level)</code>: Funktion oder Definition <code>_build_memory_section</code> dieses Moduls.</li>
+<li><code>_build_current_flow_section(self, current_flow, detail_level)</code>: Funktion oder Definition <code>_build_current_flow_section</code> dieses Moduls.</li>
+<li><code>_shorten_endpoint(raw_value)</code>: Funktion oder Definition <code>_shorten_endpoint</code> dieses Moduls.</li>
+<li><code>_truncate_text(value, max_chars)</code>: Funktion oder Definition <code>_truncate_text</code> dieses Moduls.</li>
+<li><code>_extract_explanation(parsed)</code>: Funktion oder Definition <code>_extract_explanation</code> dieses Moduls.</li>
+<li><code>_parse_model_output(self, raw_response)</code>: Funktion oder Definition <code>_parse_model_output</code> dieses Moduls.</li>
+<li><code>_parse_model_output_with_warnings(self, raw_response)</code>: Funktion oder Definition <code>_parse_model_output_with_warnings</code> dieses Moduls.</li>
+<li><code>_extract_json_candidates(self, raw_response)</code>: Funktion oder Definition <code>_extract_json_candidates</code> dieses Moduls.</li>
+<li><code>_try_parse_candidate(self, candidate)</code>: Funktion oder Definition <code>_try_parse_candidate</code> dieses Moduls.</li>
+<li><code>_extract_json_object(text, allow_incomplete)</code>: Funktion oder Definition <code>_extract_json_object</code> dieses Moduls.</li>
+<li><code>_prepare_json_candidate(candidate)</code>: Funktion oder Definition <code>_prepare_json_candidate</code> dieses Moduls.</li>
+<li><code>_repair_json_text(self, candidate)</code>: Funktion oder Definition <code>_repair_json_text</code> dieses Moduls.</li>
+<li><code>_repair_python_literal_text(self, candidate)</code>: Funktion oder Definition <code>_repair_python_literal_text</code> dieses Moduls.</li>
+<li><code>_remove_json_comments(candidate)</code>: Funktion oder Definition <code>_remove_json_comments</code> dieses Moduls.</li>
+<li><code>_quote_bare_object_keys(candidate)</code>: Funktion oder Definition <code>_quote_bare_object_keys</code> dieses Moduls.</li>
+<li><code>_replace_keyword_literals(candidate, replacements)</code>: Funktion oder Definition <code>_replace_keyword_literals</code> dieses Moduls.</li>
+<li><code>_balance_json_structure(candidate)</code>: Funktion oder Definition <code>_balance_json_structure</code> dieses Moduls.</li>
+<li><code>_normalize_flow_request(self, parsed, catalog, max_nodes)</code>: Funktion oder Definition <code>_normalize_flow_request</code> dieses Moduls.</li>
+<li><code>_normalize_node_id(raw_value)</code>: Funktion oder Definition <code>_normalize_node_id</code> dieses Moduls.</li>
+<li><code>_normalize_object(raw_value)</code>: Funktion oder Definition <code>_normalize_object</code> dieses Moduls.</li>
+<li><code>_normalize_string_list(raw_value)</code>: Funktion oder Definition <code>_normalize_string_list</code> dieses Moduls.</li>
+<li><code>_normalize_conditions(raw_value)</code>: Funktion oder Definition <code>_normalize_conditions</code> dieses Moduls.</li>
+<li><code>_normalize_retry_policy(raw_value)</code>: Funktion oder Definition <code>_normalize_retry_policy</code> dieses Moduls.</li>
+<li><code>_normalize_compensation_handler(raw_value, allowed_handlers, warnings, node_id)</code>: Funktion oder Definition <code>_normalize_compensation_handler</code> dieses Moduls.</li>
+<li><code>_normalize_edges(raw_edges, node_ids, warnings)</code>: Funktion oder Definition <code>_normalize_edges</code> dieses Moduls.</li>
+<li><code>_merge_dependencies(normalized_nodes, normalized_edges)</code>: Funktion oder Definition <code>_merge_dependencies</code> dieses Moduls.</li>
+<li><code>_validate_acyclic(normalized_nodes)</code>: Funktion oder Definition <code>_validate_acyclic</code> dieses Moduls.</li>
+<li><code>_normalize_handler_input(handler_name, input_payload, node_id, dependencies, memory_ids, comm_agent_ids, communication_agents, warnings)</code>: Funktion oder Definition <code>_normalize_handler_input</code> dieses Moduls.</li>
+</ul>
+<h2 id="abhaengigkeiten"><a class="heading-anchor" href="#abhaengigkeiten">Abhaengigkeiten</a></h2>
+<ul>
+<li><code>from __future__ import annotations</code></li>
+<li><code>import ast</code></li>
+<li><code>import json</code></li>
+<li><code>import re</code></li>
+<li><code>import subprocess</code></li>
+<li><code>import tempfile</code></li>
+<li><code>from dataclasses import dataclass</code></li>
+<li><code>from pathlib import Path</code></li>
+<li><code>from typing import Any</code></li>
+<li><code>from nova_synesis.config import Settings</code></li>
+<li><code>from nova_synesis.domain.models import ResourceType, RollbackStrategy</code></li>
+</ul>
+<h2 id="aenderungshinweise"><a class="heading-anchor" href="#aenderungshinweise">Aenderungshinweise</a></h2>
+<ul>
+<li>Aendere Vertrage nie isoliert, wenn dieselben Felder in API, UI und Persistenz verwendet werden.</li>
+<li>Pruefe nach Veraenderungen immer die benachbarten Dateien derselben Verantwortungskette.</li>
+<li>Bei Runtime- oder API-Aenderungen die Tests erneut ausfuehren.</li>
+</ul>
+<h2 id="verwandte-dateien"><a class="heading-anchor" href="#verwandte-dateien">Verwandte Dateien</a></h2>
+<ul>
+<li><a href="#">LIT/lit.windows_x86_64.exe</a></li>
+<li><a href="#">LIT/gemma-4-E2B-it.litertlm</a></li>
+<li><a href="../../../frontend/src/components/layout/PlannerComposer.tsx.html">frontend/src/components/layout/PlannerComposer.tsx</a></li>
+</ul>
+          </section>
+        </article>
+        <aside class="doc-toc">
+          <div class="doc-toc__card">
+            <p class="doc-toc__eyebrow">On this page</p>
+            <ul class="toc-list"><li class="toc-list__item toc-list__item--level-1"><a href="#srcnova_synesisplanninglit_plannerpy">src/nova_synesis/planning/lit_planner.py</a></li><li class="toc-list__item toc-list__item--level-2"><a href="#aufgabe-der-datei">Aufgabe der Datei</a></li><li class="toc-list__item toc-list__item--level-2"><a href="#wann-du-diese-datei-bearbeitest">Wann du diese Datei bearbeitest</a></li><li class="toc-list__item toc-list__item--level-2"><a href="#klassen">Klassen</a></li><li class="toc-list__item toc-list__item--level-3"><a href="#plannercatalog">PlannerCatalog</a></li><li class="toc-list__item toc-list__item--level-3"><a href="#plannergraphresult">PlannerGraphResult</a></li><li class="toc-list__item toc-list__item--level-3"><a href="#litertplanner">LiteRTPlanner</a></li><li class="toc-list__item toc-list__item--level-2"><a href="#abhaengigkeiten">Abhaengigkeiten</a></li><li class="toc-list__item toc-list__item--level-2"><a href="#aenderungshinweise">Aenderungshinweise</a></li><li class="toc-list__item toc-list__item--level-2"><a href="#verwandte-dateien">Verwandte Dateien</a></li></ul>
+          </div>
+        </aside>
+      </main>
+    </div>
+  </div>
+  <script src="../../../../assets/site-data.js"></script>
+  <script src="../../../../assets/site.js"></script>
+</body>
+</html>
