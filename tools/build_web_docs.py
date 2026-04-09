@@ -20,8 +20,8 @@ except ImportError as exc:  # pragma: no cover - operator guidance
     ) from exc
 
 ROOT = Path(__file__).resolve().parent.parent
-DOCS = ROOT / "docs"
-WEB = ROOT / "web"
+DOCS = ROOT / "dokumentation"
+WEB = ROOT / "docs"
 ASSETS = WEB / "assets"
 REPO_VIEW = WEB / "repo"
 REPO_ASSETS = WEB / "repo-assets"
@@ -926,7 +926,7 @@ def build_web_docs() -> None:
     build_repo_pages(repo_file_pages, repo_dir_pages, search_index, nav_groups, generated_at)
 
     print(
-        f"Built NOVA-SYNESIS web docs with {len(pages)} documentation pages, "
+        f"Built NOVA-SYNESIS HTML docs from {DOCS.name} with {len(pages)} documentation pages, "
         f"{len(repo_file_pages)} repository file views and {len(repo_dir_pages)} directory views in {WEB}"
     )
 

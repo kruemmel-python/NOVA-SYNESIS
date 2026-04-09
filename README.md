@@ -16,6 +16,10 @@ Enthalten sind:
 - FastAPI-Service und CLI
 - Automatisierte Tests
 
+Fuer den schnellsten operativen Einstieg siehe auch [Schnellstart.md](/d:/Agenten_UML/Schnellstart.md).
+Die gepflegte Markdown-Dokumentation liegt unter [dokumentation/README.md](/d:/Agenten_UML/dokumentation/README.md), die statische HTML-Doku unter [docs/index.html](/d:/Agenten_UML/docs/index.html).
+Die verdichtete architektonische Einordnung findest du in [fazit.md](/d:/Agenten_UML/fazit.md), der ausfuehrliche Fachartikel liegt in [Fachartikel_NOVA-SYNESIS.md](/d:/Agenten_UML/Fachartikel_NOVA-SYNESIS.md).
+
 ## Installation
 
 ```bash
@@ -209,10 +213,10 @@ npm run build
 
 ## HTML-Dokumentation
 
-Aus dem Ordner `docs` kann eine statische HTML-Dokumentationsseite mit Side-Menue, Suche und Source-Ansichten erzeugt werden:
+Aus dem Ordner `dokumentation` kann eine statische HTML-Dokumentationsseite mit Side-Menue, Suche und Source-Ansichten erzeugt werden:
 
 ```bash
 python tools/build_web_docs.py
 ```
 
-Danach liegt die fertige Seite unter `web/index.html`.
+Danach liegt die fertige Seite unter `docs/index.html`.

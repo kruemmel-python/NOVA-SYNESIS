@@ -1,0 +1,11 @@
+Design an executable DAG workflow with exactly 4 nodes.
+Return exactly one JSON object and no prose.
+Use only listed handlers and memory systems.
+Do not use http_request, memory_search, send_message, resource_health_check or read_file.
+Use the exact memory_id llm-planner-notes if it exists.
+Create a first node named render_note with handler_name template_render that produces the exact text Catalog-backed memory note.
+Create a second node named store_note with handler_name memory_store that stores the exact text Catalog-backed memory note. in memory_id llm-planner-notes under the key planner-note.
+Create a third node named retrieve_note with handler_name memory_retrieve that loads key planner-note from memory_id llm-planner-notes.
+Create a fourth node named write_note with handler_name write_file that writes the retrieved value to Use_Cases/LLM_Planer/output/prompt3_memory.txt.
+Use only top-level edges and use True for every edge condition.
+Leave node.dependencies, node.conditions and validator_rules empty.

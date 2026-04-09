@@ -666,6 +666,7 @@ class LiteRTPlanner:
         }
 
         normalized_nodes: list[dict[str, Any]] = []
+        omitted_nodes: dict[str, str] = {}
         node_ids: set[str] = set()
         for index, raw_node in enumerate(raw_nodes[:max_nodes], start=1):
             if not isinstance(raw_node, dict):
@@ -734,7 +735,7 @@ class LiteRTPlanner:
             input_payload = raw_node.get("input", {})
             if not isinstance(input_payload, dict):
                 input_payload = {}
-            input_payload = self._normalize_handler_input(
+            input_payload, omission_reason = self._normalize_handler_input(
                 handler_name=handler_name,
                 input_payload=dict(input_payload),
                 node_id=node_id,
@@ -744,6 +745,10 @@ class LiteRTPlanner:
                 communication_agents=communication_agents,
                 warnings=warnings,
             )
+            if omission_reason is not None:
+                omitted_nodes[node_id] = omission_reason
+                warnings.append(omission_reason)
+                continue
 
             normalized_nodes.append(
                 {
@@ -774,7 +779,16 @@ class LiteRTPlanner:
             )
 
         normalized_edges = self._normalize_edges(raw_edges, node_ids, warnings)
+        if omitted_nodes:
+            normalized_edges = self._omit_nodes_from_edges(
+                normalized_edges,
+                omitted_nodes,
+                warnings,
+            )
+            self._strip_omitted_dependencies(normalized_nodes, set(omitted_nodes))
         self._merge_dependencies(normalized_nodes, normalized_edges)
+        if not normalized_nodes:
+            raise ValueError("Planner produced no executable nodes after normalization")
         self._validate_acyclic(normalized_nodes)
 
         if len(raw_nodes) > max_nodes:
@@ -921,6 +935,98 @@ class LiteRTPlanner:
             raise ValueError("Planner produced a cyclic dependency graph; only DAG flows are supported")
 
     @staticmethod
+    def _combine_edge_conditions(left: str, right: str) -> str:
+        normalized_left = str(left or "True").strip() or "True"
+        normalized_right = str(right or "True").strip() or "True"
+        if normalized_left == "True":
+            return normalized_right
+        if normalized_right == "True":
+            return normalized_left
+        if normalized_left == normalized_right:
+            return normalized_left
+        return f"({normalized_left}) and ({normalized_right})"
+
+    @classmethod
+    def _omit_nodes_from_edges(
+        cls,
+        normalized_edges: list[dict[str, str]],
+        omitted_nodes: dict[str, str],
+        warnings: list[str],
+    ) -> list[dict[str, str]]:
+        if not omitted_nodes:
+            return normalized_edges
+
+        omitted_node_ids = set(omitted_nodes)
+        incoming: dict[str, list[dict[str, str]]] = {}
+        outgoing: dict[str, list[dict[str, str]]] = {}
+        for edge in normalized_edges:
+            outgoing.setdefault(edge["from_node"], []).append(edge)
+            incoming.setdefault(edge["to_node"], []).append(edge)
+
+        rewired_edges: list[dict[str, str]] = []
+        seen: set[tuple[str, str]] = set()
+
+        def append_edge(source: str, target: str, condition: str) -> bool:
+            if source in omitted_node_ids or target in omitted_node_ids or source == target:
+                return False
+            key = (source, target)
+            if key in seen:
+                return False
+            seen.add(key)
+            rewired_edges.append(
+                {
+                    "from_node": source,
+                    "to_node": target,
+                    "condition": condition,
+                }
+            )
+            return True
+
+        for edge in normalized_edges:
+            if edge["from_node"] in omitted_node_ids or edge["to_node"] in omitted_node_ids:
+                continue
+            append_edge(edge["from_node"], edge["to_node"], edge["condition"])
+
+        for omitted_node_id, omission_reason in omitted_nodes.items():
+            incoming_edges = incoming.get(omitted_node_id, [])
+            outgoing_edges = outgoing.get(omitted_node_id, [])
+            rewired_count = 0
+            for incoming_edge in incoming_edges:
+                for outgoing_edge in outgoing_edges:
+                    combined_condition = cls._combine_edge_conditions(
+                        incoming_edge["condition"],
+                        outgoing_edge["condition"],
+                    )
+                    if append_edge(
+                        incoming_edge["from_node"],
+                        outgoing_edge["to_node"],
+                        combined_condition,
+                    ):
+                        rewired_count += 1
+            if rewired_count:
+                warnings.append(
+                    f"{omission_reason}; rewired {rewired_count} edge(s) around omitted node '{omitted_node_id}'"
+                )
+
+        return rewired_edges
+
+    @staticmethod
+    def _strip_omitted_dependencies(
+        normalized_nodes: list[dict[str, Any]],
+        omitted_node_ids: set[str],
+    ) -> None:
+        if not omitted_node_ids:
+            return
+        for node in normalized_nodes:
+            node["dependencies"] = [
+                dependency
+                for dependency in node["dependencies"]
+                if dependency not in omitted_node_ids
+            ]
+            for omitted_node_id in omitted_node_ids:
+                node["conditions"].pop(omitted_node_id, None)
+
+    @staticmethod
     def _normalize_handler_input(
         handler_name: str,
         input_payload: dict[str, Any],
@@ -930,7 +1036,7 @@ class LiteRTPlanner:
         comm_agent_ids: set[int],
         communication_agents: dict[str, int],
         warnings: list[str],
-    ) -> dict[str, Any]:
+    ) -> tuple[dict[str, Any] | None, str | None]:
         upstream_reference = (
             f"{{{{ results['{dependencies[-1]}'] }}}}" if dependencies else {}
         )
@@ -982,6 +1088,25 @@ class LiteRTPlanner:
                 warnings.append(
                     f"send_message node '{node_id}' had no message; inserted default completion message"
                 )
+            raw_target_id = input_payload.get("target_agent_id")
+            if raw_target_id is not None:
+                try:
+                    numeric_target_id = int(raw_target_id)
+                except (TypeError, ValueError):
+                    numeric_target_id = None
+                else:
+                    input_payload["target_agent_id"] = numeric_target_id
+                    if numeric_target_id not in comm_agent_ids:
+                        if len(comm_agent_ids) == 1:
+                            input_payload["target_agent_id"] = next(iter(comm_agent_ids))
+                            warnings.append(
+                                f"send_message node '{node_id}' referenced non-communication agent '{numeric_target_id}'; defaulted to the only communication-enabled agent"
+                            )
+                        elif len(comm_agent_ids) == 0:
+                            return (
+                                None,
+                                f"send_message node '{node_id}' was omitted because no communication-enabled target agent is registered",
+                            )
             if "target_agent_id" not in input_payload:
                 raw_target_name = input_payload.get("target_agent_name")
                 if isinstance(raw_target_name, str) and raw_target_name.strip():
@@ -993,10 +1118,11 @@ class LiteRTPlanner:
                             warnings.append(
                                 f"send_message node '{node_id}' referenced unknown agent '{raw_target_name}'; defaulted to the only communication-enabled agent '{sole_name}' ({sole_id})"
                             )
-                            return input_payload
+                            return input_payload, None
                         if not communication_agents:
-                            raise ValueError(
-                                f"send_message node '{node_id}' cannot be planned because no communication-enabled target agent is registered"
+                            return (
+                                None,
+                                f"send_message node '{node_id}' was omitted because no communication-enabled target agent is registered",
                             )
                         allowed_targets = ", ".join(
                             sorted(
@@ -1010,15 +1136,16 @@ class LiteRTPlanner:
                     warnings.append(
                         f"send_message node '{node_id}' resolved target_agent_name '{raw_target_name}' to target_agent_id '{resolved_agent_id}'"
                     )
-                    return input_payload
+                    return input_payload, None
                 if len(comm_agent_ids) == 1:
                     input_payload["target_agent_id"] = next(iter(comm_agent_ids))
                     warnings.append(
                         f"send_message node '{node_id}' had no target_agent_id; defaulted to the only communication-enabled agent"
                     )
                 elif len(comm_agent_ids) == 0:
-                    raise ValueError(
-                        f"send_message node '{node_id}' is not executable because no communication-enabled target agent is registered"
+                    return (
+                        None,
+                        f"send_message node '{node_id}' was omitted because no communication-enabled target agent is registered",
                     )
                 else:
                     raise ValueError(
@@ -1037,4 +1164,4 @@ class LiteRTPlanner:
             input_payload.setdefault("value", upstream_reference)
             input_payload.setdefault("indent", 2)
 
-        return input_payload
+        return input_payload, None

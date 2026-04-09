@@ -7,13 +7,13 @@ from collections import defaultdict
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-DOCS = ROOT / 'docs'
+DOCS = ROOT / 'dokumentation'
 REF = DOCS / 'reference'
 
 EXCLUDED = {
     '.git',
+    'dokumentation',
     'docs',
-    'web',
     'data',
     'debug_tmp',
     'planner_live_check',
@@ -50,7 +50,22 @@ FILE_NOTES = {
     'README.md': {
         'purpose': 'Projektweiter Schnellstart fuer Backend, Frontend und Planner.',
         'edit': 'Wenn sich Startablauf oder Hauptfunktionen fuer Entwickler aendern.',
-        'related': ['docs/README.md', 'run-backend.ps1', 'frontend/package.json'],
+        'related': ['run-backend.ps1', 'frontend/package.json', 'tools/build_web_docs.py'],
+    },
+    'Schnellstart.md': {
+        'purpose': 'Knappe operative Startanleitung fuer Backend, Frontend, Use Cases und Planner-Beispiele.',
+        'edit': 'Wenn sich Startports, Setup-Skripte, Use-Case-Ablauf oder Planner-Voraussetzungen aendern.',
+        'related': ['README.md', 'Use_Cases/README.md', 'Use_Cases/LLM_Planer/README.md'],
+    },
+    'fazit.md': {
+        'purpose': 'Verdichtete architektonische Schlussfolgerung ueber den Sicherheits- und Betriebsansatz von NOVA-SYNESIS.',
+        'edit': 'Wenn sich die Kernargumentation des Systems oder die sicherheitsrelevanten Architekturprinzipien veraendern.',
+        'related': ['Fachartikel_NOVA-SYNESIS.md', 'dokumentation/security-and-policy.md', 'README.md'],
+    },
+    'Fachartikel_NOVA-SYNESIS.md': {
+        'purpose': 'Ausfuehrlicher Fachartikel zur Einordnung von NOVA-SYNESIS als kontrollierte Agentenplattform.',
+        'edit': 'Wenn die strategische, fachliche oder architektonische Darstellung fuer externe Leser aktualisiert werden muss.',
+        'related': ['fazit.md', 'dokumentation/README.md', 'dokumentation/system-overview.md'],
     },
     'run-backend.ps1': {
         'purpose': 'Empfohlenes Windows-Startskript fuer das Backend.',
@@ -203,9 +218,9 @@ FILE_NOTES = {
         'related': ['frontend/src/App.tsx', 'frontend/src/components/common/StatusBadge.tsx'],
     },
     'tools/build_web_docs.py': {
-        'purpose': 'Generiert aus dem docs-Ordner eine statische HTML-Dokumentationsseite mit Navigation, Suche und Source-Ansichten.',
+        'purpose': 'Generiert aus dem dokumentation-Ordner eine statische HTML-Dokumentationsseite mit Navigation, Suche und Source-Ansichten.',
         'edit': 'Wenn Layout, Suchlogik, Seitenrouting oder die statische Web-Doku erweitert werden sollen.',
-        'related': ['docs/README.md', 'README.md', 'web/index.html'],
+        'related': ['tools/generate_docs.py', 'README.md', 'pyproject.toml'],
     },
 }
 
@@ -300,8 +315,10 @@ Diese Dokumentation erklaert das System so, dass auch ein Entwickler ohne Vorwis
 8. [Failure Playbook](failure-playbook.md)
 9. [Decision Guide](decision-guide.md)
 10. [Real World Scenarios](real-world-scenarios.md)
-11. [Aenderungsleitfaden](change-workflows.md)
-12. [Referenzindex](reference/index.md)
+11. [Fazit und Einordnung](fazit-und-einordnung.md)
+12. [Fachartikel](fachartikel-nova-synesis.md)
+13. [Aenderungsleitfaden](change-workflows.md)
+14. [Referenzindex](reference/index.md)
 
 ## Wie du diese Doku liest
 
@@ -309,8 +326,11 @@ Diese Dokumentation erklaert das System so, dass auch ein Entwickler ohne Vorwis
 - Lies `system-overview.md` und `backend-runtime.md`, wenn du Architektur und Laufzeit verstehen willst.
 - Nutze `security-and-policy.md`, `handler-trust-and-approval.md` und `failure-playbook.md`, bevor du produktive Flows oder neue Handler einsetzt.
 - Verwende `decision-guide.md` und `real-world-scenarios.md`, wenn du eigene Flows sicher entwerfen oder veraendern willst.
+- Lies `fazit-und-einordnung.md` oder `fachartikel-nova-synesis.md`, wenn du die Architektur fachlich einordnen oder extern erklaeren musst.
 ''',
     'getting-started.md': '''# Schnellstart
+
+Diese Datei zeigt den kuerzesten Weg, um NOVA-SYNESIS lokal zu starten und die registrierten Beispiele in der Web-UI zu nutzen.
 
 ## 1. Backend starten
 
@@ -320,9 +340,9 @@ Diese Dokumentation erklaert das System so, dass auch ein Entwickler ohne Vorwis
 
 Wichtige URLs:
 
-- `GET /docs`
-- `GET /health`
-- `GET /planner/status`
+- `http://127.0.0.1:8552/docs`
+- `http://127.0.0.1:8552/health`
+- `http://127.0.0.1:8552/planner/status`
 - `POST /flows/validate`
 
 ## 2. Frontend starten
@@ -337,22 +357,139 @@ Dann:
 
 ```powershell
 cd frontend
+npm install
 npm run dev
 ```
 
-## 3. Minimaler Arbeitsablauf
+Die Web-UI laeuft danach normalerweise unter `http://127.0.0.1:5173`.
 
-1. Handler, Agenten und Ressourcen im Frontend laden.
-2. In `GET /handlers` oder der Sidebar pruefen, welche Handler trusted sind.
-3. Einen Graphen im Canvas zeichnen oder ueber den Planner erzeugen.
-4. Fuer sensitive oder untrusted Handler im Inspector entscheiden, ob `requires_manual_approval` gesetzt sein soll.
-5. Vor dem Speichern `POST /flows/validate` verwenden oder die UI-Validierung ausloesen.
-6. Den Flow ueber `POST /flows` speichern.
-7. Falls noetig den Node per Inspector oder Approval-API freigeben.
-8. Den Flow ueber `POST /flows/{flow_id}/run` ausfuehren.
-9. Laufzeit und Status ueber `GET /flows/{flow_id}` oder `/ws/flows/{flow_id}` beobachten.
+## 3. Wichtig fuer Use Cases und AI Plan
 
-## 4. Wichtige Umgebungsvariablen
+Die Web-UI sieht nur, was im laufenden Backend bereits registriert ist.
+
+Das bedeutet:
+
+- `setup.ps1`-Skripte muessen gegen das laufende Backend ausgefuehrt werden
+- erst danach erscheinen Agenten, Ressourcen und Memory-Systeme im Katalog der Web-UI
+- erst danach kann `AI Plan` diese Objekte ueberhaupt verwenden
+
+Wichtig:
+
+- ein Prompt registriert keine neuen Agenten, Ressourcen oder Memory-Systeme
+- `AI Plan` plant nur mit den aktuell vorhandenen Katalogobjekten
+- wenn etwas nicht registriert ist, kann der Planner es nicht sauber verwenden
+
+Nach einem `setup.ps1`:
+
+1. Web-UI neu laden
+2. Sidebar und Planner erneut oeffnen
+3. erst dann `AI Plan`, `Import JSON` oder `Run Flow` nutzen
+
+## 4. Use Cases in der Web-UI nutzen
+
+### `platform_health_snapshot`
+
+Setup zuerst ausfuehren:
+
+```powershell
+./Use_Cases/platform_health_snapshot/setup.ps1 -ApiBaseUrl http://127.0.0.1:8552
+```
+
+Danach in der Web-UI:
+
+1. `Import JSON`
+2. Datei `Use_Cases/platform_health_snapshot/flow.json` laden
+3. `Save Flow`
+4. `Run Flow`
+
+Alternativ direkt per Skript:
+
+```powershell
+./Use_Cases/platform_health_snapshot/run.ps1 -ApiBaseUrl http://127.0.0.1:8552
+```
+
+### `semantic_ticket_triage`
+
+Setup zuerst ausfuehren:
+
+```powershell
+./Use_Cases/semantic_ticket_triage/setup.ps1 -ApiBaseUrl http://127.0.0.1:8552
+```
+
+Danach in der Web-UI:
+
+1. `Import JSON`
+2. Datei `Use_Cases/semantic_ticket_triage/flow.json` laden
+3. `Save Flow`
+4. `Run Flow`
+
+Alternativ direkt per Skript:
+
+```powershell
+./Use_Cases/semantic_ticket_triage/run.ps1 -ApiBaseUrl http://127.0.0.1:8552
+```
+
+## 5. `LLM_Planer`-Beispiele nutzen
+
+Der Ordner `Use_Cases/LLM_Planer` enthaelt nur getestete Prompts.
+
+Zuerst das Katalog-Setup ausfuehren:
+
+```powershell
+./Use_Cases/LLM_Planer/setup.ps1 -ApiBaseUrl http://127.0.0.1:8552
+```
+
+Dieses Skript registriert die fuer die Planner-Beispiele benoetigten Objekte im laufenden Backend:
+
+- API-Resource `http://127.0.0.1:8552/health`
+- Memory-System `llm-planner-notes`
+- Queue-Agent `llm-planner-notify`
+
+Danach gibt es zwei Wege:
+
+### In der Web-UI
+
+1. Seite neu laden
+2. `AI Plan` oeffnen
+3. den Inhalt einer Prompt-Datei aus `Use_Cases/LLM_Planer` einfuellen
+4. `Generate Graph`
+5. `Save Flow`
+6. `Run Flow`
+
+Verwendbare Prompt-Dateien:
+
+- `Use_Cases/LLM_Planer/prompt_01_smoke_message.txt`
+- `Use_Cases/LLM_Planer/prompt_03_memory_roundtrip.txt`
+- `Use_Cases/LLM_Planer/prompt_04_resource_notify.txt`
+
+### Per Verifikationsskript
+
+```powershell
+./Use_Cases/LLM_Planer/verify.ps1 -ApiBaseUrl http://127.0.0.1:8552
+```
+
+Das Skript:
+
+- fuehrt bei Bedarf das Setup aus
+- sendet die Prompts an `/planner/generate-flow`
+- speichert die Flows
+- startet die Ausfuehrung
+- prueft die Ergebnisse
+
+## 6. Die wichtigste Regel fuer `AI Plan`
+
+`AI Plan` arbeitet nur mit dem aktuellen Planner-Katalog des laufenden Backends.
+
+Also:
+
+- ohne `setup.ps1` keine neuen Agenten
+- ohne `setup.ps1` keine neuen Ressourcen
+- ohne `setup.ps1` keine neuen Memory-Systeme
+- ohne diese Registrierungen kann der Planner nur mit dem arbeiten, was bereits vorhanden ist
+
+Wenn ein Prompt einen Agenten, eine Resource oder ein Memory nennt, das nicht registriert ist, wird der Planner entweder fehlschlagen, den Node weglassen oder die Semantic Firewall blockiert den Flow.
+
+## 7. Wichtige Umgebungsvariablen
 
 - `NS_API_HOST`, `NS_API_PORT`: FastAPI-Bindung
 - `NS_LIT_BINARY_PATH`, `NS_LIT_MODEL_PATH`, `NS_LIT_TIMEOUT_S`: lokaler Planner
@@ -365,7 +502,7 @@ npm run dev
 - `NS_SECURITY_SEND_PROTOCOLS`: erlaubte Kommunikationsprotokolle fuer `send_message`
 - `NS_CORS_ORIGINS`: erlaubte Frontend-Urspruenge
 
-## 5. Mentales Modell
+## 8. Mentales Modell
 
 - Das Frontend bearbeitet einen gerichteten Graphen aus Nodes und Edges.
 - `toFlowRequest()` wandelt den Editorgraphen in das Backend-Schema.
@@ -465,7 +602,7 @@ Der Planner erzeugt keine Mock-Graphen. Er nutzt die lokale `lit`-Binary und das
 
 1. `LiteRTPlanner._build_prompt()` baut den Prompt aus Benutzerziel und echtem Katalog.
 2. `_invoke_model()` ruft `lit.windows_x86_64.exe` mit `gemma-4-E2B-it.litertlm` auf.
-3. `_parse_model_output()` extrahiert genau ein JSON-Objekt.
+3. `_parse_model_output_with_warnings()` extrahiert genau ein JSON-Objekt und repariert haeufige Formfehler aus LLM-Antworten.
 4. `_normalize_flow_request()` korrigiert IDs, Defaults, Abhaengigkeiten und Handler-Inputs.
 5. `OrchestratorService.generate_flow_with_llm()` laesst den Graphen anschliessend noch durch die Semantic Firewall laufen.
 
@@ -473,9 +610,17 @@ Der Planner erzeugt keine Mock-Graphen. Er nutzt die lokale `lit`-Binary und das
 
 - Ressourcen und Memories mit `sensitive = true` oder `planner_visible = false` werden aus dem Planner-Katalog herausgefiltert.
 - untrusted Handler werden komplett aus dem Planner-Katalog entfernt.
+- `send_message` darf nur auf registrierte Kommunikationsziele zeigen. Wenn keins existiert, wird der Node aus dem Planner-Graphen entfernt und als Warnung gemeldet.
 - Die Antwort enthaelt `security_report`, damit UI und Betreiber sehen, ob der generierte Graph policy-konform war.
 - Planner-Warnungen bedeuten: der Graph wurde normalisiert, aber nicht stillschweigend erweitert.
 - `requires_manual_approval` wird standardmaessig auf `false` normalisiert und nur uebernommen, wenn es explizit im Graphen gesetzt ist.
+
+## Betriebsregel fuer echte Planner-Beispiele
+
+- `AI Plan` kann nur mit dem arbeiten, was im laufenden Backend registriert ist.
+- Deshalb muessen `Use_Cases/**/setup.ps1` oder andere Registrierungswege zuerst ausgefuehrt werden.
+- Der Ordner `Use_Cases/LLM_Planer` enthaelt nur verifizierte Prompts fuer den jeweils registrierten Live-Katalog.
+- Wenn Agenten, Ressourcen oder Memories nicht registriert sind, kann der Planner sie nicht sicher verwenden und entfernt betroffene Nodes oder die Semantic Firewall blockiert den Flow.
 ''',
     'security-and-policy.md': '''# Security und Policy
 
@@ -625,10 +770,17 @@ Diese Seite beschreibt die realen Stoerungsbilder des Systems. Ziel ist nicht nu
 ### Sofortmassnahmen
 
 1. `GET /planner/status` pruefen
-2. Prompt kuerzen und restriktiver machen
-3. `max_nodes` senken
-4. sicherstellen, dass benoetigte Handler, Agenten, Ressourcen und Memory-IDs wirklich registriert sind
-5. bei wiederholtem Fehler den Flow manuell im Editor bauen
+2. zuerst pruefen, ob der Planner bereits eine Warnung zur automatischen JSON-Reparatur oder Prompt-Kompaktierung geliefert hat
+3. Prompt kuerzen und restriktiver machen
+4. `max_nodes` senken
+5. sicherstellen, dass benoetigte Handler, Agenten, Ressourcen und Memory-IDs wirklich registriert sind
+6. bei wiederholtem Fehler den Flow manuell im Editor bauen
+
+### Wichtig seit v1.0.5
+
+- formale JSON-Fehler wie Single Quotes, Python-True/None, trailing commas oder fehlende Abschlussklammern werden zuerst automatisch repariert
+- LiteRT-Kontextfehler loesen einen automatischen Retry mit kompakterem Prompt aus
+- bleibt der Fehler trotzdem bestehen, ist die Antwort meist fachlich unbrauchbar und nicht nur formal kaputt
 
 ## 2. Semantic Firewall lehnt den Flow ab
 
@@ -640,12 +792,13 @@ Diese Seite beschreibt die realen Stoerungsbilder des Systems. Ziel ist nicht nu
   - `Outbound host ... is outside the semantic firewall allowlist`
   - `Flow contains a cycle`
   - `Sensitive memory data may not flow into http_request nodes`
+  - `send_message references unknown agent '...'`
 
 ### Typische Ursachen
 
 - zyklischer Graph
 - `http_request` auf einen nicht erlaubten Host
-- `send_message` ohne `target_agent_id` oder mit Endpoint-Override
+- `send_message` ohne echtes Kommunikationsziel oder mit Endpoint-Override
 - Template oder Condition mit nicht erlaubten Symbolen
 - planner-sichtbare Memory-Store-Node hinter untrusted Ingest
 
@@ -653,8 +806,10 @@ Diese Seite beschreibt die realen Stoerungsbilder des Systems. Ziel ist nicht nu
 
 1. denselben Payload gegen `POST /flows/validate` schicken
 2. `violations` und `warnings` getrennt lesen
-3. pruefen, ob das Problem fachlich oder rein policy-seitig ist
-4. bei legitimen Produktionsfaellen erst Settings oder Memory-/Resource-Metadaten anpassen, nicht die Regel blind entfernen
+3. bei `send_message` pruefen, ob in `GET /agents` mindestens ein Agent mit `communication` registriert ist
+4. wenn der Planner einen unbekannten Agentennamen verwendet hat, den Flow neu generieren oder den Node auf einen echten Sink-Agenten umstellen
+5. pruefen, ob das Problem fachlich oder rein policy-seitig ist
+6. bei legitimen Produktionsfaellen erst Settings oder Memory-/Resource-Metadaten anpassen, nicht die Regel blind entfernen
 
 ## 3. Handler ist untrusted, Zertifikat abgelaufen oder Freigabe fehlt
 
@@ -1009,7 +1164,7 @@ Ein fragiler Infrastrukturzugriff soll auch dann stabil laufen, wenn die bevorzu
 4. Security-Regeln fuer Egress, Templates oder Seiteneffekte in `security/policy.py` bewerten
 5. Tests in `tests/test_orchestrator.py` erweitern
 6. Frontend prueft den Handler automatisch ueber `/handlers`
-7. `tools/generate_docs.py` und danach `docs/` neu erzeugen
+7. `tools/generate_docs.py` und danach `dokumentation/` neu erzeugen
 
 ## Neues Node-Feld
 
@@ -1027,7 +1182,7 @@ Ein fragiler Infrastrukturzugriff soll auch dann stabil laufen, wenn die bevorzu
 2. Settings in `config.py` und `.env.example` nachziehen
 3. API- und Planner-Auswirkungen pruefen
 4. mindestens einen positiven und einen negativen Testfall schreiben
-5. `tools/generate_docs.py` ausfuehren und `docs/` neu erzeugen
+5. `tools/generate_docs.py` ausfuehren und `dokumentation/` neu erzeugen
 
 ## Neuer Trust- oder Approval-Pfad
 
@@ -1039,9 +1194,23 @@ Ein fragiler Infrastrukturzugriff soll auch dann stabil laufen, wenn die bevorzu
 ''',
 }
 
+ROOT_GUIDE_SOURCES = {
+    'fazit-und-einordnung.md': ROOT / 'fazit.md',
+    'fachartikel-nova-synesis.md': ROOT / 'Fachartikel_NOVA-SYNESIS.md',
+}
+
 
 def rel(path: Path) -> str:
     return path.relative_to(ROOT).as_posix()
+
+
+def read_text(path: Path) -> str:
+    for encoding in ('utf-8', 'utf-8-sig', 'cp1252', 'latin-1'):
+        try:
+            return path.read_text(encoding=encoding)
+        except UnicodeDecodeError:
+            continue
+    return path.read_text(encoding='utf-8', errors='ignore')
 
 
 def excluded(path: Path) -> bool:
@@ -1356,6 +1525,9 @@ def write_guides(files: list[Path]) -> None:
     DOCS.mkdir(parents=True, exist_ok=True)
     for name, content in GUIDES.items():
         (DOCS / name).write_text(content.strip() + '\n', encoding='utf-8')
+    for name, source in ROOT_GUIDE_SOURCES.items():
+        if source.exists():
+            (DOCS / name).write_text(read_text(source).strip() + '\n', encoding='utf-8')
 
     idx = ['# Referenzindex', '']
     grouped: dict[str, list[Path]] = defaultdict(list)

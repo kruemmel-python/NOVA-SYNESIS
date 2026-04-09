@@ -592,6 +592,65 @@ def test_lit_planner_falls_back_to_only_message_target_for_unknown_name(tmp_path
     assert any("referenced unknown agent 'ops-archiver'; defaulted to the only communication-enabled agent" in warning for warning in warnings)
 
 
+def test_lit_planner_omits_send_message_when_no_communication_target_exists(tmp_path: Path) -> None:
+    planner = LiteRTPlanner(build_settings(tmp_path))
+    normalized, warnings = planner._normalize_flow_request(
+        parsed={
+            "nodes": [
+                {
+                    "node_id": "fetch",
+                    "handler_name": "template_render",
+                    "input": {
+                        "template": "fetched",
+                        "values": {},
+                    },
+                },
+                {
+                    "node_id": "send_completion_message",
+                    "handler_name": "send_message",
+                    "input": {
+                        "message": {"text": "done"},
+                    },
+                    "dependencies": ["fetch"],
+                },
+                {
+                    "node_id": "persist",
+                    "handler_name": "json_serialize",
+                    "input": {},
+                    "dependencies": ["send_completion_message"],
+                },
+            ],
+            "edges": [
+                {"from_node": "fetch", "to_node": "send_completion_message", "condition": "True"},
+                {"from_node": "send_completion_message", "to_node": "persist", "condition": "True"},
+            ],
+        },
+        catalog=PlannerCatalog(
+            handlers=["template_render", "send_message", "json_serialize"],
+            agents=[],
+            resources=[],
+            memory_systems=[],
+        ),
+        max_nodes=5,
+    )
+
+    assert [node["node_id"] for node in normalized["nodes"]] == ["fetch", "persist"]
+    assert normalized["edges"] == [
+        {
+            "from_node": "fetch",
+            "to_node": "persist",
+            "condition": "True",
+        }
+    ]
+    assert normalized["nodes"][1]["dependencies"] == ["fetch"]
+    assert any(
+        "send_message node 'send_completion_message' was omitted because no communication-enabled target agent is registered"
+        in warning
+        for warning in warnings
+    )
+    assert any("rewired 1 edge(s)" in warning for warning in warnings)
+
+
 def test_semantic_firewall_rejects_cyclic_flow(tmp_path: Path) -> None:
     orchestrator = create_orchestrator(build_settings(tmp_path))
     try:

@@ -1,0 +1,8 @@
+Design an executable DAG workflow with exactly 2 nodes.
+Return exactly one JSON object and no prose.
+Use only listed handlers.
+Do not use http_request, memory_store, memory_retrieve, memory_search, send_message, json_serialize, merge_payloads, read_file or resource_health_check.
+Create a first node with handler_name template_render that produces the exact text: Planner smoke test completed successfully.
+Create a second node with handler_name write_file that writes that text to Use_Cases/LLM_Planer/output/prompt1.txt.
+Use exactly one top-level edge from the first node to the second node.
+Leave node.dependencies, node.conditions and validator_rules empty.

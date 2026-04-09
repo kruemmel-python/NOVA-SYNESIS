@@ -1,0 +1,8 @@
+Design an executable DAG workflow with exactly 2 nodes.
+Return exactly one JSON object and no prose.
+Use only listed handlers, resources and agents.
+Do not use http_request, memory_store, memory_retrieve, memory_search, read_file or write_file.
+Create a first node with handler_name resource_health_check that checks the registered local API resource for http://127.0.0.1:8552/health.
+Create a second node with handler_name send_message that sends the exact text Local health resource check completed. to target_agent_name llm-planner-notify.
+Use exactly one top-level edge from the resource_health_check node to the send_message node.
+Leave node.dependencies, node.conditions and validator_rules empty.
