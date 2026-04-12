@@ -71,13 +71,16 @@ Methoden:
 - `news_search_handler(context)`: Funktion oder Definition `news_search_handler` dieses Moduls.
 - `topic_split_handler(context)`: Funktion oder Definition `topic_split_handler` dieses Moduls.
 - `template_render_handler(context)`: Funktion oder Definition `template_render_handler` dieses Moduls.
+- `_stringify_local_llm_input(value)`: Funktion oder Definition `_stringify_local_llm_input` dieses Moduls.
+- `_looks_like_follow_up_request(prompt_text)`: Funktion oder Definition `_looks_like_follow_up_request` dieses Moduls.
+- `local_llm_text_handler(context)`: Erzeugt oder analysiert Text lokal ueber LiteRT und kombiniert dabei Benutzerprompt und Upstream-Daten zu einer finalen Antwort.
 - `generate_embedding_handler(context)`: Funktion oder Definition `generate_embedding_handler` dieses Moduls.
 - `accounts_receivable_extract_handler(context)`: Funktion oder Definition `accounts_receivable_extract_handler` dieses Moduls.
 - `accounts_receivable_generate_letters_handler(context)`: Funktion oder Definition `accounts_receivable_generate_letters_handler` dieses Moduls.
 - `accounts_receivable_write_letters_handler(context)`: Funktion oder Definition `accounts_receivable_write_letters_handler` dieses Moduls.
 - `merge_payloads_handler(context)`: Funktion oder Definition `merge_payloads_handler` dieses Moduls.
-- `read_file_handler(context)`: Funktion oder Definition `read_file_handler` dieses Moduls.
-- `write_file_handler(context)`: Funktion oder Definition `write_file_handler` dieses Moduls.
+- `read_file_handler(context)`: Liest lokale Dateien aus dem Arbeitsverzeichnis und stellt ihren Inhalt fuer nachgelagerte Nodes bereit.
+- `write_file_handler(context)`: Schreibt Text- oder JSON-Inhalte in lokale Dateien innerhalb des Arbeitsverzeichnisses.
 - `write_csv_handler(context)`: Funktion oder Definition `write_csv_handler` dieses Moduls.
 - `json_serialize_handler(context)`: Funktion oder Definition `json_serialize_handler` dieses Moduls.
 - `generate_embedding_handler(context)`: Funktion oder Definition `generate_embedding_handler` dieses Moduls.

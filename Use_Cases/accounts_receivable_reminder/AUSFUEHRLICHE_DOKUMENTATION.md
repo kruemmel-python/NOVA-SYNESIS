@@ -1,56 +1,4 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Repository: Use_Cases/accounts_receivable_reminder/AUSFUEHRLICHE_DOKUMENTATION.md | NOVA-SYNESIS Docs</title>
-  <meta name="description" content="Repository file view for Use_Cases/accounts_receivable_reminder/AUSFUEHRLICHE_DOKUMENTATION.md">
-  <link rel="icon" type="image/svg+xml" href="../../../assets/favicon.svg">
-  <link rel="stylesheet" href="../../../assets/site.css">
-</head>
-<body data-page-url="repo/Use_Cases/accounts_receivable_reminder/AUSFUEHRLICHE_DOKUMENTATION.md.html">
-  <div class="site-shell">
-    <aside class="site-sidebar" id="site-sidebar">
-      <div class="brand">
-        <p class="brand__eyebrow">Neural Orchestration Visual Autonomy</p>
-        <h1>NOVA-SYNESIS</h1>
-        <p class="brand__subtitle">Stateful Yielding Node-based Execution Semantic Integrated Surface</p>
-      </div>
-      <label class="search-box">
-        <span class="search-box__label">Search docs</span>
-        <input id="docs-search" type="search" placeholder="Search guides, files, handlers, policies">
-      </label>
-      <div class="search-results" id="search-results" hidden></div>
-      <div class="sidebar-scroll">
-        <a class="brand__home" href="../../../index.html">Documentation Home</a><section class="sidebar__group"><h2>Projekt</h2><ul class="nav-list"><li><a class="nav-list__link" href="../../../index.html">Projekt- und Flow-Dokumentation</a></li><li><a class="nav-list__link" href="../../../system-overview.html">Systemueberblick</a></li><li><a class="nav-list__link" href="../../../backend-runtime.html">Backend-Laufzeit</a></li><li><a class="nav-list__link" href="../../../frontend-editor.html">Frontend-Editor</a></li><li><a class="nav-list__link" href="../../../planner-and-lit.html">LLM-Planer und LiteRT</a></li><li><a class="nav-list__link" href="../../../security-and-policy.html">Security und Policy</a></li><li><a class="nav-list__link" href="../../../handler-trust-and-approval.html">Handler Trust und Freigaben</a></li><li><a class="nav-list__link" href="../../../real-world-scenarios.html">Real World Scenarios</a></li></ul></section><section class="sidebar__group"><h2>Code &amp; Flows</h2><ul class="nav-list"><li><a class="nav-list__link" href="../../../reference/index.html">Referenzindex</a></li><li><a class="nav-list__link" href="../../../reference/.env.example.html">.env.example</a></li><li><a class="nav-list__link" href="../../../reference/Dockerfile.html">Dockerfile</a></li><li class="nav-list__branch"><details ><summary>Frontend</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../reference/frontend/.env.example.html">.env.example</a></li><li><a class="nav-list__link" href="../../../reference/frontend/index.html.html">index.html</a></li><li><a class="nav-list__link" href="../../../reference/frontend/package-lock.json.html">package-lock.json</a></li><li><a class="nav-list__link" href="../../../reference/frontend/package.json.html">package.json</a></li><li class="nav-list__branch"><details ><summary>Source</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../reference/frontend/src/app.css.html">app.css</a></li><li><a class="nav-list__link" href="../../../reference/frontend/src/App.tsx.html">App.tsx</a></li><li class="nav-list__branch"><details ><summary>Components</summary><ul class="nav-list"><li class="nav-list__branch"><details ><summary>Common</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../reference/frontend/src/components/common/JsonEditor.tsx.html">JsonEditor.tsx</a></li><li><a class="nav-list__link" href="../../../reference/frontend/src/components/common/StatusBadge.tsx.html">StatusBadge.tsx</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Flow</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../reference/frontend/src/components/flow/FlowCanvas.tsx.html">FlowCanvas.tsx</a></li><li><a class="nav-list__link" href="../../../reference/frontend/src/components/flow/TaskNode.tsx.html">TaskNode.tsx</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Layout</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../reference/frontend/src/components/layout/InspectorPanel.tsx.html">InspectorPanel.tsx</a></li><li><a class="nav-list__link" href="../../../reference/frontend/src/components/layout/PlannerComposer.tsx.html">PlannerComposer.tsx</a></li><li><a class="nav-list__link" href="../../../reference/frontend/src/components/layout/Sidebar.tsx.html">Sidebar.tsx</a></li><li><a class="nav-list__link" href="../../../reference/frontend/src/components/layout/TopBar.tsx.html">TopBar.tsx</a></li></ul></details></li></ul></details></li><li class="nav-list__branch"><details ><summary>Hooks</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../reference/frontend/src/hooks/useCatalogBootstrap.ts.html">useCatalogBootstrap.ts</a></li><li><a class="nav-list__link" href="../../../reference/frontend/src/hooks/useFlowLiveUpdates.ts.html">useFlowLiveUpdates.ts</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Lib</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../reference/frontend/src/lib/apiClient.ts.html">apiClient.ts</a></li><li><a class="nav-list__link" href="../../../reference/frontend/src/lib/autoLayout.ts.html">autoLayout.ts</a></li><li><a class="nav-list__link" href="../../../reference/frontend/src/lib/flowSerialization.ts.html">flowSerialization.ts</a></li><li><a class="nav-list__link" href="../../../reference/frontend/src/lib/json.ts.html">json.ts</a></li></ul></details></li><li><a class="nav-list__link" href="../../../reference/frontend/src/main.tsx.html">main.tsx</a></li><li class="nav-list__branch"><details ><summary>Store</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../reference/frontend/src/store/useFlowStore.ts.html">useFlowStore.ts</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Types</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../reference/frontend/src/types/api.ts.html">api.ts</a></li></ul></details></li><li><a class="nav-list__link" href="../../../reference/frontend/src/vite-env.d.ts.html">vite-env.d.ts</a></li></ul></details></li><li><a class="nav-list__link" href="../../../reference/frontend/tsconfig.app.json.html">tsconfig.app.json</a></li><li><a class="nav-list__link" href="../../../reference/frontend/tsconfig.json.html">tsconfig.json</a></li><li><a class="nav-list__link" href="../../../reference/frontend/tsconfig.node.json.html">tsconfig.node.json</a></li><li><a class="nav-list__link" href="../../../reference/frontend/vite.config.d.ts.html">vite.config.d.ts</a></li><li><a class="nav-list__link" href="../../../reference/frontend/vite.config.js.html">vite.config.js</a></li><li><a class="nav-list__link" href="../../../reference/frontend/vite.config.ts.html">vite.config.ts</a></li></ul></details></li><li><a class="nav-list__link" href="../../../reference/pyproject.toml.html">pyproject.toml</a></li><li><a class="nav-list__link" href="../../../reference/run-backend.cmd.html">run-backend.cmd</a></li><li><a class="nav-list__link" href="../../../reference/run-backend.ps1.html">run-backend.ps1</a></li><li class="nav-list__branch"><details ><summary>Source</summary><ul class="nav-list"><li class="nav-list__branch"><details ><summary>NOVA-SYNESIS</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../reference/src/nova_synesis/__init__.py.html">__init__.py</a></li><li class="nav-list__branch"><details ><summary>API</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../reference/src/nova_synesis/api/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../../reference/src/nova_synesis/api/app.py.html">app.py</a></li></ul></details></li><li><a class="nav-list__link" href="../../../reference/src/nova_synesis/cli.py.html">cli.py</a></li><li class="nav-list__branch"><details ><summary>Communication</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../reference/src/nova_synesis/communication/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../../reference/src/nova_synesis/communication/adapters.py.html">adapters.py</a></li></ul></details></li><li><a class="nav-list__link" href="../../../reference/src/nova_synesis/config.py.html">config.py</a></li><li class="nav-list__branch"><details ><summary>Domain</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../reference/src/nova_synesis/domain/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../../reference/src/nova_synesis/domain/models.py.html">models.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Memory</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../reference/src/nova_synesis/memory/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../../reference/src/nova_synesis/memory/systems.py.html">systems.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Persistence</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../reference/src/nova_synesis/persistence/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../../reference/src/nova_synesis/persistence/sqlite_repository.py.html">sqlite_repository.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Planning</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../reference/src/nova_synesis/planning/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../../reference/src/nova_synesis/planning/lit_planner.py.html">lit_planner.py</a></li><li><a class="nav-list__link" href="../../../reference/src/nova_synesis/planning/planner.py.html">planner.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Resources</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../reference/src/nova_synesis/resources/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../../reference/src/nova_synesis/resources/manager.py.html">manager.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Runtime</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../reference/src/nova_synesis/runtime/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../../reference/src/nova_synesis/runtime/engine.py.html">engine.py</a></li><li><a class="nav-list__link" href="../../../reference/src/nova_synesis/runtime/handlers.py.html">handlers.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Security</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../reference/src/nova_synesis/security/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../../reference/src/nova_synesis/security/policy.py.html">policy.py</a></li><li><a class="nav-list__link" href="../../../reference/src/nova_synesis/security/trust.py.html">trust.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Services</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../reference/src/nova_synesis/services/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="../../../reference/src/nova_synesis/services/orchestrator.py.html">orchestrator.py</a></li></ul></details></li></ul></details></li></ul></details></li><li class="nav-list__branch"><details ><summary>Tests</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../reference/tests/test_orchestrator.py.html">test_orchestrator.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Tools</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../reference/tools/build_code_release.ps1.html">build_code_release.ps1</a></li><li><a class="nav-list__link" href="../../../reference/tools/build_web_docs.py.html">build_web_docs.py</a></li><li><a class="nav-list__link" href="../../../reference/tools/generate_docs.py.html">generate_docs.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Use Cases</summary><ul class="nav-list"><li class="nav-list__branch"><details ><summary>Accounts Receivable Reminder</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../reference/Use_Cases/accounts_receivable_reminder/AUSFUEHRLICHE_DOKUMENTATION.md.html">AUSFUEHRLICHE_DOKUMENTATION.md</a></li><li><a class="nav-list__link" href="../../../reference/Use_Cases/accounts_receivable_reminder/flow.orders_csv.json.html">flow.orders_csv.json</a></li><li><a class="nav-list__link" href="../../../reference/Use_Cases/accounts_receivable_reminder/flow.orders_db.json.html">flow.orders_db.json</a></li><li><a class="nav-list__link" href="../../../reference/Use_Cases/accounts_receivable_reminder/flow.web_ui.orders_csv.json.html">flow.web_ui.orders_csv.json</a></li><li><a class="nav-list__link" href="../../../reference/Use_Cases/accounts_receivable_reminder/flow.web_ui.orders_db.json.html">flow.web_ui.orders_db.json</a></li><li><a class="nav-list__link" href="../../../reference/Use_Cases/accounts_receivable_reminder/run.ps1.html">run.ps1</a></li><li><a class="nav-list__link" href="../../../reference/Use_Cases/accounts_receivable_reminder/setup.ps1.html">setup.ps1</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>LLM Planer</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../reference/Use_Cases/LLM_Planer/prompt_01_smoke_message.txt.html">prompt_01_smoke_message.txt</a></li><li><a class="nav-list__link" href="../../../reference/Use_Cases/LLM_Planer/prompt_03_memory_roundtrip.txt.html">prompt_03_memory_roundtrip.txt</a></li><li><a class="nav-list__link" href="../../../reference/Use_Cases/LLM_Planer/prompt_04_resource_notify.txt.html">prompt_04_resource_notify.txt</a></li><li><a class="nav-list__link" href="../../../reference/Use_Cases/LLM_Planer/prompt_05_accounts_receivable_csv.txt.html">prompt_05_accounts_receivable_csv.txt</a></li><li><a class="nav-list__link" href="../../../reference/Use_Cases/LLM_Planer/prompt_06_accounts_receivable_db.txt.html">prompt_06_accounts_receivable_db.txt</a></li><li><a class="nav-list__link" href="../../../reference/Use_Cases/LLM_Planer/setup.ps1.html">setup.ps1</a></li><li><a class="nav-list__link" href="../../../reference/Use_Cases/LLM_Planer/verify.ps1.html">verify.ps1</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Platform Health Snapshot</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../reference/Use_Cases/platform_health_snapshot/flow.json.html">flow.json</a></li><li><a class="nav-list__link" href="../../../reference/Use_Cases/platform_health_snapshot/platform_health_snapshot.png.html">platform_health_snapshot.png</a></li><li><a class="nav-list__link" href="../../../reference/Use_Cases/platform_health_snapshot/run.ps1.html">run.ps1</a></li><li><a class="nav-list__link" href="../../../reference/Use_Cases/platform_health_snapshot/setup.ps1.html">setup.ps1</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Semantic Ticket Triage</summary><ul class="nav-list"><li><a class="nav-list__link" href="../../../reference/Use_Cases/semantic_ticket_triage/flow.json.html">flow.json</a></li><li><a class="nav-list__link" href="../../../reference/Use_Cases/semantic_ticket_triage/run.ps1.html">run.ps1</a></li><li><a class="nav-list__link" href="../../../reference/Use_Cases/semantic_ticket_triage/semantic_ticket_triage.png.html">semantic_ticket_triage.png</a></li><li><a class="nav-list__link" href="../../../reference/Use_Cases/semantic_ticket_triage/setup.ps1.html">setup.ps1</a></li></ul></details></li></ul></details></li></ul></section><section class="sidebar__group sidebar__group--meta"><h2>Search</h2><p>Use <kbd>/</kbd> to focus the search field and jump across guides, references and scenarios.</p></section>
-      </div>
-    </aside>
-
-    <div class="site-main">
-      <header class="site-header">
-        <button class="site-header__toggle" type="button" id="sidebar-toggle" aria-controls="site-sidebar" aria-expanded="false">
-          Menu
-        </button>
-        <div class="site-header__meta">
-          <p class="site-header__eyebrow">Generated documentation surface</p>
-          <h2>Repository: Use_Cases/accounts_receivable_reminder/AUSFUEHRLICHE_DOKUMENTATION.md</h2>
-        </div>
-        <div class="site-header__status">
-          <span class="status-chip">HTML docs</span>
-          <span class="status-chip status-chip--accent">2026-04-12 14:26 UTC</span>
-        </div>
-      </header>
-
-      <main class="content-shell">
-        <article class="doc-article">
-          <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="../../../index.html">Docs</a><span aria-current="page">reference</span></nav>
-          <section class="doc-hero">
-            <p class="doc-hero__eyebrow">Documentation</p>
-            <h1>Repository: Use_Cases/accounts_receivable_reminder/AUSFUEHRLICHE_DOKUMENTATION.md</h1>
-            <p>Repository file view for Use_Cases/accounts_receivable_reminder/AUSFUEHRLICHE_DOKUMENTATION.md</p>
-          </section>
-          <section class="doc-content">
-            <section class="source-meta"><p class="doc-hero__eyebrow">Repository file</p><h1>Use_Cases/accounts_receivable_reminder/AUSFUEHRLICHE_DOKUMENTATION.md</h1><p>Rendered source view for the repository file. 859 lines.</p></section><pre class="source-block"><code class="language-markdown"># Ausfuehrliche Dokumentation: Accounts Receivable Reminder
+# Ausfuehrliche Dokumentation: Accounts Receivable Reminder
 
 ## Zweck dieser Datei
 
@@ -272,14 +220,14 @@ Technische Ausgaben:
 
 Die Flows haben vier Kanten:
 
-1. `extract_open_receivables -&gt; serialize_receivables`
+1. `extract_open_receivables -> serialize_receivables`
    Bedingung: `True`
-2. `serialize_receivables -&gt; write_receivables_report`
+2. `serialize_receivables -> write_receivables_report`
    Bedingung: `True`
-3. `extract_open_receivables -&gt; generate_reminder_letters`
-   Bedingung: `results[&#x27;extract_open_receivables&#x27;][&#x27;customer_count&#x27;] &gt; 0`
-4. `generate_reminder_letters -&gt; persist_reminder_letters`
-   Bedingung: `results[&#x27;generate_reminder_letters&#x27;][&#x27;letter_count&#x27;] &gt; 0`
+3. `extract_open_receivables -> generate_reminder_letters`
+   Bedingung: `results['extract_open_receivables']['customer_count'] > 0`
+4. `generate_reminder_letters -> persist_reminder_letters`
+   Bedingung: `results['generate_reminder_letters']['letter_count'] > 0`
 
 Warum ist das wichtig?
 
@@ -909,19 +857,3 @@ Genau deshalb ist er fuer neue Entwickler gut geeignet:
 - lokale Artefakte
 - nachvollziehbare Datenfluesse
 - sauber testbar
-</code></pre>
-          </section>
-        </article>
-        <aside class="doc-toc">
-          <div class="doc-toc__card">
-            <p class="doc-toc__eyebrow">On this page</p>
-            <p class="toc__empty">Repository view</p>
-          </div>
-        </aside>
-      </main>
-    </div>
-  </div>
-  <script src="../../../assets/site-data.js"></script>
-  <script src="../../../assets/site.js"></script>
-</body>
-</html>

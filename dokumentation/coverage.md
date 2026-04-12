@@ -1,7 +1,7 @@
 # Abdeckung
 
-- Dokumentierte Projektdateien: `102`
-- Referenzdateien: `103`
+- Dokumentierte Projektdateien: `101`
+- Referenzdateien: `102`
 
 ## Ausgeschlossene Bereiche
 
@@ -18,7 +18,6 @@
 - `Fachartikel_NOVA-SYNESIS.md`
 - `LICENSE`
 - `LIT/README.md`
-- `LIT/planner_test_prompt.txt`
 - `README.md`
 - `Schnellstart.md`
 - `Use_Cases/LLM_Planer/README.md`

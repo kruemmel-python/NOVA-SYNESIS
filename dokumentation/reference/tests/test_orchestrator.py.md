@@ -34,6 +34,8 @@ Wenn neue Features abgesichert, Sicherheitsregeln erweitert oder Fehler reproduz
 - `test_lit_planner_falls_back_to_only_message_target_for_unknown_name(tmp_path)`: Funktion oder Definition `test_lit_planner_falls_back_to_only_message_target_for_unknown_name` dieses Moduls.
 - `test_lit_planner_omits_send_message_when_no_communication_target_exists(tmp_path)`: Funktion oder Definition `test_lit_planner_omits_send_message_when_no_communication_target_exists` dieses Moduls.
 - `test_lit_planner_repairs_agent_name_used_as_handler(tmp_path)`: Funktion oder Definition `test_lit_planner_repairs_agent_name_used_as_handler` dieses Moduls.
+- `test_lit_planner_repairs_filesystem_security_audit_flow(tmp_path)`: Funktion oder Definition `test_lit_planner_repairs_filesystem_security_audit_flow` dieses Moduls.
+- `test_lit_planner_local_llm_text_defaults_upstream_data_even_when_prompt_exists(tmp_path)`: Funktion oder Definition `test_lit_planner_local_llm_text_defaults_upstream_data_even_when_prompt_exists` dieses Moduls.
 - `test_lit_planner_repairs_topic_split_and_write_csv_upstream_references(tmp_path)`: Funktion oder Definition `test_lit_planner_repairs_topic_split_and_write_csv_upstream_references` dieses Moduls.
 - `test_lit_planner_replaces_placeholder_write_csv_fieldnames_for_topic_split(tmp_path)`: Funktion oder Definition `test_lit_planner_replaces_placeholder_write_csv_fieldnames_for_topic_split` dieses Moduls.
 - `test_lit_planner_rewires_write_csv_from_generate_embedding_back_to_topic_split_csv_rows(tmp_path)`: Funktion oder Definition `test_lit_planner_rewires_write_csv_from_generate_embedding_back_to_topic_split_csv_rows` dieses Moduls.
@@ -59,6 +61,8 @@ Wenn neue Features abgesichert, Sicherheitsregeln erweitert oder Fehler reproduz
 - `test_accounts_receivable_workflow_from_sqlite_generates_letters(tmp_path)`: Funktion oder Definition `test_accounts_receivable_workflow_from_sqlite_generates_letters` dieses Moduls.
 - `test_accounts_receivable_workflow_can_generate_letter_text_with_local_llm(tmp_path)`: Funktion oder Definition `test_accounts_receivable_workflow_can_generate_letter_text_with_local_llm` dieses Moduls.
 - `test_accounts_receivable_preview_endpoint_returns_llm_draft(tmp_path)`: Funktion oder Definition `test_accounts_receivable_preview_endpoint_returns_llm_draft` dieses Moduls.
+- `test_local_llm_text_handler_generates_text_from_instruction_and_data(tmp_path)`: Funktion oder Definition `test_local_llm_text_handler_generates_text_from_instruction_and_data` dieses Moduls.
+- `test_local_llm_text_handler_uses_prompt_and_data_without_follow_up_requests(tmp_path)`: Funktion oder Definition `test_local_llm_text_handler_uses_prompt_and_data_without_follow_up_requests` dieses Moduls.
 
 ## Abhaengigkeiten
 

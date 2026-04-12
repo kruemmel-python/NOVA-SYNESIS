@@ -21,8 +21,12 @@ Der Planner erzeugt keine Mock-Graphen. Er nutzt die lokale `lit`-Binary und das
 - wenn auch der Retry scheitert, ist die Modell-/Binary-/Backend-Kombination wahrscheinlich nicht kompatibel
 - bei freien Prompts bootstrappt der Planner automatisch `nova-system-agent`, `planner-scratch` und `planner-vector`, falls diese Objekte noch nicht existieren
 - freie Web- oder CSV-Workflows koennen auf die Built-ins `news_search`, `topic_split` und `write_csv` zurueckgreifen
+- lokale Datei- und Audit-Workflows koennen auf `filesystem_read`, `local_llm_text` und `filesystem_write` geplant werden
 - wenn das Modell im Vector-Pfad nur Platzhalter wie `{"embedding":"..."}` liefert, repariert der Planner neue Flows auf echte `generate_embedding`-Result-Referenzen
 - bereits gespeicherte Alt-Flows mit demselben Platzhalterfehler werden zur Laufzeit im `memory_store`-Handler auf das echte Upstream-Embedding umgebogen
+- wenn das Modell bei `topic_split`, `write_csv`, `filesystem_read`, `filesystem_write` oder `local_llm_text` Aliasfelder, falsche Referenzformen oder Agentennamen als Handler liefert, normalisiert der Planner diese Inputs und Handler-Namen auf die echten Built-ins
+- wenn ein Audit- oder Review-Node bereits einen Prompt besitzt, sorgt die Planner-Normalisierung trotzdem dafuer, dass die Upstream-Daten als `data` in den Node wandern
+- der lokale Text-Handler erzwingt im Zusammenspiel mit dem Planner eine finale Antwort und verhindert Folgefragen wie `Please provide ...`, sobald ein Prompt und echte Eingangsdaten vorliegen
 
 ## Wichtige Sicherheitsgrenzen
 

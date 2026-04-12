@@ -88,6 +88,7 @@ Methoden:
 - `_normalize_upstream_collection_input(raw_value, dependency_node_id, expected_field, handler_name, node_id, input_key)`: Funktion oder Definition `_normalize_upstream_collection_input` dieses Moduls.
 - `_normalize_topic_split_csv_fieldnames(raw_value, *, node_id)`: Funktion oder Definition `_normalize_topic_split_csv_fieldnames` dieses Moduls.
 - `_normalize_upstream_result_input(raw_value, dependency_node_id, handler_name, node_id, input_key)`: Funktion oder Definition `_normalize_upstream_result_input` dieses Moduls.
+- `_normalize_upstream_field_input(raw_value, dependency_node_id, expected_field, handler_name, node_id, input_key)`: Funktion oder Definition `_normalize_upstream_field_input` dieses Moduls.
 - `_is_placeholder_input_shell(cls, raw_value)`: Funktion oder Definition `_is_placeholder_input_shell` dieses Moduls.
 - `_looks_like_result_reference(raw_value, dependency_node_id)`: Funktion oder Definition `_looks_like_result_reference` dieses Moduls.
 - `_normalize_upstream_result_reference_expression(raw_expression, dependency_node_id)`: Funktion oder Definition `_normalize_upstream_result_reference_expression` dieses Moduls.

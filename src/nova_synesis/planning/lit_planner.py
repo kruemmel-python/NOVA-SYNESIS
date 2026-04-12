@@ -338,6 +338,8 @@ class LiteRTPlanner:
     def _build_handler_section(self, handlers: list[str], detail_level: str) -> str:
         contract_map = {
             "http_request": "http_request: input keys url, method, optional headers/params/json/data",
+            "filesystem_read": "filesystem_read: input key path; reads a local file from the working directory",
+            "filesystem_write": "filesystem_write: input keys path, content, optional append; writes a local file in the working directory",
             "news_search": (
                 "news_search: input keys query, optional language, country, time_range, max_items; "
                 "uses the built-in Google News RSS search internally, does not require a manual URL, "
@@ -358,6 +360,10 @@ class LiteRTPlanner:
             "send_message": "send_message: input keys target_agent_name or target_agent_id, message",
             "resource_health_check": "resource_health_check: optional resource_ids list",
             "template_render": "template_render: input keys template, values",
+            "local_llm_text": (
+                "local_llm_text: input keys prompt or instruction plus data, optional system_prompt and timeout_s; "
+                "returns text and prompt for local LiteRT-based analysis or generation"
+            ),
             "merge_payloads": "merge_payloads: input keys base, updates",
             "read_file": "read_file: input key path",
             "write_file": "write_file: input keys path, content, optional append",
@@ -518,6 +524,23 @@ class LiteRTPlanner:
         raw_handler_name = str(raw_node.get("handler_name", "")).strip()
         if raw_handler_name in handler_set:
             return raw_handler_name
+        alias_map = {
+            "filesystem_read": "read_file",
+            "file_read": "read_file",
+            "filesystem_load": "read_file",
+            "filesystem_write": "write_file",
+            "file_write": "write_file",
+            "filesystem_save": "write_file",
+            "security_audit": "local_llm_text",
+            "vulnerability_scan": "local_llm_text",
+            "code_audit": "local_llm_text",
+        }
+        alias_target = alias_map.get(raw_handler_name.casefold())
+        if alias_target in handler_set:
+            warnings.append(
+                f"Planner selected alias handler '{raw_handler_name}' for node '{node_id}'; normalized it to '{alias_target}'"
+            )
+            return alias_target
 
         fallback = self._infer_handler_name(raw_node, handler_set)
         if fallback is not None:
@@ -555,6 +578,27 @@ class LiteRTPlanner:
 
         if "write_csv" in handler_set and has_any("csv", ".csv", "comma separated"):
             return "write_csv"
+        if "local_llm_text" in handler_set and has_any(
+            "security",
+            "audit",
+            "vulnerab",
+            "scan",
+            "review",
+            "logic flaw",
+            "logic-flaw",
+            "injection",
+            "typescript",
+            "javascript",
+            "code analysis",
+            "static analysis",
+        ):
+            return "local_llm_text"
+        if "filesystem_read" in handler_set and has_any("filesystem_read"):
+            return "filesystem_read"
+        if "read_file" in handler_set and has_any("read file", "load file", "ingest file", "local file"):
+            return "read_file"
+        if "filesystem_write" in handler_set and has_any("filesystem_write"):
+            return "filesystem_write"
         if "topic_split" in handler_set and has_any(
             "topic",
             "theme",
@@ -1604,6 +1648,89 @@ class LiteRTPlanner:
             input_payload.setdefault("time_range", "7d")
             input_payload.setdefault("max_items", 20)
 
+        if handler_name in {"read_file", "filesystem_read"}:
+            if "path" not in input_payload:
+                for alias in ("file", "filepath", "source_path", "filename"):
+                    if alias in input_payload:
+                        input_payload["path"] = input_payload.pop(alias)
+                        warnings.append(
+                            f"{handler_name} node '{node_id}' used '{alias}'; remapped to 'path'"
+                        )
+                        break
+
+        if handler_name == "local_llm_text":
+            if "data" not in input_payload:
+                for alias in ("content", "code", "text", "input", "value", "document", "source", "result"):
+                    if alias in input_payload:
+                        input_payload["data"] = input_payload.pop(alias)
+                        warnings.append(
+                            f"local_llm_text node '{node_id}' used '{alias}'; remapped to 'data'"
+                        )
+                        break
+            title_context = f"{node_id} {title}".casefold()
+            if "prompt" not in input_payload and "instruction" not in input_payload:
+                if any(token in title_context for token in ("format", "summary", "report", "structured")):
+                    default_instruction = (
+                        "Convert the provided findings into a finished structured technical summary. "
+                        "Do not ask for more input."
+                    )
+                elif any(token in title_context for token in ("audit", "security", "vulnerab", "scan", "review")):
+                    default_instruction = (
+                        "Audit the provided source code for security vulnerabilities, injection risks, logic flaws, "
+                        "unsafe file operations and privilege escalation paths. Return a concise technical report."
+                    )
+                else:
+                    default_instruction = "Analyze the provided input and return a concise technical result."
+                input_payload.setdefault("instruction", default_instruction)
+            if dependencies:
+                dependency_node_id = dependencies[-1]
+                expected_field = None
+                if upstream_handler_name in {"read_file", "filesystem_read"}:
+                    expected_field = "content"
+                elif upstream_handler_name == "local_llm_text":
+                    expected_field = "text"
+                elif upstream_handler_name == "template_render":
+                    expected_field = "rendered"
+                elif upstream_handler_name == "json_serialize":
+                    expected_field = "serialized"
+
+                if "data" not in input_payload:
+                    if expected_field is None:
+                        input_payload["data"] = upstream_reference
+                        warnings.append(
+                            f"local_llm_text node '{node_id}' had no data; defaulted to upstream '{dependency_node_id}' result reference"
+                        )
+                    else:
+                        input_payload["data"] = {
+                            "$ref": f"results['{dependency_node_id}']['{expected_field}']"
+                        }
+                        warnings.append(
+                            f"local_llm_text node '{node_id}' had no data; defaulted to upstream '{dependency_node_id}.{expected_field}' reference"
+                        )
+                elif "data" in input_payload and expected_field is not None:
+                    normalized_data, data_warning = LiteRTPlanner._normalize_upstream_field_input(
+                        raw_value=input_payload.get("data"),
+                        dependency_node_id=dependency_node_id,
+                        expected_field=expected_field,
+                        handler_name=handler_name,
+                        node_id=node_id,
+                        input_key="data",
+                    )
+                    input_payload["data"] = normalized_data
+                    if data_warning:
+                        warnings.append(data_warning)
+                elif "data" in input_payload:
+                    normalized_data, data_warning = LiteRTPlanner._normalize_upstream_result_input(
+                        raw_value=input_payload.get("data"),
+                        dependency_node_id=dependency_node_id,
+                        handler_name=handler_name,
+                        node_id=node_id,
+                        input_key="data",
+                    )
+                    input_payload["data"] = normalized_data
+                    if data_warning:
+                        warnings.append(data_warning)
+
         if handler_name == "generate_embedding":
             if "data" not in input_payload:
                 for alias in ("value", "text", "content", "payload", "input"):
@@ -1754,6 +1881,67 @@ class LiteRTPlanner:
         if handler_name == "json_serialize":
             input_payload.setdefault("value", upstream_reference)
             input_payload.setdefault("indent", 2)
+
+        if handler_name in {"write_file", "filesystem_write"}:
+            if "path" not in input_payload:
+                for alias in ("file", "filepath", "output_path", "filename"):
+                    if alias in input_payload:
+                        input_payload["path"] = input_payload.pop(alias)
+                        warnings.append(
+                            f"{handler_name} node '{node_id}' used '{alias}'; remapped to 'path'"
+                        )
+                        break
+            input_payload.setdefault("path", f"{node_id}.txt")
+            if "content" not in input_payload:
+                for alias in ("text", "code", "report", "data", "value", "body"):
+                    if alias in input_payload:
+                        input_payload["content"] = input_payload.pop(alias)
+                        warnings.append(
+                            f"{handler_name} node '{node_id}' used '{alias}'; remapped to 'content'"
+                        )
+                        break
+            if dependencies:
+                dependency_node_id = dependencies[-1]
+                expected_field = None
+                if upstream_handler_name == "local_llm_text":
+                    expected_field = "text"
+                elif upstream_handler_name == "template_render":
+                    expected_field = "rendered"
+                elif upstream_handler_name == "json_serialize":
+                    expected_field = "serialized"
+                elif upstream_handler_name in {"read_file", "filesystem_read"}:
+                    expected_field = "content"
+
+                if "content" not in input_payload:
+                    if expected_field is None:
+                        input_payload["content"] = upstream_reference
+                    else:
+                        input_payload["content"] = {
+                            "$ref": f"results['{dependency_node_id}']['{expected_field}']"
+                        }
+                elif expected_field is not None:
+                    normalized_content, content_warning = LiteRTPlanner._normalize_upstream_field_input(
+                        raw_value=input_payload.get("content"),
+                        dependency_node_id=dependency_node_id,
+                        expected_field=expected_field,
+                        handler_name=handler_name,
+                        node_id=node_id,
+                        input_key="content",
+                    )
+                    input_payload["content"] = normalized_content
+                    if content_warning:
+                        warnings.append(content_warning)
+                else:
+                    normalized_content, content_warning = LiteRTPlanner._normalize_upstream_result_input(
+                        raw_value=input_payload.get("content"),
+                        dependency_node_id=dependency_node_id,
+                        handler_name=handler_name,
+                        node_id=node_id,
+                        input_key="content",
+                    )
+                    input_payload["content"] = normalized_content
+                    if content_warning:
+                        warnings.append(content_warning)
 
         if handler_name == "write_csv":
             input_payload.setdefault("path", f"{node_id}.csv")
@@ -1928,6 +2116,57 @@ class LiteRTPlanner:
             return (
                 canonical_ref,
                 f"{handler_name} node '{node_id}' defaulted {input_key} to upstream '{dependency_node_id}' result reference",
+            )
+
+        return raw_value, None
+
+    @staticmethod
+    def _normalize_upstream_field_input(
+        raw_value: Any,
+        dependency_node_id: str,
+        expected_field: str,
+        handler_name: str,
+        node_id: str,
+        input_key: str,
+    ) -> tuple[Any, str | None]:
+        canonical_ref = {"$ref": f"results['{dependency_node_id}']['{expected_field}']"}
+
+        if isinstance(raw_value, dict):
+            raw_ref = raw_value.get("$ref")
+            if isinstance(raw_ref, str):
+                normalized_ref, changed = LiteRTPlanner._normalize_result_reference_expression(
+                    raw_expression=raw_ref,
+                    dependency_node_id=dependency_node_id,
+                    expected_field=expected_field,
+                )
+                if changed:
+                    return (
+                        {"$ref": normalized_ref},
+                        f"{handler_name} node '{node_id}' repaired {input_key} reference to upstream '{dependency_node_id}.{expected_field}'",
+                    )
+                return raw_value, None
+            if LiteRTPlanner._is_placeholder_input_shell(raw_value):
+                return (
+                    canonical_ref,
+                    f"{handler_name} node '{node_id}' replaced placeholder {input_key} shell with upstream '{dependency_node_id}.{expected_field}' reference",
+                )
+            return raw_value, None
+
+        if isinstance(raw_value, str) and raw_value.strip():
+            normalized_ref, _ = LiteRTPlanner._normalize_result_reference_expression(
+                raw_expression=raw_value,
+                dependency_node_id=dependency_node_id,
+                expected_field=expected_field,
+            )
+            return (
+                {"$ref": normalized_ref},
+                f"{handler_name} node '{node_id}' converted string {input_key} to upstream '{dependency_node_id}.{expected_field}' reference",
+            )
+
+        if raw_value is None or LiteRTPlanner._is_placeholder_input_shell(raw_value):
+            return (
+                canonical_ref,
+                f"{handler_name} node '{node_id}' defaulted {input_key} to upstream '{dependency_node_id}.{expected_field}' reference",
             )
 
         return raw_value, None

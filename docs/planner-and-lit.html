@@ -37,7 +37,7 @@
         </div>
         <div class="site-header__status">
           <span class="status-chip">HTML docs</span>
-          <span class="status-chip status-chip--accent">2026-04-12 04:04 UTC</span>
+          <span class="status-chip status-chip--accent">2026-04-12 14:26 UTC</span>
         </div>
       </header>
 
@@ -71,8 +71,12 @@
 <li>wenn auch der Retry scheitert, ist die Modell-/Binary-/Backend-Kombination wahrscheinlich nicht kompatibel</li>
 <li>bei freien Prompts bootstrappt der Planner automatisch <code>nova-system-agent</code>, <code>planner-scratch</code> und <code>planner-vector</code>, falls diese Objekte noch nicht existieren</li>
 <li>freie Web- oder CSV-Workflows koennen auf die Built-ins <code>news_search</code>, <code>topic_split</code> und <code>write_csv</code> zurueckgreifen</li>
+<li>lokale Datei- und Audit-Workflows koennen auf <code>filesystem_read</code>, <code>local_llm_text</code> und <code>filesystem_write</code> geplant werden</li>
 <li>wenn das Modell im Vector-Pfad nur Platzhalter wie <code>{"embedding":"..."}</code> liefert, repariert der Planner neue Flows auf echte <code>generate_embedding</code>-Result-Referenzen</li>
 <li>bereits gespeicherte Alt-Flows mit demselben Platzhalterfehler werden zur Laufzeit im <code>memory_store</code>-Handler auf das echte Upstream-Embedding umgebogen</li>
+<li>wenn das Modell bei <code>topic_split</code>, <code>write_csv</code>, <code>filesystem_read</code>, <code>filesystem_write</code> oder <code>local_llm_text</code> Aliasfelder, falsche Referenzformen oder Agentennamen als Handler liefert, normalisiert der Planner diese Inputs und Handler-Namen auf die echten Built-ins</li>
+<li>wenn ein Audit- oder Review-Node bereits einen Prompt besitzt, sorgt die Planner-Normalisierung trotzdem dafuer, dass die Upstream-Daten als <code>data</code> in den Node wandern</li>
+<li>der lokale Text-Handler erzwingt im Zusammenspiel mit dem Planner eine finale Antwort und verhindert Folgefragen wie <code>Please provide ...</code>, sobald ein Prompt und echte Eingangsdaten vorliegen</li>
 </ul>
 <h2 id="wichtige-sicherheitsgrenzen"><a class="heading-anchor" href="#wichtige-sicherheitsgrenzen">Wichtige Sicherheitsgrenzen</a></h2>
 <ul>

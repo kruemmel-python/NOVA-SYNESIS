@@ -4,6 +4,7 @@ import ast
 import os
 import re
 import shutil
+import subprocess
 from collections import defaultdict
 from pathlib import Path
 
@@ -237,6 +238,9 @@ SYMBOL_NOTES = {
     'TaskHandlerRegistry': 'Registry der registrierten Runtime-Handler.',
     'TaskHandlerRegistry.issue_certificate': 'Erzeugt ein digitales Zertifikat fuer einen bereits registrierten Handler.',
     'register_default_handlers': 'Registriert alle eingebauten Handler.',
+    'read_file_handler': 'Liest lokale Dateien aus dem Arbeitsverzeichnis und stellt ihren Inhalt fuer nachgelagerte Nodes bereit.',
+    'write_file_handler': 'Schreibt Text- oder JSON-Inhalte in lokale Dateien innerhalb des Arbeitsverzeichnisses.',
+    'local_llm_text_handler': 'Erzeugt oder analysiert Text lokal ueber LiteRT und kombiniert dabei Benutzerprompt und Upstream-Daten zu einer finalen Antwort.',
     'SQLiteRepository': 'Persistenzschicht fuer SQLite.',
     'LiteRTPlanner': 'Lokale LLM-Planung ueber LiteRT-LM.',
     'LiteRTPlanner.generate_text': 'Erzeugt reinen Modelltext ueber den lokalen LiteRT-Stack ausserhalb des Graph-Planungsmodus.',
@@ -572,6 +576,23 @@ Die Backend-Laufzeit wird durch `OrchestratorService` zusammengesetzt. Er verdra
 - Freigaben liegen an `Task.manual_approval` und werden im Flow-Snapshot persistiert.
 - `POST /flows/{flow_id}/nodes/{node_id}/approval` und `DELETE /flows/{flow_id}/nodes/{node_id}/approval` aendern den Freigabestatus ohne den ganzen Flow neu anzulegen.
 
+## Relevante Runtime-Handler fuer freie Arbeitsablaeufe
+
+- `news_search` zieht Nachrichten intern ueber RSS und braucht keine manuell gesetzte Ziel-URL
+- `topic_split` erwartet eine echte Listenstruktur in `items` und erzeugt daraus `categorized_items` und `csv_rows`
+- `generate_embedding` erzeugt den Vektor-Payload fuer `memory_store` in Vector-Memories
+- `memory_store` speichert einfache Werte oder Embeddings; bei alten Platzhalter-Flows biegt der Runtime-Pfad offensichtliche Scheindaten auf das echte Upstream-Ergebnis um
+- `filesystem_read` und `filesystem_write` sind technische Alias-Handler fuer lokale Datei-Workflows und vereinheitlichen Planner-Prompts fuer Audit- oder Reporting-Flows
+- `local_llm_text` ist der generische lokale Text- und Analyse-Handler fuer Review-, Audit-, Zusammenfassungs- und Reporting-Nodes
+
+## Audit- und Analyse-Pfade mit lokalem LLM
+
+- Ein typischer lokaler Audit-Flow liest zunaechst eine Datei ueber `filesystem_read`
+- Danach analysiert `local_llm_text` den Dateiinhalt mit einem Prompt oder einer standardisierten Audit-Instruktion
+- Wenn Upstream-Daten vorhanden sind, kombiniert der Handler Prompt und Daten zu einer finalen Modellanfrage
+- Meta-Antworten wie `Please provide ...` werden serverseitig abgefangen und in eine direkte Endausgabe umgelenkt, damit kein halbfertiger Rueckfrage-Text im Report landet
+- `filesystem_write` speichert die finalen Analyse- oder Reporttexte wieder lokal ab
+
 ## Regel fuer Aenderungen
 
 Wenn du etwas an einem Runtime-Vertrag aenderst, pruefe fast immer gleichzeitig API, Domaenenmodell, Engine, Frontend-Typen, Serialisierung und Tests.
@@ -634,8 +655,12 @@ Der Planner erzeugt keine Mock-Graphen. Er nutzt die lokale `lit`-Binary und das
 - wenn auch der Retry scheitert, ist die Modell-/Binary-/Backend-Kombination wahrscheinlich nicht kompatibel
 - bei freien Prompts bootstrappt der Planner automatisch `nova-system-agent`, `planner-scratch` und `planner-vector`, falls diese Objekte noch nicht existieren
 - freie Web- oder CSV-Workflows koennen auf die Built-ins `news_search`, `topic_split` und `write_csv` zurueckgreifen
+- lokale Datei- und Audit-Workflows koennen auf `filesystem_read`, `local_llm_text` und `filesystem_write` geplant werden
 - wenn das Modell im Vector-Pfad nur Platzhalter wie `{"embedding":"..."}` liefert, repariert der Planner neue Flows auf echte `generate_embedding`-Result-Referenzen
 - bereits gespeicherte Alt-Flows mit demselben Platzhalterfehler werden zur Laufzeit im `memory_store`-Handler auf das echte Upstream-Embedding umgebogen
+- wenn das Modell bei `topic_split`, `write_csv`, `filesystem_read`, `filesystem_write` oder `local_llm_text` Aliasfelder, falsche Referenzformen oder Agentennamen als Handler liefert, normalisiert der Planner diese Inputs und Handler-Namen auf die echten Built-ins
+- wenn ein Audit- oder Review-Node bereits einen Prompt besitzt, sorgt die Planner-Normalisierung trotzdem dafuer, dass die Upstream-Daten als `data` in den Node wandern
+- der lokale Text-Handler erzwingt im Zusammenspiel mit dem Planner eine finale Antwort und verhindert Folgefragen wie `Please provide ...`, sobald ein Prompt und echte Eingangsdaten vorliegen
 
 ## Wichtige Sicherheitsgrenzen
 
@@ -1262,7 +1287,28 @@ def excluded(path: Path) -> bool:
 
 
 def project_files() -> list[Path]:
-    files = [p for p in ROOT.rglob('*') if p.is_file() and not excluded(p)]
+    tracked_files: list[Path] | None = None
+    try:
+        result = subprocess.run(
+            ['git', 'ls-files'],
+            cwd=ROOT,
+            check=True,
+            capture_output=True,
+            text=True,
+            encoding='utf-8',
+        )
+        tracked_files = []
+        for line in result.stdout.splitlines():
+            relative = line.strip()
+            if not relative:
+                continue
+            candidate = ROOT / relative
+            if candidate.is_file() and not excluded(candidate):
+                tracked_files.append(candidate)
+    except (OSError, subprocess.SubprocessError):
+        tracked_files = None
+
+    files = tracked_files if tracked_files is not None else [p for p in ROOT.rglob('*') if p.is_file() and not excluded(p)]
     return sorted(files, key=lambda p: rel(p))
 
 

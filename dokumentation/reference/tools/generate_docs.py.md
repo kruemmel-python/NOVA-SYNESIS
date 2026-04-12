@@ -41,6 +41,7 @@ Wenn Verhalten, API, UI oder Architektur angepasst werden muessen.
 - `import os`
 - `import re`
 - `import shutil`
+- `import subprocess`
 - `from collections import defaultdict`
 - `from pathlib import Path`
 

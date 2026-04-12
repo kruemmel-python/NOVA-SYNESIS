@@ -37,7 +37,7 @@
         </div>
         <div class="site-header__status">
           <span class="status-chip">HTML docs</span>
-          <span class="status-chip status-chip--accent">2026-04-12 04:04 UTC</span>
+          <span class="status-chip status-chip--accent">2026-04-12 14:26 UTC</span>
         </div>
       </header>
 
@@ -50,7 +50,7 @@
             <p>Repository file view for tests/test_orchestrator.py</p>
           </section>
           <section class="doc-content">
-            <section class="source-meta"><p class="doc-hero__eyebrow">Repository file</p><h1>tests/test_orchestrator.py</h1><p>Rendered source view for the repository file. 2261 lines.</p></section><pre class="source-block"><code class="language-python">from __future__ import annotations
+            <section class="source-meta"><p class="doc-hero__eyebrow">Repository file</p><h1>tests/test_orchestrator.py</h1><p>Rendered source view for the repository file. 2437 lines.</p></section><pre class="source-block"><code class="language-python">from __future__ import annotations
 
 import asyncio
 import argparse
@@ -941,6 +941,111 @@ def test_lit_planner_repairs_agent_name_used_as_handler(tmp_path: Path) -&gt; No
     assert normalized[&quot;nodes&quot;][0][&quot;preferred_agent_id&quot;] == 5
     assert normalized[&quot;nodes&quot;][0][&quot;input&quot;][&quot;topics&quot;] == [&quot;Robotik&quot;, &quot;KI&quot;]
     assert any(&quot;replaced it with &#x27;topic_split&#x27;&quot; in warning for warning in warnings)
+
+
+def test_lit_planner_repairs_filesystem_security_audit_flow(tmp_path: Path) -&gt; None:
+    planner = LiteRTPlanner(build_settings(tmp_path))
+    normalized, warnings = planner._normalize_flow_request(
+        parsed={
+            &quot;nodes&quot;: [
+                {
+                    &quot;node_id&quot;: &quot;file_load&quot;,
+                    &quot;title&quot;: &quot;Load local source file&quot;,
+                    &quot;handler_name&quot;: &quot;filesystem_read&quot;,
+                    &quot;input&quot;: {&quot;file&quot;: &quot;my_server.ts&quot;},
+                },
+                {
+                    &quot;node_id&quot;: &quot;vulnerability_scan&quot;,
+                    &quot;title&quot;: &quot;Security audit using nova-system-agent&quot;,
+                    &quot;handler_name&quot;: &quot;nova-system-agent&quot;,
+                    &quot;input&quot;: {&quot;code&quot;: &quot;{{file_load.content}}&quot;},
+                    &quot;dependencies&quot;: [&quot;file_load&quot;],
+                },
+                {
+                    &quot;node_id&quot;: &quot;write_report&quot;,
+                    &quot;title&quot;: &quot;Write audit report&quot;,
+                    &quot;handler_name&quot;: &quot;filesystem_write&quot;,
+                    &quot;input&quot;: {&quot;path&quot;: &quot;sl.txt&quot;, &quot;code&quot;: &quot;{{vulnerability_scan.text}}&quot;},
+                    &quot;dependencies&quot;: [&quot;vulnerability_scan&quot;],
+                },
+            ],
+            &quot;edges&quot;: [
+                {&quot;from_node&quot;: &quot;file_load&quot;, &quot;to_node&quot;: &quot;vulnerability_scan&quot;, &quot;condition&quot;: &quot;True&quot;},
+                {&quot;from_node&quot;: &quot;vulnerability_scan&quot;, &quot;to_node&quot;: &quot;write_report&quot;, &quot;condition&quot;: &quot;True&quot;},
+            ],
+        },
+        catalog=PlannerCatalog(
+            handlers=[&quot;filesystem_read&quot;, &quot;local_llm_text&quot;, &quot;filesystem_write&quot;],
+            agents=[
+                {
+                    &quot;agent_id&quot;: 9,
+                    &quot;name&quot;: &quot;nova-system-agent&quot;,
+                    &quot;role&quot;: &quot;system&quot;,
+                    &quot;capabilities&quot;: [],
+                    &quot;communication&quot;: None,
+                }
+            ],
+            resources=[],
+            memory_systems=[],
+        ),
+        max_nodes=4,
+    )
+
+    file_load = next(node for node in normalized[&quot;nodes&quot;] if node[&quot;node_id&quot;] == &quot;file_load&quot;)
+    vulnerability_scan = next(node for node in normalized[&quot;nodes&quot;] if node[&quot;node_id&quot;] == &quot;vulnerability_scan&quot;)
+    write_report = next(node for node in normalized[&quot;nodes&quot;] if node[&quot;node_id&quot;] == &quot;write_report&quot;)
+
+    assert file_load[&quot;handler_name&quot;] == &quot;filesystem_read&quot;
+    assert file_load[&quot;input&quot;][&quot;path&quot;] == &quot;my_server.ts&quot;
+    assert vulnerability_scan[&quot;handler_name&quot;] == &quot;local_llm_text&quot;
+    assert vulnerability_scan[&quot;preferred_agent_id&quot;] == 9
+    assert vulnerability_scan[&quot;input&quot;][&quot;data&quot;] == {&quot;$ref&quot;: &quot;results[&#x27;file_load&#x27;][&#x27;content&#x27;]&quot;}
+    assert &quot;Audit the provided source code for security vulnerabilities&quot; in vulnerability_scan[&quot;input&quot;][&quot;instruction&quot;]
+    assert write_report[&quot;handler_name&quot;] == &quot;filesystem_write&quot;
+    assert write_report[&quot;input&quot;][&quot;content&quot;] == {&quot;$ref&quot;: &quot;results[&#x27;vulnerability_scan&#x27;][&#x27;text&#x27;]&quot;}
+    assert any(&quot;normalized it to &#x27;local_llm_text&#x27;&quot; in warning or &quot;replaced it with &#x27;local_llm_text&#x27;&quot; in warning for warning in warnings)
+
+
+def test_lit_planner_local_llm_text_defaults_upstream_data_even_when_prompt_exists(tmp_path: Path) -&gt; None:
+    planner = LiteRTPlanner(build_settings(tmp_path))
+    normalized, warnings = planner._normalize_flow_request(
+        parsed={
+            &quot;nodes&quot;: [
+                {
+                    &quot;node_id&quot;: &quot;file_load&quot;,
+                    &quot;handler_name&quot;: &quot;filesystem_read&quot;,
+                    &quot;input&quot;: {&quot;path&quot;: &quot;my_server.ts&quot;},
+                },
+                {
+                    &quot;node_id&quot;: &quot;format_report&quot;,
+                    &quot;title&quot;: &quot;Format structured report&quot;,
+                    &quot;handler_name&quot;: &quot;local_llm_text&quot;,
+                    &quot;input&quot;: {
+                        &quot;prompt&quot;: &quot;Please provide the ${vulnerability_scan.result} so I can format it.&quot;
+                    },
+                    &quot;dependencies&quot;: [&quot;file_load&quot;],
+                },
+            ],
+            &quot;edges&quot;: [
+                {&quot;from_node&quot;: &quot;file_load&quot;, &quot;to_node&quot;: &quot;format_report&quot;, &quot;condition&quot;: &quot;True&quot;},
+            ],
+        },
+        catalog=PlannerCatalog(
+            handlers=[&quot;filesystem_read&quot;, &quot;local_llm_text&quot;],
+            agents=[],
+            resources=[],
+            memory_systems=[],
+        ),
+        max_nodes=4,
+    )
+
+    format_report = next(node for node in normalized[&quot;nodes&quot;] if node[&quot;node_id&quot;] == &quot;format_report&quot;)
+    assert format_report[&quot;input&quot;][&quot;data&quot;] == {&quot;$ref&quot;: &quot;results[&#x27;file_load&#x27;][&#x27;content&#x27;]&quot;}
+    assert any(
+        &quot;local_llm_text node &#x27;format_report&#x27; had no data; defaulted to upstream &#x27;file_load.content&#x27; reference&quot;
+        in warning
+        for warning in warnings
+    )
 
 
 def test_lit_planner_repairs_topic_split_and_write_csv_upstream_references(tmp_path: Path) -&gt; None:
@@ -2311,6 +2416,77 @@ def test_accounts_receivable_preview_endpoint_returns_llm_draft(tmp_path: Path) 
         assert payload[&quot;source_summary&quot;][&quot;customer_count&quot;] == 2
     finally:
         asyncio.run(orchestrator.shutdown())
+
+
+def test_local_llm_text_handler_generates_text_from_instruction_and_data(tmp_path: Path) -&gt; None:
+    def fake_llm(prompt: str, settings: Settings, *, timeout_s: int | None = None) -&gt; str:
+        assert &quot;Audit the following file for security flaws.&quot; in prompt
+        assert &quot;const apiKey = process.env.API_KEY;&quot; in prompt
+        assert timeout_s == settings.lit_timeout_s
+        return &quot;Potential issue: secret handling should avoid direct exposure.&quot;
+
+    async def run() -&gt; None:
+        orchestrator = create_orchestrator(build_settings(tmp_path))
+        try:
+            with patch(&quot;nova_synesis.runtime.handlers._generate_local_text&quot;, side_effect=fake_llm):
+                flow = orchestrator.create_flow(
+                    nodes=[
+                        {
+                            &quot;node_id&quot;: &quot;audit_code&quot;,
+                            &quot;handler_name&quot;: &quot;local_llm_text&quot;,
+                            &quot;input&quot;: {
+                                &quot;instruction&quot;: &quot;Audit the following file for security flaws.&quot;,
+                                &quot;data&quot;: &quot;const apiKey = process.env.API_KEY;&quot;,
+                            },
+                        }
+                    ]
+                )
+                snapshot = await orchestrator.run_flow(int(flow[&quot;flow_id&quot;]))
+
+            assert snapshot[&quot;state&quot;] == &quot;COMPLETED&quot;
+            result = snapshot[&quot;results&quot;][&quot;audit_code&quot;]
+            assert result[&quot;text&quot;] == &quot;Potential issue: secret handling should avoid direct exposure.&quot;
+            assert &quot;Audit the following file for security flaws.&quot; in result[&quot;prompt&quot;]
+        finally:
+            await orchestrator.shutdown()
+
+    asyncio.run(run())
+
+
+def test_local_llm_text_handler_uses_prompt_and_data_without_follow_up_requests(tmp_path: Path) -&gt; None:
+    captured_prompt: dict[str, str] = {}
+
+    def fake_llm(prompt: str, settings: Settings, *, timeout_s: int | None = None) -&gt; str:
+        captured_prompt[&quot;value&quot;] = prompt
+        return &quot;Final structured summary.&quot;
+
+    async def run() -&gt; None:
+        orchestrator = create_orchestrator(build_settings(tmp_path))
+        try:
+            with patch(&quot;nova_synesis.runtime.handlers._generate_local_text&quot;, side_effect=fake_llm):
+                flow = orchestrator.create_flow(
+                    nodes=[
+                        {
+                            &quot;node_id&quot;: &quot;format_report&quot;,
+                            &quot;handler_name&quot;: &quot;local_llm_text&quot;,
+                            &quot;input&quot;: {
+                                &quot;prompt&quot;: &quot;Please provide the ${vulnerability_scan.result} so I can analyze it and format it.&quot;,
+                                &quot;data&quot;: &quot;Finding A: injection risk in request parser.&quot;,
+                            },
+                        }
+                    ]
+                )
+                snapshot = await orchestrator.run_flow(int(flow[&quot;flow_id&quot;]))
+
+            assert snapshot[&quot;state&quot;] == &quot;COMPLETED&quot;
+            assert snapshot[&quot;results&quot;][&quot;format_report&quot;][&quot;text&quot;] == &quot;Final structured summary.&quot;
+            assert &quot;Use the following input as the complete source material.&quot; in captured_prompt[&quot;value&quot;]
+            assert &quot;Finding A: injection risk in request parser.&quot; in captured_prompt[&quot;value&quot;]
+            assert &quot;Do not ask the user for more data.&quot; in captured_prompt[&quot;value&quot;]
+        finally:
+            await orchestrator.shutdown()
+
+    asyncio.run(run())
 </code></pre>
           </section>
         </article>

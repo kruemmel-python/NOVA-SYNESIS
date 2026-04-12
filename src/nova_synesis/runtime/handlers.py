@@ -1176,6 +1176,102 @@ def template_render_handler(context: dict[str, Any]) -> dict[str, Any]:
     return {"rendered": template.format_map(values)}
 
 
+def _stringify_local_llm_input(value: Any) -> str:
+    if isinstance(value, str):
+        return value
+    if value is None:
+        return ""
+    if isinstance(value, (dict, list, tuple)):
+        return json.dumps(value, ensure_ascii=False, indent=2, default=str)
+    return str(value)
+
+
+def _looks_like_follow_up_request(prompt_text: str) -> bool:
+    normalized = prompt_text.casefold()
+    return any(
+        token in normalized
+        for token in (
+            "please provide",
+            "once you provide",
+            "looking forward to receiving",
+            "share the output",
+            "provide the output",
+            "send the output",
+            "send the results",
+            "waiting for the results",
+        )
+    )
+
+
+async def local_llm_text_handler(context: dict[str, Any]) -> dict[str, Any]:
+    payload = dict(context["input"] or {})
+    settings = context.get("settings")
+    if not isinstance(settings, Settings):
+        raise RuntimeError("local_llm_text requires runtime settings")
+
+    prompt = payload.get("prompt")
+    instruction = payload.get("instruction")
+    system_prompt = payload.get("system_prompt")
+    data = payload.get("data")
+
+    if data is None:
+        for alias in ("content", "code", "text", "input", "value", "document", "source", "result"):
+            if alias in payload:
+                data = payload[alias]
+                break
+
+    rendered_input = _stringify_local_llm_input(data).strip()
+
+    if prompt in {None, ""}:
+        if not rendered_input:
+            raise ValueError("local_llm_text requires either a 'prompt' or non-empty 'data'")
+        instruction_text = str(
+            instruction or "Analyze the provided input and return a concise technical result."
+        ).strip()
+        prompt_parts = []
+        if system_prompt not in {None, ""}:
+            prompt_parts.append(str(system_prompt).strip())
+        prompt_parts.append(instruction_text)
+        prompt_parts.append(f"Input:\n{rendered_input}")
+        prompt = "\n\n".join(part for part in prompt_parts if part)
+    else:
+        prompt_text = str(prompt).strip()
+        if rendered_input:
+            guidance = (
+                "Use the following input as the complete source material. "
+                "Do not ask for additional input, do not request missing data, and produce the final result directly."
+            )
+            if _looks_like_follow_up_request(prompt_text):
+                prompt_text = (
+                    "Create the final result directly from the provided source material. "
+                    "Do not ask the user for more data.\n\nOriginal task context:\n"
+                    f"{prompt_text}"
+                )
+            prompt_parts = []
+            if system_prompt not in {None, ""}:
+                prompt_parts.append(str(system_prompt).strip())
+            prompt_parts.append(prompt_text)
+            prompt_parts.append(guidance)
+            prompt_parts.append(f"Input:\n{rendered_input}")
+            prompt = "\n\n".join(part for part in prompt_parts if part)
+        else:
+            prompt_parts = []
+            if system_prompt not in {None, ""}:
+                prompt_parts.append(str(system_prompt).strip())
+            prompt_parts.append(prompt_text)
+            prompt = "\n\n".join(part for part in prompt_parts if part)
+
+    raw_timeout = payload.get("timeout_s")
+    timeout_s = int(raw_timeout) if raw_timeout not in {None, ""} else settings.lit_timeout_s
+    text = _generate_local_text(prompt, settings, timeout_s=timeout_s)
+    return {
+        "text": text,
+        "prompt": prompt,
+        "model_path": settings.lit_model_path,
+        "backend": settings.lit_backend,
+    }
+
+
 async def generate_embedding_handler(context: dict[str, Any]) -> dict[str, Any]:
     """
     Handler to convert text or structured data into a format required by VectorMemory.
@@ -1574,9 +1670,12 @@ def register_default_handlers(registry: TaskHandlerRegistry) -> None:
     registry.register("send_message", send_message_handler, built_in=True)
     registry.register("resource_health_check", resource_health_check_handler, built_in=True)
     registry.register("template_render", template_render_handler, built_in=True)
+    registry.register("local_llm_text", local_llm_text_handler, built_in=True)
     registry.register("merge_payloads", merge_payloads_handler, built_in=True)
     registry.register("read_file", read_file_handler, built_in=True)
+    registry.register("filesystem_read", read_file_handler, built_in=True)
     registry.register("write_file", write_file_handler, built_in=True)
+    registry.register("filesystem_write", write_file_handler, built_in=True)
     registry.register("write_csv", write_csv_handler, built_in=True)
     registry.register("json_serialize", json_serialize_handler, built_in=True)
     registry.register("generate_embedding", generate_embedding_handler, built_in=True) # <--- Neu registriert

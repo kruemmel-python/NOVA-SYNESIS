@@ -68,7 +68,6 @@
 ## LLM-Runtime
 
 - [LIT/README.md](LIT/README.md.md)
-- [LIT/planner_test_prompt.txt](LIT/planner_test_prompt.txt.md)
 
 ## Projektdatei
 

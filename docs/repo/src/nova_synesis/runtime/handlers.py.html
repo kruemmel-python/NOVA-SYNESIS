@@ -37,7 +37,7 @@
         </div>
         <div class="site-header__status">
           <span class="status-chip">HTML docs</span>
-          <span class="status-chip status-chip--accent">2026-04-12 04:04 UTC</span>
+          <span class="status-chip status-chip--accent">2026-04-12 14:26 UTC</span>
         </div>
       </header>
 
@@ -50,7 +50,7 @@
             <p>Repository file view for src/nova_synesis/runtime/handlers.py</p>
           </section>
           <section class="doc-content">
-            <section class="source-meta"><p class="doc-hero__eyebrow">Repository file</p><h1>src/nova_synesis/runtime/handlers.py</h1><p>Rendered source view for the repository file. 1593 lines.</p></section><pre class="source-block"><code class="language-python">from __future__ import annotations
+            <section class="source-meta"><p class="doc-hero__eyebrow">Repository file</p><h1>src/nova_synesis/runtime/handlers.py</h1><p>Rendered source view for the repository file. 1692 lines.</p></section><pre class="source-block"><code class="language-python">from __future__ import annotations
 
 import csv
 import inspect
@@ -1228,6 +1228,102 @@ def template_render_handler(context: dict[str, Any]) -&gt; dict[str, Any]:
     return {&quot;rendered&quot;: template.format_map(values)}
 
 
+def _stringify_local_llm_input(value: Any) -&gt; str:
+    if isinstance(value, str):
+        return value
+    if value is None:
+        return &quot;&quot;
+    if isinstance(value, (dict, list, tuple)):
+        return json.dumps(value, ensure_ascii=False, indent=2, default=str)
+    return str(value)
+
+
+def _looks_like_follow_up_request(prompt_text: str) -&gt; bool:
+    normalized = prompt_text.casefold()
+    return any(
+        token in normalized
+        for token in (
+            &quot;please provide&quot;,
+            &quot;once you provide&quot;,
+            &quot;looking forward to receiving&quot;,
+            &quot;share the output&quot;,
+            &quot;provide the output&quot;,
+            &quot;send the output&quot;,
+            &quot;send the results&quot;,
+            &quot;waiting for the results&quot;,
+        )
+    )
+
+
+async def local_llm_text_handler(context: dict[str, Any]) -&gt; dict[str, Any]:
+    payload = dict(context[&quot;input&quot;] or {})
+    settings = context.get(&quot;settings&quot;)
+    if not isinstance(settings, Settings):
+        raise RuntimeError(&quot;local_llm_text requires runtime settings&quot;)
+
+    prompt = payload.get(&quot;prompt&quot;)
+    instruction = payload.get(&quot;instruction&quot;)
+    system_prompt = payload.get(&quot;system_prompt&quot;)
+    data = payload.get(&quot;data&quot;)
+
+    if data is None:
+        for alias in (&quot;content&quot;, &quot;code&quot;, &quot;text&quot;, &quot;input&quot;, &quot;value&quot;, &quot;document&quot;, &quot;source&quot;, &quot;result&quot;):
+            if alias in payload:
+                data = payload[alias]
+                break
+
+    rendered_input = _stringify_local_llm_input(data).strip()
+
+    if prompt in {None, &quot;&quot;}:
+        if not rendered_input:
+            raise ValueError(&quot;local_llm_text requires either a &#x27;prompt&#x27; or non-empty &#x27;data&#x27;&quot;)
+        instruction_text = str(
+            instruction or &quot;Analyze the provided input and return a concise technical result.&quot;
+        ).strip()
+        prompt_parts = []
+        if system_prompt not in {None, &quot;&quot;}:
+            prompt_parts.append(str(system_prompt).strip())
+        prompt_parts.append(instruction_text)
+        prompt_parts.append(f&quot;Input:\n{rendered_input}&quot;)
+        prompt = &quot;\n\n&quot;.join(part for part in prompt_parts if part)
+    else:
+        prompt_text = str(prompt).strip()
+        if rendered_input:
+            guidance = (
+                &quot;Use the following input as the complete source material. &quot;
+                &quot;Do not ask for additional input, do not request missing data, and produce the final result directly.&quot;
+            )
+            if _looks_like_follow_up_request(prompt_text):
+                prompt_text = (
+                    &quot;Create the final result directly from the provided source material. &quot;
+                    &quot;Do not ask the user for more data.\n\nOriginal task context:\n&quot;
+                    f&quot;{prompt_text}&quot;
+                )
+            prompt_parts = []
+            if system_prompt not in {None, &quot;&quot;}:
+                prompt_parts.append(str(system_prompt).strip())
+            prompt_parts.append(prompt_text)
+            prompt_parts.append(guidance)
+            prompt_parts.append(f&quot;Input:\n{rendered_input}&quot;)
+            prompt = &quot;\n\n&quot;.join(part for part in prompt_parts if part)
+        else:
+            prompt_parts = []
+            if system_prompt not in {None, &quot;&quot;}:
+                prompt_parts.append(str(system_prompt).strip())
+            prompt_parts.append(prompt_text)
+            prompt = &quot;\n\n&quot;.join(part for part in prompt_parts if part)
+
+    raw_timeout = payload.get(&quot;timeout_s&quot;)
+    timeout_s = int(raw_timeout) if raw_timeout not in {None, &quot;&quot;} else settings.lit_timeout_s
+    text = _generate_local_text(prompt, settings, timeout_s=timeout_s)
+    return {
+        &quot;text&quot;: text,
+        &quot;prompt&quot;: prompt,
+        &quot;model_path&quot;: settings.lit_model_path,
+        &quot;backend&quot;: settings.lit_backend,
+    }
+
+
 async def generate_embedding_handler(context: dict[str, Any]) -&gt; dict[str, Any]:
     &quot;&quot;&quot;
     Handler to convert text or structured data into a format required by VectorMemory.
@@ -1626,9 +1722,12 @@ def register_default_handlers(registry: TaskHandlerRegistry) -&gt; None:
     registry.register(&quot;send_message&quot;, send_message_handler, built_in=True)
     registry.register(&quot;resource_health_check&quot;, resource_health_check_handler, built_in=True)
     registry.register(&quot;template_render&quot;, template_render_handler, built_in=True)
+    registry.register(&quot;local_llm_text&quot;, local_llm_text_handler, built_in=True)
     registry.register(&quot;merge_payloads&quot;, merge_payloads_handler, built_in=True)
     registry.register(&quot;read_file&quot;, read_file_handler, built_in=True)
+    registry.register(&quot;filesystem_read&quot;, read_file_handler, built_in=True)
     registry.register(&quot;write_file&quot;, write_file_handler, built_in=True)
+    registry.register(&quot;filesystem_write&quot;, write_file_handler, built_in=True)
     registry.register(&quot;write_csv&quot;, write_csv_handler, built_in=True)
     registry.register(&quot;json_serialize&quot;, json_serialize_handler, built_in=True)
     registry.register(&quot;generate_embedding&quot;, generate_embedding_handler, built_in=True) # &lt;--- Neu registriert
