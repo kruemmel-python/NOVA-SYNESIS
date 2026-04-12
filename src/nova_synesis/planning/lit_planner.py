@@ -5,6 +5,7 @@ import json
 import re
 import subprocess
 import tempfile
+from datetime import UTC, datetime
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -64,6 +65,13 @@ class LiteRTPlanner:
         if not self.model_path.exists():
             raise FileNotFoundError(f"LiteRT model not found: {self.model_path}")
 
+    def generate_text(self, prompt: str, *, timeout_s: int | None = None) -> str:
+        self.ensure_available()
+        normalized_prompt = prompt.strip()
+        if not normalized_prompt:
+            raise ValueError("LiteRT text generation requires a non-empty prompt")
+        return self._invoke_model(normalized_prompt, timeout_s=timeout_s)
+
     def generate_flow_request(
         self,
         prompt: str,
@@ -115,7 +123,7 @@ class LiteRTPlanner:
             backend=self.settings.lit_backend,
         )
 
-    def _invoke_model(self, planner_prompt: str) -> str:
+    def _invoke_model(self, planner_prompt: str, *, timeout_s: int | None = None) -> str:
         with tempfile.NamedTemporaryFile(
             mode="w",
             encoding="utf-8",
@@ -138,23 +146,106 @@ class LiteRTPlanner:
                 "--min_log_level",
                 "4",
             ]
-            completed = subprocess.run(
+            completed = self._run_lit_command(command, timeout_s=timeout_s)
+            stdout = completed.stdout.strip()
+            stderr = completed.stderr.strip()
+            if completed.returncode == 0:
+                if not stdout:
+                    raise RuntimeError("LiteRT planner returned no output")
+                return stdout
+
+            detail = stderr or stdout or "LiteRT planner execution failed"
+            if self._looks_like_engine_creation_failure(detail):
+                quarantined_cache = self._quarantine_xnnpack_cache()
+                if quarantined_cache is not None:
+                    completed = self._run_lit_command(command, timeout_s=timeout_s)
+                    stdout = completed.stdout.strip()
+                    stderr = completed.stderr.strip()
+                    if completed.returncode == 0:
+                        if not stdout:
+                            raise RuntimeError("LiteRT planner returned no output")
+                        return stdout
+                    detail = stderr or stdout or "LiteRT planner execution failed"
+                    raise RuntimeError(
+                        self._format_engine_creation_failure(detail, quarantined_cache=quarantined_cache)
+                    )
+                raise RuntimeError(self._format_engine_creation_failure(detail))
+
+            raise RuntimeError(detail)
+        finally:
+            prompt_path.unlink(missing_ok=True)
+
+    def _run_lit_command(
+        self,
+        command: list[str],
+        *,
+        timeout_s: int | None = None,
+    ) -> subprocess.CompletedProcess[str]:
+        try:
+            return subprocess.run(
                 command,
                 capture_output=True,
                 text=True,
-                timeout=self.settings.lit_timeout_s,
+                timeout=timeout_s if timeout_s is not None else self.settings.lit_timeout_s,
                 cwd=Path(self.settings.working_directory).resolve(),
             )
-            stdout = completed.stdout.strip()
-            stderr = completed.stderr.strip()
-            if completed.returncode != 0:
-                detail = stderr or stdout or "LiteRT planner execution failed"
-                raise RuntimeError(detail)
-            if not stdout:
-                raise RuntimeError("LiteRT planner returned no output")
-            return stdout
-        finally:
-            prompt_path.unlink(missing_ok=True)
+        except subprocess.TimeoutExpired as exc:
+            waited_s = timeout_s if timeout_s is not None else self.settings.lit_timeout_s
+            raise RuntimeError(
+                f"LiteRT request timed out after {waited_s}s. Reduce the prompt size or switch back to template mode."
+            ) from exc
+
+    @staticmethod
+    def _looks_like_engine_creation_failure(message: str) -> bool:
+        normalized = message.casefold()
+        return any(
+            token in normalized
+            for token in (
+                "failed to create engine",
+                "weight_cache.cc",
+                "cannot get the address of a buffer in a cache",
+                "cache file is stale",
+                "xnnpack",
+            )
+        )
+
+    def _xnnpack_cache_path(self) -> Path:
+        return Path(f"{self.model_path}.xnnpack_cache")
+
+    def _quarantine_xnnpack_cache(self) -> Path | None:
+        cache_path = self._xnnpack_cache_path()
+        if not cache_path.exists():
+            return None
+        timestamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
+        candidate = cache_path.with_name(f"{cache_path.name}.stale-{timestamp}")
+        suffix = 1
+        while candidate.exists():
+            suffix += 1
+            candidate = cache_path.with_name(f"{cache_path.name}.stale-{timestamp}-{suffix}")
+        cache_path.replace(candidate)
+        return candidate
+
+    def _format_engine_creation_failure(
+        self,
+        detail: str,
+        *,
+        quarantined_cache: Path | None = None,
+    ) -> str:
+        prefix = (
+            f"LiteRT could not create an inference engine for model '{self.model_path}' "
+            f"on backend '{self.settings.lit_backend}'."
+        )
+        if quarantined_cache is not None:
+            return (
+                f"{prefix} A stale XNNPACK cache was quarantined to '{quarantined_cache}', "
+                "but LiteRT still failed on retry. Verify that the selected model is compatible "
+                f"with the current LiteRT binary '{self.binary_path}'. Original error: {detail}"
+            )
+        return (
+            f"{prefix} If you just switched models, remove or regenerate the model-specific "
+            f"XNNPACK cache '{self._xnnpack_cache_path()}' or try a different backend/model pair. "
+            f"Original error: {detail}"
+        )
 
     def _build_prompt(
         self,
@@ -187,11 +278,13 @@ class LiteRTPlanner:
                     "- Every edge source and target must reference an existing node_id.",
                     '- Use "True" for unconditional edges.',
                     "- Use only listed handlers, agents, resources and memories.",
+                    "- Agents are execution targets and preferred assignments only. Never put an agent name into handler_name.",
                     "- Build executable inputs for the chosen handler.",
                     "- Do not output TODO, placeholder, dummy, fake or sample values.",
                     "- Prefer preferred_agent_name over preferred_agent_id when selecting an agent.",
                     "- send_message may use target_agent_name or target_agent_id, but only for listed communication-enabled agents.",
                     "- Unless explicitly required, omit approval fields and keep rollback_strategy at FAIL_FAST.",
+                    "- For news_search/topic_split workflows, write_csv must export topic_split csv_rows with fieldnames topic,title,source,published_at,link,summary. Do not write embeddings or vector payloads to CSV.",
                 ]
             ),
             self._build_handler_section(catalog.handlers, detail_level),
@@ -245,6 +338,20 @@ class LiteRTPlanner:
     def _build_handler_section(self, handlers: list[str], detail_level: str) -> str:
         contract_map = {
             "http_request": "http_request: input keys url, method, optional headers/params/json/data",
+            "news_search": (
+                "news_search: input keys query, optional language, country, time_range, max_items; "
+                "uses the built-in Google News RSS search internally, does not require a manual URL, "
+                "returns items from a trusted news feed under results[node_id]['items']"
+            ),
+            "topic_split": (
+                "topic_split: input keys items, topics, optional include_uncategorized; "
+                "items should normally reference results[upstream_node]['items']; "
+                "returns grouped topics and csv_rows with columns topic, title, source, published_at, link, summary"
+            ),
+            "generate_embedding": (
+                "generate_embedding: input key data; data should normally reference the full upstream result "
+                "object and it returns embedding, value and metadata for vector memory storage"
+            ),
             "memory_store": "memory_store: input keys memory_id, key, value",
             "memory_retrieve": "memory_retrieve: input keys memory_id, key",
             "memory_search": "memory_search: input keys memory_id, query, optional limit",
@@ -254,6 +361,11 @@ class LiteRTPlanner:
             "merge_payloads": "merge_payloads: input keys base, updates",
             "read_file": "read_file: input key path",
             "write_file": "write_file: input keys path, content, optional append",
+            "write_csv": (
+                "write_csv: input keys path, rows, optional fieldnames, encoding; "
+                "rows should normally reference results[upstream_node]['csv_rows']; "
+                "for topic_split upstream the fieldnames should be topic, title, source, published_at, link, summary"
+            ),
             "json_serialize": "json_serialize: input key value, optional indent",
             "accounts_receivable_extract": (
                 "accounts_receivable_extract: input keys path, optional source_type csv|sqlite, "
@@ -261,7 +373,9 @@ class LiteRTPlanner:
             ),
             "accounts_receivable_generate_letters": (
                 "accounts_receivable_generate_letters: input keys receivables, optional sender_company, "
-                "sender_email, sender_phone, sender_address, payment_deadline_days"
+                "sender_email, sender_phone, sender_address, payment_deadline_days, "
+                "optional generation_mode template|llm, prompt_template, user_instruction, "
+                "fallback_to_template_on_error"
             ),
             "accounts_receivable_write_letters": (
                 "accounts_receivable_write_letters: input keys letters, output_directory, optional manifest_path, "
@@ -277,7 +391,7 @@ class LiteRTPlanner:
 
     def _build_agent_section(self, agents: list[dict[str, Any]], detail_level: str) -> str:
         if not agents:
-            return "Known agents:\n- none"
+            return "Known agents:\n- none\nAgents are not handlers."
         max_items = 24 if detail_level == "standard" else 14 if detail_level == "compact" else 8
         lines: list[str] = []
         for agent in agents[:max_items]:
@@ -293,7 +407,7 @@ class LiteRTPlanner:
             )
         if len(agents) > max_items:
             lines.append(f"- ... {len(agents) - max_items} more agents omitted")
-        return "Known agents:\n" + "\n".join(lines)
+        return "Known agents (never use these names as handler_name values):\n" + "\n".join(lines)
 
     def _build_send_target_section(self, agents: list[dict[str, Any]], detail_level: str) -> str:
         communication_agents = [
@@ -364,8 +478,9 @@ class LiteRTPlanner:
             if len(nodes) > 10:
                 summary_lines.append(f"- ... {len(nodes) - 10} more existing nodes omitted")
         if detail_level == "standard":
+            preview_payload, _ = self._sanitize_json_compatible(current_flow)
             preview = self._truncate_text(
-                json.dumps(current_flow, ensure_ascii=False, separators=(",", ":")),
+                json.dumps(preview_payload, ensure_ascii=False, separators=(",", ":")),
                 1_200,
             )
             summary_lines.append(f"- preview: {preview}")
@@ -390,6 +505,128 @@ class LiteRTPlanner:
     def _extract_explanation(parsed: dict[str, Any]) -> str | None:
         explanation = parsed.get("explanation")
         return explanation if isinstance(explanation, str) and explanation.strip() else None
+
+    def _resolve_handler_name(
+        self,
+        *,
+        raw_node: dict[str, Any],
+        handler_set: set[str],
+        agent_name_to_id: dict[str, int],
+        node_id: str,
+        warnings: list[str],
+    ) -> str:
+        raw_handler_name = str(raw_node.get("handler_name", "")).strip()
+        if raw_handler_name in handler_set:
+            return raw_handler_name
+
+        fallback = self._infer_handler_name(raw_node, handler_set)
+        if fallback is not None:
+            if raw_handler_name.casefold() in agent_name_to_id:
+                warnings.append(
+                    f"Planner selected agent name '{raw_handler_name}' as handler for node '{node_id}'; replaced it with '{fallback}'"
+                )
+            else:
+                warnings.append(
+                    f"Planner selected unsupported handler '{raw_handler_name}' for node '{node_id}'; replaced it with '{fallback}'"
+                )
+            return fallback
+
+        raise ValueError(
+            f"Planner selected unsupported handler '{raw_handler_name}' for node '{node_id}'"
+        )
+
+    @staticmethod
+    def _infer_handler_name(raw_node: dict[str, Any], handler_set: set[str]) -> str | None:
+        text_parts = [
+            str(raw_node.get("handler_name", "")),
+            str(raw_node.get("node_id", "")),
+            str(raw_node.get("title", "")),
+            str(raw_node.get("label", "")),
+            json.dumps(
+                LiteRTPlanner._sanitize_json_compatible(raw_node.get("input", {}))[0],
+                ensure_ascii=False,
+                sort_keys=True,
+            ),
+        ]
+        text = " ".join(part for part in text_parts if part).casefold()
+
+        def has_any(*tokens: str) -> bool:
+            return any(token in text for token in tokens)
+
+        if "write_csv" in handler_set and has_any("csv", ".csv", "comma separated"):
+            return "write_csv"
+        if "topic_split" in handler_set and has_any(
+            "topic",
+            "theme",
+            "thema",
+            "split",
+            "triage",
+            "route",
+            "classif",
+            "filter",
+            "separate",
+            "segment",
+        ):
+            return "topic_split"
+        if "news_search" in handler_set and has_any(
+            "news",
+            "nachricht",
+            "headline",
+            "artikel",
+            "article",
+            "rss",
+            "web search",
+            "internet",
+            "robotik",
+            "ki",
+            "ai",
+        ):
+            return "news_search"
+        if "generate_embedding" in handler_set and has_any(
+            "embedding",
+            "embed",
+            "vector",
+            "vectorize",
+            "vektor",
+        ):
+            return "generate_embedding"
+        if "memory_store" in handler_set and has_any("memory", "speicher", "cache", "store", "persist"):
+            return "memory_store"
+        if "send_message" in handler_set and has_any("message", "notify", "notification", "alert", "send"):
+            return "send_message"
+        if "json_serialize" in handler_set and has_any("json", "serialize", "serialis"):
+            return "json_serialize"
+        if "write_file" in handler_set and has_any("write", "save", "file", "datei"):
+            return "write_file"
+        if "merge_payloads" in handler_set and has_any("merge", "combine", "payload"):
+            return "merge_payloads"
+        if "template_render" in handler_set and has_any("render", "template", "format"):
+            return "template_render"
+        if "http_request" in handler_set and has_any("http", "api", "fetch", "request", "url"):
+            return "http_request"
+        return None
+
+    @staticmethod
+    def _infer_topic_labels(text: str) -> list[str]:
+        normalized = text.casefold()
+        labels: list[str] = []
+        if "robotik" in normalized or "robotics" in normalized or "roboter" in normalized:
+            labels.append("Robotik")
+        if (
+            " ki" in f" {normalized}"
+            or "ai" in normalized
+            or "artificial intelligence" in normalized
+            or "künstliche intelligenz" in normalized
+            or "kuenstliche intelligenz" in normalized
+        ):
+            labels.append("KI")
+        seen: set[str] = set()
+        deduped: list[str] = []
+        for label in labels:
+            if label not in seen:
+                seen.add(label)
+                deduped.append(label)
+        return deduped
 
     def _parse_model_output(self, raw_response: str) -> dict[str, Any]:
         parsed, _ = self._parse_model_output_with_warnings(raw_response)
@@ -469,8 +706,12 @@ class LiteRTPlanner:
             return None, direct_error or str(exc)
         if not isinstance(parsed_literal, dict):
             return None, "Planner output must be a JSON object"
-        repaired_payload = json.loads(json.dumps(parsed_literal, ensure_ascii=False))
-        return repaired_payload, "Planner JSON used a tolerant literal-repair path before normalization."
+        sanitized_literal, replaced_unsupported_values = self._sanitize_json_compatible(parsed_literal)
+        repaired_payload = json.loads(json.dumps(sanitized_literal, ensure_ascii=False))
+        warning = "Planner JSON used a tolerant literal-repair path before normalization."
+        if replaced_unsupported_values:
+            warning += " Unsupported placeholder values were replaced with null."
+        return repaired_payload, warning
 
     @staticmethod
     def _extract_json_object(text: str, allow_incomplete: bool = False) -> str:
@@ -481,6 +722,7 @@ class LiteRTPlanner:
         depth = 0
         in_string = False
         escaped = False
+        quote_char = ""
         for index in range(start, len(text)):
             character = text[index]
             if in_string:
@@ -488,11 +730,12 @@ class LiteRTPlanner:
                     escaped = False
                 elif character == "\\":
                     escaped = True
-                elif character == '"':
+                elif character == quote_char:
                     in_string = False
                 continue
-            if character == '"':
+            if character in {'"', "'"}:
                 in_string = True
+                quote_char = character
             elif character == "{":
                 depth += 1
             elif character == "}":
@@ -525,10 +768,35 @@ class LiteRTPlanner:
         cleaned = "".join(character for character in cleaned if character >= " " or character in "\n\r\t")
         return cleaned.strip()
 
+    @staticmethod
+    def _sanitize_json_compatible(value: Any) -> tuple[Any, bool]:
+        if value is Ellipsis:
+            return None, True
+        if value is None or isinstance(value, (str, int, float, bool)):
+            return value, False
+        if isinstance(value, dict):
+            changed = False
+            sanitized: dict[str, Any] = {}
+            for key, entry in value.items():
+                sanitized_entry, entry_changed = LiteRTPlanner._sanitize_json_compatible(entry)
+                sanitized[str(key)] = sanitized_entry
+                changed = changed or entry_changed or not isinstance(key, str)
+            return sanitized, changed
+        if isinstance(value, (list, tuple, set)):
+            changed = not isinstance(value, list)
+            sanitized_items: list[Any] = []
+            for entry in value:
+                sanitized_entry, entry_changed = LiteRTPlanner._sanitize_json_compatible(entry)
+                sanitized_items.append(sanitized_entry)
+                changed = changed or entry_changed
+            return sanitized_items, changed
+        return str(value), True
+
     def _repair_json_text(self, candidate: str) -> str:
         repaired = candidate
         repaired = self._remove_json_comments(repaired)
         repaired = self._quote_bare_object_keys(repaired)
+        repaired = self._convert_single_quoted_strings_to_json_strings(repaired)
         repaired = self._replace_keyword_literals(
             repaired,
             {
@@ -537,6 +805,7 @@ class LiteRTPlanner:
                 "None": "null",
             },
         )
+        repaired = self._insert_missing_object_commas(repaired)
         repaired = re.sub(r",(\s*[}\]])", r"\1", repaired)
         repaired = self._balance_json_structure(repaired)
         return repaired
@@ -648,6 +917,130 @@ class LiteRTPlanner:
             result += "".join(reversed(closers))
         return result
 
+    @staticmethod
+    def _convert_single_quoted_strings_to_json_strings(candidate: str) -> str:
+        result: list[str] = []
+        in_double = False
+        in_single = False
+        escaped = False
+        single_buffer: list[str] = []
+
+        for character in candidate:
+            if in_double:
+                result.append(character)
+                if escaped:
+                    escaped = False
+                elif character == "\\":
+                    escaped = True
+                elif character == '"':
+                    in_double = False
+                continue
+
+            if in_single:
+                if escaped:
+                    single_buffer.append(character)
+                    escaped = False
+                    continue
+                if character == "\\":
+                    escaped = True
+                    single_buffer.append(character)
+                    continue
+                if character == "'":
+                    decoded = bytes("".join(single_buffer), "utf-8").decode("unicode_escape")
+                    result.append(json.dumps(decoded, ensure_ascii=False))
+                    single_buffer.clear()
+                    in_single = False
+                    continue
+                single_buffer.append(character)
+                continue
+
+            if character == '"':
+                in_double = True
+                result.append(character)
+                continue
+            if character == "'":
+                in_single = True
+                single_buffer.clear()
+                escaped = False
+                continue
+            result.append(character)
+
+        if in_single:
+            decoded = bytes("".join(single_buffer), "utf-8").decode("unicode_escape")
+            result.append(json.dumps(decoded, ensure_ascii=False))
+        return "".join(result)
+
+    @staticmethod
+    def _insert_missing_object_commas(candidate: str) -> str:
+        result: list[str] = []
+        stack: list[str] = []
+        in_string = False
+        escaped = False
+        quote_char = ""
+
+        def previous_significant() -> str:
+            for item in reversed(result):
+                if not item.isspace():
+                    return item
+            return ""
+
+        def next_significant(index: int) -> str:
+            for item in candidate[index + 1 :]:
+                if not item.isspace():
+                    return item
+            return ""
+
+        for index, character in enumerate(candidate):
+            if in_string:
+                result.append(character)
+                if escaped:
+                    escaped = False
+                elif character == "\\":
+                    escaped = True
+                elif character == quote_char:
+                    in_string = False
+                continue
+
+            if character in {'"', "'"}:
+                in_string = True
+                quote_char = character
+                result.append(character)
+                continue
+
+            if character == "{":
+                stack.append("{")
+                result.append(character)
+                continue
+            if character == "[":
+                stack.append("[")
+                result.append(character)
+                continue
+            if character in {"}", "]"}:
+                if stack and ((character == "}" and stack[-1] == "{") or (character == "]" and stack[-1] == "[")):
+                    stack.pop()
+                result.append(character)
+                continue
+
+            if character == "\n":
+                prev_sig = previous_significant()
+                next_sig = next_significant(index)
+                if (
+                    stack
+                    and stack[-1] == "{"
+                    and prev_sig
+                    and prev_sig not in "{[:,"
+                    and next_sig
+                    and next_sig not in "}]"
+                    and (next_sig.isalpha() or next_sig in {'"', "'","_"})
+                ):
+                    result.append(",")
+                result.append(character)
+                continue
+
+            result.append(character)
+
+        return "".join(result)
+
     def _normalize_flow_request(
         self,
         parsed: dict[str, Any],
@@ -680,6 +1073,7 @@ class LiteRTPlanner:
         normalized_nodes: list[dict[str, Any]] = []
         omitted_nodes: dict[str, str] = {}
         node_ids: set[str] = set()
+        resolved_handlers_by_node_id: dict[str, str] = {}
         for index, raw_node in enumerate(raw_nodes[:max_nodes], start=1):
             if not isinstance(raw_node, dict):
                 raise ValueError(f"Planner node at index {index} is not an object")
@@ -688,11 +1082,13 @@ class LiteRTPlanner:
                 node_id = f"{node_id}-{index}"
             node_ids.add(node_id)
 
-            handler_name = str(raw_node.get("handler_name", "")).strip()
-            if handler_name not in handler_set:
-                raise ValueError(
-                    f"Planner selected unsupported handler '{handler_name}' for node '{node_id}'"
-                )
+            handler_name = self._resolve_handler_name(
+                raw_node=raw_node,
+                handler_set=handler_set,
+                agent_name_to_id=agent_name_to_id,
+                node_id=node_id,
+                warnings=warnings,
+            )
 
             preferred_agent_id = None
             raw_agent_name = raw_node.get("preferred_agent_name")
@@ -702,6 +1098,11 @@ class LiteRTPlanner:
                     warnings.append(
                         f"Unknown preferred_agent_name '{raw_agent_name}' ignored for node '{node_id}'"
                     )
+            elif str(raw_node.get("handler_name", "")).strip().casefold() in agent_name_to_id:
+                preferred_agent_id = agent_name_to_id[str(raw_node.get("handler_name", "")).strip().casefold()]
+                warnings.append(
+                    f"Node '{node_id}' reused agent name '{raw_node.get('handler_name')}' as preferred_agent_name after handler repair"
+                )
 
             raw_resource_ids = raw_node.get("required_resource_ids", [])
             resource_ids = []
@@ -751,7 +1152,9 @@ class LiteRTPlanner:
                 handler_name=handler_name,
                 input_payload=dict(input_payload),
                 node_id=node_id,
+                title=title,
                 dependencies=self._normalize_string_list(raw_node.get("dependencies")),
+                resolved_handlers_by_node_id=resolved_handlers_by_node_id,
                 memory_ids=memory_ids,
                 comm_agent_ids=comm_agent_ids,
                 communication_agents=communication_agents,
@@ -789,6 +1192,7 @@ class LiteRTPlanner:
                     "preferred_agent_id": preferred_agent_id,
                 }
             )
+            resolved_handlers_by_node_id[node_id] = handler_name
 
         normalized_edges = self._normalize_edges(raw_edges, node_ids, warnings)
         if omitted_nodes:
@@ -799,6 +1203,7 @@ class LiteRTPlanner:
             )
             self._strip_omitted_dependencies(normalized_nodes, set(omitted_nodes))
         self._merge_dependencies(normalized_nodes, normalized_edges)
+        self._postprocess_write_csv_nodes(normalized_nodes, warnings)
         if not normalized_nodes:
             raise ValueError("Planner produced no executable nodes after normalization")
         self._validate_acyclic(normalized_nodes)
@@ -920,6 +1325,86 @@ class LiteRTPlanner:
             if edge["from_node"] not in target_node["dependencies"]:
                 target_node["dependencies"].append(edge["from_node"])
             target_node["conditions"].setdefault(edge["from_node"], edge["condition"])
+
+    @classmethod
+    def _postprocess_write_csv_nodes(
+        cls,
+        normalized_nodes: list[dict[str, Any]],
+        warnings: list[str],
+    ) -> None:
+        if not normalized_nodes:
+            return
+        node_index = {node["node_id"]: node for node in normalized_nodes}
+        expected_fieldnames = ["topic", "title", "source", "published_at", "link", "summary"]
+        for node in normalized_nodes:
+            if node.get("handler_name") != "write_csv":
+                continue
+            topic_split_node_id = cls._find_upstream_handler_node_id(
+                start_node_id=node["node_id"],
+                expected_handler="topic_split",
+                node_index=node_index,
+            )
+            if topic_split_node_id is None:
+                continue
+            input_payload = node.get("input")
+            if not isinstance(input_payload, dict):
+                continue
+            expected_rows_ref = {"$ref": f"results['{topic_split_node_id}']['csv_rows']"}
+            if not cls._is_topic_split_csv_rows_reference(input_payload.get("rows"), topic_split_node_id):
+                input_payload["rows"] = expected_rows_ref
+                warnings.append(
+                    f"write_csv node '{node['node_id']}' rewired rows to upstream topic_split '{topic_split_node_id}.csv_rows' for news export"
+                )
+            normalized_fieldnames, fieldnames_warning = cls._normalize_topic_split_csv_fieldnames(
+                input_payload.get("fieldnames"),
+                node_id=str(node["node_id"]),
+            )
+            if normalized_fieldnames is None:
+                input_payload["fieldnames"] = expected_fieldnames
+                warnings.append(
+                    f"write_csv node '{node['node_id']}' set explicit topic_split CSV fieldnames for deterministic news export"
+                )
+            else:
+                input_payload["fieldnames"] = normalized_fieldnames
+            if fieldnames_warning:
+                warnings.append(fieldnames_warning)
+
+    @classmethod
+    def _find_upstream_handler_node_id(
+        cls,
+        *,
+        start_node_id: str,
+        expected_handler: str,
+        node_index: dict[str, dict[str, Any]],
+    ) -> str | None:
+        visited: set[str] = set()
+        queue: list[str] = list(node_index.get(start_node_id, {}).get("dependencies", []))
+        while queue:
+            candidate_id = queue.pop(0)
+            if candidate_id in visited:
+                continue
+            visited.add(candidate_id)
+            candidate_node = node_index.get(candidate_id)
+            if not candidate_node:
+                continue
+            if candidate_node.get("handler_name") == expected_handler:
+                return candidate_id
+            queue.extend(
+                dependency
+                for dependency in candidate_node.get("dependencies", [])
+                if dependency not in visited
+            )
+        return None
+
+    @staticmethod
+    def _is_topic_split_csv_rows_reference(raw_value: Any, topic_split_node_id: str) -> bool:
+        canonical = f"results['{topic_split_node_id}']['csv_rows']"
+        if isinstance(raw_value, dict):
+            raw_ref = raw_value.get("$ref")
+            return isinstance(raw_ref, str) and raw_ref.replace('"', "'").strip() == canonical
+        if isinstance(raw_value, str):
+            return raw_value.replace('"', "'").strip() == canonical
+        return False
 
     @staticmethod
     def _validate_acyclic(normalized_nodes: list[dict[str, Any]]) -> None:
@@ -1043,14 +1528,19 @@ class LiteRTPlanner:
         handler_name: str,
         input_payload: dict[str, Any],
         node_id: str,
+        title: str,
         dependencies: list[str],
+        resolved_handlers_by_node_id: dict[str, str],
         memory_ids: list[str],
         comm_agent_ids: set[int],
         communication_agents: dict[str, int],
         warnings: list[str],
     ) -> tuple[dict[str, Any] | None, str | None]:
         upstream_reference = (
-            f"{{{{ results['{dependencies[-1]}'] }}}}" if dependencies else {}
+            {"$ref": f"results['{dependencies[-1]}']"} if dependencies else {}
+        )
+        upstream_handler_name = (
+            resolved_handlers_by_node_id.get(dependencies[-1]) if dependencies else None
         )
 
         if handler_name == "memory_store":
@@ -1070,11 +1560,24 @@ class LiteRTPlanner:
                     warnings.append(
                         f"memory_store node '{node_id}' used 'data'; remapped to 'value'"
                     )
+                elif dependencies:
+                    input_payload["value"] = upstream_reference
                 else:
                     input_payload["value"] = upstream_reference
                     warnings.append(
                         f"memory_store node '{node_id}' had no value; defaulted to upstream result reference"
                     )
+            elif dependencies:
+                normalized_value, value_warning = LiteRTPlanner._normalize_upstream_result_input(
+                    raw_value=input_payload.get("value"),
+                    dependency_node_id=dependencies[-1],
+                    handler_name=handler_name,
+                    node_id=node_id,
+                    input_key="value",
+                )
+                input_payload["value"] = normalized_value
+                if value_warning:
+                    warnings.append(value_warning)
 
         if handler_name == "memory_retrieve":
             if "memory_id" not in input_payload and memory_ids:
@@ -1093,6 +1596,82 @@ class LiteRTPlanner:
 
         if handler_name == "http_request":
             input_payload.setdefault("method", "GET")
+
+        if handler_name == "news_search":
+            input_payload.setdefault("query", "IT Nachrichten")
+            input_payload.setdefault("language", "de")
+            input_payload.setdefault("country", "DE")
+            input_payload.setdefault("time_range", "7d")
+            input_payload.setdefault("max_items", 20)
+
+        if handler_name == "generate_embedding":
+            if "data" not in input_payload:
+                for alias in ("value", "text", "content", "payload", "input"):
+                    if alias in input_payload:
+                        input_payload["data"] = input_payload.pop(alias)
+                        warnings.append(
+                            f"generate_embedding node '{node_id}' used '{alias}'; remapped to 'data'"
+                        )
+                        break
+            if "data" not in input_payload:
+                if dependencies:
+                    input_payload["data"] = upstream_reference
+                else:
+                    input_payload["data"] = ""
+                    warnings.append(
+                        f"generate_embedding node '{node_id}' had no data and no upstream dependency; defaulted to empty text"
+                    )
+            elif dependencies:
+                normalized_data, data_warning = LiteRTPlanner._normalize_upstream_result_input(
+                    raw_value=input_payload.get("data"),
+                    dependency_node_id=dependencies[-1],
+                    handler_name=handler_name,
+                    node_id=node_id,
+                    input_key="data",
+                )
+                input_payload["data"] = normalized_data
+                if data_warning:
+                    warnings.append(data_warning)
+
+        if handler_name == "topic_split":
+            if "topics" not in input_payload:
+                for alias in ("to", "labels", "categories", "groups"):
+                    if alias in input_payload:
+                        input_payload["topics"] = input_payload.pop(alias)
+                        warnings.append(
+                            f"topic_split node '{node_id}' used '{alias}'; remapped to 'topics'"
+                        )
+                        break
+            if "items" not in input_payload:
+                if dependencies:
+                    input_payload["items"] = {"$ref": f"results['{dependencies[-1]}']['items']"}
+                else:
+                    input_payload["items"] = []
+            elif dependencies:
+                normalized_items, items_warning = LiteRTPlanner._normalize_upstream_collection_input(
+                    raw_value=input_payload.get("items"),
+                    dependency_node_id=dependencies[-1],
+                    expected_field="items",
+                    handler_name=handler_name,
+                    node_id=node_id,
+                    input_key="items",
+                )
+                input_payload["items"] = normalized_items
+                if items_warning:
+                    warnings.append(items_warning)
+            if "topics" not in input_payload:
+                inferred_topics = LiteRTPlanner._infer_topic_labels(title)
+                if inferred_topics:
+                    input_payload["topics"] = inferred_topics
+                    warnings.append(
+                        f"topic_split node '{node_id}' inferred topics {', '.join(inferred_topics)} from the node title"
+                    )
+                else:
+                    input_payload["topics"] = ["Robotik", "KI"]
+                    warnings.append(
+                        f"topic_split node '{node_id}' had no topics; defaulted to Robotik and KI"
+                    )
+            input_payload.setdefault("include_uncategorized", True)
 
         if handler_name == "send_message":
             if "message" not in input_payload:
@@ -1176,4 +1755,294 @@ class LiteRTPlanner:
             input_payload.setdefault("value", upstream_reference)
             input_payload.setdefault("indent", 2)
 
+        if handler_name == "write_csv":
+            input_payload.setdefault("path", f"{node_id}.csv")
+            if "rows" not in input_payload:
+                if dependencies:
+                    input_payload["rows"] = {"$ref": f"results['{dependencies[-1]}']['csv_rows']"}
+                else:
+                    input_payload["rows"] = []
+            elif dependencies:
+                normalized_rows, rows_warning = LiteRTPlanner._normalize_upstream_collection_input(
+                    raw_value=input_payload.get("rows"),
+                    dependency_node_id=dependencies[-1],
+                    expected_field="csv_rows",
+                    handler_name=handler_name,
+                    node_id=node_id,
+                    input_key="rows",
+                )
+                input_payload["rows"] = normalized_rows
+                if rows_warning:
+                    warnings.append(rows_warning)
+            if upstream_handler_name == "topic_split":
+                normalized_fieldnames, fieldnames_warning = LiteRTPlanner._normalize_topic_split_csv_fieldnames(
+                    input_payload.get("fieldnames"),
+                    node_id=node_id,
+                )
+                if normalized_fieldnames is None:
+                    input_payload.pop("fieldnames", None)
+                else:
+                    input_payload["fieldnames"] = normalized_fieldnames
+                if fieldnames_warning:
+                    warnings.append(fieldnames_warning)
+
         return input_payload, None
+
+    @staticmethod
+    def _normalize_upstream_collection_input(
+        raw_value: Any,
+        dependency_node_id: str,
+        expected_field: str,
+        handler_name: str,
+        node_id: str,
+        input_key: str,
+    ) -> tuple[Any, str | None]:
+        canonical_ref = {"$ref": f"results['{dependency_node_id}']['{expected_field}']"}
+
+        if isinstance(raw_value, list):
+            return raw_value, None
+
+        if isinstance(raw_value, dict):
+            raw_ref = raw_value.get("$ref")
+            if isinstance(raw_ref, str):
+                normalized_ref, changed = LiteRTPlanner._normalize_result_reference_expression(
+                    raw_expression=raw_ref,
+                    dependency_node_id=dependency_node_id,
+                    expected_field=expected_field,
+                )
+                if changed:
+                    return (
+                        {"$ref": normalized_ref},
+                        f"{handler_name} node '{node_id}' repaired {input_key} reference to upstream '{dependency_node_id}.{expected_field}'",
+                    )
+                return raw_value, None
+            return (
+                canonical_ref,
+                f"{handler_name} node '{node_id}' replaced non-list {input_key} object with upstream '{dependency_node_id}.{expected_field}' reference",
+            )
+
+        if isinstance(raw_value, str) and raw_value.strip():
+            normalized_ref, _ = LiteRTPlanner._normalize_result_reference_expression(
+                raw_expression=raw_value,
+                dependency_node_id=dependency_node_id,
+                expected_field=expected_field,
+            )
+            return (
+                {"$ref": normalized_ref},
+                f"{handler_name} node '{node_id}' converted string {input_key} to upstream '{dependency_node_id}.{expected_field}' reference",
+            )
+
+        return (
+            canonical_ref,
+            f"{handler_name} node '{node_id}' defaulted {input_key} to upstream '{dependency_node_id}.{expected_field}' reference",
+        )
+
+    @staticmethod
+    def _normalize_topic_split_csv_fieldnames(
+        raw_value: Any,
+        *,
+        node_id: str,
+    ) -> tuple[list[str] | None, str | None]:
+        expected_columns = ["topic", "title", "source", "published_at", "link", "summary"]
+        if raw_value is None:
+            return None, None
+        if not isinstance(raw_value, list):
+            return (
+                expected_columns,
+                f"write_csv node '{node_id}' replaced invalid fieldnames with topic_split CSV columns",
+            )
+
+        normalized = [str(field).strip() for field in raw_value if str(field).strip()]
+        if not normalized:
+            return (
+                expected_columns,
+                f"write_csv node '{node_id}' replaced empty fieldnames with topic_split CSV columns",
+            )
+
+        expected_set = {column.casefold() for column in expected_columns}
+        normalized_set = {column.casefold() for column in normalized}
+        overlap_count = len(expected_set & normalized_set)
+        has_placeholder = any("placeholder" in column.casefold() for column in normalized)
+        if has_placeholder or overlap_count < 2:
+            return (
+                expected_columns,
+                f"write_csv node '{node_id}' replaced incompatible fieldnames with topic_split CSV columns",
+            )
+        return normalized, None
+
+    @staticmethod
+    def _normalize_upstream_result_input(
+        raw_value: Any,
+        dependency_node_id: str,
+        handler_name: str,
+        node_id: str,
+        input_key: str,
+    ) -> tuple[Any, str | None]:
+        canonical_ref = {"$ref": f"results['{dependency_node_id}']"}
+
+        if isinstance(raw_value, dict):
+            raw_ref = raw_value.get("$ref")
+            if isinstance(raw_ref, str):
+                normalized_ref, changed = LiteRTPlanner._normalize_upstream_result_reference_expression(
+                    raw_expression=raw_ref,
+                    dependency_node_id=dependency_node_id,
+                )
+                if changed:
+                    return (
+                        {"$ref": normalized_ref},
+                        f"{handler_name} node '{node_id}' repaired {input_key} reference to upstream '{dependency_node_id}' result",
+                    )
+            if LiteRTPlanner._is_placeholder_input_shell(raw_value):
+                return (
+                    canonical_ref,
+                    f"{handler_name} node '{node_id}' replaced placeholder {input_key} shell with upstream '{dependency_node_id}' result reference",
+                )
+            return raw_value, None
+
+        if isinstance(raw_value, str) and raw_value.strip():
+            if LiteRTPlanner._looks_like_result_reference(raw_value, dependency_node_id):
+                normalized_ref, changed = LiteRTPlanner._normalize_upstream_result_reference_expression(
+                    raw_expression=raw_value,
+                    dependency_node_id=dependency_node_id,
+                )
+                if changed:
+                    return (
+                        {"$ref": normalized_ref},
+                        f"{handler_name} node '{node_id}' converted string {input_key} to upstream '{dependency_node_id}' result reference",
+                    )
+                return {"$ref": normalized_ref}, None
+            if LiteRTPlanner._is_placeholder_input_shell(raw_value):
+                return (
+                    canonical_ref,
+                    f"{handler_name} node '{node_id}' replaced placeholder {input_key} with upstream '{dependency_node_id}' result reference",
+                )
+            return raw_value, None
+
+        if isinstance(raw_value, (list, tuple)) and LiteRTPlanner._is_placeholder_input_shell(raw_value):
+            return (
+                canonical_ref,
+                f"{handler_name} node '{node_id}' replaced placeholder {input_key} list with upstream '{dependency_node_id}' result reference",
+            )
+
+        if raw_value is None:
+            return (
+                canonical_ref,
+                f"{handler_name} node '{node_id}' defaulted {input_key} to upstream '{dependency_node_id}' result reference",
+            )
+
+        return raw_value, None
+
+    @classmethod
+    def _is_placeholder_input_shell(cls, raw_value: Any) -> bool:
+        if raw_value is None:
+            return True
+        if isinstance(raw_value, str):
+            normalized = raw_value.strip()
+            if not normalized:
+                return True
+            if re.fullmatch(r"[.\u2026]+", normalized):
+                return True
+            return normalized.casefold() in {
+                "placeholder",
+                "<placeholder>",
+                "todo",
+                "tbd",
+                "null",
+                "none",
+            }
+        if isinstance(raw_value, dict):
+            if not raw_value:
+                return True
+            if "$ref" in raw_value and len(raw_value) == 1:
+                return False
+            return all(cls._is_placeholder_input_shell(value) for value in raw_value.values())
+        if isinstance(raw_value, (list, tuple)):
+            if not raw_value:
+                return True
+            return all(cls._is_placeholder_input_shell(value) for value in raw_value)
+        return False
+
+    @staticmethod
+    def _looks_like_result_reference(raw_value: str, dependency_node_id: str) -> bool:
+        normalized = str(raw_value).strip().casefold()
+        dependency_normalized = dependency_node_id.casefold()
+        return any(
+            token in normalized
+            for token in (
+                dependency_normalized,
+                "results[",
+                ".output",
+                ".result",
+                "$ref",
+            )
+        )
+
+    @staticmethod
+    def _normalize_upstream_result_reference_expression(
+        raw_expression: str,
+        dependency_node_id: str,
+    ) -> tuple[str, bool]:
+        expression = str(raw_expression).strip()
+        if not expression:
+            return f"results['{dependency_node_id}']", True
+
+        if expression.startswith("{{") and expression.endswith("}}"):
+            expression = expression[2:-2].strip()
+
+        canonical = f"results['{dependency_node_id}']"
+        normalized = expression.replace('"', "'").strip()
+        if normalized == canonical:
+            return canonical, normalized != expression
+
+        if normalized in {
+            dependency_node_id,
+            f"{dependency_node_id}.output",
+            f"{dependency_node_id}.result",
+            f"results['{dependency_node_id}']['output']",
+            f"results['{dependency_node_id}']['result']",
+        }:
+            return canonical, True
+
+        if normalized.startswith("results[") and f"'{dependency_node_id}'" in normalized:
+            return normalized, normalized != expression
+
+        return canonical, True
+
+    @staticmethod
+    def _normalize_result_reference_expression(
+        raw_expression: str,
+        dependency_node_id: str,
+        expected_field: str,
+    ) -> tuple[str, bool]:
+        expression = str(raw_expression).strip()
+        if not expression:
+            return f"results['{dependency_node_id}']['{expected_field}']", True
+
+        if expression.startswith("{{") and expression.endswith("}}"):
+            expression = expression[2:-2].strip()
+
+        canonical = f"results['{dependency_node_id}']['{expected_field}']"
+        normalized = expression.replace('"', "'").strip()
+        if normalized == canonical:
+            return canonical, normalized != expression
+
+        if normalized in {
+            dependency_node_id,
+            f"{dependency_node_id}.output",
+            f"{dependency_node_id}.result",
+            f"results['{dependency_node_id}']",
+            f"results['{dependency_node_id}']['output']",
+            f"results['{dependency_node_id}']['result']",
+        }:
+            return canonical, True
+
+        bare_reference = normalized.casefold()
+        if bare_reference.endswith(f".{expected_field}") or bare_reference.endswith(
+            f".output.{expected_field}"
+        ) or bare_reference.endswith(f".result.{expected_field}"):
+            return canonical, True
+
+        if normalized.startswith("results[") and f"['{expected_field}']" in normalized:
+            return normalized, normalized != expression
+
+        return canonical, True

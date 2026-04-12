@@ -30,8 +30,14 @@ Methoden:
 - `__init__(self, settings)`: Konstruktor, der Abhaengigkeiten und Ausgangszustand vorbereitet.
 - `status(self)`: Funktion oder Definition `status` dieses Moduls.
 - `ensure_available(self)`: Funktion oder Definition `ensure_available` dieses Moduls.
+- `generate_text(self, prompt, *, timeout_s)`: Erzeugt reinen Modelltext ueber den lokalen LiteRT-Stack ausserhalb des Graph-Planungsmodus.
 - `generate_flow_request(self, prompt, catalog, current_flow, max_nodes)`: Erzeugt aus natuerlicher Sprache einen validierten FlowRequest.
-- `_invoke_model(self, planner_prompt)`: Funktion oder Definition `_invoke_model` dieses Moduls.
+- `_invoke_model(self, planner_prompt, *, timeout_s)`: Funktion oder Definition `_invoke_model` dieses Moduls.
+- `_run_lit_command(self, command, *, timeout_s)`: Funktion oder Definition `_run_lit_command` dieses Moduls.
+- `_looks_like_engine_creation_failure(message)`: Funktion oder Definition `_looks_like_engine_creation_failure` dieses Moduls.
+- `_xnnpack_cache_path(self)`: Funktion oder Definition `_xnnpack_cache_path` dieses Moduls.
+- `_quarantine_xnnpack_cache(self)`: Funktion oder Definition `_quarantine_xnnpack_cache` dieses Moduls.
+- `_format_engine_creation_failure(self, detail, *, quarantined_cache)`: Funktion oder Definition `_format_engine_creation_failure` dieses Moduls.
 - `_build_prompt(self, prompt, catalog, current_flow, max_nodes, *, detail_level, max_chars)`: Funktion oder Definition `_build_prompt` dieses Moduls.
 - `_build_prompt_variants(self, prompt, catalog, current_flow, max_nodes)`: Funktion oder Definition `_build_prompt_variants` dieses Moduls.
 - `_looks_like_context_overflow(message)`: Funktion oder Definition `_looks_like_context_overflow` dieses Moduls.
@@ -44,18 +50,24 @@ Methoden:
 - `_shorten_endpoint(raw_value)`: Funktion oder Definition `_shorten_endpoint` dieses Moduls.
 - `_truncate_text(value, max_chars)`: Funktion oder Definition `_truncate_text` dieses Moduls.
 - `_extract_explanation(parsed)`: Funktion oder Definition `_extract_explanation` dieses Moduls.
+- `_resolve_handler_name(self, *, raw_node, handler_set, agent_name_to_id, node_id, warnings)`: Funktion oder Definition `_resolve_handler_name` dieses Moduls.
+- `_infer_handler_name(raw_node, handler_set)`: Funktion oder Definition `_infer_handler_name` dieses Moduls.
+- `_infer_topic_labels(text)`: Funktion oder Definition `_infer_topic_labels` dieses Moduls.
 - `_parse_model_output(self, raw_response)`: Funktion oder Definition `_parse_model_output` dieses Moduls.
 - `_parse_model_output_with_warnings(self, raw_response)`: Funktion oder Definition `_parse_model_output_with_warnings` dieses Moduls.
 - `_extract_json_candidates(self, raw_response)`: Funktion oder Definition `_extract_json_candidates` dieses Moduls.
 - `_try_parse_candidate(self, candidate)`: Funktion oder Definition `_try_parse_candidate` dieses Moduls.
 - `_extract_json_object(text, allow_incomplete)`: Funktion oder Definition `_extract_json_object` dieses Moduls.
 - `_prepare_json_candidate(candidate)`: Funktion oder Definition `_prepare_json_candidate` dieses Moduls.
+- `_sanitize_json_compatible(value)`: Funktion oder Definition `_sanitize_json_compatible` dieses Moduls.
 - `_repair_json_text(self, candidate)`: Funktion oder Definition `_repair_json_text` dieses Moduls.
 - `_repair_python_literal_text(self, candidate)`: Funktion oder Definition `_repair_python_literal_text` dieses Moduls.
 - `_remove_json_comments(candidate)`: Funktion oder Definition `_remove_json_comments` dieses Moduls.
 - `_quote_bare_object_keys(candidate)`: Funktion oder Definition `_quote_bare_object_keys` dieses Moduls.
 - `_replace_keyword_literals(candidate, replacements)`: Funktion oder Definition `_replace_keyword_literals` dieses Moduls.
 - `_balance_json_structure(candidate)`: Funktion oder Definition `_balance_json_structure` dieses Moduls.
+- `_convert_single_quoted_strings_to_json_strings(candidate)`: Funktion oder Definition `_convert_single_quoted_strings_to_json_strings` dieses Moduls.
+- `_insert_missing_object_commas(candidate)`: Funktion oder Definition `_insert_missing_object_commas` dieses Moduls.
 - `_normalize_flow_request(self, parsed, catalog, max_nodes)`: Funktion oder Definition `_normalize_flow_request` dieses Moduls.
 - `_normalize_node_id(raw_value)`: Funktion oder Definition `_normalize_node_id` dieses Moduls.
 - `_normalize_object(raw_value)`: Funktion oder Definition `_normalize_object` dieses Moduls.
@@ -65,11 +77,21 @@ Methoden:
 - `_normalize_compensation_handler(raw_value, allowed_handlers, warnings, node_id)`: Funktion oder Definition `_normalize_compensation_handler` dieses Moduls.
 - `_normalize_edges(raw_edges, node_ids, warnings)`: Funktion oder Definition `_normalize_edges` dieses Moduls.
 - `_merge_dependencies(normalized_nodes, normalized_edges)`: Funktion oder Definition `_merge_dependencies` dieses Moduls.
+- `_postprocess_write_csv_nodes(cls, normalized_nodes, warnings)`: Funktion oder Definition `_postprocess_write_csv_nodes` dieses Moduls.
+- `_find_upstream_handler_node_id(cls, *, start_node_id, expected_handler, node_index)`: Funktion oder Definition `_find_upstream_handler_node_id` dieses Moduls.
+- `_is_topic_split_csv_rows_reference(raw_value, topic_split_node_id)`: Funktion oder Definition `_is_topic_split_csv_rows_reference` dieses Moduls.
 - `_validate_acyclic(normalized_nodes)`: Funktion oder Definition `_validate_acyclic` dieses Moduls.
 - `_combine_edge_conditions(left, right)`: Funktion oder Definition `_combine_edge_conditions` dieses Moduls.
 - `_omit_nodes_from_edges(cls, normalized_edges, omitted_nodes, warnings)`: Funktion oder Definition `_omit_nodes_from_edges` dieses Moduls.
 - `_strip_omitted_dependencies(normalized_nodes, omitted_node_ids)`: Funktion oder Definition `_strip_omitted_dependencies` dieses Moduls.
-- `_normalize_handler_input(handler_name, input_payload, node_id, dependencies, memory_ids, comm_agent_ids, communication_agents, warnings)`: Funktion oder Definition `_normalize_handler_input` dieses Moduls.
+- `_normalize_handler_input(handler_name, input_payload, node_id, title, dependencies, resolved_handlers_by_node_id, memory_ids, comm_agent_ids, communication_agents, warnings)`: Funktion oder Definition `_normalize_handler_input` dieses Moduls.
+- `_normalize_upstream_collection_input(raw_value, dependency_node_id, expected_field, handler_name, node_id, input_key)`: Funktion oder Definition `_normalize_upstream_collection_input` dieses Moduls.
+- `_normalize_topic_split_csv_fieldnames(raw_value, *, node_id)`: Funktion oder Definition `_normalize_topic_split_csv_fieldnames` dieses Moduls.
+- `_normalize_upstream_result_input(raw_value, dependency_node_id, handler_name, node_id, input_key)`: Funktion oder Definition `_normalize_upstream_result_input` dieses Moduls.
+- `_is_placeholder_input_shell(cls, raw_value)`: Funktion oder Definition `_is_placeholder_input_shell` dieses Moduls.
+- `_looks_like_result_reference(raw_value, dependency_node_id)`: Funktion oder Definition `_looks_like_result_reference` dieses Moduls.
+- `_normalize_upstream_result_reference_expression(raw_expression, dependency_node_id)`: Funktion oder Definition `_normalize_upstream_result_reference_expression` dieses Moduls.
+- `_normalize_result_reference_expression(raw_expression, dependency_node_id, expected_field)`: Funktion oder Definition `_normalize_result_reference_expression` dieses Moduls.
 
 ## Abhaengigkeiten
 
@@ -79,6 +101,7 @@ Methoden:
 - `import re`
 - `import subprocess`
 - `import tempfile`
+- `from datetime import UTC, datetime`
 - `from dataclasses import dataclass`
 - `from pathlib import Path`
 - `from typing import Any`

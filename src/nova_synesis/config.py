@@ -25,7 +25,8 @@ class Settings:
     lit_binary_path: str = "LIT/lit.windows_x86_64.exe"
     lit_model_path: str = "LIT/gemma-4-E2B-it.litertlm"
     lit_backend: str = "cpu"
-    lit_timeout_s: int = 240
+    lit_timeout_s: int = 640
+    lit_preview_timeout_s: int = 75
     handler_certificate_secret: str = "nova-synesis-development-root"
     handler_certificate_issuer: str = "NOVA-SYNESIS Root CA"
     handler_certificate_ttl_hours: int = 8_760
@@ -42,6 +43,7 @@ class Settings:
     security_http_allowed_hosts: tuple[str, ...] = (
         "127.0.0.1",
         "localhost",
+        "newsapi.org",
     )
     security_send_message_allowed_protocols: tuple[str, ...] = ("MESSAGE_QUEUE",)
     security_blocked_handler_keywords: tuple[str, ...] = (
@@ -137,6 +139,14 @@ class Settings:
             lit_timeout_s=int(
                 _env("NS_LIT_TIMEOUT_S", "AO_LIT_TIMEOUT_S", str(defaults.lit_timeout_s))
                 or defaults.lit_timeout_s
+            ),
+            lit_preview_timeout_s=int(
+                _env(
+                    "NS_LIT_PREVIEW_TIMEOUT_S",
+                    "AO_LIT_PREVIEW_TIMEOUT_S",
+                    str(defaults.lit_preview_timeout_s),
+                )
+                or defaults.lit_preview_timeout_s
             ),
             handler_certificate_secret=_env(
                 "NS_HANDLER_CERTIFICATE_SECRET",

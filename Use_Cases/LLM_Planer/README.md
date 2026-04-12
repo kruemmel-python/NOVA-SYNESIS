@@ -20,6 +20,14 @@ Die ersten beiden Prompts funktionieren sogar dann, wenn der Live-Katalog leer i
 
 Darum arbeiten die ersten beiden Prompts ausschliesslich mit lokal ausfuehrbaren Built-in-Handlern.
 
+Zusaetzlich bootstrappt der Backend-Planner inzwischen bei freien Prompts automatisch:
+
+- den generischen Agenten `nova-system-agent`
+- das Long-Term-Memory `planner-scratch`
+- das Vector-Memory `planner-vector`
+
+Damit koennen freie Prompts robuster mit `send_message`, `memory_store` und `memory_search` geplant werden, selbst wenn vorher noch kein eigener Fachkatalog registriert wurde.
+
 Zusaetzlich gibt es jetzt zwei Prompts mit echten Katalogobjekten:
 
 - ein Prompt mit `memory_store` und `memory_retrieve`
@@ -32,9 +40,9 @@ Dafuer muss vorher das lokale Setup ausgefuehrt werden:
 .\Use_Cases\LLM_Planer\setup.ps1 -ApiBaseUrl http://127.0.0.1:8552
 ```
 
-## Warum es keine `http_request`-Prompts in diesem Ordner gibt
+## Warum freie Web-Prompts trotzdem Grenzen haben
 
-Prompts mit `http_request` sind deutlich fragiler, weil sie gleichzeitig von
+Prompts mit `http_request` oder allgemeiner Web-Recherche sind deutlich fragiler, weil sie gleichzeitig von
 
 - Host-Allowlist
 - API-Ressourcen
@@ -51,7 +59,7 @@ Nicht enthalten sind deshalb absichtlich keine Prompts mit:
 - `memory_search`
 - `send_message`
 
-Solche Prompts koennen erst dann stabil funktionieren, wenn das Backend vorher passende API-Ressourcen, Memory-Systeme und Kommunikations-Agenten registriert hat.
+Solche Prompts koennen erst dann stabil funktionieren, wenn das Backend vorher passende API-Ressourcen registriert hat oder wenn der Planner auf dafuer vorhandene Built-ins wie `news_search`, `topic_split` und `write_csv` ausweichen kann.
 
 Die beiden Forderungs-Prompts sind davon ausgenommen, weil sie ausschliesslich mit lokalen Built-in-Handlern und Projektdateien arbeiten.
 

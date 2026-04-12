@@ -8,6 +8,17 @@ Diese Datei zeigt den kuerzesten Weg, um NOVA-SYNESIS lokal zu starten und die r
 .\run-backend.ps1 -BindHost 127.0.0.1 -Port 8552
 ```
 
+Alternativ kannst du das LiteRT-Modell direkt beim Start wechseln:
+
+```powershell
+.\run-backend.ps1 -BindHost 127.0.0.1 -Port 8552 -LitModel gemma-4-E2B-it.litertlm
+.\run-backend.ps1 -BindHost 127.0.0.1 -Port 8552 -LitModel model_multimodal.litertlm
+```
+
+Wenn nur ein Dateiname angegeben wird, sucht NOVA-SYNESIS automatisch im Ordner `LIT/`.
+
+Wenn nach einem Modellwechsel eine LiteRT-Meldung wie `failed to create engine` erscheint, versucht NOVA-SYNESIS automatisch, den modellbezogenen XNNPACK-Cache zu quarantainen und den Start zu wiederholen. Wenn der Fehler bleibt, ist das Modell wahrscheinlich nicht mit der aktuellen `lit`-Binary oder dem gewaehlten Backend kompatibel.
+
 Wichtige URLs:
 
 - `http://127.0.0.1:8552/docs`
@@ -44,9 +55,9 @@ Das bedeutet:
 
 Wichtig:
 
-- ein Prompt registriert keine neuen Agenten, Ressourcen oder Memory-Systeme
-- `AI Plan` plant nur mit den aktuell vorhandenen Katalogobjekten
-- wenn etwas nicht registriert ist, kann der Planner es nicht sauber verwenden
+- `AI Plan` bootstrappt inzwischen automatisch einen generischen System-Agenten sowie die Scratch-Memories `planner-scratch` und `planner-vector`, wenn sie noch fehlen
+- Ressourcen werden weiterhin nicht aus freiem Text erraten oder extern freigeschaltet
+- spezialisierte Use-Case-Objekte aus `setup.ps1` bleiben wichtig, wenn ein Prompt ganz bestimmte Agenten, Ressourcen oder Memory-IDs nutzen soll
 
 Nach einem `setup.ps1`:
 
@@ -68,13 +79,24 @@ Danach in der Web-UI:
 
 1. `Import JSON`
 2. bevorzugt `Use_Cases/accounts_receivable_reminder/flow.web_ui.orders_csv.json` oder `Use_Cases/accounts_receivable_reminder/flow.web_ui.orders_db.json` laden
-3. `Save Flow`
-4. `Run Flow`
+3. Node `Generate Reminder Letters` anklicken
+4. optional `Use local LLM to draft the letter text` aktivieren
+5. bei Bedarf `Preview Draft` nutzen, `Business instruction` und `Prompt template` anpassen
+6. `Save Flow`
+7. `Run Flow`
 
 Ergebnis:
 
 - Reports unter `Use_Cases/accounts_receivable_reminder/output/...`
 - Serienanschreiben als `.docx` unter `billing/csv` oder `billing/db`
+
+Wenn der LLM-Schreibmodus aktiv ist:
+
+- entscheidet der Benutzer im Inspector selbst, wie das lokale Modell schreiben soll
+- `Preview Draft` erzeugt einen einzelnen Beispielbrief fuer einen Kunden, ohne den ganzen Flow zu starten
+- `Preview Draft` verwendet die gerade im Inspector sichtbaren Werte, auch wenn der Flow noch nicht gespeichert wurde
+- beim spaeteren `Run Flow` wird derselbe konfigurierte Prompt fuer jeden Kunden aus `orders.csv` oder `orders.db` erneut ausgefuehrt
+- wenn die Vorschau zu lange braucht, beendet die UI den Request automatisch und zeigt einen Fehler statt endlos weiterzulaufen
 
 Alternativ direkt per Skript:
 
@@ -180,9 +202,8 @@ Das Skript:
 
 Also:
 
-- ohne `setup.ps1` keine neuen Agenten
-- ohne `setup.ps1` keine neuen Ressourcen
-- ohne `setup.ps1` keine neuen Memory-Systeme
-- ohne diese Registrierungen kann der Planner nur mit dem arbeiten, was bereits vorhanden ist
+- ohne `setup.ps1` keine spezialisierten Agenten oder Ressourcen fuer deinen konkreten Fachfall
+- das Backend erzeugt fuer freie Prompts zwar automatisch `nova-system-agent`, `planner-scratch` und `planner-vector`
+- ohne weitere Registrierungen kann der Planner aber trotzdem nur mit den vorhandenen Built-in-Handlern und diesen generischen Bootstrap-Objekten arbeiten
 
 Wenn ein Prompt einen Agenten, eine Resource oder ein Memory nennt, das nicht registriert ist, wird der Planner entweder fehlschlagen, den Node weglassen oder die Semantic Firewall blockiert den Flow.

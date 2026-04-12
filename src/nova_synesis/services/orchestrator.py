@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import json
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable
@@ -23,8 +24,16 @@ from nova_synesis.planning.lit_planner import LiteRTPlanner, PlannerCatalog
 from nova_synesis.planning.planner import IntentPlanner
 from nova_synesis.resources.manager import ResourceManager
 from nova_synesis.runtime.engine import ExecutionContext, FlowExecutor, TaskExecutor
-from nova_synesis.runtime.handlers import TaskHandlerRegistry, register_default_handlers
+from nova_synesis.runtime.handlers import (
+    TaskHandlerRegistry,
+    preview_accounts_receivable_letter_draft,
+    register_default_handlers,
+)
 from nova_synesis.security import SemanticFirewall
+
+_PLANNER_BOOTSTRAP_AGENT = "nova-system-agent"
+_PLANNER_BOOTSTRAP_LONG_TERM = "planner-scratch"
+_PLANNER_BOOTSTRAP_VECTOR = "planner-vector"
 
 
 class OrchestratorService:
@@ -52,6 +61,7 @@ class OrchestratorService:
         register_default_handlers(self.handler_registry)
 
         execution_context = ExecutionContext(
+            settings=self.settings,
             repository=self.repository,
             resource_manager=self.resource_manager,
             memory_manager=self.memory_manager,
@@ -324,6 +334,7 @@ class OrchestratorService:
         current_flow: dict[str, Any] | None = None,
         max_nodes: int = 12,
     ) -> dict[str, Any]:
+        bootstrap_warnings = self._ensure_llm_planner_bootstrap()
         result = await asyncio.to_thread(
             self.lit_planner.generate_flow_request,
             prompt,
@@ -339,15 +350,101 @@ class OrchestratorService:
             phase="planner",
         )
         security_report.ensure_allowed()
-        return {
+        
+        # Sicherstellen, dass die gesamte Antwort JSON-serialisierbar ist
+        response = {
             "flow_request": result.flow_request,
             "explanation": result.explanation,
-            "warnings": result.warnings + [finding.message for finding in security_report.warnings],
+            "warnings": bootstrap_warnings
+            + result.warnings
+            + [finding.message for finding in security_report.warnings],
             "security_report": security_report.as_dict(),
             "model_path": result.model_path,
             "backend": result.backend,
             "raw_response": result.raw_response,
         }
+        # NUTZT default=str UM SETS UND DATETIMES ABZUFANGEN
+        return json.loads(json.dumps(response, default=str))
+
+    def _ensure_llm_planner_bootstrap(self) -> list[str]:
+        warnings: list[str] = []
+        existing_agent_names = {agent["name"].casefold() for agent in self.list_agents()}
+        existing_memory_ids = {memory["memory_id"] for memory in self.list_memory_systems()}
+
+        if _PLANNER_BOOTSTRAP_AGENT.casefold() not in existing_agent_names:
+            self.register_agent(
+                name=_PLANNER_BOOTSTRAP_AGENT,
+                role="system",
+                capabilities=[
+                    {"name": "http", "type": "network"},
+                    {"name": "memory", "type": "storage"},
+                    {"name": "messaging", "type": "dispatch"},
+                    {"name": "filesystem", "type": "io"},
+                    {"name": "rendering", "type": "transform"},
+                    {"name": "serialization", "type": "transform"},
+                    {"name": "search", "type": "research"},
+                    {"name": "classification", "type": "analysis"},
+                    {"name": "generate_embedding", "type": "transform"},
+                ],
+                communication={
+                    "protocol": ProtocolType.MESSAGE_QUEUE.value,
+                    "endpoint": "queue://nova-system-agent",
+                    "config": {"planner_bootstrap": True},
+                },
+            )
+            warnings.append(f"Planner bootstrap registered agent '{_PLANNER_BOOTSTRAP_AGENT}'.")
+
+        if _PLANNER_BOOTSTRAP_LONG_TERM not in existing_memory_ids:
+            self.register_memory_system(
+                memory_id=_PLANNER_BOOTSTRAP_LONG_TERM,
+                memory_type=MemoryType.LONG_TERM,
+                config={"planner_visible": True, "allow_untrusted_ingest": True, "bootstrap": True},
+            )
+            warnings.append(f"Planner bootstrap registered memory '{_PLANNER_BOOTSTRAP_LONG_TERM}'.")
+
+        if _PLANNER_BOOTSTRAP_VECTOR not in existing_memory_ids:
+            self.register_memory_system(
+                memory_id=_PLANNER_BOOTSTRAP_VECTOR,
+                memory_type=MemoryType.VECTOR,
+                config={"planner_visible": True, "allow_untrusted_ingest": True, "bootstrap": True},
+            )
+            warnings.append(f"Planner bootstrap registered memory '{_PLANNER_BOOTSTRAP_VECTOR}'.")
+
+        return warnings
+
+    def validate_flow_request(
+        self,
+        nodes: list[dict[str, Any]],
+        edges: list[dict[str, Any]] | None = None,
+        metadata: dict[str, Any] | None = None,
+        planner_generated: bool = False,
+        phase: str = "create",
+    ) -> Any:
+        return self.semantic_firewall.validate_flow_request(
+            nodes=nodes,
+            edges=edges or [],
+            metadata=metadata or {},
+            handlers=self.list_handlers(),
+            agents=self.list_agents(),
+            resources=self.list_resources(),
+            memory_systems=self.list_memory_systems(),
+            planner_generated=planner_generated,
+            phase=phase,
+        )
+
+    def preview_accounts_receivable_draft(
+        self,
+        extract_input: dict[str, Any],
+        generate_input: dict[str, Any],
+        customer_index: int = 0,
+    ) -> dict[str, Any]:
+        return preview_accounts_receivable_letter_draft(
+            settings=self.settings,
+            working_directory=Path(self.settings.working_directory).resolve(),
+            extract_input=extract_input,
+            generate_input=generate_input,
+            customer_index=customer_index,
+        )
 
     async def shutdown(self) -> None:
         for agent in self.agents.values():
@@ -377,12 +474,14 @@ class OrchestratorService:
         subscribers = list(self._flow_subscribers.get(flow_id, set()))
         if not subscribers:
             return
-        event = {
+        # Sicherstellen, dass das Event-Payload JSON-konform ist
+        event = json.loads(json.dumps({
             "type": event_type,
             "flow_id": flow_id,
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "snapshot": snapshot,
-        }
+        }, default=str))
+        
         for queue in subscribers:
             if queue.full():
                 try:
@@ -408,71 +507,39 @@ class OrchestratorService:
             handlers=self.handler_registry.names(trusted_only=True),
             agents=self.list_agents(),
             resources=[
-                resource
-                for resource in self.list_resources()
-                if bool(resource.get("metadata", {}).get("planner_visible", True))
-                and not bool(resource.get("metadata", {}).get("sensitive", False))
+                r for r in self.list_resources() 
+                if bool(r.get("metadata", {}).get("planner_visible", True)) 
+                and not bool(r.get("metadata", {}).get("sensitive", False))
             ],
             memory_systems=[
-                memory_system
-                for memory_system in self.list_memory_systems()
-                if bool(memory_system.get("config", {}).get("planner_visible", True))
-                and not bool(memory_system.get("config", {}).get("sensitive", False))
+                m for m in self.list_memory_systems() 
+                if bool(m.get("config", {}).get("planner_visible", True)) 
+                and not bool(m.get("config", {}).get("sensitive", False))
             ],
-        )
-
-    def validate_flow_request(
-        self,
-        nodes: list[dict[str, Any]],
-        edges: list[dict[str, Any]] | None = None,
-        metadata: dict[str, Any] | None = None,
-        planner_generated: bool = False,
-        phase: str = "create",
-    ) -> Any:
-        return self.semantic_firewall.validate_flow_request(
-            nodes=nodes,
-            edges=edges or [],
-            metadata=metadata or {},
-            handlers=self.list_handlers(),
-            agents=self.list_agents(),
-            resources=self.list_resources(),
-            memory_systems=self.list_memory_systems(),
-            planner_generated=planner_generated,
-            phase=phase,
         )
 
     @staticmethod
     def _snapshot_nodes_to_specs(flow_snapshot: dict[str, Any]) -> list[dict[str, Any]]:
         nodes = []
         for node_id, node in flow_snapshot.get("nodes", {}).items():
-            nodes.append(
-                {
-                    "node_id": node_id,
-                    "handler_name": node.get("handler_name"),
-                    "input": node.get("input"),
-                    "required_capabilities": node.get("required_capabilities", []),
-                    "required_resource_ids": node.get("required_resource_ids", []),
-                    "required_resource_types": node.get("required_resource_types", []),
-                    "retry_policy": node.get("retry_policy", {}),
-                    "rollback_strategy": node.get("rollback_strategy", "FAIL_FAST"),
-                    "validator_rules": node.get("validator_rules", {}),
-                    "metadata": node.get("metadata", {}),
-                    "requires_manual_approval": node.get("requires_manual_approval", False),
-                    "manual_approval": node.get("manual_approval", {}),
-                    "compensation_handler": node.get("compensation_handler"),
-                    "dependencies": [
-                        edge["from_node"]
-                        for edge in flow_snapshot.get("edges", [])
-                        if edge.get("to_node") == node_id
-                    ],
-                    "conditions": {
-                        edge["from_node"]: edge.get("condition", "True")
-                        for edge in flow_snapshot.get("edges", [])
-                        if edge.get("to_node") == node_id
-                    },
-                    "preferred_agent_id": node.get("assigned_agent_id"),
-                }
-            )
+            nodes.append({
+                "node_id": node_id,
+                "handler_name": node.get("handler_name"),
+                "input": node.get("input"),
+                "required_capabilities": node.get("required_capabilities", []),
+                "required_resource_ids": node.get("required_resource_ids", []),
+                "required_resource_types": node.get("required_resource_types", []),
+                "retry_policy": node.get("retry_policy", {}),
+                "rollback_strategy": node.get("rollback_strategy", "FAIL_FAST"),
+                "validator_rules": node.get("validator_rules", {}),
+                "metadata": node.get("metadata", {}),
+                "requires_manual_approval": node.get("requires_manual_approval", False),
+                "manual_approval": node.get("manual_approval", {}),
+                "compensation_handler": node.get("compensation_handler"),
+                "dependencies": [e["from_node"] for e in flow_snapshot.get("edges", []) if e.get("to_node") == node_id],
+                "conditions": {e["from_node"]: e.get("condition", "True") for e in flow_snapshot.get("edges", []) if e.get("to_node") == node_id},
+                "preferred_agent_id": node.get("assigned_agent_id"),
+            })
         return nodes
 
     def _default_memory_backend(self, memory_type: MemoryType) -> str:
@@ -486,55 +553,42 @@ class OrchestratorService:
 
     @staticmethod
     def _serialize_agent(agent: Agent) -> dict[str, Any]:
-        return {
+        return json.loads(json.dumps({
             "agent_id": agent.agent_id,
             "name": agent.name,
             "role": agent.role,
             "state": agent.state.value,
-            "capabilities": [
-                {
-                    "name": capability.name,
-                    "type": capability.type,
-                    "constraints": capability.constraints,
-                }
-                for capability in agent.capabilities
-            ],
-            "communication": (
-                {
-                    "protocol": agent.comms.protocol.value,
-                    "endpoint": agent.comms.endpoint,
-                    "config": agent.comms.config,
-                }
-                if agent.comms is not None
-                else None
-            ),
-            "memory_refs": [memory.memory_id for memory in agent.memory_refs],
-        }
+            "capabilities": [{"name": c.name, "type": c.type, "constraints": c.constraints} for c in agent.capabilities],
+            "communication": {"protocol": agent.comms.protocol.value, "endpoint": agent.comms.endpoint, "config": agent.comms.config} if agent.comms else None,
+            "memory_refs": [m.memory_id for m in agent.memory_refs],
+        }, default=str))
 
     @staticmethod
     def _serialize_resource(resource: Resource) -> dict[str, Any]:
-        return {
+        return json.loads(json.dumps({
             "resource_id": resource.resource_id,
             "type": resource.type.value,
             "endpoint": resource.endpoint,
             "metadata": resource.metadata,
             "state": resource.state.value,
-        }
+        }, default=str))
 
     @staticmethod
     def _serialize_memory_system(system: Any) -> dict[str, Any]:
-        return {
+        return json.loads(json.dumps({
             "memory_id": system.memory_id,
             "type": system.type.value,
             "backend": system.backend,
             "config": system.config,
-        }
+        }, default=str))
 
     @staticmethod
     def _serialize_flow(flow: ExecutionFlow) -> dict[str, Any]:
         snapshot = flow.observe()
-        snapshot["flow_id"] = flow.flow_id
-        return snapshot
+        # REINIGT DEN SNAPSHOT VON SETS, DATETIMES ETC.
+        safe_snapshot = json.loads(json.dumps(snapshot, default=str))
+        safe_snapshot["flow_id"] = flow.flow_id
+        return safe_snapshot
 
 
 def create_orchestrator(settings: Settings | None = None) -> OrchestratorService:

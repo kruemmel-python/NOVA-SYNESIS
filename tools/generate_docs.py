@@ -26,6 +26,7 @@ EXCLUDED = {
     '__pycache__',
     'frontend/node_modules',
     'frontend/dist',
+    'test.csv',
 }
 
 FILE_NOTES = {
@@ -195,9 +196,9 @@ FILE_NOTES = {
         'related': ['frontend/src/App.tsx', 'frontend/src/hooks/useFlowLiveUpdates.ts'],
     },
     'frontend/src/components/layout/InspectorPanel.tsx': {
-        'purpose': 'Node- und Edge-Inspector fuer bearbeitbare Eigenschaften.',
-        'edit': 'Wenn weitere konfigurierbare Felder in der UI auftauchen sollen.',
-        'related': ['frontend/src/store/useFlowStore.ts', 'frontend/src/components/common/JsonEditor.tsx'],
+        'purpose': 'Node- und Edge-Inspector fuer bearbeitbare Eigenschaften, manuelle Freigaben und lokale LLM-Briefvorschauen.',
+        'edit': 'Wenn weitere konfigurierbare Felder, Approval-Aktionen oder interaktive Vorschaufunktionen in der UI auftauchen sollen.',
+        'related': ['frontend/src/store/useFlowStore.ts', 'frontend/src/components/common/JsonEditor.tsx', 'src/nova_synesis/api/app.py'],
     },
     'frontend/src/components/layout/PlannerComposer.tsx': {
         'purpose': 'Planner-Dialog fuer die lokale LLM-Graph-Erzeugung.',
@@ -238,6 +239,7 @@ SYMBOL_NOTES = {
     'register_default_handlers': 'Registriert alle eingebauten Handler.',
     'SQLiteRepository': 'Persistenzschicht fuer SQLite.',
     'LiteRTPlanner': 'Lokale LLM-Planung ueber LiteRT-LM.',
+    'LiteRTPlanner.generate_text': 'Erzeugt reinen Modelltext ueber den lokalen LiteRT-Stack ausserhalb des Graph-Planungsmodus.',
     'LiteRTPlanner.generate_flow_request': 'Erzeugt aus natuerlicher Sprache einen validierten FlowRequest.',
     'IntentPlanner': 'Regelbasierter Planer fuer strukturierte Intents.',
     'HandlerCertificate': 'Signierte Beschreibung eines vertrauenswuerdigen Handlers inklusive Fingerprint und Ablaufdatum.',
@@ -251,6 +253,7 @@ SYMBOL_NOTES = {
     'FlowCanvas': 'React-Flow-Leinwand des Editors.',
     'TaskNode': 'Custom Node fuer einzelne Tasks im Canvas.',
     'InspectorPanel': 'Eigenschaftseditor fuer Nodes und Edges.',
+    'preview_accounts_receivable_letter_draft': 'Erzeugt serverseitig einen einzelnen Beispielbrief fuer den Forderungs-Workflow, ohne den ganzen Flow auszufuehren.',
     'PlannerComposer': 'Dialog fuer die autonome Graph-Erzeugung.',
     'useFlowStore': 'Globaler Zustandsspeicher der UI auf Basis von Zustand.',
     'toFlowRequest': 'Serialisiert den Editorgraphen exakt in das Backend-Schema.',
@@ -274,11 +277,16 @@ TS_INTERNALS = {
     ],
     'frontend/src/components/layout/InspectorPanel.tsx': [
         ('patchNode', 'Wendet ein Teilupdate auf die Daten eines Nodes an.'),
+        ('patchNodeInputObject', 'Aktualisiert gezielt Felder innerhalb des Node-Inputs, ohne das restliche Objekt zu verlieren.'),
+        ('findReceivableExtractNode', 'Findet den zum Forderungs-Use-Case gehoerigen Extract-Node fuer serverseitige Vorschaulaufe.'),
         ('splitCsv', 'Konvertiert komma-separierte Texte in Stringlisten.'),
         ('asObject', 'Normalisiert unbekannte Werte zu einem sicheren Objekt.'),
+        ('asNodeInputObject', 'Normalisiert den Node-Input fuer Inspector-Operationen zu einem veraenderbaren Objekt.'),
+        ('readReceivableDraftingConfig', 'Leitet den aktiven LLM-Schreibmodus und seine Prompt-Felder aus dem Node-Input ab.'),
         ('statusTone', 'Ordnet Task-Status einer Badge-Farbe zu.'),
         ('handleApproveNode', 'Freigabe eines Nodes lokal oder ueber die Approval-API.'),
         ('handleRevokeNodeApproval', 'Hebt eine bestehende manuelle Freigabe lokal oder ueber die Approval-API auf.'),
+        ('handlePreviewDraft', 'Fordert ueber das Backend eine einzelne LLM-Briefvorschau fuer den aktuell konfigurierten Forderungs-Node an.'),
         ('NodeField', 'Hilfskomponente fuer einfache Texteingaben im Inspector.'),
         ('NumericField', 'Hilfskomponente fuer numerische Eingaben im Inspector.'),
     ],
@@ -299,6 +307,11 @@ Neural Orchestration Visual Autonomy
 Stateful Yielding Node-based Execution Semantic Integrated Surface
 
 Diese Dokumentation erklaert das System so, dass auch ein Entwickler ohne Vorwissen NOVA-SYNESIS starten, verstehen, absichern und gezielt aendern kann.
+
+Hinweis zur Ausgabestrategie:
+
+- `dokumentation/` ist die vollstaendige Markdown-Dokumentation.
+- `docs/` ist die reduzierte HTML-Sicht fuer Projektcode und Beispiel-Flows; Whitepaper, Fachartikel und README-artige Begleittexte werden dort bewusst nicht veroeffentlicht.
 
 ## Einstieg
 
@@ -372,9 +385,9 @@ Das bedeutet:
 
 Wichtig:
 
-- ein Prompt registriert keine neuen Agenten, Ressourcen oder Memory-Systeme
-- `AI Plan` plant nur mit den aktuell vorhandenen Katalogobjekten
-- wenn etwas nicht registriert ist, kann der Planner es nicht sauber verwenden
+- `AI Plan` bootstrappt inzwischen automatisch einen generischen System-Agenten sowie die Scratch-Memories `planner-scratch` und `planner-vector`, wenn sie noch fehlen
+- Ressourcen werden weiterhin nicht aus freiem Text erraten oder extern freigeschaltet
+- spezialisierte Use-Case-Objekte aus `setup.ps1` bleiben wichtig, wenn ein Prompt ganz bestimmte Agenten, Ressourcen oder Memory-IDs nutzen soll
 
 Nach einem `setup.ps1`:
 
@@ -479,10 +492,9 @@ Das Skript:
 
 Also:
 
-- ohne `setup.ps1` keine neuen Agenten
-- ohne `setup.ps1` keine neuen Ressourcen
-- ohne `setup.ps1` keine neuen Memory-Systeme
-- ohne diese Registrierungen kann der Planner nur mit dem arbeiten, was bereits vorhanden ist
+- ohne `setup.ps1` keine spezialisierten Agenten oder Ressourcen fuer deinen konkreten Fachfall
+- das Backend erzeugt fuer freie Prompts zwar automatisch `nova-system-agent`, `planner-scratch` und `planner-vector`
+- ohne weitere Registrierungen kann der Planner aber trotzdem nur mit den vorhandenen Built-in-Handlern und diesen generischen Bootstrap-Objekten arbeiten
 
 Wenn ein Prompt einen Agenten, eine Resource oder ein Memory nennt, das nicht registriert ist, wird der Planner entweder fehlschlagen, den Node weglassen oder die Semantic Firewall blockiert den Flow.
 
@@ -580,7 +592,7 @@ Die UI besteht aus `App.tsx`, dem Zustand-Store `useFlowStore.ts`, der Zeichenfl
 ## Kritische Integrationsstellen
 
 - `frontend/src/lib/flowSerialization.ts`: muss exakt zum FastAPI-Schema passen
-- `frontend/src/lib/apiClient.ts`: enthaelt die echten REST-, Approval- und WebSocket-Aufrufe inklusive `POST /flows/validate`
+- `frontend/src/lib/apiClient.ts`: enthaelt die echten REST-, Approval-, Preview- und WebSocket-Aufrufe inklusive `POST /flows/validate`
 - `frontend/src/store/useFlowStore.ts`: haelt den kanonischen UI-Zustand fuer Nodes, Edges, Auswahl und Laufzeitstatus
 - `frontend/src/hooks/useFlowLiveUpdates.ts`: faellt bei Socket-Problemen auf Polling zurueck
 
@@ -588,7 +600,15 @@ Die UI besteht aus `App.tsx`, dem Zustand-Store `useFlowStore.ts`, der Zeichenfl
 
 - `Handler trust` zeigt Zertifikatsstatus, Issuer, Fingerprint und Ablaufdatum
 - `Require manual approval before execution` markiert einen Node als freigabepflichtig
-- `Approve Node` und `Revoke Approval` sprechen direkt mit der Approval-API, wenn der Flow bereits gespeichert ist
+- `Approval granted` setzt die Freigabe per Checkbox; bei bereits gespeichertem Flow wird die Approval-API direkt genutzt
+- ohne gesetzten Freigabe-Haken bleibt ein freigabepflichtiger Node im Status `Pending`
+- der Node `Generate Reminder Letters` besitzt zusaetzlich den Bereich `LLM Letter Drafting`
+- `Use local LLM to draft the letter text` schaltet den Handler von festem Template auf lokalen LiteRT-Textentwurf um
+- `Business instruction` steuert den fachlichen Ton des Briefs direkt durch den Benutzer
+- `Prompt template` definiert den vollstaendigen Modellprompt pro Kunde mit Platzhaltern wie `{customer_name}`, `{invoice_lines}` oder `{total_outstanding}`
+- `Preview Draft` ruft `POST /tools/accounts-receivable/preview-draft` auf, laesst serverseitig nur den Extract-Schritt plus einen einzelnen LLM-Entwurf laufen und zeigt Prompt und Ergebnis im Inspector an
+- `Preview customer index` waehlt aus, fuer welchen Kunden aus der aktuellen Quelldatei die Vorschau erzeugt wird
+- Vorschau-Requests sind zeitlich begrenzt, damit die UI nicht unbegrenzt auf ein blockiertes oder zu langsames lokales Modell warten muss
 - bei ungespeicherten lokalen Aenderungen arbeitet der Inspector bewusst lokal weiter, um den Canvas-Zustand nicht zu ueberschreiben
 ''',
     'planner-and-lit.md': '''# LLM-Planer und LiteRT
@@ -599,9 +619,23 @@ Der Planner erzeugt keine Mock-Graphen. Er nutzt die lokale `lit`-Binary und das
 
 1. `LiteRTPlanner._build_prompt()` baut den Prompt aus Benutzerziel und echtem Katalog.
 2. `_invoke_model()` ruft `lit.windows_x86_64.exe` mit `gemma-4-E2B-it.litertlm` auf.
-3. `_parse_model_output_with_warnings()` extrahiert genau ein JSON-Objekt und repariert haeufige Formfehler aus LLM-Antworten.
-4. `_normalize_flow_request()` korrigiert IDs, Defaults, Abhaengigkeiten und Handler-Inputs.
+3. `_parse_model_output_with_warnings()` extrahiert genau ein JSON-Objekt und repariert haeufige Formfehler aus LLM-Antworten wie Single Quotes, Bare Keys, fehlende Kommata, unvollstaendige Objekte und gemischte JSON/Python-Literale.
+4. `_normalize_flow_request()` korrigiert IDs, Defaults, Abhaengigkeiten, Handler-Inputs und ersetzt offensichtliche Platzhalter-Shells im Embedding- und Memory-Pfad durch echte Upstream-Referenzen.
 5. `OrchestratorService.generate_flow_with_llm()` laesst den Graphen anschliessend noch durch die Semantic Firewall laufen.
+
+## Modellwechsel beim Serverstart
+
+- `run-backend.ps1` akzeptiert `-LitModel`, `-LitBinary` und `-LitBackend`
+- `python -m nova_synesis.cli run-api` akzeptiert `--lit-model`, `--lit-binary` und `--lit-backend`
+- wenn bei `--lit-model` oder `-LitModel` nur ein Dateiname uebergeben wird, sucht NOVA-SYNESIS automatisch im Ordner `LIT/`
+- `GET /planner/status` zeigt danach das aktiv verwendete Modell und Backend an
+- multimodale `.litertlm`-Modelle koennen als Textmodell gestartet werden, Bild-Inputs sind damit aber noch nicht automatisch in Planner oder Web-UI verdrahtet
+- wenn LiteRT beim Modellwechsel mit `failed to create engine` oder einem XNNPACK-Cache-Fehler scheitert, quarantaint NOVA-SYNESIS den modellbezogenen Cache automatisch und versucht einen Retry
+- wenn auch der Retry scheitert, ist die Modell-/Binary-/Backend-Kombination wahrscheinlich nicht kompatibel
+- bei freien Prompts bootstrappt der Planner automatisch `nova-system-agent`, `planner-scratch` und `planner-vector`, falls diese Objekte noch nicht existieren
+- freie Web- oder CSV-Workflows koennen auf die Built-ins `news_search`, `topic_split` und `write_csv` zurueckgreifen
+- wenn das Modell im Vector-Pfad nur Platzhalter wie `{"embedding":"..."}` liefert, repariert der Planner neue Flows auf echte `generate_embedding`-Result-Referenzen
+- bereits gespeicherte Alt-Flows mit demselben Platzhalterfehler werden zur Laufzeit im `memory_store`-Handler auf das echte Upstream-Embedding umgebogen
 
 ## Wichtige Sicherheitsgrenzen
 
@@ -1222,7 +1256,7 @@ def excluded(path: Path) -> bool:
         return True
     if path.suffix in {'.zip', '.exe', '.db', '.pdf'}:
         return True
-    if r.endswith('.tsbuildinfo') or r.endswith('.xnnpack_cache') or r.endswith('.litertlm'):
+    if r.endswith('.tsbuildinfo') or '.xnnpack_cache' in r or r.endswith('.litertlm'):
         return True
     return any(r == item or r.startswith(item + '/') for item in EXCLUDED)
 

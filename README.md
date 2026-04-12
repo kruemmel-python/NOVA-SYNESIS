@@ -42,6 +42,17 @@ Wenn das Konsolenskript noch nicht per `pip install -e .` installiert wurde, fun
 .\run-backend.ps1 -BindHost 127.0.0.1 -Port 8000
 ```
 
+Modellwechsel beim Start ist direkt moeglich. Beispiele:
+
+```powershell
+.\run-backend.ps1 -BindHost 127.0.0.1 -Port 8000 -LitModel gemma-4-E2B-it.litertlm
+.\run-backend.ps1 -BindHost 127.0.0.1 -Port 8000 -LitModel model_multimodal.litertlm
+```
+
+Wenn nur ein Dateiname uebergeben wird, sucht NOVA-SYNESIS automatisch im Ordner `LIT/`. Absolute oder relative Pfade funktionieren ebenfalls.
+
+Wenn ein neu gewaehltes Modell mit einer LiteRT-Meldung wie `failed to create engine` oder einem XNNPACK-Cache-Fehler startet, versucht NOVA-SYNESIS seit dem aktuellen Stand automatisch, einen stale Modell-Cache `<modell>.xnnpack_cache` zu quarantainen und den Start einmal zu wiederholen. Wenn auch der Retry fehlschlaegt, pruefe die Modell-/Binary-Kompatibilitaet oder starte testweise mit einem anderen Modell.
+
 oder ohne PowerShell-Skript:
 
 ```powershell
@@ -85,6 +96,12 @@ Verwendet werden:
 - Binary: `LIT/lit.windows_x86_64.exe`
 - Modell: `LIT/gemma-4-E2B-it.litertlm`
 
+Das Modell kann beim Serverstart ueberschrieben werden:
+
+```powershell
+python -m nova_synesis.cli run-api --host 127.0.0.1 --port 8000 --lit-model model_multimodal.litertlm
+```
+
 Relevante Endpunkte:
 
 - `GET /planner/status`
@@ -93,6 +110,7 @@ Relevante Endpunkte:
 Die UI ruft den Planner über den Button `AI Plan` auf und ersetzt den Canvas mit dem generierten `FlowRequest`.
 Der Planner erzeugt ausschließlich Graphen gegen die real registrierten Handler, Agents, Resources und Memory-Backends.
 Seit `1.0.5` kompaktisiert der Planner LiteRT-Prompts bei Token-Overflow automatisch und repariert typische LLM-JSON-Formfehler vor der Normalisierung.
+Seit dem aktuellen Stand bootstrappt `AI Plan` bei freien Prompts ausserdem automatisch den generischen Agenten `nova-system-agent` sowie die Scratch-Memories `planner-scratch` und `planner-vector`, falls sie im Katalog noch fehlen. Spezialisierte Resources und fachspezifische Agenten muessen aber weiter ueber `setup.ps1` oder die API registriert werden.
 
 ## Semantic Firewall
 

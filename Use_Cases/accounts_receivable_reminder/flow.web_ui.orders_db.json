@@ -92,7 +92,9 @@
           "description": "Dieser Node formuliert die Schreiben aus den DB-basierten Forderungsdaten und bildet die Bruecke zwischen Fachlogik und Dokumentausgabe.",
           "notes": [
             "Passe hier Absender und Zahlungsfrist an.",
-            "Die Inhalte werden erst im naechsten Schritt als DOCX persistiert."
+            "Die Inhalte werden erst im naechsten Schritt als DOCX persistiert.",
+            "Im Inspector kann dieser Node optional auf lokales LLM-Drafting umgestellt werden.",
+            "Dann steuerst du den Brieftext direkt ueber Business instruction und Prompt template."
           ],
           "position": {
             "x": 430,

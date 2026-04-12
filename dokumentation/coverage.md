@@ -1,7 +1,7 @@
 # Abdeckung
 
-- Dokumentierte Projektdateien: `101`
-- Referenzdateien: `102`
+- Dokumentierte Projektdateien: `102`
+- Referenzdateien: `103`
 
 ## Ausgeschlossene Bereiche
 
@@ -30,6 +30,7 @@
 - `Use_Cases/LLM_Planer/setup.ps1`
 - `Use_Cases/LLM_Planer/verify.ps1`
 - `Use_Cases/README.md`
+- `Use_Cases/accounts_receivable_reminder/AUSFUEHRLICHE_DOKUMENTATION.md`
 - `Use_Cases/accounts_receivable_reminder/README.md`
 - `Use_Cases/accounts_receivable_reminder/flow.orders_csv.json`
 - `Use_Cases/accounts_receivable_reminder/flow.orders_db.json`

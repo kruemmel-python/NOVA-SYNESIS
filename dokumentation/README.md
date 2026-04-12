@@ -5,6 +5,11 @@ Stateful Yielding Node-based Execution Semantic Integrated Surface
 
 Diese Dokumentation erklaert das System so, dass auch ein Entwickler ohne Vorwissen NOVA-SYNESIS starten, verstehen, absichern und gezielt aendern kann.
 
+Hinweis zur Ausgabestrategie:
+
+- `dokumentation/` ist die vollstaendige Markdown-Dokumentation.
+- `docs/` ist die reduzierte HTML-Sicht fuer Projektcode und Beispiel-Flows; Whitepaper, Fachartikel und README-artige Begleittexte werden dort bewusst nicht veroeffentlicht.
+
 ## Einstieg
 
 1. [Schnellstart](getting-started.md)

@@ -6,9 +6,23 @@ Der Planner erzeugt keine Mock-Graphen. Er nutzt die lokale `lit`-Binary und das
 
 1. `LiteRTPlanner._build_prompt()` baut den Prompt aus Benutzerziel und echtem Katalog.
 2. `_invoke_model()` ruft `lit.windows_x86_64.exe` mit `gemma-4-E2B-it.litertlm` auf.
-3. `_parse_model_output_with_warnings()` extrahiert genau ein JSON-Objekt und repariert haeufige Formfehler aus LLM-Antworten.
-4. `_normalize_flow_request()` korrigiert IDs, Defaults, Abhaengigkeiten und Handler-Inputs.
+3. `_parse_model_output_with_warnings()` extrahiert genau ein JSON-Objekt und repariert haeufige Formfehler aus LLM-Antworten wie Single Quotes, Bare Keys, fehlende Kommata, unvollstaendige Objekte und gemischte JSON/Python-Literale.
+4. `_normalize_flow_request()` korrigiert IDs, Defaults, Abhaengigkeiten, Handler-Inputs und ersetzt offensichtliche Platzhalter-Shells im Embedding- und Memory-Pfad durch echte Upstream-Referenzen.
 5. `OrchestratorService.generate_flow_with_llm()` laesst den Graphen anschliessend noch durch die Semantic Firewall laufen.
+
+## Modellwechsel beim Serverstart
+
+- `run-backend.ps1` akzeptiert `-LitModel`, `-LitBinary` und `-LitBackend`
+- `python -m nova_synesis.cli run-api` akzeptiert `--lit-model`, `--lit-binary` und `--lit-backend`
+- wenn bei `--lit-model` oder `-LitModel` nur ein Dateiname uebergeben wird, sucht NOVA-SYNESIS automatisch im Ordner `LIT/`
+- `GET /planner/status` zeigt danach das aktiv verwendete Modell und Backend an
+- multimodale `.litertlm`-Modelle koennen als Textmodell gestartet werden, Bild-Inputs sind damit aber noch nicht automatisch in Planner oder Web-UI verdrahtet
+- wenn LiteRT beim Modellwechsel mit `failed to create engine` oder einem XNNPACK-Cache-Fehler scheitert, quarantaint NOVA-SYNESIS den modellbezogenen Cache automatisch und versucht einen Retry
+- wenn auch der Retry scheitert, ist die Modell-/Binary-/Backend-Kombination wahrscheinlich nicht kompatibel
+- bei freien Prompts bootstrappt der Planner automatisch `nova-system-agent`, `planner-scratch` und `planner-vector`, falls diese Objekte noch nicht existieren
+- freie Web- oder CSV-Workflows koennen auf die Built-ins `news_search`, `topic_split` und `write_csv` zurueckgreifen
+- wenn das Modell im Vector-Pfad nur Platzhalter wie `{"embedding":"..."}` liefert, repariert der Planner neue Flows auf echte `generate_embedding`-Result-Referenzen
+- bereits gespeicherte Alt-Flows mit demselben Platzhalterfehler werden zur Laufzeit im `memory_store`-Handler auf das echte Upstream-Embedding umgebogen
 
 ## Wichtige Sicherheitsgrenzen
 

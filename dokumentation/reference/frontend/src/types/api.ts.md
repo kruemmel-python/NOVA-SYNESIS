@@ -37,6 +37,8 @@ Wenn Backend-Vertraege oder UI-Datentypen erweitert werden.
 - `PlannerStatus`: TypeScript-Typ `PlannerStatus` fuer einen Datenvertrag.
 - `PlannerGenerateRequest`: TypeScript-Typ `PlannerGenerateRequest` fuer einen Datenvertrag.
 - `PlannerGenerateResponse`: TypeScript-Typ `PlannerGenerateResponse` fuer einen Datenvertrag.
+- `AccountsReceivableDraftPreviewRequest`: TypeScript-Typ `AccountsReceivableDraftPreviewRequest` fuer einen Datenvertrag.
+- `AccountsReceivableDraftPreviewResponse`: TypeScript-Typ `AccountsReceivableDraftPreviewResponse` fuer einen Datenvertrag.
 - `HandlerCatalogResponse`: TypeScript-Typ `HandlerCatalogResponse` fuer einen Datenvertrag.
 
 ## Abhaengigkeiten

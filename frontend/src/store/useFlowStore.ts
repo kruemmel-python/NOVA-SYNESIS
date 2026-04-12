@@ -41,6 +41,8 @@ interface ExecutionState {
   lastEventType: string | null;
   lastUpdated: string | null;
   error: string | null;
+  failedNodes: Record<string, string>;
+  failureDetails: string[];
 }
 
 interface FlowStore {
@@ -88,7 +90,68 @@ const initialExecutionState: ExecutionState = {
   lastEventType: null,
   lastUpdated: null,
   error: null,
+  failedNodes: {},
+  failureDetails: [],
 };
+
+function asObjectRecord(value: unknown): Record<string, unknown> {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : {};
+}
+
+function asStringRecord(value: unknown): Record<string, string> {
+  const record = asObjectRecord(value);
+  return Object.entries(record).reduce<Record<string, string>>((accumulator, [key, entry]) => {
+    if (typeof entry === "string" && entry.trim()) {
+      accumulator[key] = entry;
+    }
+    return accumulator;
+  }, {});
+}
+
+function asStringArray(value: unknown): string[] {
+  return Array.isArray(value)
+    ? value.filter((entry): entry is string => typeof entry === "string" && entry.trim().length > 0)
+    : [];
+}
+
+function deriveFailureState(snapshot: FlowSnapshot): {
+  error: string | null;
+  failedNodes: Record<string, string>;
+  failureDetails: string[];
+} {
+  const metadata = asObjectRecord(snapshot.metadata);
+  const failedNodes = {
+    ...asStringRecord(metadata.failed_nodes),
+    ...asStringRecord(snapshot.failed_nodes),
+  };
+
+  const failureDetails = Object.entries(failedNodes).map(
+    ([nodeId, message]) => `${nodeId}: ${message}`,
+  );
+
+  const deadlockNodes = asStringArray(metadata.deadlock_nodes);
+  if (deadlockNodes.length > 0) {
+    failureDetails.push(`Deadlock on nodes: ${deadlockNodes.join(", ")}`);
+  }
+
+  const blockedNodes = asStringArray(snapshot.blocked_nodes);
+  if (failureDetails.length === 0 && blockedNodes.length > 0) {
+    failureDetails.push(`Blocked nodes: ${blockedNodes.join(", ")}`);
+  }
+
+  const error =
+    snapshot.state === "FAILED"
+      ? failureDetails[0] ?? "Flow execution failed without a reported node error."
+      : null;
+
+  return {
+    error,
+    failedNodes,
+    failureDetails,
+  };
+}
 
 function snapshotGraph(state: Pick<FlowStore, "nodes" | "edges" | "flowId" | "dirty">): GraphSnapshot {
   return {
@@ -288,6 +351,7 @@ export const useFlowStore = create<FlowStore>((set, get) => ({
 
   applyFlowSnapshot: (snapshot, eventType, timestamp) =>
     set((state) => {
+      const failureState = deriveFailureState(snapshot);
       const localNodeIds = new Set(state.nodes.map((node) => node.id));
       const snapshotNodeIds = Object.keys(snapshot.nodes);
       const shouldReplaceGraph =
@@ -312,7 +376,9 @@ export const useFlowStore = create<FlowStore>((set, get) => ({
             websocketConnected: state.executionState.websocketConnected,
             lastEventType: eventType ?? state.executionState.lastEventType,
             lastUpdated: timestamp ?? state.executionState.lastUpdated,
-            error: state.executionState.error,
+            error: failureState.error,
+            failedNodes: failureState.failedNodes,
+            failureDetails: failureState.failureDetails,
           },
         };
       }
@@ -344,7 +410,9 @@ export const useFlowStore = create<FlowStore>((set, get) => ({
           websocketConnected: state.executionState.websocketConnected,
           lastEventType: eventType ?? state.executionState.lastEventType,
           lastUpdated: timestamp ?? state.executionState.lastUpdated,
-          error: state.executionState.error,
+          error: failureState.error,
+          failedNodes: failureState.failedNodes,
+          failureDetails: failureState.failureDetails,
         },
       };
     }),

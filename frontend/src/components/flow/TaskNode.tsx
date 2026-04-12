@@ -24,6 +24,9 @@ export function TaskNode({ id, data, selected }: NodeProps<TaskFlowNode>) {
       : typeof uiMetadata.description === "string"
         ? uiMetadata.description
         : null;
+  const llmDraftingActive =
+    data.handler_name === "accounts_receivable_generate_letters" &&
+    readGenerationMode(data.input) === "llm";
 
   return (
     <div className={`task-node task-node--${statusClass} ${selected ? "task-node--selected" : ""}`}>
@@ -49,6 +52,7 @@ export function TaskNode({ id, data, selected }: NodeProps<TaskFlowNode>) {
           {data.task_status}
         </span>
         <span>{handler?.trusted ? "Trusted" : "Untrusted"}</span>
+        {llmDraftingActive ? <span>Local LLM</span> : null}
         <span>{approvalPending ? "Approval pending" : data.manual_approval.approved ? "Approved" : "No approval"}</span>
         <span>{data.required_capabilities.length} caps</span>
         <span>{data.required_resource_types.length} resource types</span>
@@ -68,4 +72,14 @@ function readUiMetadata(metadata: Record<string, unknown> | undefined): Record<s
   }
   const ui = metadata.ui;
   return ui && typeof ui === "object" ? (ui as Record<string, unknown>) : {};
+}
+
+function readGenerationMode(input: unknown): string {
+  if (!input || typeof input !== "object" || Array.isArray(input)) {
+    return "template";
+  }
+  const payload = input as Record<string, unknown>;
+  return typeof payload.generation_mode === "string" && payload.generation_mode.trim()
+    ? payload.generation_mode.trim().toLowerCase()
+    : "template";
 }

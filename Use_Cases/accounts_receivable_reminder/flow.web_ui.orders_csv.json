@@ -91,7 +91,9 @@
           "description": "Hier entsteht die eigentliche Serienkorrespondenz. Der Node formuliert aus den offenen Positionen ein professionelles Zahlungserinnerungsschreiben.",
           "notes": [
             "Absenderdaten und Zahlungsfrist lassen sich hier zentral anpassen.",
-            "Der Node erzeugt noch keine Dateien, sondern nur die Briefinhalte."
+            "Der Node erzeugt noch keine Dateien, sondern nur die Briefinhalte.",
+            "Im Inspector kann dieser Node optional auf lokales LLM-Drafting umgestellt werden.",
+            "Dann steuerst du den Brieftext direkt ueber Business instruction und Prompt template."
           ],
           "position": {
             "x": 430,

@@ -69,6 +69,10 @@ Datenmodell `NodeApprovalRequest` fuer validierte Schichtgrenzen.
 
 Datenmodell `NodeApprovalRevokeRequest` fuer validierte Schichtgrenzen.
 
+### `AccountsReceivableDraftPreviewRequest`
+
+Datenmodell `AccountsReceivableDraftPreviewRequest` fuer validierte Schichtgrenzen.
+
 ## Funktionen
 
 - `create_app(settings, orchestrator)`: Erzeugt die FastAPI-Anwendung und registriert ihre Endpunkte.

@@ -27,6 +27,46 @@ REPO_VIEW = WEB / "repo"
 REPO_ASSETS = WEB / "repo-assets"
 
 SKIP_DOC_FILES = {"docs.md"}
+WEB_GUIDE_ORDER = [
+    "README.md",
+    "system-overview.md",
+    "backend-runtime.md",
+    "frontend-editor.md",
+    "planner-and-lit.md",
+    "security-and-policy.md",
+    "handler-trust-and-approval.md",
+    "real-world-scenarios.md",
+]
+WEB_ALLOWED_GUIDES = {Path(name) for name in WEB_GUIDE_ORDER}
+WEB_BANNED_REPO_FILENAMES = {
+    "README.md",
+    "Whitepaper.md",
+    "Fachartikel_NOVA-SYNESIS.md",
+    "fazit.md",
+    "Schnellstart.md",
+    "LICENSE",
+    "uml_V3.mmd",
+    "uml.html",
+}
+WEB_ALLOWED_ROOT_REPO_FILES = {
+    ".env.example",
+    "Dockerfile",
+    "pyproject.toml",
+    "run-backend.ps1",
+    "run-backend.cmd",
+}
+WEB_ALLOWED_FRONTEND_FILES = {
+    "index.html",
+    "package.json",
+    "package-lock.json",
+    "tsconfig.json",
+    "tsconfig.app.json",
+    "tsconfig.node.json",
+    "vite.config.ts",
+    "vite.config.js",
+    "vite.config.d.ts",
+    ".env.example",
+}
 ASSET_EXTENSIONS = {
     ".png",
     ".jpg",
@@ -120,6 +160,60 @@ class RepoSourcePage:
     kind: str
 
 
+def reference_docs_relative_to_repo_relative(docs_relative: Path) -> Path | None:
+    if not docs_relative.parts or docs_relative.parts[0] != "reference":
+        return None
+    if docs_relative == Path("reference/index.md"):
+        return None
+    inner = Path(*docs_relative.parts[1:])
+    inner_text = inner.as_posix()
+    if not inner_text.endswith(".md"):
+        return None
+    return Path(inner_text[:-3])
+
+
+def is_allowed_repo_relative(relative: Path) -> bool:
+    relative_text = relative.as_posix()
+    if relative.name in WEB_BANNED_REPO_FILENAMES:
+        return False
+    if any(part in {"dokumentation", "docs", "data", "release", "billing", ".git", "__pycache__"} for part in relative.parts):
+        return False
+    if relative.parts and relative.parts[0] == "Use_Cases":
+        return relative.name != "README.md"
+    if relative.parts and relative.parts[0] == "src":
+        return True
+    if relative.parts[:2] == ("frontend", "src"):
+        return True
+    if relative.parts and relative.parts[0] in {"tests", "tools"}:
+        return True
+    if relative.parts and relative.parts[0] == "frontend":
+        return relative.name in WEB_ALLOWED_FRONTEND_FILES
+    return relative_text in WEB_ALLOWED_ROOT_REPO_FILES
+
+
+def is_allowed_repo_target(target: Path) -> bool:
+    try:
+        relative = target.resolve().relative_to(ROOT.resolve())
+    except ValueError:
+        return False
+    return is_allowed_repo_relative(relative)
+
+
+def should_include_doc_page(docs_relative: Path) -> bool:
+    if docs_relative.name in SKIP_DOC_FILES:
+        return False
+    if docs_relative == Path("README.md"):
+        return True
+    if not docs_relative.parts:
+        return False
+    if docs_relative.parts[0] != "reference":
+        return docs_relative in WEB_ALLOWED_GUIDES
+    if docs_relative == Path("reference/index.md"):
+        return True
+    repo_relative = reference_docs_relative_to_repo_relative(docs_relative)
+    return repo_relative is not None and is_allowed_repo_relative(repo_relative)
+
+
 def slugify(value: str) -> str:
     normalized = re.sub(r"<[^>]+>", "", value)
     normalized = html.unescape(normalized)
@@ -192,7 +286,13 @@ def resolve_local_target(current_source: Path, raw_target: str) -> Path | None:
 
 
 def is_binary_asset(path: Path) -> bool:
-    return path.suffix.casefold() in ASSET_EXTENSIONS
+    suffix = path.suffix.casefold()
+    name = path.name.casefold()
+    if suffix in ASSET_EXTENSIONS:
+        return True
+    if suffix in {".exe", ".zip", ".db", ".pdf", ".litertlm"}:
+        return True
+    return name.endswith(".xnnpack_cache") or ".xnnpack_cache." in name
 
 
 def page_title(markdown_text: str, fallback: str) -> str:
@@ -257,7 +357,12 @@ def build_markdown_page(
     doc_assets: set[Path],
     repo_assets: set[Path],
 ) -> None:
-    markdown_text = read_text(page.source_path)
+    if page.docs_relative_path == Path("README.md"):
+        markdown_text = build_site_home_markdown(page_map)
+    elif page.docs_relative_path == Path("reference/index.md"):
+        markdown_text = build_filtered_reference_index_markdown(page_map)
+    else:
+        markdown_text = read_text(page.source_path)
     md = markdown.Markdown(
         extensions=["fenced_code", "tables", "sane_lists", "toc", "attr_list"],
         extension_configs={"toc": {"permalink": False}},
@@ -353,6 +458,8 @@ def rewrite_link_value(
         return relative_href(current_page.output_relative_path, asset_url)
 
     if ROOT.resolve() in resolved_target.parents or resolved_target == ROOT.resolve():
+        if not is_allowed_repo_target(resolved_target):
+            return "#"
         if resolved_target.is_dir():
             page = repo_dir_pages.setdefault(
                 resolved_target,
@@ -396,39 +503,17 @@ def rewrite_link_value(
 
 def build_navigation(page_map: dict[Path, Page]) -> list[dict[str, Any]]:
     home_page = page_map[Path("README.md")]
-    root_readme_text = read_text(home_page.source_path)
-    ordered_links = parse_ordered_links(root_readme_text)
-    ordered_root_paths = [Path(link) for link in ordered_links if Path(link) in page_map]
-
-    root_pages = {
-        path: page
-        for path, page in page_map.items()
-        if len(path.parts) == 1 and path.name not in SKIP_DOC_FILES and path != Path("README.md")
-    }
-
-    guide_items = [{"label": home_page.title, "url": home_page.url}]
-    for path in ordered_root_paths:
-        if path == Path("README.md") or path.parts[:1] == ("reference",):
-            continue
-        if path in root_pages:
-            guide_items.append({"label": page_map[path].title, "url": page_map[path].url})
-
-    appendix_items = []
-    ordered_set = set(ordered_root_paths)
-    for path, page in sorted(root_pages.items(), key=lambda item: item[1].title.casefold()):
-        if path in ordered_set:
-            continue
-        appendix_items.append({"label": page.title, "url": page.url})
-
+    guide_items = []
+    for path_text in WEB_GUIDE_ORDER:
+        path = Path(path_text)
+        page = page_map.get(path)
+        if page is not None:
+            guide_items.append({"label": page.title, "url": page.url})
     reference_items = build_reference_tree(page_map)
-
-    groups = [
-        {"label": "Guides", "items": guide_items},
-        {"label": "Reference", "items": reference_items},
+    return [
+        {"label": "Projekt", "items": guide_items or [{"label": home_page.title, "url": home_page.url}]},
+        {"label": "Code & Flows", "items": reference_items},
     ]
-    if appendix_items:
-        groups.append({"label": "Appendix", "items": appendix_items})
-    return groups
 
 
 def build_reference_tree(page_map: dict[Path, Page]) -> list[dict[str, Any]]:
@@ -783,6 +868,79 @@ def build_search_index(pages: list[Page]) -> list[dict[str, Any]]:
     return entries
 
 
+def build_site_home_markdown(page_map: dict[Path, Page]) -> str:
+    lines = [
+        "# Projekt- und Flow-Dokumentation",
+        "",
+        "Diese HTML-Seite ist bewusst auf technische Projektdokumentation und Beispiel-Flows reduziert.",
+        "Nicht enthalten sind Whitepaper, Fachartikel, README-artige Uebersichten oder sonstige Begleittexte.",
+        "",
+        "## Technische Bereiche",
+        "",
+    ]
+    for path_text in WEB_GUIDE_ORDER[1:]:
+        path = Path(path_text)
+        page = page_map.get(path)
+        if page is None:
+            continue
+        lines.append(f"- [{page.title}]({page.docs_relative_path.as_posix()})")
+    lines += [
+        "",
+        "## Beispielprojekte und Beispiel-Flows",
+        "",
+        "- [Referenzindex](reference/index.md)",
+    ]
+    for candidate in (
+        Path("reference/Use_Cases/accounts_receivable_reminder/AUSFUEHRLICHE_DOKUMENTATION.md.md"),
+        Path("reference/Use_Cases/accounts_receivable_reminder/flow.web_ui.orders_csv.json.md"),
+        Path("reference/Use_Cases/accounts_receivable_reminder/flow.web_ui.orders_db.json.md"),
+        Path("reference/Use_Cases/platform_health_snapshot/flow.json.md"),
+        Path("reference/Use_Cases/semantic_ticket_triage/flow.json.md"),
+        Path("reference/Use_Cases/LLM_Planer/prompt_05_accounts_receivable_csv.txt.md"),
+        Path("reference/Use_Cases/LLM_Planer/prompt_06_accounts_receivable_db.txt.md"),
+    ):
+        page = page_map.get(candidate)
+        if page is not None:
+            lines.append(f"- [{page.title}]({candidate.as_posix()})")
+    lines += [
+        "",
+        "## Fokus der HTML-Seite",
+        "",
+        "- Projektcode, technische Referenz und echte Beispiel-Flows",
+        "- Use-Case-Dateien, Prompt-Beispiele, Setup- und Run-Skripte",
+        "- keine Whitepaper-, Fachartikel- oder README-Sammlungen",
+        "",
+    ]
+    return "\n".join(lines)
+
+
+def build_filtered_reference_index_markdown(page_map: dict[Path, Page]) -> str:
+    lines = [
+        "# Referenzindex",
+        "",
+        "Dieser HTML-Index zeigt nur technischen Projektcode und Beispiel-Flows, die fuer die Web-Dokumentation freigegeben sind.",
+        "",
+    ]
+    grouped: dict[str, list[Path]] = {}
+    for docs_relative in sorted(page_map):
+        if not docs_relative.parts or docs_relative.parts[0] != "reference" or docs_relative == Path("reference/index.md"):
+            continue
+        repo_relative = reference_docs_relative_to_repo_relative(docs_relative)
+        if repo_relative is None:
+            continue
+        group_name = repo_relative.parts[0] if repo_relative.parts else "Sonstiges"
+        grouped.setdefault(group_name, []).append(docs_relative)
+
+    for group_name in sorted(grouped.keys(), key=str.casefold):
+        lines += [f"## {humanize_segment(group_name)}", ""]
+        for docs_relative in grouped[group_name]:
+            page = page_map[docs_relative]
+            lines.append(f"- [{page.title}]({docs_relative.as_posix()})")
+        lines.append("")
+
+    return "\n".join(lines)
+
+
 def write_static_assets(search_index: list[dict[str, Any]], nav_groups: list[dict[str, Any]]) -> None:
     ASSETS.mkdir(parents=True, exist_ok=True)
     (ASSETS / "site.css").write_text(SITE_CSS, encoding="utf-8")
@@ -802,12 +960,21 @@ def collect_pages() -> dict[Path, Page]:
     pages: dict[Path, Page] = {}
     for source_path in sorted(DOCS.rglob("*.md")):
         docs_relative = source_path.relative_to(DOCS)
-        if docs_relative.name in SKIP_DOC_FILES:
+        if not should_include_doc_page(docs_relative):
             continue
         output_relative = markdown_output_path(docs_relative)
-        markdown_text = read_text(source_path)
-        title = page_title(markdown_text, fallback=humanize_segment(docs_relative.stem))
-        description = first_paragraph(markdown_text) or title
+        if docs_relative == Path("README.md"):
+            markdown_text = "# Projekt- und Flow-Dokumentation"
+            title = "Projekt- und Flow-Dokumentation"
+            description = "Technische HTML-Dokumentation fuer Projektcode und Beispiel-Flows."
+        elif docs_relative == Path("reference/index.md"):
+            markdown_text = "# Referenzindex"
+            title = "Referenzindex"
+            description = "Gefilterte Referenz auf Projektcode, Konfiguration und Beispiel-Flows."
+        else:
+            markdown_text = read_text(source_path)
+            title = page_title(markdown_text, fallback=humanize_segment(docs_relative.stem))
+            description = first_paragraph(markdown_text) or title
         group = "Reference" if docs_relative.parts and docs_relative.parts[0] == "reference" else "Guide"
         pages[docs_relative] = Page(
             source_path=source_path,
@@ -823,13 +990,6 @@ def collect_pages() -> dict[Path, Page]:
 
 
 def copy_doc_assets(doc_assets: set[Path]) -> None:
-    for asset_path in DOCS.rglob("*"):
-        if asset_path.is_dir():
-            continue
-        if asset_path.suffix.casefold() not in ASSET_EXTENSIONS:
-            continue
-        doc_assets.add(asset_path)
-
     for asset_path in sorted(doc_assets):
         relative = asset_path.relative_to(DOCS)
         destination = WEB / relative

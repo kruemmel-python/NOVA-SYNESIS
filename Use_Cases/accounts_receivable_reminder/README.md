@@ -1,5 +1,7 @@
 # Accounts Receivable Reminder
 
+Fuer die technische Tiefenerklaerung siehe auch [AUSFUEHRLICHE_DOKUMENTATION.md](./AUSFUEHRLICHE_DOKUMENTATION.md).
+
 ## Ziel
 
 Dieser Use-Case filtert aus `data/orders.csv` oder `data/orders.db` alle Kunden mit offenen Rechnungen
@@ -12,6 +14,12 @@ Der Workflow arbeitet vollstaendig lokal auf den Projektdateien und nutzt reale 
 - `write_file`
 - `accounts_receivable_generate_letters`
 - `accounts_receivable_write_letters`
+
+Wichtig:
+
+- Standardmaessig erzeugt `accounts_receivable_generate_letters` die Anschreiben aus einem festen eingebauten Template.
+- Optional kann derselbe Node die Texte pro Kunde ueber das lokale LiteRT-LLM formulieren.
+- Diese LLM-Steuerung ist in der Web-UI direkt im Inspector verfuegbar.
 
 ## Varianten
 
@@ -26,6 +34,13 @@ Beide Flows erzeugen:
 - einzelne Anschreiben je betroffenem Kunden als `.docx`
 - ein Manifest aller geschriebenen Schreiben
 - eine kurze Zusammenfassung als Textdatei
+
+Optional kann der Benutzer in der Web-UI den Node `generate_reminder_letters` auf `Local LLM` umstellen. Dann:
+
+- schreibt der Benutzer die fachliche Schreibanweisung selbst
+- wird der Prompt pro Kunde an das lokale Modell gesendet
+- bleibt die Extraktion der offenen Forderungen unveraendert
+- kann bei Bedarf automatisch auf das Standardtemplate zurueckgefallen werden
 
 ## Voraussetzung
 
@@ -92,6 +107,25 @@ Wenn du im visuellen Editor bereits Titel, Positionen und Kurzbeschreibungen pro
 - `flow.web_ui.orders_csv.json`
 - `flow.web_ui.orders_db.json`
 
+LLM-Schreibmodus in der Web-UI:
+
+1. Flow importieren
+2. Node `Generate Reminder Letters` anklicken
+3. Im Inspector den Bereich `LLM Letter Drafting` verwenden
+4. `Use local LLM to draft the letter text` aktivieren
+5. optional `Preview customer index` setzen
+6. `Preview Draft` klicken, um einen Beispielbrief fuer genau einen Kunden lokal vom LLM erzeugen zu lassen
+7. `Business instruction` und optional `Prompt template` anpassen, bis die Vorschau passt
+8. Flow speichern und ausfuehren
+
+Wichtig fuer die Bedienung:
+
+- `Preview Draft` arbeitet mit den aktuell sichtbaren Inspector-Werten und braucht keinen gespeicherten Flow
+- `Preview Draft` erzeugt keine `.docx`-Dateien und startet nicht den ganzen Graphen
+- erst `Save Flow` plus `Run Flow` erzeugt anschliessend alle Serienanschreiben
+- beim finalen Lauf wird derselbe konfigurierte Prompt pro Kunde erneut an das lokale LiteRT-LLM gesendet
+- wenn das lokale Modell in der Vorschau zu lange braucht, beendet die UI den Request automatisch und zeigt einen Fehler an
+
 `setup.ps1` ist dennoch sinnvoll, weil es:
 
 - prueft, ob der laufende Backend-Prozess die erforderlichen Handler bereits kennt
@@ -102,4 +136,6 @@ Wenn du im visuellen Editor bereits Titel, Positionen und Kurzbeschreibungen pro
 - Absenderdaten aendern: Werte im Node `generate_reminder_letters` anpassen
 - Andere Quelldatei verwenden: `path` im Node `extract_open_receivables` aendern
 - Andere SQLite-Tabelle verwenden: `table` in `flow.orders_db.json` anpassen
+- Lokales LLM statt Standardtemplate verwenden: im Web-UI den LLM-Schalter im Node `generate_reminder_letters` aktivieren
+- Schreibanweisung des lokalen LLM aendern: `Business instruction` oder `Prompt template` im Inspector anpassen
 - Weitere Ausgabeformate erzeugen: nach `serialize_receivables` weitere `write_file`-Nodes ergaenzen

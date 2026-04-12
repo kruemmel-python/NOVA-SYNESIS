@@ -552,6 +552,14 @@ pre {
   background: rgba(255, 255, 255, 0.04);
 }
 
+.inspector__llm-card {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border-radius: 20px;
+  background: linear-gradient(180deg, rgba(245, 184, 61, 0.08), rgba(255, 255, 255, 0.04));
+  border: 1px solid rgba(245, 184, 61, 0.16);
+}
+
 .inspector__trust-card p {
   margin: 0 0 0.75rem;
   color: var(--muted);
@@ -579,6 +587,57 @@ pre {
 
 .inspector__docs-list li + li {
   margin-top: 0.4rem;
+}
+
+.inspector__llm-card p {
+  margin: 0 0 0.85rem;
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+
+.inspector__prompt-template {
+  min-height: 18rem;
+}
+
+.inspector__llm-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 0.9rem;
+}
+
+.inspector__preview-card {
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 18px;
+  background: rgba(5, 11, 20, 0.72);
+  border: 1px solid rgba(115, 223, 210, 0.16);
+}
+
+.inspector__preview-meta {
+  margin: 0 0 0.9rem !important;
+  color: #d9e7f6 !important;
+}
+
+.inspector__preview-heading {
+  margin: 1rem 0 0.55rem;
+  font-size: 0.9rem;
+  color: var(--accent-strong);
+}
+
+.inspector__preview-block {
+  margin: 0;
+  max-height: 18rem;
+  overflow: auto;
+  white-space: pre-wrap;
+  padding: 0.95rem 1rem;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  color: #dbe8f7;
+  font-size: 0.8rem;
+  line-height: 1.55;
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .inspector__trust-meta {

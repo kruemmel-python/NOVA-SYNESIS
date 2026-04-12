@@ -73,7 +73,7 @@ export function PlannerComposer({
             spellCheck={false}
           />
           <span className="field__hint">
-            Describe the intended workflow in plain language. The model returns a real graph using only registered handlers, agents and resources.
+            Describe the intended workflow in plain language. The model returns a real graph using only real handlers, agents and resources. For free prompts the backend can bootstrap a generic system agent and scratch memories, but it will not invent external resources for you.
           </span>
         </label>
 

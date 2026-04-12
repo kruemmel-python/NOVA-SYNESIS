@@ -1,4 +1,6 @@
 import type {
+  AccountsReceivableDraftPreviewRequest,
+  AccountsReceivableDraftPreviewResponse,
   AgentSummary,
   FlowRequest,
   FlowSnapshot,
@@ -27,14 +29,35 @@ export function getWebSocketBaseUrl(): string {
   return apiBaseUrl;
 }
 
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(`${apiBaseUrl}${path}`, {
-    headers: {
-      "Content-Type": "application/json",
-      ...(init?.headers ?? {}),
-    },
-    ...init,
-  });
+async function request<T>(path: string, init?: RequestInit, timeoutMs?: number): Promise<T> {
+  const controller = timeoutMs ? new AbortController() : null;
+  const timeoutHandle = timeoutMs
+    ? window.setTimeout(() => controller?.abort(`Request timeout after ${timeoutMs}ms`), timeoutMs)
+    : null;
+
+  let response: Response;
+  try {
+    response = await fetch(`${apiBaseUrl}${path}`, {
+      headers: {
+        "Content-Type": "application/json",
+        ...(init?.headers ?? {}),
+      },
+      ...init,
+      signal: controller?.signal ?? init?.signal,
+    });
+  } catch (error) {
+    if (timeoutHandle !== null) {
+      window.clearTimeout(timeoutHandle);
+    }
+    if (error instanceof DOMException && error.name === "AbortError") {
+      throw new Error("The request timed out before the backend returned a result.");
+    }
+    throw error;
+  }
+
+  if (timeoutHandle !== null) {
+    window.clearTimeout(timeoutHandle);
+  }
 
   if (!response.ok) {
     let detail = `${response.status} ${response.statusText}`;
@@ -120,4 +143,13 @@ export function generateFlowWithPlanner(
     method: "POST",
     body: JSON.stringify(requestBody),
   });
+}
+
+export function previewAccountsReceivableDraft(
+  requestBody: AccountsReceivableDraftPreviewRequest,
+): Promise<AccountsReceivableDraftPreviewResponse> {
+  return request<AccountsReceivableDraftPreviewResponse>("/tools/accounts-receivable/preview-draft", {
+    method: "POST",
+    body: JSON.stringify(requestBody),
+  }, 90_000);
 }

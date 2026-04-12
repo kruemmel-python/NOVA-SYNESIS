@@ -201,6 +201,38 @@ export interface PlannerGenerateResponse {
   raw_response: string;
 }
 
+export interface AccountsReceivableDraftPreviewRequest {
+  extract_input: Record<string, unknown>;
+  generate_input: Record<string, unknown>;
+  customer_index: number;
+}
+
+export interface AccountsReceivableDraftPreviewResponse {
+  customer_index: number;
+  customer_name: string;
+  customer_id: string | null;
+  generation_mode: string;
+  prompt: string | null;
+  letter: string;
+  warnings: string[];
+  source_summary: {
+    customer_count: number;
+    invoice_count: number;
+    overdue_count: number;
+    total_outstanding: number;
+    currency: string;
+    source_type: string | null;
+    source_path: string | null;
+  };
+  llm: {
+    enabled: boolean;
+    model_path: string | null;
+    backend: string | null;
+    fallback_to_template_on_error: boolean;
+  };
+  customer: Record<string, unknown>;
+}
+
 export interface HandlerCatalogResponse {
   handlers: string[];
   details: HandlerSummary[];

@@ -19,6 +19,7 @@ from nova_synesis.domain.models import (
     maybe_await,
     safe_evaluate,
 )
+from nova_synesis.config import Settings
 from nova_synesis.memory.systems import MemoryManager
 from nova_synesis.persistence.sqlite_repository import SQLiteRepository
 from nova_synesis.resources.manager import ResourceManager
@@ -29,6 +30,7 @@ _TEMPLATE_PATTERN = re.compile(r"\{\{\s*(.+?)\s*\}\}")
 
 @dataclass(slots=True)
 class ExecutionContext:
+    settings: Settings
     repository: SQLiteRepository
     resource_manager: ResourceManager
     memory_manager: MemoryManager
@@ -128,6 +130,7 @@ class TaskExecutor:
 
                 handler_context = {
                     "input": prepared_input,
+                    "settings": self.context.settings,
                     "task": task,
                     "node_id": node_id,
                     "flow": flow,

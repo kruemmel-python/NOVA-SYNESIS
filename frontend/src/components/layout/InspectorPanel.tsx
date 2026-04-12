@@ -1,8 +1,20 @@
+import { useEffect, useState } from "react";
+
 import { JsonEditor } from "../common/JsonEditor";
 import { StatusBadge } from "../common/StatusBadge";
-import { approveFlowNode, revokeFlowNodeApproval } from "../../lib/apiClient";
+import {
+  approveFlowNode,
+  previewAccountsReceivableDraft,
+  revokeFlowNodeApproval,
+} from "../../lib/apiClient";
 import { useFlowStore } from "../../store/useFlowStore";
-import type { ResourceType, RollbackStrategy, TaskFlowNode } from "../../types/api";
+import type {
+  AccountsReceivableDraftPreviewResponse,
+  ResourceType,
+  RollbackStrategy,
+  TaskFlowEdge,
+  TaskFlowNode,
+} from "../../types/api";
 
 const rollbackStrategies: RollbackStrategy[] = [
   "FAIL_FAST",
@@ -12,6 +24,43 @@ const rollbackStrategies: RollbackStrategy[] = [
 ];
 
 const resourceTypes: ResourceType[] = ["API", "MODEL", "DATABASE", "FILE", "GPU"];
+const DEFAULT_RECEIVABLE_LLM_PROMPT_TEMPLATE = `Du bist ein erfahrener Sachbearbeiter im Forderungsmanagement eines Unternehmens.
+Verfasse ein finales deutsches Anschreiben zur Zahlungserinnerung.
+
+Unternehmensdaten:
+- Firma: {sender_company}
+- Adresse: {sender_address}
+- E-Mail: {sender_email}
+- Telefon: {sender_phone}
+
+Kundendaten:
+- Name: {customer_name}
+- Adresse: {customer_address}
+- E-Mail: {customer_email}
+
+Fachliche Daten:
+- Stichtag: {as_of_date}
+- Zahlungsfrist bis: {settle_by_date}
+- Anzahl offener Rechnungen: {invoice_count}
+- Anzahl ueberfaelliger Rechnungen: {overdue_invoice_count}
+- Maximal ueberfaellig seit Tagen: {max_days_overdue}
+- Offener Gesamtbetrag: {total_outstanding}
+
+Offene Rechnungen:
+{invoice_lines}
+
+Zusaetzliche Schreibanweisung:
+{user_instruction}
+
+Anforderungen:
+- Gib nur den finalen Brieftext zurueck.
+- Keine Markdown-Codeblocks.
+- Keine JSON-Ausgabe.
+- Kein Begleitkommentar vor oder nach dem Brief.
+- Der Brief muss direkt versandfaehig sein.`;
+
+const DEFAULT_RECEIVABLE_LLM_USER_INSTRUCTION =
+  "Formuliere ein professionelles, freundliches und bestimmtes Anschreiben in deutscher Sprache.";
 
 export function InspectorPanel() {
   const handlers = useFlowStore((state) => state.handlers);
@@ -21,6 +70,7 @@ export function InspectorPanel() {
   const dirty = useFlowStore((state) => state.dirty);
   const nodes = useFlowStore((state) => state.nodes);
   const edges = useFlowStore((state) => state.edges);
+  const executionState = useFlowStore((state) => state.executionState);
   const selectedNodeId = useFlowStore((state) => state.selectedNodeId);
   const selectedEdgeId = useFlowStore((state) => state.selectedEdgeId);
   const updateNodeData = useFlowStore((state) => state.updateNodeData);
@@ -33,14 +83,31 @@ export function InspectorPanel() {
   const selectedHandler =
     selectedNode ? handlers.find((handler) => handler.name === selectedNode.data.handler_name) ?? null : null;
   const selectedNodeUiMetadata = selectedNode ? readUiMetadata(selectedNode.data.metadata) : {};
+  const selectedNodeFailure =
+    selectedNode ? executionState.failedNodes[selectedNode.id] ?? null : null;
+  const receivableDrafting =
+    selectedNode?.data.handler_name === "accounts_receivable_generate_letters"
+      ? readReceivableDraftingConfig(selectedNode.data.input)
+      : null;
+  const [previewCustomerIndex, setPreviewCustomerIndex] = useState(0);
+  const [draftPreview, setDraftPreview] = useState<AccountsReceivableDraftPreviewResponse | null>(null);
+  const [draftPreviewLoading, setDraftPreviewLoading] = useState(false);
+  const [draftPreviewError, setDraftPreviewError] = useState<string | null>(null);
 
-  const handleApproveNode = async () => {
+  useEffect(() => {
+    setPreviewCustomerIndex(0);
+    setDraftPreview(null);
+    setDraftPreviewError(null);
+    setDraftPreviewLoading(false);
+  }, [selectedNodeId]);
+
+  const handleManualApprovalGrantedChange = async (approved: boolean) => {
     if (!selectedNode) {
       return;
     }
     const approvedBy = selectedNode.data.manual_approval.approved_by?.trim() || "Inspector Approval";
     const reason = selectedNode.data.manual_approval.reason?.trim() || null;
-    if (flowId && !dirty) {
+    if (approved && flowId && !dirty) {
       try {
         const snapshot = await approveFlowNode(flowId, selectedNode.id, {
           approved_by: approvedBy,
@@ -53,26 +120,8 @@ export function InspectorPanel() {
       }
       return;
     }
-    patchNode(selectedNode, updateNodeData, {
-      manual_approval: {
-        ...selectedNode.data.manual_approval,
-        approved: true,
-        approved_by: approvedBy,
-        approved_at: new Date().toISOString(),
-        revoked_by: null,
-        revoked_at: null,
-        reason,
-      },
-    });
-  };
-
-  const handleRevokeNodeApproval = async () => {
-    if (!selectedNode) {
-      return;
-    }
-    const revokedBy = selectedNode.data.manual_approval.approved_by?.trim() || "Inspector Approval";
-    const reason = selectedNode.data.manual_approval.reason?.trim() || null;
-    if (flowId && !dirty) {
+    if (!approved && flowId && !dirty) {
+      const revokedBy = selectedNode.data.manual_approval.approved_by?.trim() || "Inspector Approval";
       try {
         const snapshot = await revokeFlowNodeApproval(flowId, selectedNode.id, {
           revoked_by: revokedBy,
@@ -86,14 +135,75 @@ export function InspectorPanel() {
       return;
     }
     patchNode(selectedNode, updateNodeData, {
+      requires_manual_approval: approved ? true : selectedNode.data.requires_manual_approval,
       manual_approval: {
         ...selectedNode.data.manual_approval,
-        approved: false,
-        revoked_by: revokedBy,
-        revoked_at: new Date().toISOString(),
+        approved,
+        approved_by: approved ? approvedBy : selectedNode.data.manual_approval.approved_by,
+        approved_at: approved ? new Date().toISOString() : selectedNode.data.manual_approval.approved_at,
+        revoked_by: approved ? null : approvedBy,
+        revoked_at: approved ? null : new Date().toISOString(),
         reason,
       },
     });
+    setExecutionError(null);
+  };
+
+  const handleManualApprovalRequirementChange = (required: boolean) => {
+    if (!selectedNode) {
+      return;
+    }
+    patchNode(selectedNode, updateNodeData, {
+      requires_manual_approval: required,
+      manual_approval: required
+        ? selectedNode.data.manual_approval
+        : {
+            ...selectedNode.data.manual_approval,
+            approved: false,
+            approved_at: null,
+            revoked_by: selectedNode.data.manual_approval.approved
+              ? selectedNode.data.manual_approval.approved_by?.trim() || "Inspector Approval"
+              : selectedNode.data.manual_approval.revoked_by,
+            revoked_at: selectedNode.data.manual_approval.approved
+              ? new Date().toISOString()
+              : selectedNode.data.manual_approval.revoked_at,
+          },
+    });
+    setExecutionError(null);
+  };
+
+  const handlePreviewDraft = async () => {
+    if (!selectedNode || selectedNode.data.handler_name !== "accounts_receivable_generate_letters") {
+      return;
+    }
+    const extractNode = findReceivableExtractNode(selectedNode, nodes, edges);
+    if (!extractNode) {
+      const message =
+        "Preview Draft requires an upstream accounts_receivable_extract node connected to this letter-generation node.";
+      setDraftPreview(null);
+      setDraftPreviewError(message);
+      setExecutionError(message);
+      return;
+    }
+
+    setDraftPreviewLoading(true);
+    setDraftPreviewError(null);
+    setExecutionError(null);
+    try {
+      const preview = await previewAccountsReceivableDraft({
+        extract_input: asNodeInputObject(extractNode.data.input),
+        generate_input: asNodeInputObject(selectedNode.data.input),
+        customer_index: Math.max(0, previewCustomerIndex),
+      });
+      setDraftPreview(preview);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Preview Draft failed";
+      setDraftPreview(null);
+      setDraftPreviewError(message);
+      setExecutionError(message);
+    } finally {
+      setDraftPreviewLoading(false);
+    }
   };
 
   if (selectedNode) {
@@ -153,6 +263,16 @@ export function InspectorPanel() {
           ) : null}
         </section>
 
+        {selectedNodeFailure ? (
+          <section className="inspector__output">
+            <div className="sidebar__section-header">
+              <h3>Execution failure</h3>
+              <StatusBadge label="Failed" tone="failed" />
+            </div>
+            <pre>{selectedNodeFailure}</pre>
+          </section>
+        ) : null}
+
         {hasNodeDocumentation(selectedNodeUiMetadata) ? (
           <section className="inspector__docs-card">
             <div className="sidebar__section-header">
@@ -170,6 +290,164 @@ export function InspectorPanel() {
                   typeof note === "string" && note.trim() ? <li key={`${selectedNode.id}-note-${index}`}>{note}</li> : null,
                 )}
               </ul>
+            ) : null}
+          </section>
+        ) : null}
+
+        {selectedNode.data.handler_name === "accounts_receivable_generate_letters" && receivableDrafting ? (
+          <section className="inspector__llm-card">
+            <div className="sidebar__section-header">
+              <h3>LLM Letter Drafting</h3>
+              <StatusBadge
+                label={receivableDrafting.generationMode === "llm" ? "Local LLM active" : "Template mode"}
+                tone={receivableDrafting.generationMode === "llm" ? "running" : "neutral"}
+              />
+            </div>
+            <p>
+              Dieser Node kann die Anschreiben entweder aus dem eingebauten Template erzeugen oder den lokalen LiteRT-Stack
+              verwenden. Der Prompt unten wird beim Flow-Lauf pro Kunde an das lokale Modell gesendet.
+            </p>
+
+            <label className="checkbox-inline">
+              <input
+                type="checkbox"
+                checked={receivableDrafting.generationMode === "llm"}
+                onChange={(event) =>
+                  patchNodeInputObject(selectedNode, updateNodeData, {
+                    generation_mode: event.target.checked ? "llm" : "template",
+                    prompt_template:
+                      receivableDrafting.promptTemplate || DEFAULT_RECEIVABLE_LLM_PROMPT_TEMPLATE,
+                    user_instruction:
+                      receivableDrafting.userInstruction || DEFAULT_RECEIVABLE_LLM_USER_INSTRUCTION,
+                  })
+                }
+              />
+              <span>Use local LLM to draft the letter text</span>
+            </label>
+
+            <label className="field">
+              <span className="field__label">Business instruction</span>
+              <textarea
+                className="json-editor"
+                spellCheck={false}
+                value={receivableDrafting.userInstruction}
+                onChange={(event) =>
+                  patchNodeInputObject(selectedNode, updateNodeData, {
+                    user_instruction: event.target.value,
+                  })
+                }
+              />
+              <span className="field__hint">
+                Hier beschreibst du fachlich, wie das lokale LLM schreiben soll: Ton, Haertegrad, Kulanz, Zahlungsziel,
+                rechtliche Vorsicht.
+              </span>
+            </label>
+
+            <label className="field">
+              <span className="field__label">Prompt template</span>
+              <textarea
+                className="json-editor inspector__prompt-template"
+                spellCheck={false}
+                value={receivableDrafting.promptTemplate}
+                onChange={(event) =>
+                  patchNodeInputObject(selectedNode, updateNodeData, {
+                    prompt_template: event.target.value,
+                  })
+                }
+              />
+              <span className="field__hint">
+                Verfuegbare Platzhalter: {"{sender_company}"}, {"{customer_name}"}, {"{customer_address}"},{" "}
+                {"{customer_email}"}, {"{total_outstanding}"}, {"{invoice_lines}"}, {"{invoice_count}"},{" "}
+                {"{overdue_invoice_count}"}, {"{max_days_overdue}"}, {"{as_of_date}"}, {"{settle_by_date}"},{" "}
+                {"{user_instruction}"}, {"{customer_json}"}, {"{invoices_json}"}.
+              </span>
+            </label>
+
+            <div className="inspector__llm-actions">
+              <button
+                type="button"
+                className="ghost-button"
+                onClick={() =>
+                  patchNodeInputObject(selectedNode, updateNodeData, {
+                    generation_mode: "llm",
+                    prompt_template: DEFAULT_RECEIVABLE_LLM_PROMPT_TEMPLATE,
+                    user_instruction:
+                      receivableDrafting.userInstruction || DEFAULT_RECEIVABLE_LLM_USER_INSTRUCTION,
+                  })
+                }
+              >
+                Insert Default Prompt
+              </button>
+              <button
+                type="button"
+                className="primary-button"
+                onClick={() => void handlePreviewDraft()}
+                disabled={draftPreviewLoading}
+              >
+                {draftPreviewLoading ? "Generating Preview..." : "Preview Draft"}
+              </button>
+            </div>
+            <p className="field__hint">
+              Die Vorschau ist bewusst zeitlich begrenzt. Wenn das lokale Modell nicht rechtzeitig antwortet, bricht die
+              Web-UI den Request ab und du kannst den Prompt verkuerzen oder auf Template-Modus zurueckschalten.
+            </p>
+
+            <NumericField
+              label="Preview customer index"
+              value={previewCustomerIndex}
+              onChange={(value) => setPreviewCustomerIndex(Math.max(0, Math.floor(value)))}
+            />
+            <p className="field__hint">
+              `0` bedeutet der erste Kunde mit offenen Forderungen. Erhoehe den Wert, um einen anderen Kunden aus dem
+              aktuellen Datenbestand zu pruefen.
+            </p>
+
+            <label className="checkbox-inline">
+              <input
+                type="checkbox"
+                checked={receivableDrafting.fallbackToTemplateOnError}
+                onChange={(event) =>
+                  patchNodeInputObject(selectedNode, updateNodeData, {
+                    fallback_to_template_on_error: event.target.checked,
+                  })
+                }
+              />
+              <span>Fallback to built-in template if the local LLM fails</span>
+            </label>
+
+            {draftPreviewError ? <p className="field__hint field__hint--error">{draftPreviewError}</p> : null}
+
+            {draftPreview ? (
+              <section className="inspector__preview-card">
+                <div className="sidebar__section-header">
+                  <h3>Draft preview</h3>
+                  <StatusBadge
+                    label={draftPreview.generation_mode.toUpperCase()}
+                    tone={draftPreview.generation_mode === "llm" ? "running" : "neutral"}
+                  />
+                </div>
+                <p className="inspector__preview-meta">
+                  Kunde: {draftPreview.customer_name} | Offene Kunden insgesamt: {draftPreview.source_summary.customer_count}
+                </p>
+                {draftPreview.prompt ? (
+                  <>
+                    <h4 className="inspector__preview-heading">Resolved prompt</h4>
+                    <pre className="inspector__preview-block">{draftPreview.prompt}</pre>
+                  </>
+                ) : null}
+                <h4 className="inspector__preview-heading">Generated letter</h4>
+                <pre className="inspector__preview-block">{draftPreview.letter}</pre>
+                {draftPreview.warnings.length > 0 ? (
+                  <>
+                    <h4 className="inspector__preview-heading">Warnings</h4>
+                    <ul className="inspector__docs-list">
+                      {draftPreview.warnings.map((warning, index) => (
+                        <li key={`preview-warning-${index}`}>{warning}</li>
+                      ))}
+                    </ul>
+                  </>
+                ) : null}
+              </section>
             ) : null}
           </section>
         ) : null}
@@ -383,11 +661,7 @@ export function InspectorPanel() {
             <input
               type="checkbox"
               checked={selectedNode.data.requires_manual_approval}
-              onChange={(event) =>
-                patchNode(selectedNode, updateNodeData, {
-                  requires_manual_approval: event.target.checked,
-                })
-              }
+              onChange={(event) => handleManualApprovalRequirementChange(event.target.checked)}
             />
             <span>Require manual approval before execution</span>
           </label>
@@ -420,23 +694,39 @@ export function InspectorPanel() {
             }
           />
 
+          <label className="checkbox-inline">
+            <input
+              type="checkbox"
+              checked={selectedNode.data.requires_manual_approval && selectedNode.data.manual_approval.approved}
+              disabled={!selectedNode.data.requires_manual_approval}
+              onChange={(event) => void handleManualApprovalGrantedChange(event.target.checked)}
+            />
+            <span>Approval granted</span>
+          </label>
+
           <div className="inspector__approval-status">
             <StatusBadge
-              label={selectedNode.data.manual_approval.approved ? "Approved" : "Pending"}
-              tone={selectedNode.data.manual_approval.approved ? "success" : "paused"}
+              label={
+                !selectedNode.data.requires_manual_approval
+                  ? "Not required"
+                  : selectedNode.data.manual_approval.approved
+                    ? "Approved"
+                    : "Pending"
+              }
+              tone={
+                !selectedNode.data.requires_manual_approval
+                  ? "neutral"
+                  : selectedNode.data.manual_approval.approved
+                    ? "success"
+                    : "paused"
+              }
             />
-            {selectedNode.data.manual_approval.approved_at ? (
+            {selectedNode.data.manual_approval.approved && selectedNode.data.manual_approval.approved_at ? (
               <span>Approved at: {selectedNode.data.manual_approval.approved_at}</span>
             ) : null}
-          </div>
-
-          <div className="inspector__approval-actions">
-            <button type="button" className="primary-button" onClick={() => void handleApproveNode()}>
-              Approve Node
-            </button>
-            <button type="button" className="ghost-button" onClick={() => void handleRevokeNodeApproval()}>
-              Revoke Approval
-            </button>
+            {!selectedNode.data.manual_approval.approved && selectedNode.data.manual_approval.revoked_at ? (
+              <span>Revoked at: {selectedNode.data.manual_approval.revoked_at}</span>
+            ) : null}
           </div>
         </fieldset>
 
@@ -478,23 +768,43 @@ export function InspectorPanel() {
   }
 
   return (
-    <aside className="inspector panel inspector--empty">
-      <div className="panel__header">
-        <div>
+      <aside className="inspector panel inspector--empty">
+        <div className="panel__header">
+          <div>
           <p className="eyebrow">Inspector</p>
           <h2>Selection</h2>
         </div>
       </div>
       <p>Select a task node or edge on the canvas to edit its configuration.</p>
-      <ul className="empty-list">
-        <li>Drag handlers from the catalog into the canvas.</li>
-        <li>Connect tasks to define execution order.</li>
-        <li>Use edge conditions to model branching.</li>
-        <li>Run the saved flow and watch live status updates.</li>
-      </ul>
-    </aside>
-  );
-}
+        <ul className="empty-list">
+          <li>Drag handlers from the catalog into the canvas.</li>
+          <li>Connect tasks to define execution order.</li>
+          <li>Use edge conditions to model branching.</li>
+          <li>Run the saved flow and watch live status updates.</li>
+        </ul>
+        {executionState.flowState === "FAILED" ? (
+          <section className="inspector__output">
+            <div className="sidebar__section-header">
+              <h3>Last flow failure</h3>
+              <StatusBadge label="Failed" tone="failed" />
+            </div>
+            <p>
+              Persisted flow ID: <strong>{flowId ?? "unsaved"}</strong>
+            </p>
+            {executionState.failureDetails.length > 0 ? (
+              <ul className="inspector__docs-list">
+                {executionState.failureDetails.map((detail, index) => (
+                  <li key={`failure-detail-${index}`}>{detail}</li>
+                ))}
+              </ul>
+            ) : (
+              <p>{executionState.error ?? "The flow failed without a surfaced detail."}</p>
+            )}
+          </section>
+        ) : null}
+      </aside>
+    );
+  }
 
 function patchNode(
   node: TaskFlowNode,
@@ -510,6 +820,39 @@ function patchNode(
   }));
 }
 
+function patchNodeInputObject(
+  node: TaskFlowNode,
+  updateNodeData: (nodeId: string, updater: (node: TaskFlowNode) => TaskFlowNode) => void,
+  patch: Record<string, unknown>,
+) {
+  patchNode(node, updateNodeData, {
+    input: {
+      ...asNodeInputObject(node.data.input),
+      ...patch,
+    },
+  });
+}
+
+function findReceivableExtractNode(
+  letterNode: TaskFlowNode,
+  nodes: TaskFlowNode[],
+  edges: TaskFlowEdge[],
+): TaskFlowNode | null {
+  const incomingSources = edges
+    .filter((edge) => edge.target === letterNode.id)
+    .map((edge) => edge.source);
+  const connectedExtractNode =
+    nodes.find(
+      (node) =>
+        incomingSources.includes(node.id) &&
+        node.data.handler_name === "accounts_receivable_extract",
+    ) ?? null;
+  if (connectedExtractNode) {
+    return connectedExtractNode;
+  }
+  return nodes.find((node) => node.data.handler_name === "accounts_receivable_extract") ?? null;
+}
+
 function splitCsv(value: string): string[] {
   return value
     .split(",")
@@ -520,6 +863,12 @@ function splitCsv(value: string): string[] {
 function asObject(value: unknown): Record<string, unknown> {
   return value && typeof value === "object" && !Array.isArray(value)
     ? (value as Record<string, unknown>)
+    : {};
+}
+
+function asNodeInputObject(value: unknown): Record<string, unknown> {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? ({ ...(value as Record<string, unknown>) } as Record<string, unknown>)
     : {};
 }
 
@@ -537,6 +886,33 @@ function hasNodeDocumentation(uiMetadata: Record<string, unknown>): boolean {
     typeof uiMetadata.description === "string" ||
     (Array.isArray(uiMetadata.notes) && uiMetadata.notes.some((note) => typeof note === "string" && note.trim()))
   );
+}
+
+function readReceivableDraftingConfig(input: unknown): {
+  generationMode: string;
+  promptTemplate: string;
+  userInstruction: string;
+  fallbackToTemplateOnError: boolean;
+} {
+  const payload = asNodeInputObject(input);
+  return {
+    generationMode:
+      typeof payload.generation_mode === "string" && payload.generation_mode.trim()
+        ? payload.generation_mode.trim().toLowerCase()
+        : "template",
+    promptTemplate:
+      typeof payload.prompt_template === "string" && payload.prompt_template.trim()
+        ? payload.prompt_template
+        : DEFAULT_RECEIVABLE_LLM_PROMPT_TEMPLATE,
+    userInstruction:
+      typeof payload.user_instruction === "string" && payload.user_instruction.trim()
+        ? payload.user_instruction
+        : DEFAULT_RECEIVABLE_LLM_USER_INSTRUCTION,
+    fallbackToTemplateOnError:
+      typeof payload.fallback_to_template_on_error === "boolean"
+        ? payload.fallback_to_template_on_error
+        : true,
+  };
 }
 
 function statusTone(status: string): "neutral" | "running" | "success" | "failed" | "paused" {

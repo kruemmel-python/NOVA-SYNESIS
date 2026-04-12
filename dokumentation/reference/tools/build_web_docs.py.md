@@ -23,6 +23,10 @@ Klasse `RepoSourcePage` dieses Moduls.
 
 ## Funktionen
 
+- `reference_docs_relative_to_repo_relative(docs_relative)`: Funktion oder Definition `reference_docs_relative_to_repo_relative` dieses Moduls.
+- `is_allowed_repo_relative(relative)`: Funktion oder Definition `is_allowed_repo_relative` dieses Moduls.
+- `is_allowed_repo_target(target)`: Funktion oder Definition `is_allowed_repo_target` dieses Moduls.
+- `should_include_doc_page(docs_relative)`: Funktion oder Definition `should_include_doc_page` dieses Moduls.
 - `slugify(value)`: Funktion oder Definition `slugify` dieses Moduls.
 - `strip_markdown(text)`: Funktion oder Definition `strip_markdown` dieses Moduls.
 - `first_paragraph(markdown_text)`: Funktion oder Definition `first_paragraph` dieses Moduls.
@@ -54,6 +58,8 @@ Klasse `RepoSourcePage` dieses Moduls.
 - `build_source_directory_content(target_path, current_url)`: Funktion oder Definition `build_source_directory_content` dieses Moduls.
 - `write_page(output_path, document)`: Funktion oder Definition `write_page` dieses Moduls.
 - `build_search_index(pages)`: Funktion oder Definition `build_search_index` dieses Moduls.
+- `build_site_home_markdown(page_map)`: Funktion oder Definition `build_site_home_markdown` dieses Moduls.
+- `build_filtered_reference_index_markdown(page_map)`: Funktion oder Definition `build_filtered_reference_index_markdown` dieses Moduls.
 - `write_static_assets(search_index, nav_groups)`: Funktion oder Definition `write_static_assets` dieses Moduls.
 - `collect_pages()`: Funktion oder Definition `collect_pages` dieses Moduls.
 - `copy_doc_assets(doc_assets)`: Funktion oder Definition `copy_doc_assets` dieses Moduls.

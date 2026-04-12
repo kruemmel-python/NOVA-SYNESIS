@@ -116,6 +116,12 @@ class NodeApprovalRevokeRequest(BaseModel):
     reason: str | None = None
 
 
+class AccountsReceivableDraftPreviewRequest(BaseModel):
+    extract_input: dict[str, Any] = Field(default_factory=dict)
+    generate_input: dict[str, Any] = Field(default_factory=dict)
+    customer_index: int = Field(default=0, ge=0)
+
+
 def create_app(
     settings: Settings | None = None,
     orchestrator: OrchestratorService | None = None,
@@ -127,7 +133,7 @@ def create_app(
         yield
         await runtime.shutdown()
 
-    app = FastAPI(title=runtime.settings.app_name, version="1.0.8", lifespan=lifespan)
+    app = FastAPI(title=runtime.settings.app_name, version="1.0.9", lifespan=lifespan)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=list(runtime.settings.cors_origins),
@@ -322,6 +328,20 @@ def create_app(
                 if request.current_flow
                 else None,
                 max_nodes=request.max_nodes,
+            )
+        except Exception as exc:
+            raise _translate_error(exc) from exc
+
+    @app.post("/tools/accounts-receivable/preview-draft")
+    async def preview_accounts_receivable_draft(
+        request: AccountsReceivableDraftPreviewRequest,
+    ) -> dict[str, Any]:
+        try:
+            return await asyncio.to_thread(
+                runtime.preview_accounts_receivable_draft,
+                request.extract_input,
+                request.generate_input,
+                request.customer_index,
             )
         except Exception as exc:
             raise _translate_error(exc) from exc

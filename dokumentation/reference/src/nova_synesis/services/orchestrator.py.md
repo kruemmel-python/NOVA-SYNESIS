@@ -41,6 +41,9 @@ Methoden:
 - `approve_flow_node(self, flow_id, node_id, approved_by, reason)`: Funktion oder Definition `approve_flow_node` dieses Moduls.
 - `revoke_flow_node_approval(self, flow_id, node_id, revoked_by, reason)`: Funktion oder Definition `revoke_flow_node_approval` dieses Moduls.
 - `generate_flow_with_llm(self, prompt, current_flow, max_nodes)`: Funktion oder Definition `generate_flow_with_llm` dieses Moduls.
+- `_ensure_llm_planner_bootstrap(self)`: Funktion oder Definition `_ensure_llm_planner_bootstrap` dieses Moduls.
+- `validate_flow_request(self, nodes, edges, metadata, planner_generated, phase)`: Funktion oder Definition `validate_flow_request` dieses Moduls.
+- `preview_accounts_receivable_draft(self, extract_input, generate_input, customer_index)`: Funktion oder Definition `preview_accounts_receivable_draft` dieses Moduls.
 - `shutdown(self)`: Funktion oder Definition `shutdown` dieses Moduls.
 - `subscribe_flow(self, flow_id)`: Funktion oder Definition `subscribe_flow` dieses Moduls.
 - `unsubscribe_flow(self, flow_id, queue)`: Funktion oder Definition `unsubscribe_flow` dieses Moduls.
@@ -48,7 +51,6 @@ Methoden:
 - `_persist_flow(self, flow)`: Funktion oder Definition `_persist_flow` dieses Moduls.
 - `_schedule_publish(self, flow_id, event_type, snapshot)`: Funktion oder Definition `_schedule_publish` dieses Moduls.
 - `_build_planner_catalog(self)`: Funktion oder Definition `_build_planner_catalog` dieses Moduls.
-- `validate_flow_request(self, nodes, edges, metadata, planner_generated, phase)`: Funktion oder Definition `validate_flow_request` dieses Moduls.
 - `_snapshot_nodes_to_specs(flow_snapshot)`: Funktion oder Definition `_snapshot_nodes_to_specs` dieses Moduls.
 - `_default_memory_backend(self, memory_type)`: Funktion oder Definition `_default_memory_backend` dieses Moduls.
 - `_serialize_agent(agent)`: Funktion oder Definition `_serialize_agent` dieses Moduls.
@@ -64,6 +66,7 @@ Methoden:
 
 - `from __future__ import annotations`
 - `import asyncio`
+- `import json`
 - `from datetime import datetime, timezone`
 - `from pathlib import Path`
 - `from typing import Any, Callable`
@@ -76,7 +79,7 @@ Methoden:
 - `from nova_synesis.planning.planner import IntentPlanner`
 - `from nova_synesis.resources.manager import ResourceManager`
 - `from nova_synesis.runtime.engine import ExecutionContext, FlowExecutor, TaskExecutor`
-- `from nova_synesis.runtime.handlers import TaskHandlerRegistry, register_default_handlers`
+- `from nova_synesis.runtime.handlers import (`
 - `from nova_synesis.security import SemanticFirewall`
 
 ## Aenderungshinweise

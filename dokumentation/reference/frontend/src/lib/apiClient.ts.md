@@ -24,6 +24,7 @@ Wenn neue Backend-Endpunkte im Frontend angebunden werden.
 - `approveFlowNode`: Funktion oder Definition `approveFlowNode` dieses Moduls.
 - `revokeFlowNodeApproval`: Funktion oder Definition `revokeFlowNodeApproval` dieses Moduls.
 - `generateFlowWithPlanner`: Funktion oder Definition `generateFlowWithPlanner` dieses Moduls.
+- `previewAccountsReceivableDraft`: Funktion oder Definition `previewAccountsReceivableDraft` dieses Moduls.
 
 ## Abhaengigkeiten
 

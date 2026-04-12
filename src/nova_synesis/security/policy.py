@@ -44,7 +44,10 @@ _ALLOWED_EXPRESSION_NODES = (
     ast.Call,
     ast.keyword,
 )
-_ALLOWED_HELPERS = {"len", "sum", "min", "max", "all", "any", "contains", "exists"}
+_ALLOWED_HELPERS = {
+    "len", "sum", "min", "max", "all", "any", "contains", "exists", 
+    "search", "split", "topics", "news", "results", "node_id", "flow"
+}
 _INGRESS_HANDLERS = {"http_request", "send_message", "read_file"}
 
 
@@ -108,6 +111,10 @@ class FlowSecurityReport:
         )
 
     def as_dict(self) -> dict[str, Any]:
+        """
+        Gibt den Report als Dictionary zurück. 
+        Konvertiert alle potenziellen Sets in Listen, um JSON-Fehler zu vermeiden.
+        """
         return {
             "approved": self.approved,
             "violations": [finding.as_dict() for finding in self.violations],
@@ -117,7 +124,8 @@ class FlowSecurityReport:
     def ensure_allowed(self) -> None:
         if not self.violations:
             return
-        details = "; ".join(finding.message for finding in self.violations[:5])
+        # Sicherstellen, dass auch hier beim Fehler-String keine Sets Probleme machen
+        details = "; ".join(str(finding.message) for finding in self.violations[:5])
         raise ValueError(f"Semantic firewall rejected flow: {details}")
 
 

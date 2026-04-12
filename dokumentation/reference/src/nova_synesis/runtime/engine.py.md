@@ -55,6 +55,7 @@ Methoden:
 - `from pathlib import Path`
 - `from typing import Any`
 - `from nova_synesis.domain.models import (`
+- `from nova_synesis.config import Settings`
 - `from nova_synesis.memory.systems import MemoryManager`
 - `from nova_synesis.persistence.sqlite_repository import SQLiteRepository`
 - `from nova_synesis.resources.manager import ResourceManager`

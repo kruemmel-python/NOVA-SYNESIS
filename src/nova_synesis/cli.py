@@ -22,18 +22,41 @@ def build_parser() -> argparse.ArgumentParser:
     run_api.add_argument("--port", type=int, default=None)
     run_api.add_argument("--db-path", default=None)
     run_api.add_argument("--workdir", default=None)
+    run_api.add_argument("--lit-model", default=None)
+    run_api.add_argument("--lit-binary", default=None)
+    run_api.add_argument("--lit-backend", default=None)
 
     execute_intent = subparsers.add_parser("execute-intent", help="Plan and execute an intent from JSON")
     execute_intent.add_argument("--file", required=True)
     execute_intent.add_argument("--db-path", default=None)
     execute_intent.add_argument("--workdir", default=None)
+    execute_intent.add_argument("--lit-model", default=None)
+    execute_intent.add_argument("--lit-binary", default=None)
+    execute_intent.add_argument("--lit-backend", default=None)
 
     create_flow = subparsers.add_parser("run-flow-spec", help="Create and execute a flow from JSON")
     create_flow.add_argument("--file", required=True)
     create_flow.add_argument("--db-path", default=None)
     create_flow.add_argument("--workdir", default=None)
+    create_flow.add_argument("--lit-model", default=None)
+    create_flow.add_argument("--lit-binary", default=None)
+    create_flow.add_argument("--lit-backend", default=None)
 
     return parser
+
+
+def _resolve_lit_cli_path(raw_value: str, *, workdir: str) -> str:
+    raw_text = raw_value.strip()
+    if not raw_text:
+        return raw_text
+    candidate = Path(raw_text)
+    if candidate.is_absolute():
+        return str(candidate)
+    if candidate.parent == Path("."):
+        lit_dir_candidate = Path(workdir) / "LIT" / candidate.name
+        if lit_dir_candidate.exists():
+            return str(lit_dir_candidate)
+    return str((Path(workdir) / candidate).resolve())
 
 
 def _build_settings(args: argparse.Namespace) -> Settings:
@@ -42,6 +65,12 @@ def _build_settings(args: argparse.Namespace) -> Settings:
         settings.database_path = args.db_path
     if args.workdir:
         settings.working_directory = args.workdir
+    if getattr(args, "lit_model", None):
+        settings.lit_model_path = _resolve_lit_cli_path(args.lit_model, workdir=settings.working_directory)
+    if getattr(args, "lit_binary", None):
+        settings.lit_binary_path = _resolve_lit_cli_path(args.lit_binary, workdir=settings.working_directory)
+    if getattr(args, "lit_backend", None):
+        settings.lit_backend = str(args.lit_backend).strip() or settings.lit_backend
     settings.ensure_directories()
     return settings
 

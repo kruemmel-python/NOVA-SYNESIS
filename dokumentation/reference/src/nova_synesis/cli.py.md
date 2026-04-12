@@ -14,6 +14,7 @@ Wenn neue CLI-Kommandos oder Startoptionen hinzukommen.
 ## Funktionen
 
 - `build_parser()`: Funktion oder Definition `build_parser` dieses Moduls.
+- `_resolve_lit_cli_path(raw_value, *, workdir)`: Funktion oder Definition `_resolve_lit_cli_path` dieses Moduls.
 - `_build_settings(args)`: Funktion oder Definition `_build_settings` dieses Moduls.
 - `_execute_intent_from_file(file_path, settings)`: Funktion oder Definition `_execute_intent_from_file` dieses Moduls.
 - `_run_flow_spec_from_file(file_path, settings)`: Funktion oder Definition `_run_flow_spec_from_file` dieses Moduls.

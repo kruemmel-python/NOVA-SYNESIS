@@ -10,8 +10,11 @@ import { useCatalogBootstrap } from "./hooks/useCatalogBootstrap";
 import { useFlowLiveUpdates } from "./hooks/useFlowLiveUpdates";
 import {
   createFlow,
+  fetchAgents,
   fetchFlow,
+  fetchHandlers,
   fetchPlannerStatus,
+  fetchResources,
   generateFlowWithPlanner,
   runFlow,
 } from "./lib/apiClient";
@@ -46,6 +49,7 @@ function App() {
   const undo = useFlowStore((state) => state.undo);
   const redo = useFlowStore((state) => state.redo);
   const replaceGraph = useFlowStore((state) => state.replaceGraph);
+  const setCatalogData = useFlowStore((state) => state.setCatalogData);
 
   useFlowLiveUpdates(flowId);
 
@@ -151,6 +155,12 @@ function App() {
         max_nodes: maxNodes,
       });
       const graph = fromFlowRequest(result.flow_request);
+      const [handlers, agents, resources] = await Promise.all([
+        fetchHandlers(),
+        fetchAgents(),
+        fetchResources(),
+      ]);
+      setCatalogData({ handlers, agents, resources });
       replaceGraph({
         version: 1,
         flowId: null,
@@ -160,7 +170,7 @@ function App() {
       setLastPlannerResult(result);
       setExecutionError(null);
     },
-    [edges, nodes, replaceGraph, setExecutionError],
+    [edges, nodes, replaceGraph, setCatalogData, setExecutionError],
   );
 
   return (
