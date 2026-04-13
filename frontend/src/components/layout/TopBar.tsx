@@ -1,10 +1,12 @@
 import { useRef } from "react";
 
 import { StatusBadge } from "../common/StatusBadge";
-import type { PlannerStatus } from "../../types/api";
+import type { FlowVersionSummary, PlannerStatus } from "../../types/api";
 
 interface TopBarProps {
   flowId: number | null;
+  flowVersionId: number | null;
+  availableVersions: FlowVersionSummary[];
   dirty: boolean;
   canUndo: boolean;
   canRedo: boolean;
@@ -19,15 +21,19 @@ interface TopBarProps {
   onSave: () => void | Promise<unknown>;
   onRun: () => void | Promise<unknown>;
   onOpenPlanner: () => void;
+  onOpenAnalytics: () => void;
   onAutoLayout: () => void;
   onUndo: () => void;
   onRedo: () => void;
   onExport: () => void;
   onImport: (file: File) => void;
+  onActivateVersion: (versionId: number) => void | Promise<unknown>;
 }
 
 export function TopBar({
   flowId,
+  flowVersionId,
+  availableVersions,
   dirty,
   canUndo,
   canRedo,
@@ -36,11 +42,13 @@ export function TopBar({
   onSave,
   onRun,
   onOpenPlanner,
+  onOpenAnalytics,
   onAutoLayout,
   onUndo,
   onRedo,
   onExport,
   onImport,
+  onActivateVersion,
 }: TopBarProps) {
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -70,6 +78,9 @@ export function TopBar({
         <span className="topbar__meta">
           Flow ID: <strong>{flowId ?? "unsaved"}</strong>
         </span>
+        <span className="topbar__meta">
+          Version: <strong>{flowVersionId ?? "n/a"}</strong>
+        </span>
         <span className="topbar__meta">{dirty ? "Unsaved changes" : "Synced"}</span>
         {executionState.error ? (
           <span className="topbar__error">{executionState.error}</span>
@@ -89,6 +100,9 @@ export function TopBar({
         <button type="button" className="ghost-button" onClick={onOpenPlanner}>
           AI Plan
         </button>
+        <button type="button" className="ghost-button" onClick={onOpenAnalytics}>
+          Analytics
+        </button>
         <button type="button" className="ghost-button" onClick={onExport}>
           Export JSON
         </button>
@@ -99,6 +113,27 @@ export function TopBar({
         >
           Import JSON
         </button>
+        <label className="topbar__version-select">
+          <span>Version</span>
+          <select
+            className="text-input"
+            value={flowVersionId ?? ""}
+            onChange={(event) => {
+              const nextValue = Number(event.target.value);
+              if (Number.isFinite(nextValue) && nextValue > 0) {
+                void onActivateVersion(nextValue);
+              }
+            }}
+            disabled={availableVersions.length === 0}
+          >
+            <option value="">{availableVersions.length === 0 ? "No versions" : "Select version"}</option>
+            {availableVersions.map((version) => (
+              <option key={version.version_id} value={version.version_id}>
+                v{version.version_number} {version.change_reason ? `- ${version.change_reason}` : ""}
+              </option>
+            ))}
+          </select>
+        </label>
         <button type="button" className="primary-button" onClick={() => void onSave()}>
           Save Flow
         </button>
@@ -131,6 +166,7 @@ export function TopBar({
 
 function statusTone(status: string): "neutral" | "running" | "success" | "failed" | "paused" {
   if (status === "RUNNING") return "running";
+  if (status === "WAITING_FOR_INPUT") return "paused";
   if (status === "COMPLETED" || status === "SUCCESS") return "success";
   if (status === "FAILED") return "failed";
   if (status === "PAUSED") return "paused";

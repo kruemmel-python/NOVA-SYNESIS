@@ -51,12 +51,14 @@ class MemoryType(StrEnum):
 class TaskStatus(StrEnum):
     PENDING = "PENDING"
     RUNNING = "RUNNING"
+    WAITING_FOR_INPUT = "WAITING_FOR_INPUT"
     SUCCESS = "SUCCESS"
     FAILED = "FAILED"
 
 
 class ExecutionStatus(StrEnum):
     STARTED = "STARTED"
+    WAITING_FOR_INPUT = "WAITING_FOR_INPUT"
     COMPLETED = "COMPLETED"
     FAILED = "FAILED"
     ROLLED_BACK = "ROLLED_BACK"
@@ -86,6 +88,7 @@ class ResourceState(StrEnum):
 class FlowState(StrEnum):
     CREATED = "CREATED"
     RUNNING = "RUNNING"
+    WAITING_FOR_INPUT = "WAITING_FOR_INPUT"
     PAUSED = "PAUSED"
     COMPLETED = "COMPLETED"
     FAILED = "FAILED"
@@ -176,6 +179,110 @@ class ManualApproval:
             revoked_by=raw.get("revoked_by"),
             revoked_at=datetime.fromisoformat(revoked_at) if isinstance(revoked_at, str) and revoked_at else None,
         )
+
+
+@dataclass(slots=True)
+class HumanInputRequest:
+    title: str
+    description: str | None = None
+    schema: dict[str, Any] = field(default_factory=dict)
+    default_value: Any = None
+    required_role: str | None = None
+    timeout_s: int | None = None
+    requested_by: str | None = None
+    requested_at: datetime = field(default_factory=utcnow)
+
+    def as_dict(self) -> dict[str, Any]:
+        return {
+            "title": self.title,
+            "description": self.description,
+            "schema": self.schema,
+            "default_value": self.default_value,
+            "required_role": self.required_role,
+            "timeout_s": self.timeout_s,
+            "requested_by": self.requested_by,
+            "requested_at": self.requested_at.isoformat(),
+        }
+
+    @classmethod
+    def from_dict(cls, payload: dict[str, Any] | None) -> "HumanInputRequest | None":
+        if not payload:
+            return None
+        requested_at = payload.get("requested_at")
+        return cls(
+            title=str(payload.get("title", "Human Input Required")),
+            description=payload.get("description"),
+            schema=dict(payload.get("schema", {})),
+            default_value=payload.get("default_value"),
+            required_role=payload.get("required_role"),
+            timeout_s=int(payload["timeout_s"]) if payload.get("timeout_s") not in {None, ""} else None,
+            requested_by=payload.get("requested_by"),
+            requested_at=(
+                datetime.fromisoformat(requested_at)
+                if isinstance(requested_at, str) and requested_at
+                else utcnow()
+            ),
+        )
+
+
+@dataclass(slots=True)
+class HumanInputResponse:
+    value: Any
+    submitted_by: str
+    submitted_at: datetime = field(default_factory=utcnow)
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+    def as_dict(self) -> dict[str, Any]:
+        return {
+            "value": self.value,
+            "submitted_by": self.submitted_by,
+            "submitted_at": self.submitted_at.isoformat(),
+            "metadata": self.metadata,
+        }
+
+    @classmethod
+    def from_dict(cls, payload: dict[str, Any] | None) -> "HumanInputResponse | None":
+        if not payload:
+            return None
+        submitted_at = payload.get("submitted_at")
+        return cls(
+            value=payload.get("value"),
+            submitted_by=str(payload.get("submitted_by", "unknown")),
+            submitted_at=(
+                datetime.fromisoformat(submitted_at)
+                if isinstance(submitted_at, str) and submitted_at
+                else utcnow()
+            ),
+            metadata=dict(payload.get("metadata", {})),
+        )
+
+
+@dataclass(slots=True)
+class FlowVersionRecord:
+    version_id: int
+    flow_id: int
+    version_number: int
+    created_at: datetime = field(default_factory=utcnow)
+    created_by: str | None = None
+    change_reason: str | None = None
+    parent_version_id: int | None = None
+    planner_generated: bool = False
+    security_report: dict[str, Any] = field(default_factory=dict)
+    version_hash: str | None = None
+
+    def as_dict(self) -> dict[str, Any]:
+        return {
+            "version_id": self.version_id,
+            "flow_id": self.flow_id,
+            "version_number": self.version_number,
+            "created_at": self.created_at.isoformat(),
+            "created_by": self.created_by,
+            "change_reason": self.change_reason,
+            "parent_version_id": self.parent_version_id,
+            "planner_generated": self.planner_generated,
+            "security_report": self.security_report,
+            "version_hash": self.version_hash,
+        }
 
 
 class SafeExpressionEvaluator(ast.NodeVisitor):
@@ -471,6 +578,15 @@ class Task:
     async def execute(self) -> None:
         self.status = TaskStatus.RUNNING
 
+    def wait_for_input(self, request: HumanInputRequest) -> None:
+        self.status = TaskStatus.WAITING_FOR_INPUT
+        self.metadata["human_input_request"] = request.as_dict()
+
+    def resume_with_input(self, response: HumanInputResponse) -> None:
+        self.metadata["human_input_response"] = response.as_dict()
+        self.metadata.pop("human_input_request", None)
+        self.status = TaskStatus.PENDING
+
     def validate(self, result: Any) -> bool:
         required_keys = self.validator_rules.get("required_keys", [])
         if required_keys:
@@ -538,6 +654,12 @@ class TaskExecution:
         self.status = ExecutionStatus.COMPLETED
         self.task_ref.complete(result)
 
+    def wait_for_input(self, request: HumanInputRequest) -> None:
+        self.end_time = utcnow()
+        self.result = {"human_input_request": request.as_dict()}
+        self.status = ExecutionStatus.WAITING_FOR_INPUT
+        self.task_ref.wait_for_input(request)
+
     def record_error(self, error: ErrorEvent) -> ErrorEvent:
         self.errors.append(error)
         self.status = ExecutionStatus.FAILED
@@ -553,6 +675,12 @@ class TaskExecution:
         self.attempt_count += 1
         self.status = ExecutionStatus.STARTED
         self.task_ref.status = TaskStatus.RUNNING
+
+    @property
+    def latency_ms(self) -> int | None:
+        if self.start_time is None or self.end_time is None:
+            return None
+        return int((self.end_time - self.start_time).total_seconds() * 1000)
 
 
 @dataclass(slots=True)

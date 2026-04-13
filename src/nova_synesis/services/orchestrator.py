@@ -12,11 +12,14 @@ from nova_synesis.domain.models import (
     Agent,
     Capability,
     ExecutionFlow,
+    FlowState,
+    HumanInputResponse,
     Intent,
     MemoryType,
     ProtocolType,
     Resource,
     ResourceType,
+    TaskStatus,
 )
 from nova_synesis.memory.systems import MemoryManager, MemorySystemFactory
 from nova_synesis.persistence.sqlite_repository import SQLiteRepository
@@ -69,6 +72,7 @@ class OrchestratorService:
             agents=self.agents,
             flows=self.flows,
             working_directory=Path(self.settings.working_directory).resolve(),
+            orchestrator=self,
             max_flow_concurrency=self.settings.max_flow_concurrency,
             event_publisher=self.publish_flow_event,
         )
@@ -188,8 +192,14 @@ class OrchestratorService:
         nodes: list[dict[str, Any]],
         edges: list[dict[str, Any]] | None = None,
         metadata: dict[str, Any] | None = None,
+        *,
+        created_by: str | None = None,
+        change_reason: str | None = None,
+        planner_generated: bool = False,
+        security_report: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
-        self.validate_flow_request(nodes=nodes, edges=edges or [], metadata=metadata or {}).ensure_allowed()
+        validation_report = self.validate_flow_request(nodes=nodes, edges=edges or [], metadata=metadata or {})
+        validation_report.ensure_allowed()
         intent = self.create_intent(
             goal="Direct flow creation",
             constraints={
@@ -205,10 +215,53 @@ class OrchestratorService:
             task_id_allocator=lambda: self.repository.next_id("task"),
             flow_id_allocator=lambda: self.repository.next_id("flow"),
         )
-        self._persist_flow(flow)
+        version = self._persist_flow_version(
+            flow,
+            created_by=created_by,
+            change_reason=change_reason or "Initial flow version",
+            planner_generated=planner_generated,
+            security_report=security_report or validation_report.as_dict(),
+        )
+        flow.metadata.update(version)
         self.flows[flow.flow_id] = flow
         self._schedule_publish(flow.flow_id, "flow.created", self._serialize_flow(flow))
         return self._serialize_flow(flow)
+
+    def save_flow_version(
+        self,
+        flow_id: int,
+        nodes: list[dict[str, Any]],
+        edges: list[dict[str, Any]] | None = None,
+        metadata: dict[str, Any] | None = None,
+        *,
+        created_by: str | None = None,
+        change_reason: str | None = None,
+        planner_generated: bool = False,
+    ) -> dict[str, Any]:
+        report = self.validate_flow_request(nodes=nodes, edges=edges or [], metadata=metadata or {})
+        report.ensure_allowed()
+        flow = self._build_flow_from_request(
+            flow_id=flow_id,
+            nodes=nodes,
+            edges=edges or [],
+            metadata=metadata or {},
+            goal="Flow version update",
+        )
+        active = self.repository.get_flow_record(flow_id)
+        parent_version_id = int(active["active_version_id"]) if active and active.get("active_version_id") else None
+        version = self._persist_flow_version(
+            flow,
+            created_by=created_by,
+            change_reason=change_reason or "Updated flow version",
+            parent_version_id=parent_version_id,
+            planner_generated=planner_generated,
+            security_report=report.as_dict(),
+        )
+        flow.metadata.update(version)
+        self.flows[flow_id] = flow
+        snapshot = self._serialize_flow(flow)
+        self._schedule_publish(flow_id, "flow.version.created", snapshot)
+        return snapshot
 
     def plan_intent(
         self,
@@ -230,10 +283,17 @@ class OrchestratorService:
             edges=flow_snapshot["edges"],
             metadata=flow_snapshot.get("metadata", {}),
         ).ensure_allowed()
-        self._persist_flow(flow)
+        version = self._persist_flow_version(
+            flow,
+            created_by="intent-planner",
+            change_reason=f"Planned flow for intent '{goal}'",
+            planner_generated=True,
+        )
+        flow.metadata.update(version)
         self.flows[flow.flow_id] = flow
-        self._schedule_publish(flow.flow_id, "flow.created", flow_snapshot)
-        return flow_snapshot
+        snapshot = self._serialize_flow(flow)
+        self._schedule_publish(flow.flow_id, "flow.created", snapshot)
+        return snapshot
 
     async def execute_intent(
         self,
@@ -244,26 +304,24 @@ class OrchestratorService:
         flow_snapshot = self.plan_intent(goal=goal, constraints=constraints, priority=priority)
         return await self.run_flow(flow_snapshot["flow_id"])
 
-    async def run_flow(self, flow_id: int) -> dict[str, Any]:
-        if flow_id not in self.flows:
-            raise KeyError(f"Unknown flow '{flow_id}'")
-        flow_snapshot = self._serialize_flow(self.flows[flow_id])
+    async def run_flow(self, flow_id: int, version_id: int | None = None) -> dict[str, Any]:
+        flow = self._ensure_loaded_flow(flow_id, version_id=version_id)
+        flow_snapshot = self._serialize_flow(flow)
         self.validate_flow_request(
             nodes=self._snapshot_nodes_to_specs(flow_snapshot),
             edges=flow_snapshot.get("edges", []),
             metadata=flow_snapshot.get("metadata", {}),
             phase="run",
         ).ensure_allowed()
-        snapshot = await self.flow_executor.run_flow(self.flows[flow_id])
-        self.repository.save_flow(self.flows[flow_id])
+        snapshot = await self.flow_executor.run_flow(flow)
+        self.repository.save_flow(flow)
         return snapshot
 
     def pause_flow(self, flow_id: int) -> dict[str, Any]:
-        if flow_id not in self.flows:
-            raise KeyError(f"Unknown flow '{flow_id}'")
-        self.flows[flow_id].pause()
-        self.repository.save_flow(self.flows[flow_id])
-        return self._serialize_flow(self.flows[flow_id])
+        flow = self._ensure_loaded_flow(flow_id)
+        flow.pause()
+        self.repository.save_flow(flow)
+        return self._serialize_flow(flow)
 
     def get_flow(self, flow_id: int) -> dict[str, Any]:
         if flow_id in self.flows:
@@ -272,6 +330,25 @@ class OrchestratorService:
         if record is None:
             raise KeyError(f"Unknown flow '{flow_id}'")
         return record
+
+    def list_flow_versions(self, flow_id: int) -> list[dict[str, Any]]:
+        if self.repository.get_flow_record(flow_id) is None:
+            raise KeyError(f"Unknown flow '{flow_id}'")
+        return self.repository.list_flow_versions(flow_id)
+
+    def get_flow_version(self, flow_id: int, version_id: int) -> dict[str, Any]:
+        record = self.repository.get_flow_version_record(flow_id, version_id)
+        if record is None:
+            raise KeyError(f"Unknown flow version '{version_id}' for flow '{flow_id}'")
+        return record
+
+    def activate_flow_version(self, flow_id: int, version_id: int) -> dict[str, Any]:
+        container = self.repository.activate_flow_version(flow_id, version_id)
+        flow = self._hydrate_flow_from_snapshot(flow_id, self.get_flow_version(flow_id, version_id))
+        self.flows[flow_id] = flow
+        snapshot = self._serialize_flow(flow)
+        self._schedule_publish(flow_id, "flow.version.activated", snapshot)
+        return container if container.get("active_version_id") == version_id else snapshot
 
     def list_agents(self) -> list[dict[str, Any]]:
         return [self._serialize_agent(agent) for agent in self.agents.values()]
@@ -285,6 +362,12 @@ class OrchestratorService:
     def list_executions(self) -> list[dict[str, Any]]:
         return self.repository.list_executions()
 
+    def list_execution_metrics(self) -> list[dict[str, Any]]:
+        return self.repository.list_execution_metrics()
+
+    def summarize_execution_metrics(self) -> dict[str, Any]:
+        return self.repository.summarize_execution_metrics()
+
     def get_llm_planner_status(self) -> dict[str, Any]:
         return self.lit_planner.status()
 
@@ -294,14 +377,22 @@ class OrchestratorService:
         node_id: str,
         approved_by: str,
         reason: str | None = None,
+        actor_roles: list[str] | None = None,
     ) -> dict[str, Any]:
-        flow = self.flows.get(flow_id)
-        if flow is None:
-            raise KeyError(f"Unknown flow '{flow_id}'")
+        flow = self._ensure_loaded_flow(flow_id)
         if node_id not in flow.nodes:
             raise KeyError(f"Unknown node '{node_id}' in flow '{flow_id}'")
         task = flow.nodes[node_id].task
+        self._ensure_actor_role(
+            task.metadata.get("approval_required_role")
+            or task.metadata.get("required_role")
+            or (self.settings.security_default_approver_role if self.settings.security_rbac_enabled else None),
+            actor_roles or [],
+            f"Approving node '{node_id}' requires the configured approver role",
+        )
         task.manual_approval.approve(approved_by=approved_by, reason=reason)
+        if actor_roles:
+            task.metadata["approval_actor_roles"] = list(actor_roles)
         self.repository.save_task(task)
         self.repository.save_flow(flow)
         snapshot = self._serialize_flow(flow)
@@ -314,18 +405,81 @@ class OrchestratorService:
         node_id: str,
         revoked_by: str | None = None,
         reason: str | None = None,
+        actor_roles: list[str] | None = None,
     ) -> dict[str, Any]:
-        flow = self.flows.get(flow_id)
-        if flow is None:
-            raise KeyError(f"Unknown flow '{flow_id}'")
+        flow = self._ensure_loaded_flow(flow_id)
         if node_id not in flow.nodes:
             raise KeyError(f"Unknown node '{node_id}' in flow '{flow_id}'")
         task = flow.nodes[node_id].task
+        self._ensure_actor_role(
+            task.metadata.get("approval_required_role")
+            or task.metadata.get("required_role")
+            or (self.settings.security_default_approver_role if self.settings.security_rbac_enabled else None),
+            actor_roles or [],
+            f"Revoking approval for node '{node_id}' requires the configured approver role",
+        )
         task.manual_approval.revoke(revoked_by=revoked_by, reason=reason)
         self.repository.save_task(task)
         self.repository.save_flow(flow)
         snapshot = self._serialize_flow(flow)
         self._schedule_publish(flow_id, "node.approval.revoked", snapshot)
+        return snapshot
+
+    def get_node_input_request(self, flow_id: int, node_id: str) -> dict[str, Any]:
+        flow = self._ensure_loaded_flow(flow_id)
+        if node_id not in flow.nodes:
+            raise KeyError(f"Unknown node '{node_id}' in flow '{flow_id}'")
+        task = flow.nodes[node_id].task
+        request = task.metadata.get("human_input_request")
+        if not isinstance(request, dict):
+            raise KeyError(f"Node '{node_id}' is not waiting for human input")
+        return {
+            "flow_id": flow_id,
+            "node_id": node_id,
+            "request": request,
+        }
+
+    async def resume_flow_node(
+        self,
+        flow_id: int,
+        node_id: str,
+        value: Any,
+        submitted_by: str,
+        metadata: dict[str, Any] | None = None,
+        *,
+        auto_run: bool = True,
+        actor_roles: list[str] | None = None,
+    ) -> dict[str, Any]:
+        flow = self._ensure_loaded_flow(flow_id)
+        if node_id not in flow.nodes:
+            raise KeyError(f"Unknown node '{node_id}' in flow '{flow_id}'")
+        task = flow.nodes[node_id].task
+        if "human_input_request" not in task.metadata:
+            raise ValueError(f"Node '{node_id}' is not waiting for human input")
+        input_request = task.metadata.get("human_input_request", {})
+        required_role = input_request.get("required_role") if isinstance(input_request, dict) else None
+        self._ensure_actor_role(
+            required_role,
+            actor_roles or [],
+            f"Resuming node '{node_id}' requires role '{required_role}'" if required_role else "",
+        )
+        task.resume_with_input(
+            HumanInputResponse(
+                value=value,
+                submitted_by=submitted_by,
+                metadata=dict(metadata or {}),
+            )
+        )
+        flow.state = FlowState.RUNNING if auto_run else FlowState.PAUSED
+        flow.metadata.setdefault("waiting_for_input", {})
+        if isinstance(flow.metadata["waiting_for_input"], dict):
+            flow.metadata["waiting_for_input"].pop(node_id, None)
+        self.repository.save_task(task)
+        self.repository.save_flow(flow)
+        snapshot = self._serialize_flow(flow)
+        self._schedule_publish(flow_id, "node.input.resumed", snapshot)
+        if auto_run:
+            return await self.run_flow(flow_id)
         return snapshot
 
     async def generate_flow_with_llm(
@@ -495,6 +649,177 @@ class OrchestratorService:
             self.repository.save_task(node.task)
         self.repository.save_flow(flow)
 
+    def _persist_flow_version(
+        self,
+        flow: ExecutionFlow,
+        *,
+        created_by: str | None = None,
+        change_reason: str | None = None,
+        parent_version_id: int | None = None,
+        planner_generated: bool = False,
+        security_report: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        for node in flow.nodes.values():
+            self.repository.save_task(node.task)
+        version = self.repository.create_flow_version(
+            flow,
+            created_by=created_by,
+            change_reason=change_reason,
+            parent_version_id=parent_version_id,
+            planner_generated=planner_generated,
+            security_report=security_report,
+        )
+        self.repository.save_flow(flow)
+        return version
+
+    def _ensure_loaded_flow(self, flow_id: int, version_id: int | None = None) -> ExecutionFlow:
+        if version_id is None and flow_id in self.flows:
+            return self.flows[flow_id]
+        snapshot = (
+            self.repository.get_flow_version_record(flow_id, version_id)
+            if version_id is not None
+            else self.repository.get_flow_record(flow_id)
+        )
+        if snapshot is None:
+            raise KeyError(f"Unknown flow '{flow_id}'")
+        flow = self._hydrate_flow_from_snapshot(flow_id, snapshot)
+        self.flows[flow_id] = flow
+        return flow
+
+    def _build_flow_from_request(
+        self,
+        *,
+        flow_id: int,
+        nodes: list[dict[str, Any]],
+        edges: list[dict[str, Any]],
+        metadata: dict[str, Any],
+        goal: str,
+    ) -> ExecutionFlow:
+        intent = self.create_intent(
+            goal=goal,
+            constraints={
+                "tasks": nodes,
+                "edges": edges,
+                "flow_metadata": metadata,
+            },
+        )
+        flow = self.planner.plan_intent(
+            intent=intent,
+            agents=list(self.agents.values()),
+            resources=self.resource_manager.list(),
+            task_id_allocator=lambda: self.repository.next_id("task"),
+            flow_id_allocator=lambda: flow_id,
+        )
+        return flow
+
+    def _hydrate_flow_from_snapshot(
+        self,
+        flow_id: int,
+        snapshot: dict[str, Any],
+    ) -> ExecutionFlow:
+        node_specs = self._snapshot_nodes_to_specs(snapshot)
+        metadata = dict(snapshot.get("metadata", {}))
+        task_ids = [
+            int(node.get("task_id", 0))
+            for node in snapshot.get("nodes", {}).values()
+            if int(node.get("task_id", 0))
+        ]
+
+        def allocate_task_id() -> int:
+            if task_ids:
+                return task_ids.pop(0)
+            return self.repository.next_id("task")
+
+        intent = Intent(
+            intent_id=self.repository.next_id("intent"),
+            goal=str(metadata.get("goal", f"Hydrated flow {flow_id}")),
+            constraints={
+                "tasks": node_specs,
+                "edges": snapshot.get("edges", []),
+                "flow_metadata": metadata,
+            },
+            priority=int(metadata.get("priority", 1) or 1),
+        )
+        flow = self.planner.plan_intent(
+            intent=intent,
+            agents=list(self.agents.values()),
+            resources=self.resource_manager.list(),
+            task_id_allocator=allocate_task_id,
+            flow_id_allocator=lambda: flow_id,
+        )
+        state_value = snapshot.get("state", FlowState.CREATED.value)
+        try:
+            flow.state = FlowState(str(state_value))
+        except ValueError:
+            flow.state = FlowState.CREATED
+        flow.metadata = metadata
+        if snapshot.get("version_id") is not None:
+            flow.metadata["version_id"] = snapshot.get("version_id")
+        if snapshot.get("version_number") is not None:
+            flow.metadata["version_number"] = snapshot.get("version_number")
+
+        for node_id, node_snapshot in snapshot.get("nodes", {}).items():
+            if node_id not in flow.nodes:
+                continue
+            task = flow.nodes[node_id].task
+            task.output = node_snapshot.get("output")
+            task.metadata = dict(node_snapshot.get("metadata", {}))
+            task.requires_manual_approval = bool(node_snapshot.get("requires_manual_approval", False))
+            task.manual_approval = task.manual_approval.from_dict(node_snapshot.get("manual_approval"))
+            status_value = str(node_snapshot.get("task_status", TaskStatus.PENDING.value))
+            try:
+                task.status = TaskStatus(status_value)
+            except ValueError:
+                task.status = TaskStatus.PENDING
+        return flow
+
+    async def run_subflow(
+        self,
+        *,
+        target_flow_id: int,
+        target_version_id: int | None = None,
+        input_mapping: dict[str, Any] | None = None,
+        parent_stack: list[dict[str, Any]] | None = None,
+    ) -> dict[str, Any]:
+        stack = list(parent_stack or [])
+        if any(int(item.get("flow_id", -1)) == target_flow_id for item in stack):
+            raise ValueError(f"Recursive subflow invocation detected for flow '{target_flow_id}'")
+        snapshot = (
+            self.get_flow_version(target_flow_id, target_version_id)
+            if target_version_id is not None
+            else self.get_flow(target_flow_id)
+        )
+        child_flow = self._hydrate_flow_from_snapshot(target_flow_id, snapshot)
+        child_flow.metadata.setdefault("subflow_stack", stack)
+        child_flow.metadata["subflow_parent"] = stack[-1] if stack else None
+        if input_mapping:
+            child_flow.metadata.setdefault("subflow_inputs", {}).update(input_mapping)
+            child_flow.metadata.setdefault("results", {}).update(input_mapping)
+
+        child_context = ExecutionContext(
+            settings=self.settings,
+            repository=self.repository,
+            resource_manager=self.resource_manager,
+            memory_manager=self.memory_manager,
+            handler_registry=self.handler_registry,
+            agents=self.agents,
+            flows={},
+            working_directory=Path(self.settings.working_directory).resolve(),
+            orchestrator=self,
+            max_flow_concurrency=self.settings.max_flow_concurrency,
+            event_publisher=self.publish_flow_event,
+        )
+        child_task_executor = TaskExecutor(child_context)
+        child_flow_executor = FlowExecutor(child_context, child_task_executor)
+        snapshot = await child_flow_executor.run_flow(child_flow)
+        return {
+            "subflow": snapshot,
+            "results": snapshot.get("results", {}),
+            "state": snapshot.get("state"),
+            "flow_id": target_flow_id,
+            "version_id": snapshot.get("version_id"),
+        }
+
     def _schedule_publish(self, flow_id: int, event_type: str, snapshot: dict[str, Any]) -> None:
         try:
             loop = asyncio.get_running_loop()
@@ -517,6 +842,22 @@ class OrchestratorService:
                 and not bool(m.get("config", {}).get("sensitive", False))
             ],
         )
+
+    def _ensure_actor_role(
+        self,
+        required_role: str | None,
+        actor_roles: list[str],
+        message: str,
+    ) -> None:
+        if not self.settings.security_rbac_enabled:
+            return
+        if not required_role:
+            return
+        if not actor_roles:
+            return
+        if any(role.casefold() == str(required_role).casefold() for role in actor_roles):
+            return
+        raise PermissionError(message or f"Missing required role '{required_role}'")
 
     @staticmethod
     def _snapshot_nodes_to_specs(flow_snapshot: dict[str, Any]) -> list[dict[str, Any]]:
@@ -582,12 +923,19 @@ class OrchestratorService:
             "config": system.config,
         }, default=str))
 
-    @staticmethod
-    def _serialize_flow(flow: ExecutionFlow) -> dict[str, Any]:
+    def _serialize_flow(self, flow: ExecutionFlow) -> dict[str, Any]:
         snapshot = flow.observe()
         # REINIGT DEN SNAPSHOT VON SETS, DATETIMES ETC.
         safe_snapshot = json.loads(json.dumps(snapshot, default=str))
         safe_snapshot["flow_id"] = flow.flow_id
+        container = self.repository.get_flow_record(flow.flow_id)
+        if container is not None:
+            safe_snapshot["available_versions"] = container.get("available_versions", [])
+            safe_snapshot["active_version_id"] = container.get("active_version_id")
+            safe_snapshot["version_count"] = container.get("version_count")
+            safe_snapshot["created_at"] = container.get("created_at")
+        safe_snapshot["version_id"] = flow.metadata.get("version_id")
+        safe_snapshot["version_number"] = flow.metadata.get("version_number")
         return safe_snapshot
 
 

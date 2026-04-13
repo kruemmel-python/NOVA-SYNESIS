@@ -5,11 +5,11 @@
 
 ## Aufgabe der Datei
 
-FastAPI- und WebSocket-Schicht des Backends inklusive Request-Modelle, Flow-Validierung und Live-Streaming.
+FastAPI- und WebSocket-Schicht des Backends inklusive Request-Modelle, Flow-Versionen, HITL-Resume, Metrics und Live-Streaming.
 
 ## Wann du diese Datei bearbeitest
 
-Wenn API-Endpunkte, Schemafelder, Sicherheitspruefung oder Live-Streaming erweitert werden.
+Wenn API-Endpunkte, Schemafelder, Versionssteuerung, Sicherheitspruefung, HITL oder Live-Streaming erweitert werden.
 
 ## Klassen
 
@@ -53,6 +53,10 @@ Datenmodell `EdgeModel` fuer validierte Schichtgrenzen.
 
 Datenmodell `FlowCreateRequest` fuer validierte Schichtgrenzen.
 
+### `FlowVersionCreateRequest`
+
+Datenmodell `FlowVersionCreateRequest` fuer validierte Schichtgrenzen.
+
 ### `IntentRequest`
 
 Datenmodell `IntentRequest` fuer validierte Schichtgrenzen.
@@ -69,6 +73,10 @@ Datenmodell `NodeApprovalRequest` fuer validierte Schichtgrenzen.
 
 Datenmodell `NodeApprovalRevokeRequest` fuer validierte Schichtgrenzen.
 
+### `HumanInputResumeRequest`
+
+Datenmodell `HumanInputResumeRequest` fuer validierte Schichtgrenzen.
+
 ### `AccountsReceivableDraftPreviewRequest`
 
 Datenmodell `AccountsReceivableDraftPreviewRequest` fuer validierte Schichtgrenzen.
@@ -83,7 +91,7 @@ Datenmodell `AccountsReceivableDraftPreviewRequest` fuer validierte Schichtgrenz
 - `import asyncio`
 - `from contextlib import asynccontextmanager`
 - `from typing import Any`
-- `from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect`
+- `from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect`
 - `from fastapi.middleware.cors import CORSMiddleware`
 - `from pydantic import BaseModel, Field`
 - `from nova_synesis.config import Settings`

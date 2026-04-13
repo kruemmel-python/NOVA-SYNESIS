@@ -34,6 +34,10 @@ class Settings:
     security_auto_issue_builtin_handler_certificates: bool = True
     security_require_trusted_handlers: bool = True
     security_allow_manual_approval_for_untrusted_handlers: bool = True
+    security_rbac_enabled: bool = True
+    security_default_approver_role: str = "approver"
+    security_identity_header_user: str = "X-NOVA-User"
+    security_identity_header_roles: str = "X-NOVA-Roles"
     security_max_nodes: int = 40
     security_max_edges: int = 160
     security_max_total_attempts: int = 120
@@ -200,6 +204,33 @@ class Settings:
                 or str(defaults.security_allow_manual_approval_for_untrusted_handlers)
             ).strip().lower()
             in {"1", "true", "yes", "on"},
+            security_rbac_enabled=(
+                _env(
+                    "NS_SECURITY_RBAC_ENABLED",
+                    "AO_SECURITY_RBAC_ENABLED",
+                    str(defaults.security_rbac_enabled),
+                )
+                or str(defaults.security_rbac_enabled)
+            ).strip().lower()
+            in {"1", "true", "yes", "on"},
+            security_default_approver_role=_env(
+                "NS_SECURITY_DEFAULT_APPROVER_ROLE",
+                "AO_SECURITY_DEFAULT_APPROVER_ROLE",
+                defaults.security_default_approver_role,
+            )
+            or defaults.security_default_approver_role,
+            security_identity_header_user=_env(
+                "NS_SECURITY_IDENTITY_HEADER_USER",
+                "AO_SECURITY_IDENTITY_HEADER_USER",
+                defaults.security_identity_header_user,
+            )
+            or defaults.security_identity_header_user,
+            security_identity_header_roles=_env(
+                "NS_SECURITY_IDENTITY_HEADER_ROLES",
+                "AO_SECURITY_IDENTITY_HEADER_ROLES",
+                defaults.security_identity_header_roles,
+            )
+            or defaults.security_identity_header_roles,
             security_max_nodes=int(
                 _env("NS_SECURITY_MAX_NODES", "AO_SECURITY_MAX_NODES", str(defaults.security_max_nodes))
                 or defaults.security_max_nodes

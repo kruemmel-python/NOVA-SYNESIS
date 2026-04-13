@@ -27,6 +27,7 @@ Der Planner erzeugt keine Mock-Graphen. Er nutzt die lokale `lit`-Binary und das
 - wenn das Modell bei `topic_split`, `write_csv`, `filesystem_read`, `filesystem_write` oder `local_llm_text` Aliasfelder, falsche Referenzformen oder Agentennamen als Handler liefert, normalisiert der Planner diese Inputs und Handler-Namen auf die echten Built-ins
 - wenn ein Audit- oder Review-Node bereits einen Prompt besitzt, sorgt die Planner-Normalisierung trotzdem dafuer, dass die Upstream-Daten als `data` in den Node wandern
 - der lokale Text-Handler erzwingt im Zusammenspiel mit dem Planner eine finale Antwort und verhindert Folgefragen wie `Please provide ...`, sobald ein Prompt und echte Eingangsdaten vorliegen
+- neue Graphen koennen spaeter als eigene Flow-Version gespeichert werden; der Planner selbst schreibt aber nie direkt an einer bestehenden Version vorbei
 
 ## Wichtige Sicherheitsgrenzen
 
@@ -36,6 +37,7 @@ Der Planner erzeugt keine Mock-Graphen. Er nutzt die lokale `lit`-Binary und das
 - Die Antwort enthaelt `security_report`, damit UI und Betreiber sehen, ob der generierte Graph policy-konform war.
 - Planner-Warnungen bedeuten: der Graph wurde normalisiert, aber nicht stillschweigend erweitert.
 - `requires_manual_approval` wird standardmaessig auf `false` normalisiert und nur uebernommen, wenn es explizit im Graphen gesetzt ist.
+- freie Prompts duerfen weiterhin keine beliebigen neuen Fachhandler oder unbekannte Infrastruktur herbeifantasieren; sie bleiben an den echten Katalog gebunden
 
 ## Betriebsregel fuer echte Planner-Beispiele
 

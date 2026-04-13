@@ -4,7 +4,7 @@ import asyncio
 from contextlib import asynccontextmanager
 from typing import Any
 
-from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
@@ -94,6 +94,12 @@ class FlowCreateRequest(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 
+class FlowVersionCreateRequest(FlowCreateRequest):
+    created_by: str | None = None
+    change_reason: str | None = None
+    planner_generated: bool = False
+
+
 class IntentRequest(BaseModel):
     goal: str
     constraints: dict[str, Any] = Field(default_factory=dict)
@@ -116,6 +122,13 @@ class NodeApprovalRevokeRequest(BaseModel):
     reason: str | None = None
 
 
+class HumanInputResumeRequest(BaseModel):
+    value: Any = None
+    submitted_by: str = Field(min_length=1)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+    auto_run: bool = True
+
+
 class AccountsReceivableDraftPreviewRequest(BaseModel):
     extract_input: dict[str, Any] = Field(default_factory=dict)
     generate_input: dict[str, Any] = Field(default_factory=dict)
@@ -133,7 +146,7 @@ def create_app(
         yield
         await runtime.shutdown()
 
-    app = FastAPI(title=runtime.settings.app_name, version="1.0.10", lifespan=lifespan)
+    app = FastAPI(title=runtime.settings.app_name, version="1.1.0", lifespan=lifespan)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=list(runtime.settings.cors_origins),
@@ -145,7 +158,15 @@ def create_app(
     def _translate_error(exc: Exception) -> HTTPException:
         if isinstance(exc, KeyError):
             return HTTPException(status_code=404, detail=str(exc))
+        if isinstance(exc, PermissionError):
+            return HTTPException(status_code=403, detail=str(exc))
         return HTTPException(status_code=400, detail=str(exc))
+
+    def _actor_identity(request: Request) -> tuple[str | None, list[str]]:
+        user = request.headers.get(runtime.settings.security_identity_header_user)
+        raw_roles = request.headers.get(runtime.settings.security_identity_header_roles, "")
+        roles = [role.strip() for role in raw_roles.split(",") if role.strip()]
+        return user, roles
 
     @app.get("/health")
     async def health() -> dict[str, Any]:
@@ -228,6 +249,24 @@ def create_app(
         except Exception as exc:
             raise _translate_error(exc) from exc
 
+    @app.post("/flows/{flow_id}/versions")
+    async def create_flow_version_endpoint(
+        flow_id: int,
+        request: FlowVersionCreateRequest,
+    ) -> dict[str, Any]:
+        try:
+            return runtime.save_flow_version(
+                flow_id=flow_id,
+                nodes=[node.model_dump(mode="json") for node in request.nodes],
+                edges=[edge.model_dump(mode="json") for edge in request.edges],
+                metadata=request.metadata,
+                created_by=request.created_by,
+                change_reason=request.change_reason,
+                planner_generated=request.planner_generated,
+            )
+        except Exception as exc:
+            raise _translate_error(exc) from exc
+
     @app.post("/flows/validate")
     async def validate_flow_endpoint(request: FlowCreateRequest) -> dict[str, Any]:
         try:
@@ -248,13 +287,38 @@ def create_app(
         except Exception as exc:
             raise _translate_error(exc) from exc
 
+    @app.get("/flows/{flow_id}/versions")
+    async def list_flow_versions(flow_id: int) -> list[dict[str, Any]]:
+        try:
+            return runtime.list_flow_versions(flow_id)
+        except Exception as exc:
+            raise _translate_error(exc) from exc
+
+    @app.get("/flows/{flow_id}/versions/{version_id}")
+    async def get_flow_version(flow_id: int, version_id: int) -> dict[str, Any]:
+        try:
+            return runtime.get_flow_version(flow_id, version_id)
+        except Exception as exc:
+            raise _translate_error(exc) from exc
+
+    @app.post("/flows/{flow_id}/versions/{version_id}/activate")
+    async def activate_flow_version(flow_id: int, version_id: int) -> dict[str, Any]:
+        try:
+            return runtime.activate_flow_version(flow_id, version_id)
+        except Exception as exc:
+            raise _translate_error(exc) from exc
+
     @app.post("/flows/{flow_id}/run")
-    async def run_flow(flow_id: int, background: bool = False) -> dict[str, Any]:
+    async def run_flow(
+        flow_id: int,
+        background: bool = False,
+        version_id: int | None = None,
+    ) -> dict[str, Any]:
         try:
             if background:
-                asyncio.create_task(runtime.run_flow(flow_id))
-                return {"flow_id": flow_id, "scheduled": True}
-            return await runtime.run_flow(flow_id)
+                asyncio.create_task(runtime.run_flow(flow_id, version_id=version_id))
+                return {"flow_id": flow_id, "version_id": version_id, "scheduled": True}
+            return await runtime.run_flow(flow_id, version_id=version_id)
         except Exception as exc:
             raise _translate_error(exc) from exc
 
@@ -270,13 +334,16 @@ def create_app(
         flow_id: int,
         node_id: str,
         request: NodeApprovalRequest,
+        http_request: Request,
     ) -> dict[str, Any]:
         try:
+            actor_user, actor_roles = _actor_identity(http_request)
             return runtime.approve_flow_node(
                 flow_id=flow_id,
                 node_id=node_id,
-                approved_by=request.approved_by,
+                approved_by=request.approved_by or actor_user or "unknown",
                 reason=request.reason,
+                actor_roles=actor_roles,
             )
         except Exception as exc:
             raise _translate_error(exc) from exc
@@ -286,13 +353,16 @@ def create_app(
         flow_id: int,
         node_id: str,
         request: NodeApprovalRevokeRequest,
+        http_request: Request,
     ) -> dict[str, Any]:
         try:
+            actor_user, actor_roles = _actor_identity(http_request)
             return runtime.revoke_flow_node_approval(
                 flow_id=flow_id,
                 node_id=node_id,
-                revoked_by=request.revoked_by,
+                revoked_by=request.revoked_by or actor_user,
                 reason=request.reason,
+                actor_roles=actor_roles,
             )
         except Exception as exc:
             raise _translate_error(exc) from exc
@@ -332,6 +402,34 @@ def create_app(
         except Exception as exc:
             raise _translate_error(exc) from exc
 
+    @app.get("/flows/{flow_id}/nodes/{node_id}/input-request")
+    async def get_node_input_request(flow_id: int, node_id: str) -> dict[str, Any]:
+        try:
+            return runtime.get_node_input_request(flow_id, node_id)
+        except Exception as exc:
+            raise _translate_error(exc) from exc
+
+    @app.post("/flows/{flow_id}/nodes/{node_id}/resume")
+    async def resume_flow_node(
+        flow_id: int,
+        node_id: str,
+        request: HumanInputResumeRequest,
+        http_request: Request,
+    ) -> dict[str, Any]:
+        try:
+            actor_user, actor_roles = _actor_identity(http_request)
+            return await runtime.resume_flow_node(
+                flow_id=flow_id,
+                node_id=node_id,
+                value=request.value,
+                submitted_by=request.submitted_by or actor_user or "unknown",
+                metadata=request.metadata,
+                auto_run=request.auto_run,
+                actor_roles=actor_roles,
+            )
+        except Exception as exc:
+            raise _translate_error(exc) from exc
+
     @app.post("/tools/accounts-receivable/preview-draft")
     async def preview_accounts_receivable_draft(
         request: AccountsReceivableDraftPreviewRequest,
@@ -349,6 +447,18 @@ def create_app(
     @app.get("/executions")
     async def list_executions() -> list[dict[str, Any]]:
         return runtime.list_executions()
+
+    @app.get("/metrics/summary")
+    async def metrics_summary() -> dict[str, Any]:
+        return runtime.summarize_execution_metrics()
+
+    @app.get("/metrics/flows")
+    async def flow_metrics() -> list[dict[str, Any]]:
+        return runtime.summarize_execution_metrics()["flows"]
+
+    @app.get("/metrics/handlers")
+    async def handler_metrics() -> list[dict[str, Any]]:
+        return runtime.summarize_execution_metrics()["handlers"]
 
     @app.websocket("/ws/flows/{flow_id}")
     async def flow_events(websocket: WebSocket, flow_id: int) -> None:

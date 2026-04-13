@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Schnellstart | NOVA-SYNESIS Docs</title>
+  <meta name="description" content="Diese Datei zeigt den kuerzesten Weg, um NOVA-SYNESIS lokal zu starten und die registrierten Beispiele in der Web-UI zu nutzen.">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="stylesheet" href="assets/site.css">
+</head>
+<body data-page-url="getting-started.html">
+  <div class="site-shell">
+    <aside class="site-sidebar" id="site-sidebar">
+      <div class="brand">
+        <p class="brand__eyebrow">Neural Orchestration Visual Autonomy</p>
+        <h1>NOVA-SYNESIS</h1>
+        <p class="brand__subtitle">Stateful Yielding Node-based Execution Semantic Integrated Surface</p>
+      </div>
+      <label class="search-box">
+        <span class="search-box__label">Search docs</span>
+        <input id="docs-search" type="search" placeholder="Search guides, files, handlers, policies">
+      </label>
+      <div class="search-results" id="search-results" hidden></div>
+      <div class="sidebar-scroll">
+        <a class="brand__home" href="index.html">Documentation Home</a><section class="sidebar__group"><h2>Projekt</h2><ul class="nav-list"><li><a class="nav-list__link nav-list__link--active" href="getting-started.html">Schnellstart</a></li><li><a class="nav-list__link" href="system-overview.html">Systemueberblick</a></li><li><a class="nav-list__link" href="backend-runtime.html">Backend-Laufzeit</a></li><li><a class="nav-list__link" href="frontend-editor.html">Frontend-Editor</a></li><li><a class="nav-list__link" href="planner-and-lit.html">LLM-Planer und LiteRT</a></li><li><a class="nav-list__link" href="security-and-policy.html">Security und Policy</a></li><li><a class="nav-list__link" href="handler-trust-and-approval.html">Handler Trust und Freigaben</a></li><li><a class="nav-list__link" href="failure-playbook.html">Failure Playbook</a></li><li><a class="nav-list__link" href="real-world-scenarios.html">Real World Scenarios</a></li></ul></section><section class="sidebar__group"><h2>Code &amp; Flows</h2><ul class="nav-list"><li><a class="nav-list__link" href="reference/index.html">Referenzindex</a></li><li><a class="nav-list__link" href="reference/.env.example.html">.env.example</a></li><li><a class="nav-list__link" href="reference/Dockerfile.html">Dockerfile</a></li><li class="nav-list__branch"><details ><summary>Frontend</summary><ul class="nav-list"><li><a class="nav-list__link" href="reference/frontend/.env.example.html">.env.example</a></li><li><a class="nav-list__link" href="reference/frontend/index.html.html">index.html</a></li><li><a class="nav-list__link" href="reference/frontend/package-lock.json.html">package-lock.json</a></li><li><a class="nav-list__link" href="reference/frontend/package.json.html">package.json</a></li><li class="nav-list__branch"><details ><summary>Source</summary><ul class="nav-list"><li><a class="nav-list__link" href="reference/frontend/src/app.css.html">app.css</a></li><li><a class="nav-list__link" href="reference/frontend/src/App.tsx.html">App.tsx</a></li><li class="nav-list__branch"><details ><summary>Components</summary><ul class="nav-list"><li class="nav-list__branch"><details ><summary>Common</summary><ul class="nav-list"><li><a class="nav-list__link" href="reference/frontend/src/components/common/JsonEditor.tsx.html">JsonEditor.tsx</a></li><li><a class="nav-list__link" href="reference/frontend/src/components/common/StatusBadge.tsx.html">StatusBadge.tsx</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Flow</summary><ul class="nav-list"><li><a class="nav-list__link" href="reference/frontend/src/components/flow/FlowCanvas.tsx.html">FlowCanvas.tsx</a></li><li><a class="nav-list__link" href="reference/frontend/src/components/flow/TaskNode.tsx.html">TaskNode.tsx</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Layout</summary><ul class="nav-list"><li><a class="nav-list__link" href="reference/frontend/src/components/layout/AnalyticsPanel.tsx.html">AnalyticsPanel.tsx</a></li><li><a class="nav-list__link" href="reference/frontend/src/components/layout/InspectorPanel.tsx.html">InspectorPanel.tsx</a></li><li><a class="nav-list__link" href="reference/frontend/src/components/layout/PlannerComposer.tsx.html">PlannerComposer.tsx</a></li><li><a class="nav-list__link" href="reference/frontend/src/components/layout/Sidebar.tsx.html">Sidebar.tsx</a></li><li><a class="nav-list__link" href="reference/frontend/src/components/layout/TopBar.tsx.html">TopBar.tsx</a></li></ul></details></li></ul></details></li><li class="nav-list__branch"><details ><summary>Hooks</summary><ul class="nav-list"><li><a class="nav-list__link" href="reference/frontend/src/hooks/useCatalogBootstrap.ts.html">useCatalogBootstrap.ts</a></li><li><a class="nav-list__link" href="reference/frontend/src/hooks/useFlowLiveUpdates.ts.html">useFlowLiveUpdates.ts</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Lib</summary><ul class="nav-list"><li><a class="nav-list__link" href="reference/frontend/src/lib/apiClient.ts.html">apiClient.ts</a></li><li><a class="nav-list__link" href="reference/frontend/src/lib/autoLayout.ts.html">autoLayout.ts</a></li><li><a class="nav-list__link" href="reference/frontend/src/lib/flowSerialization.ts.html">flowSerialization.ts</a></li><li><a class="nav-list__link" href="reference/frontend/src/lib/json.ts.html">json.ts</a></li></ul></details></li><li><a class="nav-list__link" href="reference/frontend/src/main.tsx.html">main.tsx</a></li><li class="nav-list__branch"><details ><summary>Store</summary><ul class="nav-list"><li><a class="nav-list__link" href="reference/frontend/src/store/useFlowStore.ts.html">useFlowStore.ts</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Types</summary><ul class="nav-list"><li><a class="nav-list__link" href="reference/frontend/src/types/api.ts.html">api.ts</a></li></ul></details></li><li><a class="nav-list__link" href="reference/frontend/src/vite-env.d.ts.html">vite-env.d.ts</a></li></ul></details></li><li><a class="nav-list__link" href="reference/frontend/tsconfig.app.json.html">tsconfig.app.json</a></li><li><a class="nav-list__link" href="reference/frontend/tsconfig.json.html">tsconfig.json</a></li><li><a class="nav-list__link" href="reference/frontend/tsconfig.node.json.html">tsconfig.node.json</a></li><li><a class="nav-list__link" href="reference/frontend/vite.config.d.ts.html">vite.config.d.ts</a></li><li><a class="nav-list__link" href="reference/frontend/vite.config.js.html">vite.config.js</a></li><li><a class="nav-list__link" href="reference/frontend/vite.config.ts.html">vite.config.ts</a></li></ul></details></li><li><a class="nav-list__link" href="reference/pyproject.toml.html">pyproject.toml</a></li><li><a class="nav-list__link" href="reference/run-backend.cmd.html">run-backend.cmd</a></li><li><a class="nav-list__link" href="reference/run-backend.ps1.html">run-backend.ps1</a></li><li class="nav-list__branch"><details ><summary>Source</summary><ul class="nav-list"><li class="nav-list__branch"><details ><summary>NOVA-SYNESIS</summary><ul class="nav-list"><li><a class="nav-list__link" href="reference/src/nova_synesis/__init__.py.html">__init__.py</a></li><li class="nav-list__branch"><details ><summary>API</summary><ul class="nav-list"><li><a class="nav-list__link" href="reference/src/nova_synesis/api/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="reference/src/nova_synesis/api/app.py.html">app.py</a></li></ul></details></li><li><a class="nav-list__link" href="reference/src/nova_synesis/cli.py.html">cli.py</a></li><li class="nav-list__branch"><details ><summary>Communication</summary><ul class="nav-list"><li><a class="nav-list__link" href="reference/src/nova_synesis/communication/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="reference/src/nova_synesis/communication/adapters.py.html">adapters.py</a></li></ul></details></li><li><a class="nav-list__link" href="reference/src/nova_synesis/config.py.html">config.py</a></li><li class="nav-list__branch"><details ><summary>Domain</summary><ul class="nav-list"><li><a class="nav-list__link" href="reference/src/nova_synesis/domain/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="reference/src/nova_synesis/domain/models.py.html">models.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Memory</summary><ul class="nav-list"><li><a class="nav-list__link" href="reference/src/nova_synesis/memory/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="reference/src/nova_synesis/memory/systems.py.html">systems.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Persistence</summary><ul class="nav-list"><li><a class="nav-list__link" href="reference/src/nova_synesis/persistence/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="reference/src/nova_synesis/persistence/sqlite_repository.py.html">sqlite_repository.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Planning</summary><ul class="nav-list"><li><a class="nav-list__link" href="reference/src/nova_synesis/planning/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="reference/src/nova_synesis/planning/lit_planner.py.html">lit_planner.py</a></li><li><a class="nav-list__link" href="reference/src/nova_synesis/planning/planner.py.html">planner.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Resources</summary><ul class="nav-list"><li><a class="nav-list__link" href="reference/src/nova_synesis/resources/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="reference/src/nova_synesis/resources/manager.py.html">manager.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Runtime</summary><ul class="nav-list"><li><a class="nav-list__link" href="reference/src/nova_synesis/runtime/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="reference/src/nova_synesis/runtime/engine.py.html">engine.py</a></li><li><a class="nav-list__link" href="reference/src/nova_synesis/runtime/handlers.py.html">handlers.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Security</summary><ul class="nav-list"><li><a class="nav-list__link" href="reference/src/nova_synesis/security/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="reference/src/nova_synesis/security/policy.py.html">policy.py</a></li><li><a class="nav-list__link" href="reference/src/nova_synesis/security/trust.py.html">trust.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Services</summary><ul class="nav-list"><li><a class="nav-list__link" href="reference/src/nova_synesis/services/__init__.py.html">__init__.py</a></li><li><a class="nav-list__link" href="reference/src/nova_synesis/services/orchestrator.py.html">orchestrator.py</a></li></ul></details></li></ul></details></li></ul></details></li><li class="nav-list__branch"><details ><summary>Tests</summary><ul class="nav-list"><li><a class="nav-list__link" href="reference/tests/test_orchestrator.py.html">test_orchestrator.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Tools</summary><ul class="nav-list"><li><a class="nav-list__link" href="reference/tools/build_code_release.ps1.html">build_code_release.ps1</a></li><li><a class="nav-list__link" href="reference/tools/build_web_docs.py.html">build_web_docs.py</a></li><li><a class="nav-list__link" href="reference/tools/generate_docs.py.html">generate_docs.py</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Use Cases</summary><ul class="nav-list"><li class="nav-list__branch"><details ><summary>Accounts Receivable Reminder</summary><ul class="nav-list"><li><a class="nav-list__link" href="reference/Use_Cases/accounts_receivable_reminder/AUSFUEHRLICHE_DOKUMENTATION.md.html">AUSFUEHRLICHE_DOKUMENTATION.md</a></li><li><a class="nav-list__link" href="reference/Use_Cases/accounts_receivable_reminder/flow.orders_csv.json.html">flow.orders_csv.json</a></li><li><a class="nav-list__link" href="reference/Use_Cases/accounts_receivable_reminder/flow.orders_db.json.html">flow.orders_db.json</a></li><li><a class="nav-list__link" href="reference/Use_Cases/accounts_receivable_reminder/flow.web_ui.orders_csv.json.html">flow.web_ui.orders_csv.json</a></li><li><a class="nav-list__link" href="reference/Use_Cases/accounts_receivable_reminder/flow.web_ui.orders_db.json.html">flow.web_ui.orders_db.json</a></li><li><a class="nav-list__link" href="reference/Use_Cases/accounts_receivable_reminder/run.ps1.html">run.ps1</a></li><li><a class="nav-list__link" href="reference/Use_Cases/accounts_receivable_reminder/setup.ps1.html">setup.ps1</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>LLM Planer</summary><ul class="nav-list"><li><a class="nav-list__link" href="reference/Use_Cases/LLM_Planer/prompt_01_smoke_message.txt.html">prompt_01_smoke_message.txt</a></li><li><a class="nav-list__link" href="reference/Use_Cases/LLM_Planer/prompt_03_memory_roundtrip.txt.html">prompt_03_memory_roundtrip.txt</a></li><li><a class="nav-list__link" href="reference/Use_Cases/LLM_Planer/prompt_04_resource_notify.txt.html">prompt_04_resource_notify.txt</a></li><li><a class="nav-list__link" href="reference/Use_Cases/LLM_Planer/prompt_05_accounts_receivable_csv.txt.html">prompt_05_accounts_receivable_csv.txt</a></li><li><a class="nav-list__link" href="reference/Use_Cases/LLM_Planer/prompt_06_accounts_receivable_db.txt.html">prompt_06_accounts_receivable_db.txt</a></li><li><a class="nav-list__link" href="reference/Use_Cases/LLM_Planer/setup.ps1.html">setup.ps1</a></li><li><a class="nav-list__link" href="reference/Use_Cases/LLM_Planer/verify.ps1.html">verify.ps1</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Platform Health Snapshot</summary><ul class="nav-list"><li><a class="nav-list__link" href="reference/Use_Cases/platform_health_snapshot/flow.json.html">flow.json</a></li><li><a class="nav-list__link" href="reference/Use_Cases/platform_health_snapshot/platform_health_snapshot.png.html">platform_health_snapshot.png</a></li><li><a class="nav-list__link" href="reference/Use_Cases/platform_health_snapshot/run.ps1.html">run.ps1</a></li><li><a class="nav-list__link" href="reference/Use_Cases/platform_health_snapshot/setup.ps1.html">setup.ps1</a></li></ul></details></li><li class="nav-list__branch"><details ><summary>Semantic Ticket Triage</summary><ul class="nav-list"><li><a class="nav-list__link" href="reference/Use_Cases/semantic_ticket_triage/flow.json.html">flow.json</a></li><li><a class="nav-list__link" href="reference/Use_Cases/semantic_ticket_triage/run.ps1.html">run.ps1</a></li><li><a class="nav-list__link" href="reference/Use_Cases/semantic_ticket_triage/semantic_ticket_triage.png.html">semantic_ticket_triage.png</a></li><li><a class="nav-list__link" href="reference/Use_Cases/semantic_ticket_triage/setup.ps1.html">setup.ps1</a></li></ul></details></li></ul></details></li></ul></section><section class="sidebar__group sidebar__group--meta"><h2>Search</h2><p>Use <kbd>/</kbd> to focus the search field and jump across guides, references and scenarios.</p></section>
+      </div>
+    </aside>
+
+    <div class="site-main">
+      <header class="site-header">
+        <button class="site-header__toggle" type="button" id="sidebar-toggle" aria-controls="site-sidebar" aria-expanded="false">
+          Menu
+        </button>
+        <div class="site-header__meta">
+          <p class="site-header__eyebrow">Generated documentation surface</p>
+          <h2>Schnellstart</h2>
+        </div>
+        <div class="site-header__status">
+          <span class="status-chip">HTML docs</span>
+          <span class="status-chip status-chip--accent">2026-04-12 16:56 UTC</span>
+        </div>
+      </header>
+
+      <main class="content-shell">
+        <article class="doc-article">
+          <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="index.html">Docs</a><span aria-current="page">Schnellstart</span></nav>
+          <section class="doc-hero">
+            <p class="doc-hero__eyebrow">Documentation</p>
+            <h1>Schnellstart</h1>
+            <p>Diese Datei zeigt den kuerzesten Weg, um NOVA-SYNESIS lokal zu starten und die registrierten Beispiele in der Web-UI zu nutzen.</p>
+          </section>
+          <section class="doc-content">
+            <h1 id="schnellstart"><a class="heading-anchor" href="#schnellstart">Schnellstart</a></h1>
+<p>Diese Datei zeigt den kuerzesten Weg, um NOVA-SYNESIS lokal zu starten und die registrierten Beispiele in der Web-UI zu nutzen.</p>
+<h2 id="1-backend-starten"><a class="heading-anchor" href="#1-backend-starten">1. Backend starten</a></h2>
+<pre><code class="language-powershell">.\run-backend.ps1 -BindHost 127.0.0.1 -Port 8552
+</code></pre>
+<p>Alternativ kannst du das LiteRT-Modell direkt beim Start wechseln:</p>
+<pre><code class="language-powershell">.\run-backend.ps1 -BindHost 127.0.0.1 -Port 8552 -LitModel gemma-4-E2B-it.litertlm
+.\run-backend.ps1 -BindHost 127.0.0.1 -Port 8552 -LitModel model_multimodal.litertlm
+</code></pre>
+<p>Wenn nur ein Dateiname angegeben wird, sucht NOVA-SYNESIS automatisch im Ordner <code>LIT/</code>.</p>
+<p>Wenn nach einem Modellwechsel eine LiteRT-Meldung wie <code>failed to create engine</code> erscheint, versucht NOVA-SYNESIS automatisch, den modellbezogenen XNNPACK-Cache zu quarantainen und den Start zu wiederholen. Wenn der Fehler bleibt, ist das Modell wahrscheinlich nicht mit der aktuellen <code>lit</code>-Binary oder dem gewaehlten Backend kompatibel.</p>
+<p>Wichtige URLs:</p>
+<ul>
+<li><code>http://127.0.0.1:8552/docs</code></li>
+<li><code>http://127.0.0.1:8552/health</code></li>
+<li><code>http://127.0.0.1:8552/planner/status</code></li>
+</ul>
+<h2 id="2-frontend-starten"><a class="heading-anchor" href="#2-frontend-starten">2. Frontend starten</a></h2>
+<p><code>frontend/.env</code>:</p>
+<pre><code class="language-env">VITE_API_BASE_URL=http://127.0.0.1:8552
+</code></pre>
+<p>Dann:</p>
+<pre><code class="language-powershell">cd frontend
+npm install
+npm run dev
+</code></pre>
+<p>Die Web-UI laeuft danach normalerweise unter <code>http://127.0.0.1:5173</code>.</p>
+<h2 id="3-was-sich-seit-den-enterprise-phasen-geaendert-hat"><a class="heading-anchor" href="#3-was-sich-seit-den-enterprise-phasen-geaendert-hat">3. Was sich seit den Enterprise-Phasen geaendert hat</a></h2>
+<ul>
+<li><code>Save Flow</code> ueberschreibt einen bestehenden Flow nicht mehr still, sondern schreibt bei vorhandener <code>Flow ID</code> eine neue Flow-Version</li>
+<li>die Topbar zeigt die aktuell geladene Version und erlaubt das Laden aelterer Versionen</li>
+<li><code>Analytics</code> oeffnet eine kompakte Betreiberansicht auf Handler- und Flow-Metriken</li>
+<li>ein Node kann waehrend der Ausfuehrung auf <code>WAITING_FOR_INPUT</code> gehen; dann erscheint im Inspector ein Eingabeformular statt eines Fehlers</li>
+<li><code>Run Flow</code> startet die aktuell geladene Version, nicht zwingend immer nur den zuletzt sichtbaren Containerzustand</li>
+</ul>
+<h2 id="4-human-in-the-loop-in-der-web-ui"><a class="heading-anchor" href="#4-human-in-the-loop-in-der-web-ui">4. Human in the Loop in der Web-UI</a></h2>
+<p>Wenn ein Flow absichtlich auf menschliche Eingabe wartet:</p>
+<ol>
+<li>den wartenden Node anklicken</li>
+<li>im Inspector den Bereich fuer die offene Eingabe lesen</li>
+<li>die angeforderten Felder oder den JSON-Fallback ausfuellen</li>
+<li><code>Submitted by</code> setzen</li>
+<li><code>Submit Input</code> klicken</li>
+</ol>
+<p>Wichtig:</p>
+<ul>
+<li><code>WAITING_FOR_INPUT</code> ist kein Absturz, sondern ein kontrollierter Runtime-Stopp</li>
+<li>wenn der Node eine Rolle verlangt, zeigt der Inspector diese als Hinweis an</li>
+<li>die eigentliche Rollenpruefung passiert serverseitig</li>
+</ul>
+<h2 id="5-optional-identity-header-fuer-rollenpfade"><a class="heading-anchor" href="#5-optional-identity-header-fuer-rollenpfade">5. Optional: Identity-Header fuer Rollenpfade</a></h2>
+<p>Wenn Freigaben oder HITL-Resumes ueber Rollen abgesichert werden sollen, sendet die API standardmaessig diese Header:</p>
+<ul>
+<li><code>X-NOVA-User</code></li>
+<li><code>X-NOVA-Roles</code></li>
+</ul>
+<p>Beispiel fuer einen direkten API-Aufruf:</p>
+<pre><code class="language-powershell">Invoke-RestMethod `
+  -Method Get `
+  -Uri &quot;http://127.0.0.1:8552/metrics/summary&quot; `
+  -Headers @{
+    &quot;X-NOVA-User&quot; = &quot;operator@example.local&quot;
+    &quot;X-NOVA-Roles&quot; = &quot;approver,ops&quot;
+  }
+</code></pre>
+<h2 id="6-wichtig-fuer-use-cases-und-ai-plan"><a class="heading-anchor" href="#6-wichtig-fuer-use-cases-und-ai-plan">6. Wichtig fuer Use Cases und AI Plan</a></h2>
+<p>Die Web-UI sieht nur, was im laufenden Backend bereits registriert ist.</p>
+<p>Das bedeutet:</p>
+<ul>
+<li><code>setup.ps1</code>-Skripte muessen gegen das laufende Backend ausgefuehrt werden</li>
+<li>erst danach erscheinen Agenten, Ressourcen und Memory-Systeme im Katalog der Web-UI</li>
+<li>erst danach kann <code>AI Plan</code> diese Objekte ueberhaupt verwenden</li>
+</ul>
+<p>Wichtig:</p>
+<ul>
+<li><code>AI Plan</code> bootstrappt inzwischen automatisch einen generischen System-Agenten sowie die Scratch-Memories <code>planner-scratch</code> und <code>planner-vector</code>, wenn sie noch fehlen</li>
+<li>Ressourcen werden weiterhin nicht aus freiem Text erraten oder extern freigeschaltet</li>
+<li>spezialisierte Use-Case-Objekte aus <code>setup.ps1</code> bleiben wichtig, wenn ein Prompt ganz bestimmte Agenten, Ressourcen oder Memory-IDs nutzen soll</li>
+</ul>
+<p>Nach einem <code>setup.ps1</code>:</p>
+<ol>
+<li>Web-UI neu laden</li>
+<li>Sidebar und Planner erneut oeffnen</li>
+<li>erst dann <code>AI Plan</code>, <code>Import JSON</code> oder <code>Run Flow</code> nutzen</li>
+</ol>
+<h2 id="7-use-cases-in-der-web-ui-nutzen"><a class="heading-anchor" href="#7-use-cases-in-der-web-ui-nutzen">7. Use Cases in der Web-UI nutzen</a></h2>
+<h3 id="accounts_receivable_reminder"><a class="heading-anchor" href="#accounts_receivable_reminder">accounts_receivable_reminder</a></h3>
+<p>Setup zuerst ausfuehren:</p>
+<pre><code class="language-powershell">.\Use_Cases\accounts_receivable_reminder\setup.ps1 -ApiBaseUrl http://127.0.0.1:8552
+</code></pre>
+<p>Danach in der Web-UI:</p>
+<ol>
+<li><code>Import JSON</code></li>
+<li>bevorzugt <code>Use_Cases/accounts_receivable_reminder/flow.web_ui.orders_csv.json</code> oder <code>Use_Cases/accounts_receivable_reminder/flow.web_ui.orders_db.json</code> laden</li>
+<li>Node <code>Generate Reminder Letters</code> anklicken</li>
+<li>optional <code>Use local LLM to draft the letter text</code> aktivieren</li>
+<li>bei Bedarf <code>Preview Draft</code> nutzen, <code>Business instruction</code> und <code>Prompt template</code> anpassen</li>
+<li><code>Save Flow</code></li>
+<li><code>Run Flow</code></li>
+</ol>
+<p>Ergebnis:</p>
+<ul>
+<li>Reports unter <code>Use_Cases/accounts_receivable_reminder/output/...</code></li>
+<li>Serienanschreiben als <code>.docx</code> unter <code>billing/csv</code> oder <code>billing/db</code></li>
+</ul>
+<p>Wenn der LLM-Schreibmodus aktiv ist:</p>
+<ul>
+<li>entscheidet der Benutzer im Inspector selbst, wie das lokale Modell schreiben soll</li>
+<li><code>Preview Draft</code> erzeugt einen einzelnen Beispielbrief fuer einen Kunden, ohne den ganzen Flow zu starten</li>
+<li><code>Preview Draft</code> verwendet die gerade im Inspector sichtbaren Werte, auch wenn der Flow noch nicht gespeichert wurde</li>
+<li>beim spaeteren <code>Run Flow</code> wird derselbe konfigurierte Prompt fuer jeden Kunden aus <code>orders.csv</code> oder <code>orders.db</code> erneut ausgefuehrt</li>
+<li>wenn die Vorschau zu lange braucht, beendet die UI den Request automatisch und zeigt einen Fehler statt endlos weiterzulaufen</li>
+</ul>
+<p>Alternativ direkt per Skript:</p>
+<pre><code class="language-powershell">.\Use_Cases\accounts_receivable_reminder\run.ps1 -ApiBaseUrl http://127.0.0.1:8552 -Source csv
+.\Use_Cases\accounts_receivable_reminder\run.ps1 -ApiBaseUrl http://127.0.0.1:8552 -Source db
+</code></pre>
+<h3 id="platform_health_snapshot"><a class="heading-anchor" href="#platform_health_snapshot">platform_health_snapshot</a></h3>
+<p>Setup zuerst ausfuehren:</p>
+<pre><code class="language-powershell">.\Use_Cases\platform_health_snapshot\setup.ps1 -ApiBaseUrl http://127.0.0.1:8552
+</code></pre>
+<p>Danach in der Web-UI:</p>
+<ol>
+<li><code>Import JSON</code></li>
+<li>Datei <code>Use_Cases/platform_health_snapshot/flow.json</code> laden</li>
+<li><code>Save Flow</code></li>
+<li><code>Run Flow</code></li>
+</ol>
+<p>Alternativ direkt per Skript:</p>
+<pre><code class="language-powershell">.\Use_Cases\platform_health_snapshot\run.ps1 -ApiBaseUrl http://127.0.0.1:8552
+</code></pre>
+<h3 id="semantic_ticket_triage"><a class="heading-anchor" href="#semantic_ticket_triage">semantic_ticket_triage</a></h3>
+<p>Setup zuerst ausfuehren:</p>
+<pre><code class="language-powershell">.\Use_Cases\semantic_ticket_triage\setup.ps1 -ApiBaseUrl http://127.0.0.1:8552
+</code></pre>
+<p>Danach in der Web-UI:</p>
+<ol>
+<li><code>Import JSON</code></li>
+<li>Datei <code>Use_Cases/semantic_ticket_triage/flow.json</code> laden</li>
+<li><code>Save Flow</code></li>
+<li><code>Run Flow</code></li>
+</ol>
+<p>Alternativ direkt per Skript:</p>
+<pre><code class="language-powershell">.\Use_Cases\semantic_ticket_triage\run.ps1 -ApiBaseUrl http://127.0.0.1:8552
+</code></pre>
+<h2 id="8-llm_planer-beispiele-nutzen"><a class="heading-anchor" href="#8-llm_planer-beispiele-nutzen">8. LLM_Planer Beispiele nutzen</a></h2>
+<p>Der Ordner <code>Use_Cases/LLM_Planer</code> enthaelt nur getestete Prompts.</p>
+<p>Zuerst das Katalog-Setup ausfuehren:</p>
+<pre><code class="language-powershell">.\Use_Cases\LLM_Planer\setup.ps1 -ApiBaseUrl http://127.0.0.1:8552
+</code></pre>
+<p>Dieses Skript registriert die fuer die Planner-Beispiele benoetigten Objekte im laufenden Backend:</p>
+<ul>
+<li>API-Resource <code>http://127.0.0.1:8552/health</code></li>
+<li>Memory-System <code>llm-planner-notes</code></li>
+<li>Queue-Agent <code>llm-planner-notify</code></li>
+</ul>
+<p>Danach gibt es zwei Wege:</p>
+<h3 id="in-der-web-ui"><a class="heading-anchor" href="#in-der-web-ui">In der Web-UI</a></h3>
+<ol>
+<li>Seite neu laden</li>
+<li><code>AI Plan</code> oeffnen</li>
+<li>den Inhalt einer Prompt-Datei aus <code>Use_Cases/LLM_Planer</code> einfuellen</li>
+<li><code>Generate Graph</code></li>
+<li><code>Save Flow</code></li>
+<li><code>Run Flow</code></li>
+</ol>
+<p>Verwendbare Prompt-Dateien:</p>
+<ul>
+<li><code>Use_Cases/LLM_Planer/prompt_01_smoke_message.txt</code></li>
+<li><code>Use_Cases/LLM_Planer/prompt_03_memory_roundtrip.txt</code></li>
+<li><code>Use_Cases/LLM_Planer/prompt_04_resource_notify.txt</code></li>
+<li><code>Use_Cases/LLM_Planer/prompt_05_accounts_receivable_csv.txt</code></li>
+<li><code>Use_Cases/LLM_Planer/prompt_06_accounts_receivable_db.txt</code></li>
+</ul>
+<h3 id="per-verifikationsskript"><a class="heading-anchor" href="#per-verifikationsskript">Per Verifikationsskript</a></h3>
+<pre><code class="language-powershell">.\Use_Cases\LLM_Planer\verify.ps1 -ApiBaseUrl http://127.0.0.1:8552
+</code></pre>
+<p>Das Skript:</p>
+<ul>
+<li>fuehrt bei Bedarf das Setup aus</li>
+<li>sendet die Prompts an <code>/planner/generate-flow</code></li>
+<li>speichert die Flows</li>
+<li>startet die Ausfuehrung</li>
+<li>prueft die Ergebnisse</li>
+</ul>
+<h2 id="9-die-wichtigste-regel-fuer-ai-plan"><a class="heading-anchor" href="#9-die-wichtigste-regel-fuer-ai-plan">9. Die wichtigste Regel fuer AI Plan</a></h2>
+<p><code>AI Plan</code> arbeitet nur mit dem aktuellen Planner-Katalog des laufenden Backends.</p>
+<p>Also:</p>
+<ul>
+<li>ohne <code>setup.ps1</code> keine spezialisierten Agenten oder Ressourcen fuer deinen konkreten Fachfall</li>
+<li>das Backend erzeugt fuer freie Prompts zwar automatisch <code>nova-system-agent</code>, <code>planner-scratch</code> und <code>planner-vector</code></li>
+<li>ohne weitere Registrierungen kann der Planner aber trotzdem nur mit den vorhandenen Built-in-Handlern und diesen generischen Bootstrap-Objekten arbeiten</li>
+</ul>
+<p>Wenn ein Prompt einen Agenten, eine Resource oder ein Memory nennt, das nicht registriert ist, wird der Planner entweder fehlschlagen, den Node weglassen oder die Semantic Firewall blockiert den Flow.</p>
+          </section>
+        </article>
+        <aside class="doc-toc">
+          <div class="doc-toc__card">
+            <p class="doc-toc__eyebrow">On this page</p>
+            <ul class="toc-list"><li class="toc-list__item toc-list__item--level-1"><a href="#schnellstart">Schnellstart</a></li><li class="toc-list__item toc-list__item--level-2"><a href="#1-backend-starten">1. Backend starten</a></li><li class="toc-list__item toc-list__item--level-2"><a href="#2-frontend-starten">2. Frontend starten</a></li><li class="toc-list__item toc-list__item--level-2"><a href="#3-was-sich-seit-den-enterprise-phasen-geaendert-hat">3. Was sich seit den Enterprise-Phasen geaendert hat</a></li><li class="toc-list__item toc-list__item--level-2"><a href="#4-human-in-the-loop-in-der-web-ui">4. Human in the Loop in der Web-UI</a></li><li class="toc-list__item toc-list__item--level-2"><a href="#5-optional-identity-header-fuer-rollenpfade">5. Optional: Identity-Header fuer Rollenpfade</a></li><li class="toc-list__item toc-list__item--level-2"><a href="#6-wichtig-fuer-use-cases-und-ai-plan">6. Wichtig fuer Use Cases und AI Plan</a></li><li class="toc-list__item toc-list__item--level-2"><a href="#7-use-cases-in-der-web-ui-nutzen">7. Use Cases in der Web-UI nutzen</a></li><li class="toc-list__item toc-list__item--level-3"><a href="#accounts_receivable_reminder">accounts_receivable_reminder</a></li><li class="toc-list__item toc-list__item--level-3"><a href="#platform_health_snapshot">platform_health_snapshot</a></li><li class="toc-list__item toc-list__item--level-3"><a href="#semantic_ticket_triage">semantic_ticket_triage</a></li><li class="toc-list__item toc-list__item--level-2"><a href="#8-llm_planer-beispiele-nutzen">8. LLM_Planer Beispiele nutzen</a></li><li class="toc-list__item toc-list__item--level-3"><a href="#in-der-web-ui">In der Web-UI</a></li><li class="toc-list__item toc-list__item--level-3"><a href="#per-verifikationsskript">Per Verifikationsskript</a></li><li class="toc-list__item toc-list__item--level-2"><a href="#9-die-wichtigste-regel-fuer-ai-plan">9. Die wichtigste Regel fuer AI Plan</a></li></ul>
+          </div>
+        </aside>
+      </main>
+    </div>
+  </div>
+  <script src="assets/site-data.js"></script>
+  <script src="assets/site.js"></script>
+</body>
+</html>

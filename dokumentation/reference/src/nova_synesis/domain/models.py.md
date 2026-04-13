@@ -5,11 +5,11 @@
 
 ## Aufgabe der Datei
 
-Kern-Domaenenmodell mit Agenten, Ressourcen, Tasks, Bedingungen und ExecutionFlow.
+Kern-Domaenenmodell mit Agenten, Ressourcen, Tasks, Human-Input-Zustaenden, Versionen und ExecutionFlow.
 
 ## Wann du diese Datei bearbeitest
 
-Wenn das fachliche Laufzeitmodell des Systems veraendert wird.
+Wenn das fachliche Laufzeitmodell, Statusuebergaenge oder vertragliche Task-Felder des Systems veraendert werden.
 
 ## Klassen
 
@@ -80,6 +80,32 @@ Methoden:
 - `as_dict(self)`: Funktion oder Definition `as_dict` dieses Moduls.
 - `from_dict(cls, payload)`: Wandelt externe Daten fuer `from_dict` in das interne Format um.
 
+### `HumanInputRequest`
+
+Beschreibt eine laufende HITL-Eingabeanforderung inklusive Formularschema, Rolle und Timeout-Kontext.
+
+Methoden:
+
+- `as_dict(self)`: Funktion oder Definition `as_dict` dieses Moduls.
+- `from_dict(cls, payload)`: Wandelt externe Daten fuer `from_dict` in das interne Format um.
+
+### `HumanInputResponse`
+
+Serialisiert die Antwort eines Operators auf eine offene HITL-Anfrage.
+
+Methoden:
+
+- `as_dict(self)`: Funktion oder Definition `as_dict` dieses Moduls.
+- `from_dict(cls, payload)`: Wandelt externe Daten fuer `from_dict` in das interne Format um.
+
+### `FlowVersionRecord`
+
+Persistierte Version eines Flow-Containers inklusive Snapshot, Nummer und Metadaten.
+
+Methoden:
+
+- `as_dict(self)`: Funktion oder Definition `as_dict` dieses Moduls.
+
 ### `SafeExpressionEvaluator`
 
 Klasse `SafeExpressionEvaluator` dieses Moduls.
@@ -141,6 +167,8 @@ Klasse `Task` dieses Moduls.
 Methoden:
 
 - `execute(self)`: Fuehrt die Kernarbeit von `execute` aus.
+- `wait_for_input(self, request)`: Markiert eine Task als pausiert und haengt eine Human-Input-Anforderung an den Node.
+- `resume_with_input(self, response)`: Nimmt eine Benutzerantwort auf und ueberfuehrt die Task wieder in einen ausfuehrbaren Zustand.
 - `validate(self, result)`: Funktion oder Definition `validate` dieses Moduls.
 - `complete(self, output)`: Funktion oder Definition `complete` dieses Moduls.
 - `reset(self)`: Funktion oder Definition `reset` dieses Moduls.
@@ -153,9 +181,11 @@ Methoden:
 
 - `start(self)`: Funktion oder Definition `start` dieses Moduls.
 - `finish(self, result)`: Funktion oder Definition `finish` dieses Moduls.
+- `wait_for_input(self, request)`: Persistiert den WAITING_FOR_INPUT-Zustand fuer einen einzelnen Ausfuehrungsversuch.
 - `record_error(self, error)`: Funktion oder Definition `record_error` dieses Moduls.
 - `rollback(self, strategy)`: Funktion oder Definition `rollback` dieses Moduls.
 - `retry(self)`: Funktion oder Definition `retry` dieses Moduls.
+- `latency_ms(self)`: Funktion oder Definition `latency_ms` dieses Moduls.
 
 ### `Intent`
 

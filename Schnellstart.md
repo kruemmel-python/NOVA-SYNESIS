@@ -43,7 +43,50 @@ npm run dev
 
 Die Web-UI laeuft danach normalerweise unter `http://127.0.0.1:5173`.
 
-## 3. Wichtig fuer Use Cases und AI Plan
+## 3. Was sich seit den Enterprise-Phasen geaendert hat
+
+- `Save Flow` ueberschreibt einen bestehenden Flow nicht mehr still, sondern schreibt bei vorhandener `Flow ID` eine neue Flow-Version
+- die Topbar zeigt die aktuell geladene Version und erlaubt das Laden aelterer Versionen
+- `Analytics` oeffnet eine kompakte Betreiberansicht auf Handler- und Flow-Metriken
+- ein Node kann waehrend der Ausfuehrung auf `WAITING_FOR_INPUT` gehen; dann erscheint im Inspector ein Eingabeformular statt eines Fehlers
+- `Run Flow` startet die aktuell geladene Version, nicht zwingend immer nur den zuletzt sichtbaren Containerzustand
+
+## 4. Human in the Loop in der Web-UI
+
+Wenn ein Flow absichtlich auf menschliche Eingabe wartet:
+
+1. den wartenden Node anklicken
+2. im Inspector den Bereich fuer die offene Eingabe lesen
+3. die angeforderten Felder oder den JSON-Fallback ausfuellen
+4. `Submitted by` setzen
+5. `Submit Input` klicken
+
+Wichtig:
+
+- `WAITING_FOR_INPUT` ist kein Absturz, sondern ein kontrollierter Runtime-Stopp
+- wenn der Node eine Rolle verlangt, zeigt der Inspector diese als Hinweis an
+- die eigentliche Rollenpruefung passiert serverseitig
+
+## 5. Optional: Identity-Header fuer Rollenpfade
+
+Wenn Freigaben oder HITL-Resumes ueber Rollen abgesichert werden sollen, sendet die API standardmaessig diese Header:
+
+- `X-NOVA-User`
+- `X-NOVA-Roles`
+
+Beispiel fuer einen direkten API-Aufruf:
+
+```powershell
+Invoke-RestMethod `
+  -Method Get `
+  -Uri "http://127.0.0.1:8552/metrics/summary" `
+  -Headers @{
+    "X-NOVA-User" = "operator@example.local"
+    "X-NOVA-Roles" = "approver,ops"
+  }
+```
+
+## 6. Wichtig fuer Use Cases und AI Plan
 
 Die Web-UI sieht nur, was im laufenden Backend bereits registriert ist.
 
@@ -65,7 +108,7 @@ Nach einem `setup.ps1`:
 2. Sidebar und Planner erneut oeffnen
 3. erst dann `AI Plan`, `Import JSON` oder `Run Flow` nutzen
 
-## 4. Use Cases in der Web-UI nutzen
+## 7. Use Cases in der Web-UI nutzen
 
 ### accounts_receivable_reminder
 
@@ -147,7 +190,7 @@ Alternativ direkt per Skript:
 .\Use_Cases\semantic_ticket_triage\run.ps1 -ApiBaseUrl http://127.0.0.1:8552
 ```
 
-## 5. LLM_Planer Beispiele nutzen
+## 8. LLM_Planer Beispiele nutzen
 
 Der Ordner `Use_Cases/LLM_Planer` enthaelt nur getestete Prompts.
 
@@ -196,7 +239,7 @@ Das Skript:
 - startet die Ausfuehrung
 - prueft die Ergebnisse
 
-## 6. Die wichtigste Regel fuer AI Plan
+## 9. Die wichtigste Regel fuer AI Plan
 
 `AI Plan` arbeitet nur mit dem aktuellen Planner-Katalog des laufenden Backends.
 

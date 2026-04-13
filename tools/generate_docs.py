@@ -92,8 +92,8 @@ FILE_NOTES = {
         'related': ['LIT/lit.windows_x86_64.exe', 'src/nova_synesis/planning/lit_planner.py'],
     },
     'src/nova_synesis/api/app.py': {
-        'purpose': 'FastAPI- und WebSocket-Schicht des Backends inklusive Request-Modelle, Flow-Validierung und Live-Streaming.',
-        'edit': 'Wenn API-Endpunkte, Schemafelder, Sicherheitspruefung oder Live-Streaming erweitert werden.',
+        'purpose': 'FastAPI- und WebSocket-Schicht des Backends inklusive Request-Modelle, Flow-Versionen, HITL-Resume, Metrics und Live-Streaming.',
+        'edit': 'Wenn API-Endpunkte, Schemafelder, Versionssteuerung, Sicherheitspruefung, HITL oder Live-Streaming erweitert werden.',
         'related': ['src/nova_synesis/services/orchestrator.py', 'frontend/src/lib/apiClient.ts', 'frontend/src/types/api.ts'],
     },
     'src/nova_synesis/cli.py': {
@@ -102,13 +102,13 @@ FILE_NOTES = {
         'related': ['run-backend.ps1', 'pyproject.toml'],
     },
     'src/nova_synesis/config.py': {
-        'purpose': 'Zentrale Laufzeitkonfiguration des Backends inklusive LiteRT- und Semantic-Firewall-Settings.',
-        'edit': 'Wenn neue Settings, Standardpfade, Planner-Optionen oder Policy-Grenzen benoetigt werden.',
+        'purpose': 'Zentrale Laufzeitkonfiguration des Backends inklusive LiteRT-, Semantic-Firewall- und RBAC-Settings.',
+        'edit': 'Wenn neue Settings, Standardpfade, Planner-Optionen, Identity-Header oder Policy-Grenzen benoetigt werden.',
         'related': ['.env.example', 'src/nova_synesis/cli.py'],
     },
     'src/nova_synesis/domain/models.py': {
-        'purpose': 'Kern-Domaenenmodell mit Agenten, Ressourcen, Tasks, Bedingungen und ExecutionFlow.',
-        'edit': 'Wenn das fachliche Laufzeitmodell des Systems veraendert wird.',
+        'purpose': 'Kern-Domaenenmodell mit Agenten, Ressourcen, Tasks, Human-Input-Zustaenden, Versionen und ExecutionFlow.',
+        'edit': 'Wenn das fachliche Laufzeitmodell, Statusuebergaenge oder vertragliche Task-Felder des Systems veraendert werden.',
         'related': ['src/nova_synesis/runtime/engine.py', 'src/nova_synesis/services/orchestrator.py'],
     },
     'src/nova_synesis/memory/systems.py': {
@@ -117,8 +117,8 @@ FILE_NOTES = {
         'related': ['src/nova_synesis/runtime/handlers.py', 'src/nova_synesis/services/orchestrator.py'],
     },
     'src/nova_synesis/persistence/sqlite_repository.py': {
-        'purpose': 'SQLite-Persistenzschicht fuer Flows, Ausfuehrungen und Katalogobjekte.',
-        'edit': 'Wenn Datenbankstruktur oder gespeicherte Felder angepasst werden.',
+        'purpose': 'SQLite-Persistenzschicht fuer Flow-Container, Flow-Versionen, Ausfuehrungen, Katalogobjekte und Metriken.',
+        'edit': 'Wenn Datenbankstruktur, Versionierung, gespeicherte Felder oder Laufzeitmetriken angepasst werden.',
         'related': ['src/nova_synesis/services/orchestrator.py'],
     },
     'src/nova_synesis/planning/planner.py': {
@@ -152,18 +152,18 @@ FILE_NOTES = {
         'related': ['src/nova_synesis/runtime/engine.py'],
     },
     'src/nova_synesis/runtime/engine.py': {
-        'purpose': 'Graph-Ausfuehrungsengine fuer Task- und Flow-Lifecycle inklusive Template-Aufloesung und Live-Snapshots.',
-        'edit': 'Wenn Ablaufsteuerung, Parallelitaet, Template-Kontext oder Snapshot-Logik geaendert wird.',
+        'purpose': 'Graph-Ausfuehrungsengine fuer Task- und Flow-Lifecycle inklusive WAITING_FOR_INPUT, Template-Aufloesung, Telemetrie und Live-Snapshots.',
+        'edit': 'Wenn Ablaufsteuerung, Parallelitaet, Resume-Logik, Template-Kontext, Telemetrie oder Snapshot-Logik geaendert wird.',
         'related': ['src/nova_synesis/domain/models.py', 'src/nova_synesis/runtime/handlers.py'],
     },
     'src/nova_synesis/runtime/handlers.py': {
-        'purpose': 'Eingebaute Handler fuer HTTP, Memory, Messaging, Dateien und Serialisierung.',
-        'edit': 'Wenn neue Arbeitsbausteine hinzugefuegt oder bestehende Handler verbessert werden.',
+        'purpose': 'Eingebaute Handler fuer HTTP, Memory, Messaging, Dateien, Human Input, Sub-Flows und lokale LLM-Textarbeit.',
+        'edit': 'Wenn neue Arbeitsbausteine hinzugefuegt, HITL/Sub-Flow-Vertraege erweitert oder bestehende Handler verbessert werden.',
         'related': ['src/nova_synesis/runtime/engine.py', 'frontend/src/components/layout/Sidebar.tsx'],
     },
     'src/nova_synesis/services/orchestrator.py': {
-        'purpose': 'Zentrale Service-Fassade des Backends inklusive Security-Gates, Planner-Katalog und Lifecycle-Management.',
-        'edit': 'Wenn Systemkomposition, Registrierungen, Policy-Durchsetzung oder Lifecycle-Management geaendert werden.',
+        'purpose': 'Zentrale Service-Fassade des Backends inklusive Security-Gates, Flow-Versionierung, HITL-Resume, Planner-Katalog, RBAC und Lifecycle-Management.',
+        'edit': 'Wenn Systemkomposition, Registrierungen, Versionssteuerung, Policy-Durchsetzung, Metriken oder Lifecycle-Management geaendert werden.',
         'related': ['src/nova_synesis/api/app.py', 'src/nova_synesis/runtime/engine.py'],
     },
     'tests/test_orchestrator.py': {
@@ -172,18 +172,18 @@ FILE_NOTES = {
         'related': ['src/nova_synesis/services/orchestrator.py', 'src/nova_synesis/api/app.py'],
     },
     'frontend/src/App.tsx': {
-        'purpose': 'Root-Komponente der UI mit Layout, Planner, Save/Run und Live-Sync.',
-        'edit': 'Wenn globale Frontend-Aktionen oder das Seitenlayout geaendert werden.',
+        'purpose': 'Root-Komponente der UI mit Layout, Planner, Versionen, Analytics, Save/Run und Live-Sync.',
+        'edit': 'Wenn globale Frontend-Aktionen, Versionierung, Analytics oder das Seitenlayout geaendert werden.',
         'related': ['frontend/src/store/useFlowStore.ts', 'frontend/src/components/layout/TopBar.tsx'],
     },
     'frontend/src/types/api.ts': {
-        'purpose': 'Gemeinsame TypeScript-Schemata fuer API, Snapshots und Editorgraph.',
-        'edit': 'Wenn Backend-Vertraege oder UI-Datentypen erweitert werden.',
+        'purpose': 'Gemeinsame TypeScript-Schemata fuer API, Versions-Snapshots, HITL-Vertraege, Metriken und Editorgraph.',
+        'edit': 'Wenn Backend-Vertraege, UI-Datentypen oder Laufzeitstatus erweitert werden.',
         'related': ['src/nova_synesis/api/app.py', 'frontend/src/lib/flowSerialization.ts'],
     },
     'frontend/src/lib/apiClient.ts': {
-        'purpose': 'Echter API-Client fuer REST, Flow-Validierung, Planner und WebSocket-Basis-URLs.',
-        'edit': 'Wenn neue Backend-Endpunkte im Frontend angebunden werden.',
+        'purpose': 'Echter API-Client fuer REST, Flow-Validierung, Versionen, HITL-Resume, Analytics, Planner und WebSocket-Basis-URLs.',
+        'edit': 'Wenn neue Backend-Endpunkte im Frontend angebunden oder bestehende Vertrage geaendert werden.',
         'related': ['src/nova_synesis/api/app.py', 'frontend/src/types/api.ts'],
     },
     'frontend/src/lib/flowSerialization.ts': {
@@ -192,13 +192,13 @@ FILE_NOTES = {
         'related': ['frontend/src/types/api.ts', 'src/nova_synesis/api/app.py'],
     },
     'frontend/src/store/useFlowStore.ts': {
-        'purpose': 'Zustand-Store fuer Graph, Auswahl, Undo/Redo und Laufzeitstatus.',
-        'edit': 'Wenn Editorverhalten oder Snapshot-Uebernahme angepasst werden.',
+        'purpose': 'Zustand-Store fuer Graph, Auswahl, Versionen, Undo/Redo und Laufzeitstatus.',
+        'edit': 'Wenn Editorverhalten, Versionszustand oder Snapshot-Uebernahme angepasst werden.',
         'related': ['frontend/src/App.tsx', 'frontend/src/hooks/useFlowLiveUpdates.ts'],
     },
     'frontend/src/components/layout/InspectorPanel.tsx': {
-        'purpose': 'Node- und Edge-Inspector fuer bearbeitbare Eigenschaften, manuelle Freigaben und lokale LLM-Briefvorschauen.',
-        'edit': 'Wenn weitere konfigurierbare Felder, Approval-Aktionen oder interaktive Vorschaufunktionen in der UI auftauchen sollen.',
+        'purpose': 'Node- und Edge-Inspector fuer bearbeitbare Eigenschaften, manuelle Freigaben, HITL-Resume und lokale LLM-Briefvorschauen.',
+        'edit': 'Wenn weitere konfigurierbare Felder, Approval-/Resume-Aktionen oder interaktive Vorschaufunktionen in der UI auftauchen sollen.',
         'related': ['frontend/src/store/useFlowStore.ts', 'frontend/src/components/common/JsonEditor.tsx', 'src/nova_synesis/api/app.py'],
     },
     'frontend/src/components/layout/PlannerComposer.tsx': {
@@ -212,9 +212,14 @@ FILE_NOTES = {
         'related': ['frontend/src/components/flow/FlowCanvas.tsx', 'frontend/src/store/useFlowStore.ts'],
     },
     'frontend/src/components/layout/TopBar.tsx': {
-        'purpose': 'Globale Aktionsleiste fuer Save, Run, Planner, Import und Export.',
-        'edit': 'Wenn globale Bedienaktionen oder Statusanzeigen geaendert werden.',
+        'purpose': 'Globale Aktionsleiste fuer Save, Run, Planner, Versionen, Analytics, Import und Export.',
+        'edit': 'Wenn globale Bedienaktionen, Versionsumschaltung oder Statusanzeigen geaendert werden.',
         'related': ['frontend/src/App.tsx', 'frontend/src/components/common/StatusBadge.tsx'],
+    },
+    'frontend/src/components/layout/AnalyticsPanel.tsx': {
+        'purpose': 'Kompakte Betriebsansicht fuer aggregierte Flow- und Handler-Metriken direkt in der Web-UI.',
+        'edit': 'Wenn Analytics-Kennzahlen, Darstellung oder Drilldowns fuer Betreiber erweitert werden sollen.',
+        'related': ['frontend/src/App.tsx', 'frontend/src/lib/apiClient.ts', 'src/nova_synesis/api/app.py'],
     },
     'tools/build_web_docs.py': {
         'purpose': 'Generiert aus dem dokumentation-Ordner eine statische HTML-Dokumentationsseite mit Navigation, Suche und Source-Ansichten.',
@@ -233,15 +238,28 @@ SYMBOL_NOTES = {
     'ExecutionFlow': 'Graph-Modell des ausfuehrbaren Workflows.',
     'ExecutionFlow.observe': 'Erzeugt den serialisierbaren Zustand eines Flows fuer API und UI.',
     'ManualApproval': 'Speichert den manuellen Freigabestatus eines Nodes fuer die Ausfuehrung.',
+    'HumanInputRequest': 'Beschreibt eine laufende HITL-Eingabeanforderung inklusive Formularschema, Rolle und Timeout-Kontext.',
+    'HumanInputResponse': 'Serialisiert die Antwort eines Operators auf eine offene HITL-Anfrage.',
+    'FlowVersionRecord': 'Persistierte Version eines Flow-Containers inklusive Snapshot, Nummer und Metadaten.',
     'TaskExecutor': 'Fuehrt eine einzelne Task inklusive Fehlerbehandlung aus.',
     'FlowExecutor': 'Fuehrt einen gesamten Workflow-Graphen aus.',
+    'Task.wait_for_input': 'Markiert eine Task als pausiert und haengt eine Human-Input-Anforderung an den Node.',
+    'Task.resume_with_input': 'Nimmt eine Benutzerantwort auf und ueberfuehrt die Task wieder in einen ausfuehrbaren Zustand.',
+    'TaskExecution.wait_for_input': 'Persistiert den WAITING_FOR_INPUT-Zustand fuer einen einzelnen Ausfuehrungsversuch.',
     'TaskHandlerRegistry': 'Registry der registrierten Runtime-Handler.',
     'TaskHandlerRegistry.issue_certificate': 'Erzeugt ein digitales Zertifikat fuer einen bereits registrierten Handler.',
     'register_default_handlers': 'Registriert alle eingebauten Handler.',
+    'HumanInputRequiredError': 'Signalisiert der Engine, dass ein Handler kontrolliert auf menschliche Eingabe warten muss.',
+    'human_input_request_handler': 'Erzeugt eine offene HITL-Anfrage und stoppt den aktuellen Node bis zur Resume-Antwort.',
+    'execute_subflow_handler': 'Startet einen anderen gespeicherten Flow als Child-Ausfuehrung und mappt dessen Ergebnis zurueck.',
     'read_file_handler': 'Liest lokale Dateien aus dem Arbeitsverzeichnis und stellt ihren Inhalt fuer nachgelagerte Nodes bereit.',
     'write_file_handler': 'Schreibt Text- oder JSON-Inhalte in lokale Dateien innerhalb des Arbeitsverzeichnisses.',
     'local_llm_text_handler': 'Erzeugt oder analysiert Text lokal ueber LiteRT und kombiniert dabei Benutzerprompt und Upstream-Daten zu einer finalen Antwort.',
     'SQLiteRepository': 'Persistenzschicht fuer SQLite.',
+    'SQLiteRepository.create_flow_version': 'Legt eine neue unveraenderliche Version fuer einen bestehenden Flow-Container an.',
+    'SQLiteRepository.list_flow_versions': 'Liefert die bekannten Versionen eines Flow-Containers fuer API und UI.',
+    'SQLiteRepository.activate_flow_version': 'Setzt die aktive Version eines Flow-Containers um, ohne alte Versionen zu verlieren.',
+    'SQLiteRepository.save_execution_metric': 'Persistiert verdichtete Laufzeitdaten fuer Handler- und Flow-Analytics.',
     'LiteRTPlanner': 'Lokale LLM-Planung ueber LiteRT-LM.',
     'LiteRTPlanner.generate_text': 'Erzeugt reinen Modelltext ueber den lokalen LiteRT-Stack ausserhalb des Graph-Planungsmodus.',
     'LiteRTPlanner.generate_flow_request': 'Erzeugt aus natuerlicher Sprache einen validierten FlowRequest.',
@@ -254,9 +272,17 @@ SYMBOL_NOTES = {
     'FlowSecurityReport.ensure_allowed': 'Bricht den aktuellen Vorgang ab, wenn Regelverletzungen gefunden wurden.',
     'SemanticFirewall.validate_flow_request': 'Prueft Graph-Struktur, Expressions, Egress und Memory-Fluesse vor der Ausfuehrung.',
     'SemanticFirewall.validate_agent_registration': 'Prueft Agent-Registrierung auf riskante Capabilities und unerlaubte Endpunkte.',
+    'OrchestratorService.save_flow_version': 'Persistiert aus dem aktuellen Editorgraphen eine neue Version zu einem bestehenden Flow-Container.',
+    'OrchestratorService.list_flow_versions': 'Liefert die Versionstabelle eines Flows fuer UI und API.',
+    'OrchestratorService.activate_flow_version': 'Aktiviert eine vorhandene Version fuer spaetere Runs und Ladeoperationen.',
+    'OrchestratorService.get_node_input_request': 'Liest die offene HITL-Anforderung eines WAITING_FOR_INPUT-Nodes aus.',
+    'OrchestratorService.resume_flow_node': 'Nimmt Operator-Eingaben entgegen und setzt einen pausierten Node fort.',
+    'OrchestratorService.summarize_execution_metrics': 'Aggregiert Handler- und Flow-Metriken fuer das Analytics-Panel.',
+    'OrchestratorService.run_subflow': 'Fuehrt einen Child-Flow isoliert gegen eine gepinnte Version aus.',
     'FlowCanvas': 'React-Flow-Leinwand des Editors.',
     'TaskNode': 'Custom Node fuer einzelne Tasks im Canvas.',
     'InspectorPanel': 'Eigenschaftseditor fuer Nodes und Edges.',
+    'AnalyticsPanel': 'Frontend-Modal fuer aggregierte Flow- und Handlermetriken.',
     'preview_accounts_receivable_letter_draft': 'Erzeugt serverseitig einen einzelnen Beispielbrief fuer den Forderungs-Workflow, ohne den ganzen Flow auszufuehren.',
     'PlannerComposer': 'Dialog fuer die autonome Graph-Erzeugung.',
     'useFlowStore': 'Globaler Zustandsspeicher der UI auf Basis von Zustand.',
@@ -311,6 +337,14 @@ Neural Orchestration Visual Autonomy
 Stateful Yielding Node-based Execution Semantic Integrated Surface
 
 Diese Dokumentation erklaert das System so, dass auch ein Entwickler ohne Vorwissen NOVA-SYNESIS starten, verstehen, absichern und gezielt aendern kann.
+
+Seit dem aktuellen Stand umfasst das System neben Planner, Semantic Firewall und Handler Trust auch:
+
+- unveraenderliche Flow-Versionen mit aktivierbarer Zielversion
+- Human-in-the-Loop-Nodes mit pausierbarer Runtime und Resume-API
+- Metrikaggregation fuer Flows und Handler
+- rollenbasierte Freigabe- und Resume-Pfade ueber Identity-Header
+- kompilierbare Sub-Flows ueber einen eigenen Built-in-Handler
 
 Hinweis zur Ausgabestrategie:
 
@@ -540,12 +574,21 @@ Wenn ein Prompt einen Agenten, eine Resource oder ein Memory nennt, das nicht re
 1. Graph im Frontend erstellen oder ueber den LiteRT-Planer generieren
 2. `toFlowRequest()` erzeugt das Backend-Schema
 3. `POST /flows/validate` prueft Graph, Expressions, Handler-Trust, Egress und Memory-Fluesse
-4. `POST /flows` speichert den Graphen
-5. optionale manuelle Freigaben werden node-spezifisch gesetzt
-6. `POST /flows/{id}/run` startet die Ausfuehrung
-7. `FlowExecutor` verarbeitet den Graphen Node fuer Node
-8. `/ws/flows/{flow_id}` uebertraegt Snapshots an die UI
-9. `GET /flows/{flow_id}` bleibt die kanonische Wahrheit fuer den Laufzeitstand
+4. `POST /flows` legt einen Flow-Container mit initialer Version an
+5. spaetere Speicherungen erzeugen ueber `POST /flows/{id}/versions` neue unveraenderliche Versionen
+6. optionale manuelle Freigaben oder HITL-Eingaben werden node-spezifisch gesetzt
+7. `POST /flows/{id}/run` startet die aktive oder explizit angegebene Version
+8. `FlowExecutor` verarbeitet den Graphen Node fuer Node und kann kontrolliert auf `WAITING_FOR_INPUT` pausieren
+9. `/ws/flows/{flow_id}` uebertraegt Snapshots, Waiting-Zustaende und Resume-Ereignisse an die UI
+10. `GET /flows/{flow_id}` bleibt die kanonische Wahrheit fuer Laufzeitstand und aktive Version
+
+## Betriebsachsen seit Phase 1 bis 5
+
+- `Flow Versioning`: ein Flow ist jetzt ein Container mit historisierten Versionen statt ein einzelner ueberschriebener Snapshot
+- `Human in the Loop`: Nodes koennen kontrolliert auf menschliche Eingabe warten und spaeter fortgesetzt werden
+- `Observability`: jeder Task-Lauf kann Telemetriedaten fuer Handler- und Flow-Analytics erzeugen
+- `RBAC`: Freigaben und HITL-Resumes koennen an Rollen wie `approver` gebunden werden
+- `Sub-Flows`: wiederverwendbare Child-Workflows laufen als eigener Handler in isoliertem Unterkontext
 
 ## Was dieses System bewusst ist
 
@@ -559,15 +602,53 @@ Wenn ein Prompt einen Agenten, eine Resource oder ein Memory nennt, das nicht re
 
 Die Backend-Laufzeit wird durch `OrchestratorService` zusammengesetzt. Er verdrahtet Repository, Speicher, Ressourcenmanager, Handler-Registry, Planner, Semantic Firewall und Execution-Engine.
 
+## Flow-Container und Versionen
+
+- `POST /flows` erzeugt einen logischen Flow-Container und legt direkt `version 1` an
+- `POST /flows/{flow_id}/versions` schreibt spaetere Graphaenderungen als neue unveraenderliche Version
+- `POST /flows/{flow_id}/versions/{version_id}/activate` setzt die Zielversion fuer spaetere Loads und Runs
+- `run_flow(..., version_id=...)` kann bewusst gegen eine nicht aktive Version laufen
+- die Persistenz dafuer liegt in `flows` plus `flow_versions` innerhalb von `SQLiteRepository`
+
 ## Reihenfolge eines normalen Flows
 
-1. API nimmt einen `FlowCreateRequest` oder eine Planner-Anfrage entgegen.
+1. API nimmt einen `FlowCreateRequest`, eine Planner-Anfrage oder einen Versions-Write entgegen.
 2. `TaskHandlerRegistry` bewertet alle Handler gegen digitale Zertifikate und erzeugt Trust-Records.
 3. `OrchestratorService.validate_flow_request()` laesst die semantische Firewall laufen.
-4. Der Flow wird in Domaenenobjekte ueberfuehrt und in SQLite gespeichert.
-5. `FlowExecutor.run_flow()` startet die DAG-Ausfuehrung.
+4. Der Flow wird in Domaenenobjekte ueberfuehrt und als Version in SQLite gespeichert.
+5. `FlowExecutor.run_flow()` startet die DAG-Ausfuehrung gegen eine konkrete Flow-Version.
 6. `TaskExecutor.execute_task()` loest Templates auf, reserviert Ressourcen, ruft Agent und Handler auf und persistiert Snapshots.
-7. WebSocket-Abonnenten erhalten Ereignisse wie `flow.started`, `node.completed`, `node.approval.updated` oder `flow.failed`.
+7. Handler koennen Erfolg, Fehler oder `WAITING_FOR_INPUT` melden.
+8. WebSocket-Abonnenten erhalten Ereignisse wie `flow.started`, `node.completed`, `node.waiting_for_input`, `node.approval.updated` oder `flow.failed`.
+
+## Human in the Loop und Resume
+
+- der Built-in-Handler `human_input_request` wirft intern eine `HumanInputRequiredError`
+- die Engine persistiert dadurch keinen Crash, sondern einen kontrollierten `WAITING_FOR_INPUT`-Zustand
+- offene Eingaben liegen serialisiert am Node und koennen ueber `GET /flows/{flow_id}/nodes/{node_id}/input-request` gelesen werden
+- `POST /flows/{flow_id}/nodes/{node_id}/resume` uebergibt die Benutzerantwort, die danach in `results[node_id]` landet
+- `FlowExecutor` setzt den pausierten Graphen ab dem wartenden Node fort, statt den gesamten Flow neu aufzubauen
+
+## Telemetrie und Analytics
+
+- jeder ausgefuehrte Task schreibt Laufzeitdaten wie Start, Ende, Status und `latency_ms`
+- LLM-nahe Handler koennen zusaetzliche Metadaten wie geschaetzte Prompt- und Completion-Tokens mitgeben
+- `SQLiteRepository.save_execution_metric()` persistiert diese Daten fuer Auswertungen
+- `GET /metrics/summary`, `GET /metrics/flows` und `GET /metrics/handlers` liefern die aggregierte Betreiberansicht
+
+## Rollen und serverseitige Freigaben
+
+- RBAC wird nicht im Frontend entschieden, sondern in `OrchestratorService._ensure_actor_role()`
+- Approvals und HITL-Resumes koennen einen `required_role` erzwingen
+- wenn `NS_SECURITY_RBAC_ENABLED=true` aktiv ist, erwartet die API standardmaessig `X-NOVA-User` und `X-NOVA-Roles`
+- die Default-Rolle fuer manuelle Freigaben ist `approver`, solange keine node-spezifische Rolle gesetzt ist
+
+## Sub-Flows
+
+- `execute_subflow` ist ein echter Built-in-Handler und kein UI-Trick
+- der Handler startet ueber den Orchestrator einen Child-Flow in isoliertem Unterkontext
+- `target_version_id` ist fuer reproduzierbare Child-Runs der saubere Pfad; ohne diese Angabe gibt die Policy bewusst eine Warnung aus
+- Parent- und Child-Run haben getrennte Snapshots, aber der Rueckgabewert des Child-Flows wird als Ergebnis des Parent-Nodes veroeffentlicht
 
 ## Trust- und Approval-Gates
 
@@ -584,6 +665,8 @@ Die Backend-Laufzeit wird durch `OrchestratorService` zusammengesetzt. Er verdra
 - `memory_store` speichert einfache Werte oder Embeddings; bei alten Platzhalter-Flows biegt der Runtime-Pfad offensichtliche Scheindaten auf das echte Upstream-Ergebnis um
 - `filesystem_read` und `filesystem_write` sind technische Alias-Handler fuer lokale Datei-Workflows und vereinheitlichen Planner-Prompts fuer Audit- oder Reporting-Flows
 - `local_llm_text` ist der generische lokale Text- und Analyse-Handler fuer Review-, Audit-, Zusammenfassungs- und Reporting-Nodes
+- `human_input_request` pausiert einen Flow kontrolliert und fordert strukturierte Benutzereingaben an
+- `execute_subflow` kapselt einen anderen gespeicherten Flow als wiederverwendbaren Child-Baustein
 
 ## Audit- und Analyse-Pfade mit lokalem LLM
 
@@ -606,16 +689,34 @@ Die UI besteht aus `App.tsx`, dem Zustand-Store `useFlowStore.ts`, der Zeichenfl
 - laedt Handler, Agenten und Ressourcen aus dem echten Backend
 - baut daraus React-Flow-Nodes und -Edges
 - serialisiert den Editorzustand ueber `toFlowRequest()`
-- speichert und startet echte Flows
+- speichert Flow-Container und neue Flow-Versionen
+- startet echte Flows gegen die aktive oder geladene Version
 - uebernimmt Live-Snapshots ueber WebSocket oder Polling
-- zeigt pro Node Handler-Trust und manuelle Freigaben im Inspector
+- zeigt pro Node Handler-Trust, manuelle Freigaben und HITL-Zustaende im Inspector
+- oeffnet ueber ein Analytics-Panel aggregierte Handler- und Flow-Metriken
 
 ## Kritische Integrationsstellen
 
 - `frontend/src/lib/flowSerialization.ts`: muss exakt zum FastAPI-Schema passen
-- `frontend/src/lib/apiClient.ts`: enthaelt die echten REST-, Approval-, Preview- und WebSocket-Aufrufe inklusive `POST /flows/validate`
-- `frontend/src/store/useFlowStore.ts`: haelt den kanonischen UI-Zustand fuer Nodes, Edges, Auswahl und Laufzeitstatus
+- `frontend/src/lib/apiClient.ts`: enthaelt die echten REST-, Versions-, Approval-, Resume-, Preview-, Metrics- und WebSocket-Aufrufe inklusive `POST /flows/validate`
+- `frontend/src/store/useFlowStore.ts`: haelt den kanonischen UI-Zustand fuer Nodes, Edges, Auswahl, Versionen und Laufzeitstatus
 - `frontend/src/hooks/useFlowLiveUpdates.ts`: faellt bei Socket-Problemen auf Polling zurueck
+
+## Topbar und Versionen
+
+- `Save Flow` legt bei einem bereits bestehenden Flow keine stillschweigende Ueberschreibung mehr an, sondern erzeugt eine neue Version
+- die Versionsauswahl in `TopBar.tsx` laedt eine konkrete persistierte Version zurueck in den Canvas
+- `Run Flow` verwendet die aktuell geladene Version, sofern eine `flowVersionId` vorhanden ist
+- `Analytics` oeffnet eine kompakte Betreiberansicht auf Handler- und Flow-Metriken
+
+## Human-in-the-Loop im Inspector
+
+- wenn ein Node den Status `WAITING_FOR_INPUT` meldet, laedt der Inspector automatisch die offene Eingabeanforderung
+- das Formular wird aus dem gelieferten JSON-Schema aufgebaut; bei komplexeren Strukturen gibt es einen JSON-Fallback
+- `Submit Input` ruft `POST /flows/{flow_id}/nodes/{node_id}/resume` auf
+- `Submitted by` wird mitpersistiert und ist Teil des Audit-Pfads
+- wenn die Anforderung eine Rolle enthaelt, zeigt der Inspector diese als `Erforderliche Rolle` an
+- ein `WAITING_FOR_INPUT`-Node ist kein Absturz, sondern ein kontrollierter Runtime-Stopp bis zur menschlichen Antwort
 
 ## Betreiberperspektive im Inspector
 
@@ -631,6 +732,7 @@ Die UI besteht aus `App.tsx`, dem Zustand-Store `useFlowStore.ts`, der Zeichenfl
 - `Preview customer index` waehlt aus, fuer welchen Kunden aus der aktuellen Quelldatei die Vorschau erzeugt wird
 - Vorschau-Requests sind zeitlich begrenzt, damit die UI nicht unbegrenzt auf ein blockiertes oder zu langsames lokales Modell warten muss
 - bei ungespeicherten lokalen Aenderungen arbeitet der Inspector bewusst lokal weiter, um den Canvas-Zustand nicht zu ueberschreiben
+- wenn RBAC aktiv ist, bleibt die echte Freigabe- oder Resume-Entscheidung trotzdem serverseitig; die UI ist nur die Bedienflaeche
 ''',
     'planner-and-lit.md': '''# LLM-Planer und LiteRT
 
@@ -661,6 +763,7 @@ Der Planner erzeugt keine Mock-Graphen. Er nutzt die lokale `lit`-Binary und das
 - wenn das Modell bei `topic_split`, `write_csv`, `filesystem_read`, `filesystem_write` oder `local_llm_text` Aliasfelder, falsche Referenzformen oder Agentennamen als Handler liefert, normalisiert der Planner diese Inputs und Handler-Namen auf die echten Built-ins
 - wenn ein Audit- oder Review-Node bereits einen Prompt besitzt, sorgt die Planner-Normalisierung trotzdem dafuer, dass die Upstream-Daten als `data` in den Node wandern
 - der lokale Text-Handler erzwingt im Zusammenspiel mit dem Planner eine finale Antwort und verhindert Folgefragen wie `Please provide ...`, sobald ein Prompt und echte Eingangsdaten vorliegen
+- neue Graphen koennen spaeter als eigene Flow-Version gespeichert werden; der Planner selbst schreibt aber nie direkt an einer bestehenden Version vorbei
 
 ## Wichtige Sicherheitsgrenzen
 
@@ -670,6 +773,7 @@ Der Planner erzeugt keine Mock-Graphen. Er nutzt die lokale `lit`-Binary und das
 - Die Antwort enthaelt `security_report`, damit UI und Betreiber sehen, ob der generierte Graph policy-konform war.
 - Planner-Warnungen bedeuten: der Graph wurde normalisiert, aber nicht stillschweigend erweitert.
 - `requires_manual_approval` wird standardmaessig auf `false` normalisiert und nur uebernommen, wenn es explizit im Graphen gesetzt ist.
+- freie Prompts duerfen weiterhin keine beliebigen neuen Fachhandler oder unbekannte Infrastruktur herbeifantasieren; sie bleiben an den echten Katalog gebunden
 
 ## Betriebsregel fuer echte Planner-Beispiele
 
@@ -687,8 +791,10 @@ NOVA-SYNESIS sichert nicht nur Code, sondern die Absicht eines Graphen. Diese Au
 - bei Agent-Registrierung
 - bei `POST /flows/validate`
 - bei `POST /flows`
+- bei `POST /flows/{flow_id}/versions`
 - vor `POST /flows/{flow_id}/run`
 - nach einer Planner-Generierung, bevor der Graph an die UI zurueckgeht
+- bei serverseitigen Approval- und HITL-Resume-Entscheidungen ueber Rollen
 
 ## Was geprueft wird
 
@@ -702,6 +808,7 @@ NOVA-SYNESIS sichert nicht nur Code, sondern die Absicht eines Graphen. Diese Au
 - Sensitive Memories: kein Abfluss in `http_request` oder externe Nachrichtenziele
 - Planner-visible Memories: kein untrusted Ingest ohne explizites Opt-in
 - Agent-Registrierung: keine unerlaubten REST/WebSocket-Endpunkte und keine blockierten Capability-Profile
+- `execute_subflow`: `target_flow_id` muss gesetzt sein; fehlende `target_version_id` fuehrt bewusst zu einer Warnung gegen unscharfe Child-Runs
 
 ## Digitale Handler-Zertifikate
 
@@ -719,6 +826,13 @@ NOVA-SYNESIS sichert nicht nur Code, sondern die Absicht eines Graphen. Diese Au
 - Im Run-Pfad blockiert die Policy den Start, solange keine gueltige Freigabe mit `approved_by` vorliegt.
 - Wenn `NS_SECURITY_ALLOW_MANUAL_APPROVAL_FOR_UNTRUSTED_HANDLERS=true` aktiv ist, kann eine explizite Node-Freigabe einen untrusted Handler fuer genau diesen Flow-Node erlauben.
 
+## Rollen und Identity-Header
+
+- wenn `NS_SECURITY_RBAC_ENABLED=true` aktiv ist, wertet die API standardmaessig `X-NOVA-User` und `X-NOVA-Roles` aus
+- die Default-Rolle fuer Freigaben ist `approver`, solange der Node keine spezifischere Rolle vorgibt
+- dieselbe Rollenpruefung gilt fuer `POST /flows/{flow_id}/nodes/{node_id}/resume`, wenn eine offene HITL-Anforderung ein `required_role` enthaelt
+- die UI kann Rollenhints anzeigen, aber die eigentliche Erlaubnis wird nur serverseitig entschieden
+
 ## Bedeutende Felder
 
 - `sensitive = true`
@@ -726,6 +840,8 @@ NOVA-SYNESIS sichert nicht nur Code, sondern die Absicht eines Graphen. Diese Au
 - `allow_untrusted_ingest = true`
 - `requires_manual_approval = true`
 - `manual_approval.approved = true`
+- `manual_approval.required_role = "approver"`
+- `input_request.required_role = "approver"`
 
 ## Wichtige Settings
 
@@ -736,6 +852,10 @@ NOVA-SYNESIS sichert nicht nur Code, sondern die Absicht eines Graphen. Diese Au
 - `NS_SECURITY_AUTO_ISSUE_BUILTIN_HANDLER_CERTIFICATES`
 - `NS_SECURITY_REQUIRE_TRUSTED_HANDLERS`
 - `NS_SECURITY_ALLOW_MANUAL_APPROVAL_FOR_UNTRUSTED_HANDLERS`
+- `NS_SECURITY_RBAC_ENABLED`
+- `NS_SECURITY_DEFAULT_APPROVER_ROLE`
+- `NS_SECURITY_IDENTITY_HEADER_USER`
+- `NS_SECURITY_IDENTITY_HEADER_ROLES`
 - `NS_SECURITY_MAX_NODES`
 - `NS_SECURITY_MAX_EDGES`
 - `NS_SECURITY_MAX_TOTAL_ATTEMPTS`
@@ -770,6 +890,8 @@ NOVA-SYNESIS nutzt kein externes X.509-PKI, sondern ein internes, signiertes Han
 - `GET /handlers`: liefert `handlers` und `details`
 - `POST /flows/{flow_id}/nodes/{node_id}/approval`: setzt eine manuelle Freigabe
 - `DELETE /flows/{flow_id}/nodes/{node_id}/approval`: hebt sie wieder auf
+- `GET /flows/{flow_id}/nodes/{node_id}/input-request`: liest eine offene HITL-Anforderung
+- `POST /flows/{flow_id}/nodes/{node_id}/resume`: setzt einen wartenden Node mit Benutzereingaben fort
 
 Im `InspectorPanel` sieht der Betreiber:
 
@@ -777,6 +899,7 @@ Im `InspectorPanel` sieht der Betreiber:
 - warum der Handler so eingestuft wurde
 - Zertifikatsdetails wie Issuer, Fingerprint und Ablaufdatum
 - ob fuer den Node eine manuelle Freigabe erforderlich oder bereits gesetzt ist
+- ob fuer einen WAITING_FOR_INPUT-Node eine Rolle verlangt wird und welche Eingaben erwartet werden
 
 ## 4. Wann die Ausfuehrung blockiert wird
 
@@ -784,6 +907,7 @@ Im `InspectorPanel` sieht der Betreiber:
 - untrusted Handler bei `NS_SECURITY_REQUIRE_TRUSTED_HANDLERS=true`: spaetestens beim Run blockiert
 - `requires_manual_approval=true`, aber keine Freigabe gesetzt: beim Run blockiert
 - Freigabe ohne `approved_by`: ebenfalls blockiert
+- Resume ohne erforderliche Rolle: serverseitig mit `403` blockiert
 
 ## 5. Operator-Regeln
 
@@ -791,6 +915,7 @@ Im `InspectorPanel` sieht der Betreiber:
 - Eigene Handler nur dann trusten, wenn Codequelle und Seiteneffektprofil klar sind.
 - Manuelle Freigaben sind flow-spezifisch, nicht global.
 - Eine Freigabe ersetzt kein Zertifikat; sie ist eine bewusste Ausnahme fuer einen konkreten Node.
+- Freigaben und HITL-Resumes sollten im RBAC-Betrieb immer mit `X-NOVA-User` und `X-NOVA-Roles` nachvollziehbar gemacht werden.
 
 ## 6. Relevante Settings
 
@@ -800,6 +925,8 @@ Im `InspectorPanel` sieht der Betreiber:
 - `NS_SECURITY_AUTO_ISSUE_BUILTIN_HANDLER_CERTIFICATES`
 - `NS_SECURITY_REQUIRE_TRUSTED_HANDLERS`
 - `NS_SECURITY_ALLOW_MANUAL_APPROVAL_FOR_UNTRUSTED_HANDLERS`
+- `NS_SECURITY_RBAC_ENABLED`
+- `NS_SECURITY_DEFAULT_APPROVER_ROLE`
 ''',
     'failure-playbook.md': '''# Failure Playbook
 
@@ -909,7 +1036,23 @@ Diese Seite beschreibt die realen Stoerungsbilder des Systems. Ziel ist nicht nu
 3. unterscheiden: ist nur `/ws/flows/{flow_id}` defekt oder auch REST?
 4. wenn REST geht, die Ausfuehrung nicht abbrechen, sondern Snapshot weiter per Polling beobachten
 
-## 5. Resource haengt oder laeuft in Timeout / Sattlauf
+## 5. Flow wartet auf menschliche Eingabe und wirkt haengend
+
+### Woran du es erkennst
+
+- die UI zeigt einen Node mit `WAITING_FOR_INPUT`
+- der Flow laeuft nicht weiter, obwohl keine technische Exception sichtbar ist
+- im Inspector erscheint ein Formular statt einer klassischen Fehlermeldung
+
+### Sofortmassnahmen
+
+1. den wartenden Node anklicken
+2. `GET /flows/{flow_id}/nodes/{node_id}/input-request` pruefen
+3. benoetigte Eingabe und gegebenenfalls `required_role` lesen
+4. ueber den Inspector oder `POST /flows/{flow_id}/nodes/{node_id}/resume` eine Antwort schicken
+5. bei `403` die gesendeten Rollenheader pruefen
+
+## 6. Resource haengt oder laeuft in Timeout / Sattlauf
 
 ### Woran du es erkennst
 
@@ -929,7 +1072,7 @@ Diese Seite beschreibt die realen Stoerungsbilder des Systems. Ziel ist nicht nu
 4. bei HTTP-Aufrufen explizit `timeout_s` setzen
 5. wenn moeglich auf `required_resource_types` plus `FALLBACK_RESOURCE` umstellen
 
-## 6. Flow bleibt auf `RUNNING` stehen
+## 7. Flow bleibt auf `RUNNING` stehen
 
 ### Woran du es erkennst
 
@@ -952,7 +1095,22 @@ Diese Seite beschreibt die realen Stoerungsbilder des Systems. Ziel ist nicht nu
 4. bei `http_request` ein sinnvolles `timeout_s` setzen
 5. pruefen, ob Ressource oder Kommunikationsziel erreichbar sind
 
-## 7. Graph-Deadlock oder logisch blockierter Flow
+## 8. Falsche Flow-Version wurde gestartet
+
+### Woran du es erkennst
+
+- der Canvas zeigt eine andere Konfiguration als der gerade gelaufene Snapshot
+- ein alter Fehler taucht erneut auf, obwohl der Graph lokal bereits korrigiert wurde
+- `GET /flows/{flow_id}` zeigt eine andere `version_id` als erwartet
+
+### Sofortmassnahmen
+
+1. in der Topbar die aktuell geladene Version pruefen
+2. `GET /flows/{flow_id}/versions` lesen und die aktive Version mit dem UI-Zustand vergleichen
+3. falls noetig die gewuenschte Version aktivieren oder explizit diese Version starten
+4. nach einer lokalen Aenderung zuerst `Save Flow` ausfuehren, damit eine neue Version entsteht
+
+## 9. Graph-Deadlock oder logisch blockierter Flow
 
 Wichtig: Wenn keine Node mehr startbar ist und trotzdem noch `pending` existiert, setzt `FlowExecutor.run_flow()` den Flow auf `FAILED` und schreibt `deadlock_nodes` in die Metadaten.
 
@@ -969,7 +1127,7 @@ Wichtig: Wenn keine Node mehr startbar ist und trotzdem noch `pending` existiert
    - `failed`
 4. pruefen, ob mindestens ein Node ohne eingehende Kante existiert
 
-## 8. Handler wirft Exception
+## 10. Handler wirft Exception
 
 ### Woran du es erkennst
 
@@ -1308,7 +1466,24 @@ def project_files() -> list[Path]:
     except (OSError, subprocess.SubprocessError):
         tracked_files = None
 
-    files = tracked_files if tracked_files is not None else [p for p in ROOT.rglob('*') if p.is_file() and not excluded(p)]
+    def is_project_code_file(path: Path) -> bool:
+        relative = rel(path)
+        return (
+            relative.startswith('src/nova_synesis/')
+            or relative.startswith('frontend/src/')
+            or relative.startswith('tests/')
+            or relative.startswith('tools/')
+            or relative.startswith('Use_Cases/')
+        )
+
+    discovered_files = [p for p in ROOT.rglob('*') if p.is_file() and not excluded(p) and is_project_code_file(p)]
+    if tracked_files is None:
+        files = discovered_files
+    else:
+        merged: dict[str, Path] = {rel(path): path for path in tracked_files}
+        for path in discovered_files:
+            merged.setdefault(rel(path), path)
+        files = list(merged.values())
     return sorted(files, key=lambda p: rel(p))
 
 

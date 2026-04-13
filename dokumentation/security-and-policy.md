@@ -7,8 +7,10 @@ NOVA-SYNESIS sichert nicht nur Code, sondern die Absicht eines Graphen. Diese Au
 - bei Agent-Registrierung
 - bei `POST /flows/validate`
 - bei `POST /flows`
+- bei `POST /flows/{flow_id}/versions`
 - vor `POST /flows/{flow_id}/run`
 - nach einer Planner-Generierung, bevor der Graph an die UI zurueckgeht
+- bei serverseitigen Approval- und HITL-Resume-Entscheidungen ueber Rollen
 
 ## Was geprueft wird
 
@@ -22,6 +24,7 @@ NOVA-SYNESIS sichert nicht nur Code, sondern die Absicht eines Graphen. Diese Au
 - Sensitive Memories: kein Abfluss in `http_request` oder externe Nachrichtenziele
 - Planner-visible Memories: kein untrusted Ingest ohne explizites Opt-in
 - Agent-Registrierung: keine unerlaubten REST/WebSocket-Endpunkte und keine blockierten Capability-Profile
+- `execute_subflow`: `target_flow_id` muss gesetzt sein; fehlende `target_version_id` fuehrt bewusst zu einer Warnung gegen unscharfe Child-Runs
 
 ## Digitale Handler-Zertifikate
 
@@ -39,6 +42,13 @@ NOVA-SYNESIS sichert nicht nur Code, sondern die Absicht eines Graphen. Diese Au
 - Im Run-Pfad blockiert die Policy den Start, solange keine gueltige Freigabe mit `approved_by` vorliegt.
 - Wenn `NS_SECURITY_ALLOW_MANUAL_APPROVAL_FOR_UNTRUSTED_HANDLERS=true` aktiv ist, kann eine explizite Node-Freigabe einen untrusted Handler fuer genau diesen Flow-Node erlauben.
 
+## Rollen und Identity-Header
+
+- wenn `NS_SECURITY_RBAC_ENABLED=true` aktiv ist, wertet die API standardmaessig `X-NOVA-User` und `X-NOVA-Roles` aus
+- die Default-Rolle fuer Freigaben ist `approver`, solange der Node keine spezifischere Rolle vorgibt
+- dieselbe Rollenpruefung gilt fuer `POST /flows/{flow_id}/nodes/{node_id}/resume`, wenn eine offene HITL-Anforderung ein `required_role` enthaelt
+- die UI kann Rollenhints anzeigen, aber die eigentliche Erlaubnis wird nur serverseitig entschieden
+
 ## Bedeutende Felder
 
 - `sensitive = true`
@@ -46,6 +56,8 @@ NOVA-SYNESIS sichert nicht nur Code, sondern die Absicht eines Graphen. Diese Au
 - `allow_untrusted_ingest = true`
 - `requires_manual_approval = true`
 - `manual_approval.approved = true`
+- `manual_approval.required_role = "approver"`
+- `input_request.required_role = "approver"`
 
 ## Wichtige Settings
 
@@ -56,6 +68,10 @@ NOVA-SYNESIS sichert nicht nur Code, sondern die Absicht eines Graphen. Diese Au
 - `NS_SECURITY_AUTO_ISSUE_BUILTIN_HANDLER_CERTIFICATES`
 - `NS_SECURITY_REQUIRE_TRUSTED_HANDLERS`
 - `NS_SECURITY_ALLOW_MANUAL_APPROVAL_FOR_UNTRUSTED_HANDLERS`
+- `NS_SECURITY_RBAC_ENABLED`
+- `NS_SECURITY_DEFAULT_APPROVER_ROLE`
+- `NS_SECURITY_IDENTITY_HEADER_USER`
+- `NS_SECURITY_IDENTITY_HEADER_ROLES`
 - `NS_SECURITY_MAX_NODES`
 - `NS_SECURITY_MAX_EDGES`
 - `NS_SECURITY_MAX_TOTAL_ATTEMPTS`

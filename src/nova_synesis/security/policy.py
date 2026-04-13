@@ -301,6 +301,22 @@ class SemanticFirewall:
                 self._validate_send_message(node_id, input_payload, agent_index, report)
             elif handler_name in {"read_file", "write_file"}:
                 self._validate_file_handler(node_id, input_payload, report)
+            elif handler_name == "execute_subflow":
+                target_flow_id = input_payload.get("target_flow_id")
+                if target_flow_id in {None, ""}:
+                    report.add_violation(
+                        "subflow.missing_target",
+                        "execute_subflow requires target_flow_id",
+                        node_id=node_id,
+                        field="input.target_flow_id",
+                    )
+                if input_payload.get("target_version_id") in {None, ""}:
+                    report.add_warning(
+                        "subflow.unpinned_version",
+                        "execute_subflow should pin target_version_id for reproducible execution",
+                        node_id=node_id,
+                        field="input.target_version_id",
+                    )
 
             if planner_generated and handler_name == "http_request" and "url" in input_payload:
                 report.add_warning(

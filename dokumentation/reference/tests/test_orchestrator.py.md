@@ -16,6 +16,11 @@ Wenn neue Features abgesichert, Sicherheitsregeln erweitert oder Fehler reproduz
 - `build_settings(tmp_path)`: Funktion oder Definition `build_settings` dieses Moduls.
 - `test_resolve_lit_cli_path_prefers_lit_directory_for_plain_filename(tmp_path)`: Funktion oder Definition `test_resolve_lit_cli_path_prefers_lit_directory_for_plain_filename` dieses Moduls.
 - `test_build_cli_settings_applies_lit_model_override(tmp_path)`: Funktion oder Definition `test_build_cli_settings_applies_lit_model_override` dieses Moduls.
+- `test_flow_versioning_and_activation_roundtrip(tmp_path)`: Funktion oder Definition `test_flow_versioning_and_activation_roundtrip` dieses Moduls.
+- `test_human_input_node_waits_and_resumes(tmp_path)`: Funktion oder Definition `test_human_input_node_waits_and_resumes` dieses Moduls.
+- `test_metrics_summary_reports_handler_activity(tmp_path)`: Funktion oder Definition `test_metrics_summary_reports_handler_activity` dieses Moduls.
+- `test_manual_approval_role_enforced_when_identity_roles_present(tmp_path)`: Funktion oder Definition `test_manual_approval_role_enforced_when_identity_roles_present` dieses Moduls.
+- `test_execute_subflow_handler_runs_pinned_child_version(tmp_path)`: Funktion oder Definition `test_execute_subflow_handler_runs_pinned_child_version` dieses Moduls.
 - `test_end_to_end_flow_with_vector_memory_and_message_queue(tmp_path)`: Funktion oder Definition `test_end_to_end_flow_with_vector_memory_and_message_queue` dieses Moduls.
 - `test_generate_flow_with_llm_bootstraps_agent_and_memory_catalog(tmp_path)`: Funktion oder Definition `test_generate_flow_with_llm_bootstraps_agent_and_memory_catalog` dieses Moduls.
 - `test_fallback_resource_strategy_switches_to_secondary_resource(tmp_path)`: Funktion oder Definition `test_fallback_resource_strategy_switches_to_secondary_resource` dieses Moduls.

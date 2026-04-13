@@ -2,6 +2,7 @@ import { ReactFlowProvider } from "@xyflow/react";
 import { useCallback, useEffect, useState } from "react";
 
 import { FlowCanvas } from "./components/flow/FlowCanvas";
+import { AnalyticsPanel } from "./components/layout/AnalyticsPanel";
 import { InspectorPanel } from "./components/layout/InspectorPanel";
 import { PlannerComposer } from "./components/layout/PlannerComposer";
 import { Sidebar } from "./components/layout/Sidebar";
@@ -9,10 +10,14 @@ import { TopBar } from "./components/layout/TopBar";
 import { useCatalogBootstrap } from "./hooks/useCatalogBootstrap";
 import { useFlowLiveUpdates } from "./hooks/useFlowLiveUpdates";
 import {
+  activateFlowVersion,
   createFlow,
+  createFlowVersion,
   fetchAgents,
   fetchFlow,
+  fetchFlowVersion,
   fetchHandlers,
+  fetchMetricsSummary,
   fetchPlannerStatus,
   fetchResources,
   generateFlowWithPlanner,
@@ -24,6 +29,7 @@ import { useFlowStore } from "./store/useFlowStore";
 import type {
   EditorExport,
   FlowRequest,
+  MetricsSummary,
   PlannerGenerateResponse,
   PlannerStatus,
 } from "./types/api";
@@ -31,12 +37,16 @@ import type {
 function App() {
   useCatalogBootstrap();
   const [plannerOpen, setPlannerOpen] = useState(false);
+  const [analyticsOpen, setAnalyticsOpen] = useState(false);
   const [plannerStatus, setPlannerStatus] = useState<PlannerStatus | null>(null);
   const [lastPlannerResult, setLastPlannerResult] = useState<PlannerGenerateResponse | null>(null);
+  const [metricsSummary, setMetricsSummary] = useState<MetricsSummary | null>(null);
 
   const nodes = useFlowStore((state) => state.nodes);
   const edges = useFlowStore((state) => state.edges);
   const flowId = useFlowStore((state) => state.flowId);
+  const flowVersionId = useFlowStore((state) => state.flowVersionId);
+  const availableVersions = useFlowStore((state) => state.availableVersions);
   const dirty = useFlowStore((state) => state.dirty);
   const history = useFlowStore((state) => state.history);
   const future = useFlowStore((state) => state.future);
@@ -84,18 +94,24 @@ function App() {
     }
 
     const request = toFlowRequest(nodes, edges);
-    const snapshot = await createFlow(request);
-    markSaved(snapshot.flow_id);
+    const snapshot = flowId
+      ? await createFlowVersion(flowId, {
+          ...request,
+          created_by: "web-editor",
+          change_reason: "Saved from visual editor",
+        })
+      : await createFlow(request);
+    markSaved(snapshot.flow_id, snapshot.version_id ?? null, snapshot.available_versions ?? []);
     applyFlowSnapshot(snapshot, "flow.created");
     setExecutionError(null);
     return snapshot.flow_id;
-  }, [applyFlowSnapshot, edges, markSaved, nodes, setExecutionError]);
+  }, [applyFlowSnapshot, edges, flowId, markSaved, nodes, setExecutionError]);
 
   const handleRun = useCallback(async () => {
     try {
       const activeFlowId = !flowId || dirty ? await saveCurrentFlow() : flowId;
       beginRun();
-      const response = await runFlow(activeFlowId, true);
+      const response = await runFlow(activeFlowId, true, flowVersionId);
       if ("scheduled" in response) {
         const snapshot = await fetchFlow(activeFlowId);
         applyFlowSnapshot(snapshot, "flow.run.requested");
@@ -105,12 +121,13 @@ function App() {
     } catch (error) {
       setExecutionError(error instanceof Error ? error.message : "Flow execution failed");
     }
-  }, [applyFlowSnapshot, beginRun, dirty, flowId, saveCurrentFlow, setExecutionError]);
+  }, [applyFlowSnapshot, beginRun, dirty, flowId, flowVersionId, saveCurrentFlow, setExecutionError]);
 
   const handleExport = useCallback(() => {
     const payload: EditorExport = {
       version: 1,
       flowId,
+      flowVersionId,
       nodes,
       edges,
     };
@@ -121,7 +138,7 @@ function App() {
     anchor.download = "nova-synesis-workflow.json";
     anchor.click();
     URL.revokeObjectURL(url);
-  }, [edges, flowId, nodes]);
+  }, [edges, flowId, flowVersionId, nodes]);
 
   const handleImport = useCallback(
     async (file: File) => {
@@ -173,11 +190,42 @@ function App() {
     [edges, nodes, replaceGraph, setCatalogData, setExecutionError],
   );
 
+  const handleOpenAnalytics = useCallback(async () => {
+    try {
+      const summary = await fetchMetricsSummary();
+      setMetricsSummary(summary);
+      setAnalyticsOpen(true);
+    } catch (error) {
+      setExecutionError(error instanceof Error ? error.message : "Failed to load metrics");
+    }
+  }, [setExecutionError]);
+
+  const handleActivateVersion = useCallback(
+    async (versionId: number) => {
+      if (!flowId) {
+        return;
+      }
+      try {
+        const snapshot = dirty
+          ? await fetchFlowVersion(flowId, versionId)
+          : await activateFlowVersion(flowId, versionId);
+        applyFlowSnapshot(snapshot, "flow.version.activated");
+        markSaved(snapshot.flow_id, snapshot.version_id ?? null, snapshot.available_versions ?? []);
+        setExecutionError(null);
+      } catch (error) {
+        setExecutionError(error instanceof Error ? error.message : "Failed to load flow version");
+      }
+    },
+    [applyFlowSnapshot, dirty, flowId, markSaved, setExecutionError],
+  );
+
   return (
     <ReactFlowProvider>
       <div className="app-shell">
         <TopBar
           flowId={flowId}
+          flowVersionId={flowVersionId}
+          availableVersions={availableVersions}
           dirty={dirty}
           canUndo={history.length > 0}
           canRedo={future.length > 0}
@@ -186,11 +234,13 @@ function App() {
           onSave={saveCurrentFlow}
           onRun={handleRun}
           onOpenPlanner={() => setPlannerOpen(true)}
+          onOpenAnalytics={() => void handleOpenAnalytics()}
           onAutoLayout={autoLayout}
           onUndo={undo}
           onRedo={redo}
           onExport={handleExport}
           onImport={handleImport}
+          onActivateVersion={handleActivateVersion}
         />
 
         <div className="workspace">
@@ -207,6 +257,11 @@ function App() {
           onClose={() => setPlannerOpen(false)}
           onGenerate={handleGenerateWithPlanner}
           lastResult={lastPlannerResult}
+        />
+        <AnalyticsPanel
+          open={analyticsOpen}
+          summary={metricsSummary}
+          onClose={() => setAnalyticsOpen(false)}
         />
       </div>
     </ReactFlowProvider>

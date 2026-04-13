@@ -6,6 +6,7 @@ import type { TaskFlowNode } from "../../types/api";
 const statusClassMap: Record<string, string> = {
   PENDING: "pending",
   RUNNING: "running",
+  WAITING_FOR_INPUT: "pending",
   SUCCESS: "success",
   FAILED: "failed",
 };

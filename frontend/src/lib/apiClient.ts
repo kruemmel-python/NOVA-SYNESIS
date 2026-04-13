@@ -2,10 +2,17 @@ import type {
   AccountsReceivableDraftPreviewRequest,
   AccountsReceivableDraftPreviewResponse,
   AgentSummary,
+  FlowMetricSummary,
   FlowRequest,
   FlowSnapshot,
+  FlowVersionCreateRequest,
+  FlowVersionSummary,
   HandlerCatalogResponse,
+  HandlerMetricSummary,
   HandlerSummary,
+  HumanInputRequestEnvelope,
+  HumanInputResumeRequest,
+  MetricsSummary,
   PlannerGenerateRequest,
   PlannerGenerateResponse,
   PlannerStatus,
@@ -103,15 +110,50 @@ export function createFlow(requestBody: FlowRequest): Promise<FlowSnapshot> {
   });
 }
 
-export function runFlow(flowId: number, background = true): Promise<FlowSnapshot | { flow_id: number; scheduled: boolean }> {
-  const search = background ? "?background=true" : "";
-  return request<FlowSnapshot | { flow_id: number; scheduled: boolean }>(`/flows/${flowId}/run${search}`, {
+export function createFlowVersion(
+  flowId: number,
+  requestBody: FlowVersionCreateRequest,
+): Promise<FlowSnapshot> {
+  return request<FlowSnapshot>(`/flows/${flowId}/versions`, {
+    method: "POST",
+    body: JSON.stringify(requestBody),
+  });
+}
+
+export function runFlow(
+  flowId: number,
+  background = true,
+  versionId?: number | null,
+): Promise<FlowSnapshot | { flow_id: number; version_id?: number | null; scheduled: boolean }> {
+  const search = new URLSearchParams();
+  if (background) {
+    search.set("background", "true");
+  }
+  if (versionId != null) {
+    search.set("version_id", String(versionId));
+  }
+  const suffix = search.size > 0 ? `?${search.toString()}` : "";
+  return request<FlowSnapshot | { flow_id: number; version_id?: number | null; scheduled: boolean }>(`/flows/${flowId}/run${suffix}`, {
     method: "POST",
   });
 }
 
 export function fetchFlow(flowId: number): Promise<FlowSnapshot> {
   return request<FlowSnapshot>(`/flows/${flowId}`);
+}
+
+export function fetchFlowVersions(flowId: number): Promise<FlowVersionSummary[]> {
+  return request<FlowVersionSummary[]>(`/flows/${flowId}/versions`);
+}
+
+export function fetchFlowVersion(flowId: number, versionId: number): Promise<FlowSnapshot> {
+  return request<FlowSnapshot>(`/flows/${flowId}/versions/${versionId}`);
+}
+
+export function activateFlowVersion(flowId: number, versionId: number): Promise<FlowSnapshot> {
+  return request<FlowSnapshot>(`/flows/${flowId}/versions/${versionId}/activate`, {
+    method: "POST",
+  });
 }
 
 export function approveFlowNode(
@@ -136,6 +178,24 @@ export function revokeFlowNodeApproval(
   });
 }
 
+export function fetchHumanInputRequest(
+  flowId: number,
+  nodeId: string,
+): Promise<HumanInputRequestEnvelope> {
+  return request<HumanInputRequestEnvelope>(`/flows/${flowId}/nodes/${nodeId}/input-request`);
+}
+
+export function resumeFlowNode(
+  flowId: number,
+  nodeId: string,
+  requestBody: HumanInputResumeRequest,
+): Promise<FlowSnapshot> {
+  return request<FlowSnapshot>(`/flows/${flowId}/nodes/${nodeId}/resume`, {
+    method: "POST",
+    body: JSON.stringify(requestBody),
+  });
+}
+
 export function generateFlowWithPlanner(
   requestBody: PlannerGenerateRequest,
 ): Promise<PlannerGenerateResponse> {
@@ -152,4 +212,16 @@ export function previewAccountsReceivableDraft(
     method: "POST",
     body: JSON.stringify(requestBody),
   }, 90_000);
+}
+
+export function fetchMetricsSummary(): Promise<MetricsSummary> {
+  return request<MetricsSummary>("/metrics/summary");
+}
+
+export function fetchFlowMetrics(): Promise<FlowMetricSummary[]> {
+  return request<FlowMetricSummary[]>("/metrics/flows");
+}
+
+export function fetchHandlerMetrics(): Promise<HandlerMetricSummary[]> {
+  return request<HandlerMetricSummary[]>("/metrics/handlers");
 }

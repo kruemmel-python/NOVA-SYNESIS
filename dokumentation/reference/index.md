@@ -37,6 +37,7 @@
 - [frontend/src/components/common/StatusBadge.tsx](frontend/src/components/common/StatusBadge.tsx.md)
 - [frontend/src/components/flow/FlowCanvas.tsx](frontend/src/components/flow/FlowCanvas.tsx.md)
 - [frontend/src/components/flow/TaskNode.tsx](frontend/src/components/flow/TaskNode.tsx.md)
+- [frontend/src/components/layout/AnalyticsPanel.tsx](frontend/src/components/layout/AnalyticsPanel.tsx.md)
 - [frontend/src/components/layout/InspectorPanel.tsx](frontend/src/components/layout/InspectorPanel.tsx.md)
 - [frontend/src/components/layout/PlannerComposer.tsx](frontend/src/components/layout/PlannerComposer.tsx.md)
 - [frontend/src/components/layout/Sidebar.tsx](frontend/src/components/layout/Sidebar.tsx.md)

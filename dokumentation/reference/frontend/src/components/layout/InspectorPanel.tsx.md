@@ -5,11 +5,11 @@
 
 ## Aufgabe der Datei
 
-Node- und Edge-Inspector fuer bearbeitbare Eigenschaften, manuelle Freigaben und lokale LLM-Briefvorschauen.
+Node- und Edge-Inspector fuer bearbeitbare Eigenschaften, manuelle Freigaben, HITL-Resume und lokale LLM-Briefvorschauen.
 
 ## Wann du diese Datei bearbeitest
 
-Wenn weitere konfigurierbare Felder, Approval-Aktionen oder interaktive Vorschaufunktionen in der UI auftauchen sollen.
+Wenn weitere konfigurierbare Felder, Approval-/Resume-Aktionen oder interaktive Vorschaufunktionen in der UI auftauchen sollen.
 
 ## Exporte und oeffentliche Definitionen
 

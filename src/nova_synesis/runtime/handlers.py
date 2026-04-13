@@ -18,7 +18,7 @@ from xml.sax.saxutils import escape as xml_escape
 import httpx
 
 from nova_synesis.config import Settings
-from nova_synesis.domain.models import ResourceType
+from nova_synesis.domain.models import HumanInputRequest, ResourceType
 from nova_synesis.planning.lit_planner import LiteRTPlanner
 from nova_synesis.security import HandlerCertificate, HandlerTrustAuthority, HandlerTrustRecord
 
@@ -187,6 +187,12 @@ class TaskHandlerRegistry:
         if inspect.isawaitable(result):
             return await result
         return result
+
+
+class HumanInputRequiredError(RuntimeError):
+    def __init__(self, request: HumanInputRequest) -> None:
+        super().__init__(request.title)
+        self.request = request
 
 
 def _resolve_working_path(
@@ -1176,6 +1182,42 @@ def template_render_handler(context: dict[str, Any]) -> dict[str, Any]:
     return {"rendered": template.format_map(values)}
 
 
+def human_input_request_handler(context: dict[str, Any]) -> dict[str, Any]:
+    payload = dict(context["input"] or {})
+    task = context.get("task")
+    if task is None:
+        raise RuntimeError("human_input_request requires task context")
+
+    existing_response = task.metadata.get("human_input_response")
+    if isinstance(existing_response, dict) and "value" in existing_response:
+        return {
+            "submitted": True,
+            "value": existing_response.get("value"),
+            "submitted_by": existing_response.get("submitted_by"),
+            "submitted_at": existing_response.get("submitted_at"),
+            "metadata": existing_response.get("metadata", {}),
+        }
+
+    request = HumanInputRequest(
+        title=str(payload.get("title", "Human Input Required")).strip() or "Human Input Required",
+        description=(
+            str(payload.get("description")).strip()
+            if payload.get("description") not in {None, ""}
+            else None
+        ),
+        schema=dict(payload.get("schema", {})),
+        default_value=payload.get("default_value"),
+        required_role=(
+            str(payload.get("required_role")).strip()
+            if payload.get("required_role") not in {None, ""}
+            else None
+        ),
+        timeout_s=int(payload["timeout_s"]) if payload.get("timeout_s") not in {None, ""} else None,
+        requested_by=str(payload.get("requested_by", context.get("node_id", "runtime"))),
+    )
+    raise HumanInputRequiredError(request)
+
+
 def _stringify_local_llm_input(value: Any) -> str:
     if isinstance(value, str):
         return value
@@ -1264,11 +1306,18 @@ async def local_llm_text_handler(context: dict[str, Any]) -> dict[str, Any]:
     raw_timeout = payload.get("timeout_s")
     timeout_s = int(raw_timeout) if raw_timeout not in {None, ""} else settings.lit_timeout_s
     text = _generate_local_text(prompt, settings, timeout_s=timeout_s)
+    prompt_tokens = max(1, len(prompt.split()))
+    completion_tokens = max(1, len(text.split())) if text else 0
     return {
         "text": text,
         "prompt": prompt,
         "model_path": settings.lit_model_path,
         "backend": settings.lit_backend,
+        "_telemetry": {
+            "prompt_tokens": prompt_tokens,
+            "completion_tokens": completion_tokens,
+            "model_name": Path(settings.lit_model_path).name,
+        },
     }
 
 
@@ -1539,6 +1588,31 @@ def merge_payloads_handler(context: dict[str, Any]) -> dict[str, Any]:
     return base
 
 
+async def execute_subflow_handler(context: dict[str, Any]) -> dict[str, Any]:
+    payload = dict(context["input"] or {})
+    orchestrator = context.get("orchestrator")
+    flow = context.get("flow")
+    if orchestrator is None:
+        raise RuntimeError("execute_subflow requires orchestrator context")
+    target_flow_id = int(payload["target_flow_id"])
+    target_version_id = (
+        int(payload["target_version_id"])
+        if payload.get("target_version_id") not in {None, ""}
+        else None
+    )
+    input_mapping = payload.get("input_mapping", {})
+    if input_mapping is not None and not isinstance(input_mapping, dict):
+        raise ValueError("execute_subflow requires 'input_mapping' to be a dictionary")
+    stack = list(flow.metadata.get("subflow_stack", [])) if flow is not None else []
+    stack.append({"flow_id": flow.flow_id, "node_id": context.get("node_id")}) if flow is not None else None
+    return await orchestrator.run_subflow(
+        target_flow_id=target_flow_id,
+        target_version_id=target_version_id,
+        input_mapping=dict(input_mapping or {}),
+        parent_stack=stack,
+    )
+
+
 def read_file_handler(context: dict[str, Any]) -> dict[str, Any]:
     payload = dict(context["input"] or {})
     working_directory = Path(context["working_directory"])
@@ -1670,8 +1744,10 @@ def register_default_handlers(registry: TaskHandlerRegistry) -> None:
     registry.register("send_message", send_message_handler, built_in=True)
     registry.register("resource_health_check", resource_health_check_handler, built_in=True)
     registry.register("template_render", template_render_handler, built_in=True)
+    registry.register("human_input_request", human_input_request_handler, built_in=True)
     registry.register("local_llm_text", local_llm_text_handler, built_in=True)
     registry.register("merge_payloads", merge_payloads_handler, built_in=True)
+    registry.register("execute_subflow", execute_subflow_handler, built_in=True)
     registry.register("read_file", read_file_handler, built_in=True)
     registry.register("filesystem_read", read_file_handler, built_in=True)
     registry.register("write_file", write_file_handler, built_in=True)

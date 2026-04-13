@@ -4,12 +4,15 @@ import { JsonEditor } from "../common/JsonEditor";
 import { StatusBadge } from "../common/StatusBadge";
 import {
   approveFlowNode,
+  fetchHumanInputRequest,
   previewAccountsReceivableDraft,
+  resumeFlowNode,
   revokeFlowNodeApproval,
 } from "../../lib/apiClient";
 import { useFlowStore } from "../../store/useFlowStore";
 import type {
   AccountsReceivableDraftPreviewResponse,
+  HumanInputRequestPayload,
   ResourceType,
   RollbackStrategy,
   TaskFlowEdge,
@@ -93,13 +96,49 @@ export function InspectorPanel() {
   const [draftPreview, setDraftPreview] = useState<AccountsReceivableDraftPreviewResponse | null>(null);
   const [draftPreviewLoading, setDraftPreviewLoading] = useState(false);
   const [draftPreviewError, setDraftPreviewError] = useState<string | null>(null);
+  const [humanInputRequest, setHumanInputRequest] = useState<HumanInputRequestPayload | null>(null);
+  const [humanInputValue, setHumanInputValue] = useState<unknown>(null);
+  const [humanInputLoading, setHumanInputLoading] = useState(false);
+  const [humanInputSubmitter, setHumanInputSubmitter] = useState("web-operator");
+  const [humanInputError, setHumanInputError] = useState<string | null>(null);
 
   useEffect(() => {
     setPreviewCustomerIndex(0);
     setDraftPreview(null);
     setDraftPreviewError(null);
     setDraftPreviewLoading(false);
+    setHumanInputRequest(null);
+    setHumanInputValue(null);
+    setHumanInputLoading(false);
+    setHumanInputError(null);
   }, [selectedNodeId]);
+
+  useEffect(() => {
+    if (!selectedNode || !flowId || selectedNode.data.task_status !== "WAITING_FOR_INPUT") {
+      setHumanInputRequest(null);
+      return;
+    }
+    let cancelled = false;
+    void (async () => {
+      try {
+        const response = await fetchHumanInputRequest(flowId, selectedNode.id);
+        if (cancelled) {
+          return;
+        }
+        setHumanInputRequest(response.request);
+        setHumanInputValue(response.request.default_value ?? inferDefaultHumanInput(response.request.schema));
+      } catch (error) {
+        if (!cancelled) {
+          setHumanInputError(
+            error instanceof Error ? error.message : "Failed to load human input request",
+          );
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [flowId, selectedNode]);
 
   const handleManualApprovalGrantedChange = async (approved: boolean) => {
     if (!selectedNode) {
@@ -206,6 +245,30 @@ export function InspectorPanel() {
     }
   };
 
+  const handleSubmitHumanInput = async () => {
+    if (!selectedNode || !flowId) {
+      return;
+    }
+    setHumanInputLoading(true);
+    setHumanInputError(null);
+    try {
+      const snapshot = await resumeFlowNode(flowId, selectedNode.id, {
+        value: humanInputValue,
+        submitted_by: humanInputSubmitter.trim() || "web-operator",
+        metadata: {},
+        auto_run: true,
+      });
+      applyFlowSnapshot(snapshot, "node.input.resumed");
+      setExecutionError(null);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Submitting human input failed";
+      setHumanInputError(message);
+      setExecutionError(message);
+    } finally {
+      setHumanInputLoading(false);
+    }
+  };
+
   if (selectedNode) {
     return (
       <aside className="inspector panel">
@@ -270,6 +333,42 @@ export function InspectorPanel() {
               <StatusBadge label="Failed" tone="failed" />
             </div>
             <pre>{selectedNodeFailure}</pre>
+          </section>
+        ) : null}
+
+        {selectedNode.data.task_status === "WAITING_FOR_INPUT" ? (
+          <section className="inspector__llm-card">
+            <div className="sidebar__section-header">
+              <h3>Human Input Required</h3>
+              <StatusBadge label="Waiting" tone="paused" />
+            </div>
+            <p>
+              {humanInputRequest?.description ??
+                "Dieser Node wartet auf eine manuelle Eingabe, bevor der Flow weiterlaufen kann."}
+            </p>
+            {humanInputRequest?.required_role ? (
+              <p className="field__hint">Erforderliche Rolle: {humanInputRequest.required_role}</p>
+            ) : null}
+            <NodeField
+              label="Submitted by"
+              value={humanInputSubmitter}
+              onChange={setHumanInputSubmitter}
+            />
+            {renderHumanInputFields(humanInputRequest?.schema ?? {}, humanInputValue, setHumanInputValue)}
+            <JsonEditor
+              label={humanInputRequest?.title ?? "Input value"}
+              value={humanInputValue}
+              onCommit={(value) => setHumanInputValue(value)}
+            />
+            {humanInputError ? <p className="field__hint field__hint--error">{humanInputError}</p> : null}
+            <button
+              type="button"
+              className="primary-button"
+              onClick={() => void handleSubmitHumanInput()}
+              disabled={humanInputLoading}
+            >
+              {humanInputLoading ? "Submitting..." : "Submit Input"}
+            </button>
           </section>
         ) : null}
 
@@ -915,8 +1014,96 @@ function readReceivableDraftingConfig(input: unknown): {
   };
 }
 
+function inferDefaultHumanInput(schema: Record<string, unknown>): unknown {
+  const schemaType = typeof schema.type === "string" ? schema.type : null;
+  if (schemaType === "object") {
+    return {};
+  }
+  if (schemaType === "array") {
+    return [];
+  }
+  if (schemaType === "boolean") {
+    return false;
+  }
+  if (schemaType === "number" || schemaType === "integer") {
+    return 0;
+  }
+  return "";
+}
+
+function renderHumanInputFields(
+  schema: Record<string, unknown>,
+  value: unknown,
+  setValue: (next: unknown) => void,
+) {
+  const schemaType = typeof schema.type === "string" ? schema.type : null;
+  const properties =
+    schemaType === "object" && schema.properties && typeof schema.properties === "object"
+      ? (schema.properties as Record<string, unknown>)
+      : null;
+  if (!properties || Object.keys(properties).length === 0) {
+    return null;
+  }
+  const current = asObject(value);
+  return (
+    <div className="inspector__structured-input">
+      {Object.entries(properties).map(([key, definition]) => {
+        const property = asObject(definition);
+        const propertyType = typeof property.type === "string" ? property.type : "string";
+        const label = typeof property.title === "string" ? property.title : key;
+        if (propertyType === "boolean") {
+          return (
+            <label key={key} className="checkbox-inline">
+              <input
+                type="checkbox"
+                checked={Boolean(current[key])}
+                onChange={(event) =>
+                  setValue({
+                    ...current,
+                    [key]: event.target.checked,
+                  })
+                }
+              />
+              <span>{label}</span>
+            </label>
+          );
+        }
+        if (propertyType === "number" || propertyType === "integer") {
+          return (
+            <NumericField
+              key={key}
+              label={label}
+              value={typeof current[key] === "number" ? Number(current[key]) : 0}
+              onChange={(next) =>
+                setValue({
+                  ...current,
+                  [key]: next,
+                })
+              }
+            />
+          );
+        }
+        return (
+          <NodeField
+            key={key}
+            label={label}
+            value={typeof current[key] === "string" ? current[key] : String(current[key] ?? "")}
+            onChange={(next) =>
+              setValue({
+                ...current,
+                [key]: next,
+              })
+            }
+          />
+        );
+      })}
+    </div>
+  );
+}
+
 function statusTone(status: string): "neutral" | "running" | "success" | "failed" | "paused" {
   if (status === "RUNNING") return "running";
+  if (status === "WAITING_FOR_INPUT") return "paused";
   if (status === "SUCCESS") return "success";
   if (status === "FAILED") return "failed";
   if (status === "PAUSED") return "paused";

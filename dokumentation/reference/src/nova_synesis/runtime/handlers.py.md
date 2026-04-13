@@ -5,11 +5,11 @@
 
 ## Aufgabe der Datei
 
-Eingebaute Handler fuer HTTP, Memory, Messaging, Dateien und Serialisierung.
+Eingebaute Handler fuer HTTP, Memory, Messaging, Dateien, Human Input, Sub-Flows und lokale LLM-Textarbeit.
 
 ## Wann du diese Datei bearbeitest
 
-Wenn neue Arbeitsbausteine hinzugefuegt oder bestehende Handler verbessert werden.
+Wenn neue Arbeitsbausteine hinzugefuegt, HITL/Sub-Flow-Vertraege erweitert oder bestehende Handler verbessert werden.
 
 ## Klassen
 
@@ -27,6 +27,14 @@ Methoden:
 - `describe(self)`: Funktion oder Definition `describe` dieses Moduls.
 - `issue_certificate(self, name, *, expires_in_hours)`: Erzeugt ein digitales Zertifikat fuer einen bereits registrierten Handler.
 - `execute(self, name, context)`: Fuehrt die Kernarbeit von `execute` aus.
+
+### `HumanInputRequiredError`
+
+Signalisiert der Engine, dass ein Handler kontrolliert auf menschliche Eingabe warten muss.
+
+Methoden:
+
+- `__init__(self, request)`: Konstruktor, der Abhaengigkeiten und Ausgangszustand vorbereitet.
 
 ## Funktionen
 
@@ -71,6 +79,7 @@ Methoden:
 - `news_search_handler(context)`: Funktion oder Definition `news_search_handler` dieses Moduls.
 - `topic_split_handler(context)`: Funktion oder Definition `topic_split_handler` dieses Moduls.
 - `template_render_handler(context)`: Funktion oder Definition `template_render_handler` dieses Moduls.
+- `human_input_request_handler(context)`: Erzeugt eine offene HITL-Anfrage und stoppt den aktuellen Node bis zur Resume-Antwort.
 - `_stringify_local_llm_input(value)`: Funktion oder Definition `_stringify_local_llm_input` dieses Moduls.
 - `_looks_like_follow_up_request(prompt_text)`: Funktion oder Definition `_looks_like_follow_up_request` dieses Moduls.
 - `local_llm_text_handler(context)`: Erzeugt oder analysiert Text lokal ueber LiteRT und kombiniert dabei Benutzerprompt und Upstream-Daten zu einer finalen Antwort.
@@ -79,6 +88,7 @@ Methoden:
 - `accounts_receivable_generate_letters_handler(context)`: Funktion oder Definition `accounts_receivable_generate_letters_handler` dieses Moduls.
 - `accounts_receivable_write_letters_handler(context)`: Funktion oder Definition `accounts_receivable_write_letters_handler` dieses Moduls.
 - `merge_payloads_handler(context)`: Funktion oder Definition `merge_payloads_handler` dieses Moduls.
+- `execute_subflow_handler(context)`: Startet einen anderen gespeicherten Flow als Child-Ausfuehrung und mappt dessen Ergebnis zurueck.
 - `read_file_handler(context)`: Liest lokale Dateien aus dem Arbeitsverzeichnis und stellt ihren Inhalt fuer nachgelagerte Nodes bereit.
 - `write_file_handler(context)`: Schreibt Text- oder JSON-Inhalte in lokale Dateien innerhalb des Arbeitsverzeichnisses.
 - `write_csv_handler(context)`: Funktion oder Definition `write_csv_handler` dieses Moduls.
@@ -105,7 +115,7 @@ Methoden:
 - `from xml.sax.saxutils import escape as xml_escape`
 - `import httpx`
 - `from nova_synesis.config import Settings`
-- `from nova_synesis.domain.models import ResourceType`
+- `from nova_synesis.domain.models import HumanInputRequest, ResourceType`
 - `from nova_synesis.planning.lit_planner import LiteRTPlanner`
 - `from nova_synesis.security import HandlerCertificate, HandlerTrustAuthority, HandlerTrustRecord`
 

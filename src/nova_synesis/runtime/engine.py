@@ -13,9 +13,11 @@ from nova_synesis.domain.models import (
     ExecutionFlow,
     ExecutionStatus,
     FlowState,
+    HumanInputResponse,
     RollbackStrategy,
     Task,
     TaskExecution,
+    TaskStatus,
     maybe_await,
     safe_evaluate,
 )
@@ -23,7 +25,7 @@ from nova_synesis.config import Settings
 from nova_synesis.memory.systems import MemoryManager
 from nova_synesis.persistence.sqlite_repository import SQLiteRepository
 from nova_synesis.resources.manager import ResourceManager
-from nova_synesis.runtime.handlers import TaskHandlerRegistry
+from nova_synesis.runtime.handlers import HumanInputRequiredError, TaskHandlerRegistry
 
 _TEMPLATE_PATTERN = re.compile(r"\{\{\s*(.+?)\s*\}\}")
 
@@ -38,6 +40,7 @@ class ExecutionContext:
     agents: dict[int, Any]
     flows: dict[int, ExecutionFlow]
     working_directory: Path
+    orchestrator: Any | None = None
     max_flow_concurrency: int = 4
     event_publisher: Callable[[int, str, dict[str, Any]], Awaitable[None] | None] | None = None
 
@@ -106,6 +109,7 @@ class TaskExecutor:
                     "flow": {
                         "flow_id": flow.flow_id,
                         "state": flow.state.value,
+                        "version_id": flow.metadata.get("version_id"),
                     },
                 }
                 prepared_input = resolve_templates(task.input, runtime_view)
@@ -143,6 +147,7 @@ class TaskExecutor:
                     "memory_manager": self.context.memory_manager,
                     "repository": self.context.repository,
                     "working_directory": self.context.working_directory,
+                    "orchestrator": self.context.orchestrator,
                     "perception": perception,
                     "decision": decision,
                     "action": action,
@@ -154,7 +159,29 @@ class TaskExecutor:
                     task.assigned_agent.state = AgentState.IDLE
                 self.context.repository.save_task(task)
                 self.context.repository.save_execution(execution, flow.flow_id)
+                self.context.repository.save_execution_metric(
+                    execution=execution,
+                    flow_id=flow.flow_id,
+                    node_id=node_id,
+                    handler_name=task.handler_name,
+                    telemetry=self._extract_execution_telemetry(result),
+                )
                 await self._publish_task_event(flow.flow_id, "node.completed", flow.observe())
+                return execution
+            except HumanInputRequiredError as exc:
+                execution.wait_for_input(exc.request)
+                if task.assigned_agent is not None:
+                    task.assigned_agent.state = AgentState.WAITING
+                self.context.repository.save_task(task)
+                self.context.repository.save_execution(execution, flow.flow_id)
+                self.context.repository.save_execution_metric(
+                    execution=execution,
+                    flow_id=flow.flow_id,
+                    node_id=node_id,
+                    handler_name=task.handler_name,
+                    telemetry={},
+                )
+                await self._publish_task_event(flow.flow_id, "node.waiting_for_input", flow.observe())
                 return execution
             except Exception as exc:
                 if task.assigned_agent is not None:
@@ -173,6 +200,13 @@ class TaskExecutor:
                 execution.record_error(error)
                 self.context.repository.save_task(task)
                 self.context.repository.save_execution(execution, flow.flow_id)
+                self.context.repository.save_execution_metric(
+                    execution=execution,
+                    flow_id=flow.flow_id,
+                    node_id=node_id,
+                    handler_name=task.handler_name,
+                    telemetry={},
+                )
                 await self._publish_task_event(flow.flow_id, "node.failed", flow.observe())
 
                 should_retry = (
@@ -218,6 +252,15 @@ class TaskExecutor:
         self.context.repository.save_execution(execution, flow.flow_id)
         return execution
 
+    @staticmethod
+    def _extract_execution_telemetry(result: Any) -> dict[str, Any]:
+        if not isinstance(result, dict):
+            return {}
+        telemetry = result.get("_telemetry")
+        if isinstance(telemetry, dict):
+            return dict(telemetry)
+        return {}
+
     async def _publish_task_event(
         self,
         flow_id: int,
@@ -237,10 +280,19 @@ class FlowExecutor:
     async def run_flow(self, flow: ExecutionFlow) -> dict[str, Any]:
         flow.state = FlowState.RUNNING
         flow.metadata.setdefault("results", {})
-        completed: set[str] = set()
-        blocked: set[str] = set()
-        failed: dict[str, str] = {}
-        pending = set(flow.nodes.keys())
+        flow.metadata.pop("pause_requested", None)
+        waiting_for_input = flow.metadata.get("waiting_for_input", {})
+        completed: set[str] = set(flow.metadata.get("completed_nodes", []))
+        blocked: set[str] = set(flow.metadata.get("blocked_nodes", []))
+        failed: dict[str, str] = dict(flow.metadata.get("failed_nodes", {}))
+        for node_id, node in flow.nodes.items():
+            if node.task.status == TaskStatus.SUCCESS and node_id in flow.metadata["results"]:
+                completed.add(node_id)
+        pending = {
+            node_id
+            for node_id in flow.nodes.keys()
+            if node_id not in completed and node_id not in blocked and node_id not in failed
+        }
 
         self.context.flows[flow.flow_id] = flow
         self.context.repository.save_flow(flow)
@@ -301,24 +353,49 @@ class FlowExecutor:
             results = await asyncio.gather(*(execute_node(node_id) for node_id in ready))
 
             for node_id, execution, error in results:
+                if execution is not None and execution.status == ExecutionStatus.WAITING_FOR_INPUT:
+                    flow.state = FlowState.WAITING_FOR_INPUT
+                    flow.metadata.setdefault("waiting_for_input", {})
+                    flow.metadata["waiting_for_input"][node_id] = (
+                        execution.result.get("human_input_request", {})
+                        if isinstance(execution.result, dict)
+                        else {}
+                    )
+                    flow.metadata["completed_nodes"] = sorted(completed)
+                    flow.metadata["blocked_nodes"] = sorted(blocked)
+                    flow.metadata["failed_nodes"] = dict(failed)
+                    self.context.repository.save_flow(flow)
+                    snapshot = self._snapshot(flow, completed, blocked, failed)
+                    await self._publish_event(flow.flow_id, "flow.waiting_for_input", snapshot)
+                    return snapshot
                 pending.discard(node_id)
                 if error is None and execution is not None:
                     completed.add(node_id)
                     flow.metadata["results"][node_id] = execution.result
+                    if isinstance(waiting_for_input, dict):
+                        waiting_for_input.pop(node_id, None)
                 else:
                     failed[node_id] = str(error)
                     flow.metadata.setdefault("failed_nodes", {})[node_id] = str(error)
                     if not bool(flow.metadata.get("continue_on_error", False)):
                         flow.state = FlowState.FAILED
+                        flow.metadata["completed_nodes"] = sorted(completed)
+                        flow.metadata["blocked_nodes"] = sorted(blocked)
                         self.context.repository.save_flow(flow)
                         snapshot = self._snapshot(flow, completed, blocked, failed)
                         await self._publish_event(flow.flow_id, "flow.failed", snapshot)
                         return snapshot
 
+            flow.metadata["completed_nodes"] = sorted(completed)
+            flow.metadata["blocked_nodes"] = sorted(blocked)
+            flow.metadata["failed_nodes"] = dict(failed)
             self.context.repository.save_flow(flow)
             await self._publish_snapshot(flow, completed, blocked, failed, "flow.progress")
 
         flow.state = FlowState.FAILED if failed else FlowState.COMPLETED
+        flow.metadata["completed_nodes"] = sorted(completed)
+        flow.metadata["blocked_nodes"] = sorted(blocked)
+        flow.metadata["failed_nodes"] = dict(failed)
         self.context.repository.save_flow(flow)
         snapshot = self._snapshot(flow, completed, blocked, failed)
         await self._publish_event(

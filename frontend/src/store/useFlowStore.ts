@@ -20,6 +20,7 @@ import type {
   AgentSummary,
   EditorExport,
   FlowSnapshot,
+  FlowVersionSummary,
   HandlerSummary,
   ResourceSummary,
   RollbackStrategy,
@@ -31,6 +32,7 @@ interface GraphSnapshot {
   nodes: TaskFlowNode[];
   edges: TaskFlowEdge[];
   flowId: number | null;
+  flowVersionId: number | null;
   dirty: boolean;
 }
 
@@ -52,6 +54,8 @@ interface FlowStore {
   agents: AgentSummary[];
   resources: ResourceSummary[];
   flowId: number | null;
+  flowVersionId: number | null;
+  availableVersions: FlowVersionSummary[];
   dirty: boolean;
   selectedNodeId: string | null;
   selectedEdgeId: string | null;
@@ -72,7 +76,7 @@ interface FlowStore {
   updateNodeData: (nodeId: string, updater: (node: TaskFlowNode) => TaskFlowNode) => void;
   updateEdgeCondition: (edgeId: string, condition: string) => void;
   deleteSelection: () => void;
-  markSaved: (flowId: number) => void;
+  markSaved: (flowId: number, flowVersionId?: number | null, availableVersions?: FlowVersionSummary[]) => void;
   beginRun: () => void;
   applyFlowSnapshot: (snapshot: FlowSnapshot, eventType?: string, timestamp?: string) => void;
   setExecutionError: (message: string | null) => void;
@@ -153,11 +157,14 @@ function deriveFailureState(snapshot: FlowSnapshot): {
   };
 }
 
-function snapshotGraph(state: Pick<FlowStore, "nodes" | "edges" | "flowId" | "dirty">): GraphSnapshot {
+function snapshotGraph(
+  state: Pick<FlowStore, "nodes" | "edges" | "flowId" | "flowVersionId" | "dirty">,
+): GraphSnapshot {
   return {
     nodes: structuredClone(state.nodes),
     edges: structuredClone(state.edges),
     flowId: state.flowId,
+    flowVersionId: state.flowVersionId,
     dirty: state.dirty,
   };
 }
@@ -205,6 +212,8 @@ export const useFlowStore = create<FlowStore>((set, get) => ({
   agents: [],
   resources: [],
   flowId: null,
+  flowVersionId: null,
+  availableVersions: [],
   dirty: false,
   selectedNodeId: null,
   selectedEdgeId: null,
@@ -333,9 +342,11 @@ export const useFlowStore = create<FlowStore>((set, get) => ({
       };
     }),
 
-  markSaved: (flowId) =>
+  markSaved: (flowId, flowVersionId, availableVersions) =>
     set({
       flowId,
+      flowVersionId: flowVersionId ?? null,
+      availableVersions: availableVersions ?? [],
       dirty: false,
     }),
 
@@ -365,6 +376,8 @@ export const useFlowStore = create<FlowStore>((set, get) => ({
           nodes: graph.nodes,
           edges: graph.edges,
           flowId: snapshot.flow_id,
+          flowVersionId: snapshot.version_id ?? null,
+          availableVersions: snapshot.available_versions ?? state.availableVersions,
           dirty: state.dirty,
           selectedNodeId: null,
           selectedEdgeId: null,
@@ -403,6 +416,8 @@ export const useFlowStore = create<FlowStore>((set, get) => ({
           };
         }),
         flowId: snapshot.flow_id,
+        flowVersionId: snapshot.version_id ?? state.flowVersionId,
+        availableVersions: snapshot.available_versions ?? state.availableVersions,
         dirty: state.dirty,
         executionState: {
           flowState: snapshot.state,
@@ -445,6 +460,7 @@ export const useFlowStore = create<FlowStore>((set, get) => ({
         nodes: previous.nodes,
         edges: previous.edges,
         flowId: previous.flowId,
+        flowVersionId: previous.flowVersionId,
         dirty: true,
         history: state.history.slice(0, -1),
         future: [current, ...state.future].slice(0, 120),
@@ -464,6 +480,7 @@ export const useFlowStore = create<FlowStore>((set, get) => ({
         nodes: next.nodes,
         edges: next.edges,
         flowId: next.flowId,
+        flowVersionId: next.flowVersionId,
         dirty: true,
         history: [...state.history, current].slice(-120),
         future: state.future.slice(1),
@@ -484,6 +501,8 @@ export const useFlowStore = create<FlowStore>((set, get) => ({
       nodes: payload.nodes,
       edges: payload.edges,
       flowId: payload.flowId,
+      flowVersionId: payload.flowVersionId ?? null,
+      availableVersions: [],
       dirty: true,
       history: [],
       future: [],

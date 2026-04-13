@@ -106,7 +106,23 @@ Diese Seite beschreibt die realen Stoerungsbilder des Systems. Ziel ist nicht nu
 3. unterscheiden: ist nur `/ws/flows/{flow_id}` defekt oder auch REST?
 4. wenn REST geht, die Ausfuehrung nicht abbrechen, sondern Snapshot weiter per Polling beobachten
 
-## 5. Resource haengt oder laeuft in Timeout / Sattlauf
+## 5. Flow wartet auf menschliche Eingabe und wirkt haengend
+
+### Woran du es erkennst
+
+- die UI zeigt einen Node mit `WAITING_FOR_INPUT`
+- der Flow laeuft nicht weiter, obwohl keine technische Exception sichtbar ist
+- im Inspector erscheint ein Formular statt einer klassischen Fehlermeldung
+
+### Sofortmassnahmen
+
+1. den wartenden Node anklicken
+2. `GET /flows/{flow_id}/nodes/{node_id}/input-request` pruefen
+3. benoetigte Eingabe und gegebenenfalls `required_role` lesen
+4. ueber den Inspector oder `POST /flows/{flow_id}/nodes/{node_id}/resume` eine Antwort schicken
+5. bei `403` die gesendeten Rollenheader pruefen
+
+## 6. Resource haengt oder laeuft in Timeout / Sattlauf
 
 ### Woran du es erkennst
 
@@ -126,7 +142,7 @@ Diese Seite beschreibt die realen Stoerungsbilder des Systems. Ziel ist nicht nu
 4. bei HTTP-Aufrufen explizit `timeout_s` setzen
 5. wenn moeglich auf `required_resource_types` plus `FALLBACK_RESOURCE` umstellen
 
-## 6. Flow bleibt auf `RUNNING` stehen
+## 7. Flow bleibt auf `RUNNING` stehen
 
 ### Woran du es erkennst
 
@@ -149,7 +165,22 @@ Diese Seite beschreibt die realen Stoerungsbilder des Systems. Ziel ist nicht nu
 4. bei `http_request` ein sinnvolles `timeout_s` setzen
 5. pruefen, ob Ressource oder Kommunikationsziel erreichbar sind
 
-## 7. Graph-Deadlock oder logisch blockierter Flow
+## 8. Falsche Flow-Version wurde gestartet
+
+### Woran du es erkennst
+
+- der Canvas zeigt eine andere Konfiguration als der gerade gelaufene Snapshot
+- ein alter Fehler taucht erneut auf, obwohl der Graph lokal bereits korrigiert wurde
+- `GET /flows/{flow_id}` zeigt eine andere `version_id` als erwartet
+
+### Sofortmassnahmen
+
+1. in der Topbar die aktuell geladene Version pruefen
+2. `GET /flows/{flow_id}/versions` lesen und die aktive Version mit dem UI-Zustand vergleichen
+3. falls noetig die gewuenschte Version aktivieren oder explizit diese Version starten
+4. nach einer lokalen Aenderung zuerst `Save Flow` ausfuehren, damit eine neue Version entsteht
+
+## 9. Graph-Deadlock oder logisch blockierter Flow
 
 Wichtig: Wenn keine Node mehr startbar ist und trotzdem noch `pending` existiert, setzt `FlowExecutor.run_flow()` den Flow auf `FAILED` und schreibt `deadlock_nodes` in die Metadaten.
 
@@ -166,7 +197,7 @@ Wichtig: Wenn keine Node mehr startbar ist und trotzdem noch `pending` existiert
    - `failed`
 4. pruefen, ob mindestens ein Node ohne eingehende Kante existiert
 
-## 8. Handler wirft Exception
+## 10. Handler wirft Exception
 
 ### Woran du es erkennst
 

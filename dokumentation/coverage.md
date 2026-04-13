@@ -1,7 +1,7 @@
 # Abdeckung
 
-- Dokumentierte Projektdateien: `101`
-- Referenzdateien: `102`
+- Dokumentierte Projektdateien: `102`
+- Referenzdateien: `103`
 
 ## Ausgeschlossene Bereiche
 
@@ -58,6 +58,7 @@
 - `frontend/src/components/common/StatusBadge.tsx`
 - `frontend/src/components/flow/FlowCanvas.tsx`
 - `frontend/src/components/flow/TaskNode.tsx`
+- `frontend/src/components/layout/AnalyticsPanel.tsx`
 - `frontend/src/components/layout/InspectorPanel.tsx`
 - `frontend/src/components/layout/PlannerComposer.tsx`
 - `frontend/src/components/layout/Sidebar.tsx`

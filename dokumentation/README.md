@@ -5,6 +5,14 @@ Stateful Yielding Node-based Execution Semantic Integrated Surface
 
 Diese Dokumentation erklaert das System so, dass auch ein Entwickler ohne Vorwissen NOVA-SYNESIS starten, verstehen, absichern und gezielt aendern kann.
 
+Seit dem aktuellen Stand umfasst das System neben Planner, Semantic Firewall und Handler Trust auch:
+
+- unveraenderliche Flow-Versionen mit aktivierbarer Zielversion
+- Human-in-the-Loop-Nodes mit pausierbarer Runtime und Resume-API
+- Metrikaggregation fuer Flows und Handler
+- rollenbasierte Freigabe- und Resume-Pfade ueber Identity-Header
+- kompilierbare Sub-Flows ueber einen eigenen Built-in-Handler
+
 Hinweis zur Ausgabestrategie:
 
 - `dokumentation/` ist die vollstaendige Markdown-Dokumentation.

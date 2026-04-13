@@ -5,11 +5,11 @@
 
 ## Aufgabe der Datei
 
-Zustand-Store fuer Graph, Auswahl, Undo/Redo und Laufzeitstatus.
+Zustand-Store fuer Graph, Auswahl, Versionen, Undo/Redo und Laufzeitstatus.
 
 ## Wann du diese Datei bearbeitest
 
-Wenn Editorverhalten oder Snapshot-Uebernahme angepasst werden.
+Wenn Editorverhalten, Versionszustand oder Snapshot-Uebernahme angepasst werden.
 
 ## Exporte und oeffentliche Definitionen
 

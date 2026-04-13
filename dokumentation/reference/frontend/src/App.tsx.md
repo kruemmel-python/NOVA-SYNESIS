@@ -5,11 +5,11 @@
 
 ## Aufgabe der Datei
 
-Root-Komponente der UI mit Layout, Planner, Save/Run und Live-Sync.
+Root-Komponente der UI mit Layout, Planner, Versionen, Analytics, Save/Run und Live-Sync.
 
 ## Wann du diese Datei bearbeitest
 
-Wenn globale Frontend-Aktionen oder das Seitenlayout geaendert werden.
+Wenn globale Frontend-Aktionen, Versionierung, Analytics oder das Seitenlayout geaendert werden.
 
 ## Exporte und oeffentliche Definitionen
 
@@ -28,6 +28,7 @@ Wenn globale Frontend-Aktionen oder das Seitenlayout geaendert werden.
 - `import { ReactFlowProvider } from "@xyflow/react";`
 - `import { useCallback, useEffect, useState } from "react";`
 - `import { FlowCanvas } from "./components/flow/FlowCanvas";`
+- `import { AnalyticsPanel } from "./components/layout/AnalyticsPanel";`
 - `import { InspectorPanel } from "./components/layout/InspectorPanel";`
 - `import { PlannerComposer } from "./components/layout/PlannerComposer";`
 - `import { Sidebar } from "./components/layout/Sidebar";`

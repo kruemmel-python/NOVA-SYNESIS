@@ -5,11 +5,11 @@
 
 ## Aufgabe der Datei
 
-Graph-Ausfuehrungsengine fuer Task- und Flow-Lifecycle inklusive Template-Aufloesung und Live-Snapshots.
+Graph-Ausfuehrungsengine fuer Task- und Flow-Lifecycle inklusive WAITING_FOR_INPUT, Template-Aufloesung, Telemetrie und Live-Snapshots.
 
 ## Wann du diese Datei bearbeitest
 
-Wenn Ablaufsteuerung, Parallelitaet, Template-Kontext oder Snapshot-Logik geaendert wird.
+Wenn Ablaufsteuerung, Parallelitaet, Resume-Logik, Template-Kontext, Telemetrie oder Snapshot-Logik geaendert wird.
 
 ## Klassen
 
@@ -25,6 +25,7 @@ Methoden:
 
 - `__init__(self, context)`: Konstruktor, der Abhaengigkeiten und Ausgangszustand vorbereitet.
 - `execute_task(self, task, flow, flow_results, node_id)`: Fuehrt die Kernarbeit von `execute_task` aus.
+- `_extract_execution_telemetry(result)`: Funktion oder Definition `_extract_execution_telemetry` dieses Moduls.
 - `_publish_task_event(self, flow_id, event_type, snapshot)`: Funktion oder Definition `_publish_task_event` dieses Moduls.
 
 ### `FlowExecutor`
@@ -59,7 +60,7 @@ Methoden:
 - `from nova_synesis.memory.systems import MemoryManager`
 - `from nova_synesis.persistence.sqlite_repository import SQLiteRepository`
 - `from nova_synesis.resources.manager import ResourceManager`
-- `from nova_synesis.runtime.handlers import TaskHandlerRegistry`
+- `from nova_synesis.runtime.handlers import HumanInputRequiredError, TaskHandlerRegistry`
 
 ## Aenderungshinweise
 

@@ -5,11 +5,11 @@
 
 ## Aufgabe der Datei
 
-Gemeinsame TypeScript-Schemata fuer API, Snapshots und Editorgraph.
+Gemeinsame TypeScript-Schemata fuer API, Versions-Snapshots, HITL-Vertraege, Metriken und Editorgraph.
 
 ## Wann du diese Datei bearbeitest
 
-Wenn Backend-Vertraege oder UI-Datentypen erweitert werden.
+Wenn Backend-Vertraege, UI-Datentypen oder Laufzeitstatus erweitert werden.
 
 ## Exporte und oeffentliche Definitionen
 
@@ -34,6 +34,14 @@ Wenn Backend-Vertraege oder UI-Datentypen erweitert werden.
 - `FlowSnapshot`: TypeScript-Typ `FlowSnapshot` fuer einen Datenvertrag.
 - `FlowEventMessage`: TypeScript-Typ `FlowEventMessage` fuer einen Datenvertrag.
 - `EditorExport`: TypeScript-Typ `EditorExport` fuer einen Datenvertrag.
+- `FlowVersionSummary`: TypeScript-Typ `FlowVersionSummary` fuer einen Datenvertrag.
+- `FlowVersionCreateRequest`: TypeScript-Typ `FlowVersionCreateRequest` fuer einen Datenvertrag.
+- `HumanInputRequestPayload`: TypeScript-Typ `HumanInputRequestPayload` fuer einen Datenvertrag.
+- `HumanInputRequestEnvelope`: TypeScript-Typ `HumanInputRequestEnvelope` fuer einen Datenvertrag.
+- `HumanInputResumeRequest`: TypeScript-Typ `HumanInputResumeRequest` fuer einen Datenvertrag.
+- `HandlerMetricSummary`: TypeScript-Typ `HandlerMetricSummary` fuer einen Datenvertrag.
+- `FlowMetricSummary`: TypeScript-Typ `FlowMetricSummary` fuer einen Datenvertrag.
+- `MetricsSummary`: TypeScript-Typ `MetricsSummary` fuer einen Datenvertrag.
 - `PlannerStatus`: TypeScript-Typ `PlannerStatus` fuer einen Datenvertrag.
 - `PlannerGenerateRequest`: TypeScript-Typ `PlannerGenerateRequest` fuer einen Datenvertrag.
 - `PlannerGenerateResponse`: TypeScript-Typ `PlannerGenerateResponse` fuer einen Datenvertrag.

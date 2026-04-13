@@ -5,11 +5,11 @@
 
 ## Aufgabe der Datei
 
-Globale Aktionsleiste fuer Save, Run, Planner, Import und Export.
+Globale Aktionsleiste fuer Save, Run, Planner, Versionen, Analytics, Import und Export.
 
 ## Wann du diese Datei bearbeitest
 
-Wenn globale Bedienaktionen oder Statusanzeigen geaendert werden.
+Wenn globale Bedienaktionen, Versionsumschaltung oder Statusanzeigen geaendert werden.
 
 ## Exporte und oeffentliche Definitionen
 
@@ -23,7 +23,7 @@ Wenn globale Bedienaktionen oder Statusanzeigen geaendert werden.
 
 - `import { useRef } from "react";`
 - `import { StatusBadge } from "../common/StatusBadge";`
-- `import type { PlannerStatus } from "../../types/api";`
+- `import type { FlowVersionSummary, PlannerStatus } from "../../types/api";`
 
 ## Aenderungshinweise
 

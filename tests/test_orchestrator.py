@@ -62,6 +62,248 @@ def test_build_cli_settings_applies_lit_model_override(tmp_path: Path) -> None:
     assert Path(settings.lit_model_path).resolve() == model_path.resolve()
 
 
+def test_flow_versioning_and_activation_roundtrip(tmp_path: Path) -> None:
+    orchestrator = create_orchestrator(build_settings(tmp_path))
+    app = create_app(orchestrator=orchestrator)
+
+    with TestClient(app) as client:
+        created = client.post(
+            "/flows",
+            json={
+                "nodes": [
+                    {
+                        "node_id": "render",
+                        "handler_name": "template_render",
+                        "input": {"template": "Hello {name}", "values": {"name": "One"}},
+                    }
+                ]
+            },
+        )
+        assert created.status_code == 200
+        version_one = created.json()
+        flow_id = version_one["flow_id"]
+        assert version_one["version_number"] == 1
+
+        updated = client.post(
+            f"/flows/{flow_id}/versions",
+            json={
+                "nodes": [
+                    {
+                        "node_id": "render",
+                        "handler_name": "template_render",
+                        "input": {"template": "Hello {name}", "values": {"name": "Two"}},
+                    }
+                ],
+                "change_reason": "Switch payload",
+                "created_by": "qa",
+            },
+        )
+        assert updated.status_code == 200
+        version_two = updated.json()
+        assert version_two["version_number"] == 2
+        assert len(version_two["available_versions"]) == 2
+
+        listed = client.get(f"/flows/{flow_id}/versions")
+        assert listed.status_code == 200
+        assert [item["version_number"] for item in listed.json()] == [1, 2]
+
+        activated = client.post(
+            f"/flows/{flow_id}/versions/{version_one['version_id']}/activate"
+        )
+        assert activated.status_code == 200
+        current = client.get(f"/flows/{flow_id}")
+        assert current.status_code == 200
+        assert current.json()["active_version_id"] == version_one["version_id"]
+        assert current.json()["version_number"] == 1
+
+
+def test_human_input_node_waits_and_resumes(tmp_path: Path) -> None:
+    orchestrator = create_orchestrator(build_settings(tmp_path))
+    app = create_app(orchestrator=orchestrator)
+
+    with TestClient(app) as client:
+        created = client.post(
+            "/flows",
+            json={
+                "nodes": [
+                    {
+                        "node_id": "collect_input",
+                        "handler_name": "human_input_request",
+                        "input": {
+                            "title": "Review output",
+                            "description": "Provide the approved text.",
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "approved_text": {"type": "string"},
+                                },
+                            },
+                            "default_value": {"approved_text": "draft"},
+                        },
+                    },
+                    {
+                        "node_id": "render",
+                        "handler_name": "template_render",
+                        "input": {
+                            "template": "{text}",
+                            "values": {
+                                "text": "{{ results['collect_input']['value']['approved_text'] }}",
+                            },
+                        },
+                        "dependencies": ["collect_input"],
+                    },
+                ]
+            },
+        )
+        assert created.status_code == 200
+        flow_id = created.json()["flow_id"]
+
+        waiting = client.post(f"/flows/{flow_id}/run")
+        assert waiting.status_code == 200
+        assert waiting.json()["state"] == "WAITING_FOR_INPUT"
+
+        input_request = client.get(f"/flows/{flow_id}/nodes/collect_input/input-request")
+        assert input_request.status_code == 200
+        assert input_request.json()["request"]["title"] == "Review output"
+
+        resumed = client.post(
+            f"/flows/{flow_id}/nodes/collect_input/resume",
+            json={
+                "value": {"approved_text": "final"},
+                "submitted_by": "qa-reviewer",
+                "metadata": {"ticket": "SEC-1"},
+                "auto_run": True,
+            },
+        )
+        assert resumed.status_code == 200
+        body = resumed.json()
+        assert body["state"] == "COMPLETED"
+        assert body["results"]["render"]["rendered"] == "final"
+
+
+def test_metrics_summary_reports_handler_activity(tmp_path: Path) -> None:
+    orchestrator = create_orchestrator(build_settings(tmp_path))
+    app = create_app(orchestrator=orchestrator)
+
+    with TestClient(app) as client:
+        created = client.post(
+            "/flows",
+            json={
+                "nodes": [
+                    {
+                        "node_id": "render",
+                        "handler_name": "template_render",
+                        "input": {"template": "x={value}", "values": {"value": 7}},
+                    }
+                ]
+            },
+        )
+        assert created.status_code == 200
+        flow_id = created.json()["flow_id"]
+
+        ran = client.post(f"/flows/{flow_id}/run")
+        assert ran.status_code == 200
+
+        summary = client.get("/metrics/summary")
+        assert summary.status_code == 200
+        handlers = summary.json()["handlers"]
+        template_render = next(
+            item for item in handlers if item["handler_name"] == "template_render"
+        )
+        assert template_render["execution_count"] >= 1
+        assert template_render["failed_count"] == 0
+
+
+def test_manual_approval_role_enforced_when_identity_roles_present(tmp_path: Path) -> None:
+    orchestrator = create_orchestrator(build_settings(tmp_path))
+
+    async def reviewed_handler(_: dict) -> dict:
+        return {"ok": True}
+
+    orchestrator.register_handler("reviewed_handler", reviewed_handler)
+    orchestrator.issue_handler_certificate("reviewed_handler")
+    app = create_app(orchestrator=orchestrator)
+
+    with TestClient(app) as client:
+        created = client.post(
+            "/flows",
+            json={
+                "nodes": [
+                    {
+                        "node_id": "review",
+                        "handler_name": "reviewed_handler",
+                        "input": {},
+                        "requires_manual_approval": True,
+                        "metadata": {"approval_required_role": "sec_admin"},
+                    }
+                ]
+            },
+        )
+        assert created.status_code == 200
+        flow_id = created.json()["flow_id"]
+
+        forbidden = client.post(
+            f"/flows/{flow_id}/nodes/review/approval",
+            json={"approved_by": "viewer-user"},
+            headers={"X-NOVA-Roles": "viewer"},
+        )
+        assert forbidden.status_code == 403
+
+        allowed = client.post(
+            f"/flows/{flow_id}/nodes/review/approval",
+            json={"approved_by": "sec-user"},
+            headers={"X-NOVA-Roles": "viewer, sec_admin"},
+        )
+        assert allowed.status_code == 200
+        assert allowed.json()["nodes"]["review"]["manual_approval"]["approved"] is True
+
+
+def test_execute_subflow_handler_runs_pinned_child_version(tmp_path: Path) -> None:
+    orchestrator = create_orchestrator(build_settings(tmp_path))
+
+    async def run() -> None:
+        child_flow = orchestrator.create_flow(
+            nodes=[
+                {
+                    "node_id": "child_render",
+                    "handler_name": "template_render",
+                    "input": {"template": "child-{value}", "values": {"value": "ok"}},
+                }
+            ]
+        )
+
+        parent_flow = orchestrator.create_flow(
+            nodes=[
+                {
+                    "node_id": "call_child",
+                    "handler_name": "execute_subflow",
+                    "input": {
+                        "target_flow_id": int(child_flow["flow_id"]),
+                        "target_version_id": int(child_flow["version_id"]),
+                        "input_mapping": {},
+                    },
+                },
+                {
+                    "node_id": "render_parent",
+                    "handler_name": "template_render",
+                    "input": {
+                        "template": "{value}",
+                        "values": {
+                            "value": "{{ results['call_child']['results']['child_render']['rendered'] }}",
+                        },
+                    },
+                    "dependencies": ["call_child"],
+                },
+            ]
+        )
+
+        snapshot = await orchestrator.run_flow(int(parent_flow["flow_id"]))
+        assert snapshot["state"] == "COMPLETED"
+        assert snapshot["results"]["render_parent"]["rendered"] == "child-ok"
+
+    asyncio.run(run())
+
+
 def test_end_to_end_flow_with_vector_memory_and_message_queue(tmp_path: Path) -> None:
     async def run() -> None:
         orchestrator = create_orchestrator(build_settings(tmp_path))

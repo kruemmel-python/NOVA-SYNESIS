@@ -6,8 +6,14 @@ export type RollbackStrategy =
   | "COMPENSATE"
   | "FAIL_FAST"
   | "FALLBACK_RESOURCE";
-export type TaskStatus = "PENDING" | "RUNNING" | "SUCCESS" | "FAILED";
-export type FlowState = "CREATED" | "RUNNING" | "PAUSED" | "COMPLETED" | "FAILED";
+export type TaskStatus = "PENDING" | "RUNNING" | "WAITING_FOR_INPUT" | "SUCCESS" | "FAILED";
+export type FlowState =
+  | "CREATED"
+  | "RUNNING"
+  | "WAITING_FOR_INPUT"
+  | "PAUSED"
+  | "COMPLETED"
+  | "FAILED";
 
 export interface RetryPolicy {
   max_retries: number;
@@ -153,10 +159,16 @@ export interface FlowNodeSnapshot {
 
 export interface FlowSnapshot {
   flow_id: number;
+  version_id?: number | null;
+  version_number?: number | null;
   state: FlowState | string;
   metadata: Record<string, unknown>;
   nodes: Record<string, FlowNodeSnapshot>;
   edges: EdgeModel[];
+  available_versions?: FlowVersionSummary[];
+  active_version_id?: number | null;
+  version_count?: number;
+  created_at?: string;
   results?: Record<string, unknown>;
   completed_nodes?: string[];
   blocked_nodes?: string[];
@@ -174,8 +186,75 @@ export interface FlowEventMessage {
 export interface EditorExport {
   version: 1;
   flowId: number | null;
+  flowVersionId?: number | null;
   nodes: TaskFlowNode[];
   edges: TaskFlowEdge[];
+}
+
+export interface FlowVersionSummary {
+  version_id: number;
+  flow_id: number;
+  version_number: number;
+  created_at: string;
+  created_by: string | null;
+  change_reason: string | null;
+  parent_version_id: number | null;
+  planner_generated: boolean;
+  security_report: Record<string, unknown>;
+  version_hash: string | null;
+}
+
+export interface FlowVersionCreateRequest extends FlowRequest {
+  created_by?: string | null;
+  change_reason?: string | null;
+  planner_generated?: boolean;
+}
+
+export interface HumanInputRequestPayload {
+  title: string;
+  description: string | null;
+  schema: Record<string, unknown>;
+  default_value: unknown;
+  required_role: string | null;
+  timeout_s: number | null;
+  requested_by: string | null;
+  requested_at: string;
+}
+
+export interface HumanInputRequestEnvelope {
+  flow_id: number;
+  node_id: string;
+  request: HumanInputRequestPayload;
+}
+
+export interface HumanInputResumeRequest {
+  value: unknown;
+  submitted_by: string;
+  metadata: Record<string, unknown>;
+  auto_run: boolean;
+}
+
+export interface HandlerMetricSummary {
+  handler_name: string;
+  execution_count: number;
+  failed_count: number;
+  avg_latency_ms: number | null;
+  max_latency_ms: number | null;
+  prompt_tokens: number;
+  completion_tokens: number;
+}
+
+export interface FlowMetricSummary {
+  flow_id: number;
+  execution_count: number;
+  failed_count: number;
+  avg_latency_ms: number | null;
+  max_latency_ms: number | null;
+}
+
+export interface MetricsSummary {
+  handlers: HandlerMetricSummary[];
+  flows: FlowMetricSummary[];
 }
 
 export interface PlannerStatus {

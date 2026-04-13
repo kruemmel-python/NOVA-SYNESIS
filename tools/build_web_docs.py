@@ -28,13 +28,14 @@ REPO_ASSETS = WEB / "repo-assets"
 
 SKIP_DOC_FILES = {"docs.md"}
 WEB_GUIDE_ORDER = [
-    "README.md",
+    "getting-started.md",
     "system-overview.md",
     "backend-runtime.md",
     "frontend-editor.md",
     "planner-and-lit.md",
     "security-and-policy.md",
     "handler-trust-and-approval.md",
+    "failure-playbook.md",
     "real-world-scenarios.md",
 ]
 WEB_ALLOWED_GUIDES = {Path(name) for name in WEB_GUIDE_ORDER}
@@ -878,7 +879,7 @@ def build_site_home_markdown(page_map: dict[Path, Page]) -> str:
         "## Technische Bereiche",
         "",
     ]
-    for path_text in WEB_GUIDE_ORDER[1:]:
+    for path_text in WEB_GUIDE_ORDER:
         path = Path(path_text)
         page = page_map.get(path)
         if page is None:
